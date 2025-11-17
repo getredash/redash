@@ -41,6 +41,16 @@ function useDashboard(dashboardData) {
   const [refreshing, setRefreshing] = useState(false);
   const [gridDisabled, setGridDisabled] = useState(false);
   const globalParameters = useMemo(() => dashboard.getParametersDefs(), [dashboard]);
+  const collectCurrentParameterValues = useCallback(() => {
+    const values = {};
+    (globalParameters || []).forEach(param => {
+      if (!param) {
+        return;
+      }
+      values[param.name] = param.value === undefined ? null : param.value;
+    });
+    return values;
+  }, [globalParameters]);
   const canEditDashboard = !dashboard.is_archived && policy.canEdit(dashboard);
   const isDashboardOwnerOrAdmin = useMemo(
     () =>
@@ -127,7 +137,6 @@ function useDashboard(dashboardData) {
 
   const dashboardRef = useRef();
   dashboardRef.current = dashboard;
-  const pendingParameterValuesRef = useRef({});
   const editingLayoutRef = useRef(false);
 
   const loadDashboard = useCallback(
@@ -179,21 +188,6 @@ function useDashboard(dashboardData) {
     updatedParameters => {
       if (refreshing) {
         return;
-      }
-
-      if (editingLayoutRef.current && !isEmpty(updatedParameters)) {
-        const queuedValues = {};
-        updatedParameters.forEach(param => {
-          if (!param) {
-            return;
-          }
-
-          queuedValues[param.name] = param.value === undefined ? null : param.value;
-        });
-
-        if (!isEmpty(queuedValues)) {
-          pendingParameterValuesRef.current = extend({}, pendingParameterValuesRef.current, queuedValues);
-        }
       }
 
       setRefreshing(true);
@@ -256,25 +250,16 @@ function useDashboard(dashboardData) {
     const wasEditing = editingLayoutRef.current;
     const isEditing = editModeHandler.editingLayout;
 
-    if (!wasEditing && isEditing) {
-      pendingParameterValuesRef.current = {};
-    }
-
     if (wasEditing && !isEditing) {
-      const pendingValues = pendingParameterValuesRef.current;
-      pendingParameterValuesRef.current = {};
-
-      if (!isEmpty(pendingValues)) {
-        Promise.resolve(persistParameterValues(pendingValues)).catch(error => {
-          console.error("Failed to persist parameter values:", error);
-          notification.error("Parameter values could not be saved. Your changes may not be persisted.");
-          pendingParameterValuesRef.current = pendingValues;
-        });
-      }
+      const latestValues = collectCurrentParameterValues();
+      Promise.resolve(persistParameterValues(latestValues)).catch(error => {
+        console.error("Failed to persist parameter values:", error);
+        notification.error("Parameter values could not be saved. Your changes may not be persisted.");
+      });
     }
 
     editingLayoutRef.current = isEditing;
-  }, [editModeHandler.editingLayout, persistParameterValues]);
+  }, [collectCurrentParameterValues, editModeHandler.editingLayout, persistParameterValues]);
 
   useEffect(() => {
     setDashboard(dashboardData);
