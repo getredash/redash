@@ -137,7 +137,6 @@ function useDashboard(dashboardData) {
 
   const dashboardRef = useRef();
   dashboardRef.current = dashboard;
-  const editingLayoutRef = useRef(false);
 
   const loadDashboard = useCallback(
     (forceRefresh = false, updatedParameters = []) => {
@@ -196,6 +195,19 @@ function useDashboard(dashboardData) {
     [refreshing, loadDashboard]
   );
 
+  const saveDashboardParameters = useCallback(() => {
+    const latestValues = collectCurrentParameterValues();
+    if (isEmpty(latestValues)) {
+      return Promise.resolve();
+    }
+
+    return persistParameterValues(latestValues).catch(error => {
+      console.error("Failed to persist parameter values:", error);
+      notification.error("Parameter values could not be saved. Your changes may not be persisted.");
+      throw error;
+    });
+  }, [collectCurrentParameterValues, persistParameterValues]);
+
   const archiveDashboard = useCallback(() => {
     recordEvent("archive", "dashboard", dashboard.id);
     Dashboard.delete(dashboard).then(updatedDashboard =>
@@ -247,21 +259,6 @@ function useDashboard(dashboardData) {
   const editModeHandler = useEditModeHandler(!gridDisabled && canEditDashboard, dashboard.widgets);
 
   useEffect(() => {
-    const wasEditing = editingLayoutRef.current;
-    const isEditing = editModeHandler.editingLayout;
-
-    if (wasEditing && !isEditing) {
-      const latestValues = collectCurrentParameterValues();
-      Promise.resolve(persistParameterValues(latestValues)).catch(error => {
-        console.error("Failed to persist parameter values:", error);
-        notification.error("Parameter values could not be saved. Your changes may not be persisted.");
-      });
-    }
-
-    editingLayoutRef.current = isEditing;
-  }, [collectCurrentParameterValues, editModeHandler.editingLayout, persistParameterValues]);
-
-  useEffect(() => {
     setDashboard(dashboardData);
     loadDashboard();
   }, [dashboardData]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -295,6 +292,7 @@ function useDashboard(dashboardData) {
     setRefreshRate,
     disableRefreshRate,
     ...editModeHandler,
+    saveDashboardParameters,
     gridDisabled,
     setGridDisabled,
     fullscreen,

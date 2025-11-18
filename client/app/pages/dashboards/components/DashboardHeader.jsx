@@ -252,7 +252,13 @@ function DashboardEditControl({ dashboardConfiguration, headerExtra }) {
     doneBtnClickedWhileSaving,
     dashboardStatus,
     retrySaveDashboardLayout,
+    saveDashboardParameters = () => Promise.resolve(),
   } = dashboardConfiguration;
+  const handleDoneEditing = () => {
+    Promise.resolve(saveDashboardParameters())
+      .catch(() => {})
+      .finally(() => setEditingLayout(false));
+  };
   let status;
   if (dashboardStatus === DashboardStatusEnum.SAVED) {
     status = <span className="save-status">Saved</span>;
@@ -277,7 +283,7 @@ function DashboardEditControl({ dashboardConfiguration, headerExtra }) {
           Retry
         </Button>
       ) : (
-        <Button loading={doneBtnClickedWhileSaving} type="primary" onClick={() => setEditingLayout(false)}>
+        <Button loading={doneBtnClickedWhileSaving} type="primary" onClick={handleDoneEditing}>
           {!doneBtnClickedWhileSaving && <i className="fa fa-check m-r-5" aria-hidden="true" />} Done Editing
         </Button>
       )}
