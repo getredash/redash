@@ -210,14 +210,15 @@ Dashboard.prototype.getParametersDefs = function getParametersDefs() {
         });
     }
   });
-  const savedParameterValues = _.get(this, "options.parameterValues", {});
+  const mergedValues = {
+    ..._.mapValues(globalParams, p => p.value),
+    ..._.get(this, "options.parameterValues", {}),
+    ...queryParams,
+  };
   const resultingGlobalParams = _.values(
     _.each(globalParams, param => {
-      const valueToApply = _.has(savedParameterValues, param.name)
-        ? savedParameterValues[param.name]
-        : param.value;
-      param.setValue(valueToApply); // apply global param value (saved or default) to all locals
-      param.fromUrlParams(queryParams); // try to initialize from url (may do nothing)
+      param.setValue(mergedValues[param.name]); // apply merged value
+      param.fromUrlParams(queryParams); // allow param-specific parsing logic
     })
   );
 

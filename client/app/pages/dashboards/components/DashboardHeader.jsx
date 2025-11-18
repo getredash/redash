@@ -255,9 +255,7 @@ function DashboardEditControl({ dashboardConfiguration, headerExtra }) {
     saveDashboardParameters = () => Promise.resolve(),
   } = dashboardConfiguration;
   const handleDoneEditing = () => {
-    Promise.resolve(saveDashboardParameters())
-      .catch(() => {})
-      .finally(() => setEditingLayout(false));
+    saveDashboardParameters().then(() => setEditingLayout(false));
   };
   let status;
   if (dashboardStatus === DashboardStatusEnum.SAVED) {

@@ -41,16 +41,6 @@ function useDashboard(dashboardData) {
   const [refreshing, setRefreshing] = useState(false);
   const [gridDisabled, setGridDisabled] = useState(false);
   const globalParameters = useMemo(() => dashboard.getParametersDefs(), [dashboard]);
-  const collectCurrentParameterValues = useCallback(() => {
-    const values = {};
-    (globalParameters || []).forEach(param => {
-      if (!param) {
-        return;
-      }
-      values[param.name] = param.value === undefined ? null : param.value;
-    });
-    return values;
-  }, [globalParameters]);
   const canEditDashboard = !dashboard.is_archived && policy.canEdit(dashboard);
   const isDashboardOwnerOrAdmin = useMemo(
     () =>
@@ -196,17 +186,19 @@ function useDashboard(dashboardData) {
   );
 
   const saveDashboardParameters = useCallback(() => {
-    const latestValues = collectCurrentParameterValues();
-    if (isEmpty(latestValues)) {
-      return Promise.resolve();
-    }
+    const latestValues = (globalParameters || []).reduce((acc, param) => {
+      if (!param) return acc;
+      acc[param.name] = param.value === undefined ? null : param.value;
+      return acc;
+    }, {});
+    if (isEmpty(latestValues)) return Promise.resolve();
 
     return persistParameterValues(latestValues).catch(error => {
       console.error("Failed to persist parameter values:", error);
       notification.error("Parameter values could not be saved. Your changes may not be persisted.");
       throw error;
     });
-  }, [collectCurrentParameterValues, persistParameterValues]);
+  }, [globalParameters, persistParameterValues]);
 
   const archiveDashboard = useCallback(() => {
     recordEvent("archive", "dashboard", dashboard.id);
