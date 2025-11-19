@@ -92,7 +92,7 @@ function DashboardComponent(props) {
   const [bottomPanelStyles, setBottomPanelStyles] = useState({});
   const onParametersEdit = parameters => {
     const paramOrder = map(parameters, "name");
-    updateDashboard({ options: { ...(dashboard.options || {}), globalParamOrder: paramOrder } });
+    updateDashboard({ options: { ...dashboard.options, globalParamOrder: paramOrder } });
   };
 
   useEffect(() => {

@@ -151,15 +151,17 @@ function useDashboard(dashboardData) {
       }
 
       const currentDashboard = dashboardRef.current;
-      const currentValues = get(currentDashboard, "options.parameterValues", {});
-      const nextValues = extend({}, currentValues);
+      const resultValues = currentDashboard.options.parameterValues || {};
 
       Object.entries(parameterValues).forEach(([name, value]) => {
-        nextValues[name] = value;
+        resultValues[name] = value;
       });
 
       return updateDashboard({
-        options: extend({}, get(currentDashboard, "options", {}), { parameterValues: nextValues }),
+        options: {
+          ...currentDashboard.options,
+          parameterValues: resultValues,
+        },
       });
     },
     [canEditDashboard, updateDashboard]
@@ -167,19 +169,16 @@ function useDashboard(dashboardData) {
 
   const refreshDashboard = useCallback(
     updatedParameters => {
-      if (refreshing) {
-        return;
+      if (!refreshing) {
+        setRefreshing(true);
+        loadDashboard(true, updatedParameters).finally(() => setRefreshing(false));
       }
-
-      setRefreshing(true);
-      loadDashboard(true, updatedParameters).finally(() => setRefreshing(false));
     },
     [refreshing, loadDashboard]
   );
 
   const saveDashboardParameters = useCallback(() => {
     const latestValues = (globalParameters || []).reduce((acc, param) => {
-      if (!param) return acc;
       acc[param.name] = param.value;
       return acc;
     }, {});
