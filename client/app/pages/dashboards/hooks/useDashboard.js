@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
-import { isEmpty, includes, compact, map, has, pick, keys, extend, every, get, isEqual } from "lodash";
+import { isEmpty, includes, compact, map, has, pick, keys, extend, every, get } from "lodash";
 import notification from "@/services/notification";
 import location from "@/services/location";
 import url from "@/services/url";
@@ -153,18 +153,10 @@ function useDashboard(dashboardData) {
       const currentDashboard = dashboardRef.current;
       const currentValues = get(currentDashboard, "options.parameterValues", {});
       const nextValues = extend({}, currentValues);
-      let hasChanges = false;
 
       Object.entries(parameterValues).forEach(([name, value]) => {
-        if (!isEqual(nextValues[name], value)) {
-          nextValues[name] = value;
-          hasChanges = true;
-        }
+        nextValues[name] = value;
       });
-
-      if (!hasChanges) {
-        return Promise.resolve();
-      }
 
       return updateDashboard({
         options: extend({}, get(currentDashboard, "options", {}), { parameterValues: nextValues }),
@@ -188,7 +180,7 @@ function useDashboard(dashboardData) {
   const saveDashboardParameters = useCallback(() => {
     const latestValues = (globalParameters || []).reduce((acc, param) => {
       if (!param) return acc;
-      acc[param.name] = param.value === undefined ? null : param.value;
+      acc[param.name] = param.value;
       return acc;
     }, {});
     if (isEmpty(latestValues)) return Promise.resolve();
