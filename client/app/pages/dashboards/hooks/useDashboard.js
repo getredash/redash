@@ -144,29 +144,6 @@ function useDashboard(dashboardData) {
     [loadWidget]
   );
 
-  const persistParameterValues = useCallback(
-    parameterValues => {
-      if (!canEditDashboard || !parameterValues || isEmpty(parameterValues)) {
-        return Promise.resolve();
-      }
-
-      const currentDashboard = dashboardRef.current;
-      const resultValues = currentDashboard.options.parameterValues || {};
-
-      Object.entries(parameterValues).forEach(([name, value]) => {
-        resultValues[name] = value;
-      });
-
-      return updateDashboard({
-        options: {
-          ...currentDashboard.options,
-          parameterValues: resultValues,
-        },
-      });
-    },
-    [canEditDashboard, updateDashboard]
-  );
-
   const refreshDashboard = useCallback(
     updatedParameters => {
       if (!refreshing) {
@@ -184,12 +161,24 @@ function useDashboard(dashboardData) {
     }, {});
     if (isEmpty(latestValues)) return Promise.resolve();
 
-    return persistParameterValues(latestValues).catch(error => {
+    const currentDashboard = dashboardRef.current;
+    const resultValues = currentDashboard.options.parameterValues || {};
+
+    Object.entries(latestValues).forEach(([name, value]) => {
+      resultValues[name] = value;
+    });
+
+    return updateDashboard({
+      options: {
+        ...currentDashboard.options,
+        parameterValues: resultValues,
+      },
+    }).catch(error => {
       console.error("Failed to persist parameter values:", error);
       notification.error("Parameter values could not be saved. Your changes may not be persisted.");
       throw error;
     });
-  }, [globalParameters, persistParameterValues]);
+  }, [globalParameters, updateDashboard]);
 
   const archiveDashboard = useCallback(() => {
     recordEvent("archive", "dashboard", dashboard.id);
