@@ -252,7 +252,7 @@ function DashboardEditControl({ dashboardConfiguration, headerExtra }) {
     doneBtnClickedWhileSaving,
     dashboardStatus,
     retrySaveDashboardLayout,
-    saveDashboardParameters = () => Promise.resolve(),
+    saveDashboardParameters,
   } = dashboardConfiguration;
   const handleDoneEditing = () => {
     saveDashboardParameters().then(() => setEditingLayout(false));
