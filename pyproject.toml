@@ -11,7 +11,7 @@ maintainers = [
     { name = "Redash maintainers and contributors", email = "<maintainers@redash.io>" }
 ]
 readme = "README.md"
-dependencies = []
+dependencies = ["ibm-db (>=3.2.7,<4.0.0)"]
 
 [tool.black]
 target-version = ['py38']
