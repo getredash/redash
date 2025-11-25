@@ -155,23 +155,17 @@ function useDashboard(dashboardData) {
   );
 
   const saveDashboardParameters = useCallback(() => {
-    const latestValues = (globalParameters || []).reduce((acc, param) => {
-      acc[param.name] = param.value;
-      return acc;
-    }, {});
-    if (isEmpty(latestValues)) return Promise.resolve();
+    const parameterValues = {};
+    globalParameters.forEach(param => {
+      parameterValues[param.name] = param.value;
+    });
 
     const currentDashboard = dashboardRef.current;
-    const resultValues = currentDashboard.options.parameterValues || {};
-
-    Object.entries(latestValues).forEach(([name, value]) => {
-      resultValues[name] = value;
-    });
 
     return updateDashboard({
       options: {
         ...currentDashboard.options,
-        parameterValues: resultValues,
+        parameterValues: parameterValues,
       },
     }).catch(error => {
       console.error("Failed to persist parameter values:", error);
