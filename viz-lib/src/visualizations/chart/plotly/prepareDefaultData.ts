@@ -39,11 +39,17 @@ function prepareBarSeries(series: any, options: any, additionalOptions: any) {
 
 function prepareLineSeries(series: any, options: any) {
   series.mode = "lines" + (options.showDataLabels ? "+text" : "");
+  series.line = {
+    shape: options.lineShape,
+  }
   return series;
 }
 
 function prepareAreaSeries(series: any, options: any) {
   series.mode = "lines" + (options.showDataLabels ? "+text" : "");
+  series.line = {
+    shape: options.lineShape,
+  }
   series.fill = options.series.stacking ? "tonexty" : "tozeroy";
   return series;
 }
