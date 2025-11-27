@@ -17,7 +17,9 @@ const DYNAMIC_PREFIX = "d_";
  * @param now {function(): moment.Moment=} moment - defaults to now
  * @returns {function(withNow: boolean): [moment.Moment, moment.Moment|undefined]}
  */
-const untilNow = (from, now = () => moment()) => (withNow = true) => [from(), withNow ? now() : undefined];
+const untilNow =
+  (from, now = () => moment()) =>
+  (withNow = true) => [from(), withNow ? now() : undefined];
 
 const DYNAMIC_DATE_RANGES = {
   today: {
@@ -26,14 +28,7 @@ const DYNAMIC_DATE_RANGES = {
   },
   yesterday: {
     name: "Yesterday",
-    value: () => [
-      moment()
-        .subtract(1, "day")
-        .startOf("day"),
-      moment()
-        .subtract(1, "day")
-        .endOf("day"),
-    ],
+    value: () => [moment().subtract(1, "day").startOf("day"), moment().subtract(1, "day").endOf("day")],
   },
   this_week: {
     name: "This week",
@@ -49,36 +44,15 @@ const DYNAMIC_DATE_RANGES = {
   },
   last_week: {
     name: "Last week",
-    value: () => [
-      moment()
-        .subtract(1, "week")
-        .startOf("week"),
-      moment()
-        .subtract(1, "week")
-        .endOf("week"),
-    ],
+    value: () => [moment().subtract(1, "week").startOf("week"), moment().subtract(1, "week").endOf("week")],
   },
   last_month: {
     name: "Last month",
-    value: () => [
-      moment()
-        .subtract(1, "month")
-        .startOf("month"),
-      moment()
-        .subtract(1, "month")
-        .endOf("month"),
-    ],
+    value: () => [moment().subtract(1, "month").startOf("month"), moment().subtract(1, "month").endOf("month")],
   },
   last_year: {
     name: "Last year",
-    value: () => [
-      moment()
-        .subtract(1, "year")
-        .startOf("year"),
-      moment()
-        .subtract(1, "year")
-        .endOf("year"),
-    ],
+    value: () => [moment().subtract(1, "year").startOf("year"), moment().subtract(1, "year").endOf("year")],
   },
   last_hour: {
     name: "Last hour",
@@ -94,63 +68,31 @@ const DYNAMIC_DATE_RANGES = {
   },
   last_7_days: {
     name: "Last 7 days",
-    value: untilNow(
-      () =>
-        moment()
-          .subtract(7, "days")
-          .startOf("day"),
-      () => moment().endOf("day")
-    ),
+    value: untilNow(() => moment().subtract(7, "days").startOf("day")),
   },
   last_14_days: {
     name: "Last 14 days",
-    value: untilNow(
-      () =>
-        moment()
-          .subtract(14, "days")
-          .startOf("day"),
-      () => moment().endOf("day")
-    ),
+    value: untilNow(() => moment().subtract(14, "days").startOf("day")),
   },
   last_30_days: {
     name: "Last 30 days",
-    value: untilNow(
-      () =>
-        moment()
-          .subtract(30, "days")
-          .startOf("day"),
-      () => moment().endOf("day")
-    ),
+    value: untilNow(() => moment().subtract(30, "days").startOf("day")),
   },
   last_60_days: {
     name: "Last 60 days",
-    value: untilNow(
-      () =>
-        moment()
-          .subtract(60, "days")
-          .startOf("day"),
-      () => moment().endOf("day")
-    ),
+    value: untilNow(() => moment().subtract(60, "days").startOf("day")),
   },
   last_90_days: {
     name: "Last 90 days",
-    value: untilNow(
-      () =>
-        moment()
-          .subtract(90, "days")
-          .startOf("day"),
-      () => moment().endOf("day")
-    ),
+    value: untilNow(() => moment().subtract(90, "days").startOf("day")),
   },
   last_12_months: {
     name: "Last 12 months",
-    value: untilNow(
-      () =>
-        moment()
-          .subtract(12, "months")
-          .startOf("day"),
-      () => moment().endOf("day")
-    ),
+    value: untilNow(() => moment().subtract(12, "months").startOf("day")),
+  },
+  last_10_years: {
+    name: "Last 10 years",
+    value: untilNow(() => moment().subtract(10, "years").startOf("day")),
   },
 };
 
@@ -164,7 +106,7 @@ export function isDynamicDateRangeString(value) {
 }
 
 export function getDynamicDateRangeStringFromName(dynamicRangeName) {
-  const key = findKey(DYNAMIC_DATE_RANGES, range => range.name === dynamicRangeName);
+  const key = findKey(DYNAMIC_DATE_RANGES, (range) => range.name === dynamicRangeName);
   return key ? DYNAMIC_PREFIX + key : undefined;
 }
 
@@ -233,7 +175,7 @@ class DateRangeParameter extends Parameter {
 
   getExecutionValue() {
     if (this.hasDynamicValue) {
-      const format = date => date.format(DATETIME_FORMATS[this.type]);
+      const format = (date) => date.format(DATETIME_FORMATS[this.type]);
       const [start, end] = this.normalizedValue.value().map(format);
       return { start, end };
     }

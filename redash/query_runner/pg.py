@@ -138,6 +138,15 @@ def _get_ssl_config(configuration):
     return ssl_config
 
 
+def _parse_dsn(configuration):
+    standard_params = {"user", "password", "host", "port", "dbname"}
+    params = psycopg2.extensions.parse_dsn(configuration.get("dsn", ""))
+    overlap = standard_params.intersection(params.keys())
+    if overlap:
+        raise ValueError("Extra parameters may not contain {}".format(overlap))
+    return params
+
+
 class PostgreSQL(BaseSQLQueryRunner):
     noop_query = "SELECT 1"
 
@@ -151,6 +160,7 @@ class PostgreSQL(BaseSQLQueryRunner):
                 "host": {"type": "string", "default": "127.0.0.1"},
                 "port": {"type": "number", "default": 5432},
                 "dbname": {"type": "string", "title": "Database Name"},
+                "dsn": {"type": "string", "default": "application_name=redash", "title": "Parameters"},
                 "sslmode": {
                     "type": "string",
                     "title": "SSL Mode",
@@ -223,7 +233,7 @@ class PostgreSQL(BaseSQLQueryRunner):
         AND a.attnum > 0
         AND NOT a.attisdropped
         WHERE c.relkind = 'm'
-        AND has_table_privilege(s.nspname || '.' || c.relname, 'select')
+        AND has_table_privilege(quote_ident(s.nspname) || '.' || quote_ident(c.relname), 'select')
         AND has_schema_privilege(s.nspname, 'usage')
 
         UNION
@@ -234,7 +244,7 @@ class PostgreSQL(BaseSQLQueryRunner):
                data_type
         FROM information_schema.columns
         WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
-        AND has_table_privilege(table_schema || '.' || table_name, 'select')
+        AND has_table_privilege(quote_ident(table_schema) || '.' || quote_ident(table_name), 'select')
         AND has_schema_privilege(table_schema, 'usage')
         """
 
@@ -244,6 +254,7 @@ class PostgreSQL(BaseSQLQueryRunner):
 
     def _get_connection(self):
         self.ssl_config = _get_ssl_config(self.configuration)
+        self.dsn = _parse_dsn(self.configuration)
         connection = psycopg2.connect(
             user=self.configuration.get("user"),
             password=self.configuration.get("password"),
@@ -252,6 +263,7 @@ class PostgreSQL(BaseSQLQueryRunner):
             dbname=self.configuration.get("dbname"),
             async_=True,
             **self.ssl_config,
+            **self.dsn,
         )
 
         return connection
