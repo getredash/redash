@@ -2085,6 +2085,7 @@ description = "Python DBI driver for DB2 (LUW, zOS, i5)"
 optional = false
 python-versions = "*"
 groups = ["main"]
+markers = "platform_machine == \"x86_64\" or platform_machine == \"AMD64\""
 files = [
     {file = "ibm_db-3.2.7-cp310-cp310-macosx_10_15_x86_64.whl", hash = "sha256:7c2b451ffe67be602e93d94b2d2042dd051ec0757cfd6e4d7344cb594f2d3508"},
     {file = "ibm_db-3.2.7-cp310-cp310-macosx_14_0_arm64.whl", hash = "sha256:9a1b139a9c21ff7216aac83ba29dceb6c8a9df3d6aee44ff1fe845cb60d3caed"},
@@ -6063,4 +6064,4 @@ testing = ["coverage[toml]", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.8,<3.11"
-content-hash = "c2f7ba9d0cf6c808df4b409d39cbe34f448530801c967166399527ba6d7e1617"
+content-hash = "84271dccdac5067fb1940204ec74f10c4063119efd16107327090dcbb5b1b8c5"
