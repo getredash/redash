@@ -212,7 +212,7 @@ Dashboard.prototype.getParametersDefs = function getParametersDefs() {
   });
   const mergedValues = {
     ..._.mapValues(globalParams, p => p.value),
-    ...(this.options.parameterValues || {}),
+    ...Object.fromEntries((this.options.parameters || []).map(param => [param.name, param.value])),
   };
   const resultingGlobalParams = _.values(
     _.each(globalParams, param => {
