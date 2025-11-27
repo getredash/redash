@@ -210,10 +210,14 @@ Dashboard.prototype.getParametersDefs = function getParametersDefs() {
         });
     }
   });
+  const mergedValues = {
+    ..._.mapValues(globalParams, p => p.value),
+    ...Object.fromEntries((this.options.parameters || []).map(param => [param.name, param.value])),
+  };
   const resultingGlobalParams = _.values(
     _.each(globalParams, param => {
-      param.setValue(param.value); // apply global param value to all locals
-      param.fromUrlParams(queryParams); // try to initialize from url (may do nothing)
+      param.setValue(mergedValues[param.name]); // apply merged value
+      param.fromUrlParams(queryParams); // allow param-specific parsing logic
     })
   );
 
