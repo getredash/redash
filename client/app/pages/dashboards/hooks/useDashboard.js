@@ -154,6 +154,21 @@ function useDashboard(dashboardData) {
     [refreshing, loadDashboard]
   );
 
+  const saveDashboardParameters = useCallback(() => {
+    const currentDashboard = dashboardRef.current;
+
+    return updateDashboard({
+      options: {
+        ...currentDashboard.options,
+        parameters: map(globalParameters, p => p.toSaveableObject()),
+      },
+    }).catch(error => {
+      console.error("Failed to persist parameter values:", error);
+      notification.error("Parameter values could not be saved. Your changes may not be persisted.");
+      throw error;
+    });
+  }, [globalParameters, updateDashboard]);
+
   const archiveDashboard = useCallback(() => {
     recordEvent("archive", "dashboard", dashboard.id);
     Dashboard.delete(dashboard).then(updatedDashboard =>
@@ -238,6 +253,7 @@ function useDashboard(dashboardData) {
     setRefreshRate,
     disableRefreshRate,
     ...editModeHandler,
+    saveDashboardParameters,
     gridDisabled,
     setGridDisabled,
     fullscreen,
