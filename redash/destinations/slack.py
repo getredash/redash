@@ -23,31 +23,35 @@ class Slack(BaseDestination):
 
     def notify(self, alert, query, user, new_state, app, host, metadata, options):
         # Documentation: https://api.slack.com/docs/attachments
-        fields = [
-            {
-                "title": "Query",
-                "type": "mrkdwn",
-                "value": "{host}/queries/{query_id}".format(host=host, query_id=query.id),
-            },
-            {
-                "title": "Alert",
-                "type": "mrkdwn",
-                "value": "{host}/alerts/{alert_id}".format(host=host, alert_id=alert.id),
-            },
-        ]
-        if alert.custom_body:
-            fields.append({"title": "Description", "value": alert.custom_body})
         if new_state == "triggered":
+            color = "#c0392b"
+        else:
+            color = "#27ae60"
+
+        if alert.custom_body:
             if alert.custom_subject:
                 text = alert.custom_subject
             else:
-                text = alert.name + " just triggered"
-            color = "#c0392b"
+                text = alert.name + (" just triggered" if new_state == "triggered" else " went back to normal")
+            payload = {"attachments": [{"text": text, "color": color, "mrkdwn_in": ["text"], "fields": [{"value": alert.custom_body}]}]}
         else:
-            text = alert.name + " went back to normal"
-            color = "#27ae60"
-
-        payload = {"attachments": [{"text": text, "color": color, "fields": fields}]}
+            fields = [
+                {
+                    "title": "Query",
+                    "type": "mrkdwn",
+                    "value": "{host}/queries/{query_id}".format(host=host, query_id=query.id),
+                },
+                {
+                    "title": "Alert",
+                    "type": "mrkdwn",
+                    "value": "{host}/alerts/{alert_id}".format(host=host, alert_id=alert.id),
+                },
+            ]
+            if new_state == "triggered":
+                text = alert.name + " just triggered"
+            else:
+                text = alert.name + " went back to normal"
+            payload = {"attachments": [{"text": text, "color": color, "fields": fields}]}
 
         try:
             resp = requests.post(options.get("url"), data=json_dumps(payload).encode("utf-8"), timeout=5.0)
