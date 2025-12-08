@@ -42,7 +42,7 @@ const KeyboardShortcuts = {
         .map(trim);
       // Translate platform‑specific modifiers and dedupe.
       const transformed = rawKeys.map(k =>
-        k.replace(/mod/g, modKey.toLowerCase()).replace(/alt/g, altKey.toLowerCase())
+        k.replace(/mod/g, modKey.toLowerCase())
       );
       const uniqueKeys = [...new Set(transformed)];
       each(uniqueKeys, k => {
