@@ -117,7 +117,7 @@ class Parameter {
 
   /** Get a saveable version of the Parameter by omitting unnecessary props */
   toSaveableObject() {
-    return omit(this, ["$$value", "urlPrefix", "pendingValue", "parentQueryId"]);
+    return omit(this, ["$$value", "urlPrefix", "pendingValue", "parentQueryId", "locals"]);
   }
 }
 
