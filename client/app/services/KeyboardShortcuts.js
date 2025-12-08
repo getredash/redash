@@ -35,11 +35,17 @@ const KeyboardShortcuts = {
 
   bind: keymap => {
     each(keymap, (fn, key) => {
-      const keys = key
+      // Resolve platform‑specific modifiers and remove duplicates.
+      const rawKeys = key
         .toLowerCase()
         .split(",")
         .map(trim);
-      each(keys, k => {
+      // Translate platform‑specific modifiers and dedupe.
+      const transformed = rawKeys.map(k =>
+        k.replace(/mod/g, modKey.toLowerCase()).replace(/alt/g, altKey.toLowerCase())
+      );
+      const uniqueKeys = [...new Set(transformed)];
+      each(uniqueKeys, k => {
         handlers[k] = [...without(handlers[k], fn), fn];
         Mousetrap.bindGlobal(k, onShortcut);
       });
