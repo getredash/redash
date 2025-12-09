@@ -2,7 +2,7 @@ import { each, filter, map, toLower, toString, trim, upperFirst, without } from 
 import Mousetrap from "mousetrap";
 import "mousetrap/plugins/global-bind/mousetrap-global-bind";
 
-const modKey = /Mac|iPod|iPhone|iPad/.test(navigator.platform) ? "Cmd" : "Ctrl";
+const modKey = /Mac|iPod|iPhone|iPad/.test(navigator.platform) ? "Command" : "Ctrl";
 const altKey = /Mac|iPod|iPhone|iPad/.test(navigator.platform) ? "Option" : "Alt";
 
 export function humanReadableShortcut(shortcut, limit = Infinity) {
