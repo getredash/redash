@@ -35,12 +35,12 @@ const KeyboardShortcuts = {
 
   bind: keymap => {
     each(keymap, (fn, key) => {
-      // Resolve platform‑specific modifiers and remove duplicates.
+      // Resolve platform-specific modifiers and remove duplicates.
       const rawKeys = key
         .toLowerCase()
         .split(",")
         .map(trim);
-      // Translate platform‑specific modifiers and dedupe.
+      // Translate platform-specific modifiers and dedupe.
       const transformed = rawKeys.map(k =>
         k.replace(/mod/g, modKey.toLowerCase())
       );
@@ -54,13 +54,18 @@ const KeyboardShortcuts = {
 
   unbind: keymap => {
     each(keymap, (fn, key) => {
-      const keys = key
+      const rawKeys = key
         .toLowerCase()
         .split(",")
         .map(trim);
-      each(keys, k => {
+      // Apply the same transformation as in bind
+      const transformed = rawKeys.map(k =>
+        k.replace(/mod/g, modKey.toLowerCase())
+      );
+      const uniqueKeys = [...new Set(transformed)];
+      each(uniqueKeys, k => {
         handlers[k] = without(handlers[k], fn);
-        if (handlers[k].length === 0) {
+        if (!handlers[k] || handlers[k].length === 0) {
           handlers[k] = undefined;
           Mousetrap.unbind(k);
         }
