@@ -20,7 +20,8 @@
         "x": "x",
         "y1": "y"
       },
-      "missingValuesAsZero": true
+      "missingValuesAsZero": true,
+      "lineShape": "linear"
     },
     "data": [
       {
@@ -46,6 +47,7 @@
         "hoverinfo": "text+x+name",
         "hover": [],
         "text": ["10 ± 0", "20 ± 0", "30 ± 0", "40 ± 0"],
+        "line": { "shape": "linear" },
         "marker": { "color": "red" },
         "insidetextfont": { "color": "#ffffff" },
         "yaxis": "y"
