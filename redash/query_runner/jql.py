@@ -34,9 +34,13 @@ class ResultSet:
 
 def parse_issue(issue, field_mapping):  # noqa: C901
     result = OrderedDict()
-    result["key"] = issue["key"]
 
-    for k, v in issue["fields"].items():  #
+    # Handle API v3 response format: key field may be missing, use id as fallback
+    result["key"] = issue.get("key", issue.get("id", "unknown"))
+
+    # Handle API v3 response format: fields may be missing
+    fields = issue.get("fields", {})
+    for k, v in fields.items():  #
         output_name = field_mapping.get_output_field_name(k)
         member_names = field_mapping.get_dict_members(k)
 
@@ -98,7 +102,9 @@ def parse_issues(data, field_mapping):
 
 def parse_count(data):
     results = ResultSet()
-    results.add_row({"count": data["total"]})
+    # API v3 may not return 'total' field, fallback to counting issues
+    count = data.get("total", len(data.get("issues", [])))
+    results.add_row({"count": count})
     return results
 
 
@@ -160,17 +166,25 @@ class JiraJQL(BaseHTTPQueryRunner):
         self.syntax = "json"
 
     def run_query(self, query, user):
-        jql_url = "{}/rest/api/2/search".format(self.configuration["url"])
+        # Updated to API v3 endpoint, fix double slash issue
+        jql_url = "{}/rest/api/3/search/jql".format(self.configuration["url"].rstrip("/"))
 
         query = json_loads(query)
         query_type = query.pop("queryType", "select")
         field_mapping = FieldMapping(query.pop("fieldMapping", {}))
+
+        # API v3 requires mandatory jql parameter with restrictions
+        if "jql" not in query or not query["jql"]:
+            query["jql"] = "created >= -30d order by created DESC"
 
         if query_type == "count":
             query["maxResults"] = 1
             query["fields"] = ""
         else:
             query["maxResults"] = query.get("maxResults", 1000)
+
+        if "fields" not in query:
+            query["fields"] = "*all"
 
         response, error = self.get_response(jql_url, params=query)
         if error is not None:
@@ -182,17 +196,15 @@ class JiraJQL(BaseHTTPQueryRunner):
             results = parse_count(data)
         else:
             results = parse_issues(data, field_mapping)
-            index = data["startAt"] + data["maxResults"]
 
-            while data["total"] > index:
-                query["startAt"] = index
+            # API v3 uses token-based pagination instead of startAt/total
+            while not data.get("isLast", True) and "nextPageToken" in data:
+                query["nextPageToken"] = data["nextPageToken"]
                 response, error = self.get_response(jql_url, params=query)
                 if error is not None:
                     return None, error
 
                 data = response.json()
-                index = data["startAt"] + data["maxResults"]
-
                 addl_results = parse_issues(data, field_mapping)
                 results.merge(addl_results)
 
