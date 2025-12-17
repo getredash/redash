@@ -9042,7 +9042,7 @@ json-stringify-safe@~5.0.1:
 
 json-with-bigint@^3.4.4:
   version "3.4.4"
-  resolved "https://wooga.jfrog.io/wooga/api/npm/npmbi/json-with-bigint/-/json-with-bigint-3.4.4.tgz#ef798afee4c4203feffa44f5238cd77c93e8f72a"
+  resolved "https://registry.yarnpkg.com/json-with-bigint/-/json-with-bigint-3.4.4.tgz#ef798afee4c4203feffa44f5238cd77c93e8f72a"
   integrity sha512-AhpYAAaZsPjU7smaBomDt1SOQshi9rEm6BlTbfVwsG1vNmeHKtEedJi62sHZzJTyKNtwzmNnrsd55kjwJ7054A==
 
 json2mq@^0.2.0:
