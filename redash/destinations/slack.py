@@ -33,7 +33,7 @@ class Slack(BaseDestination):
                 text = alert.custom_subject
             else:
                 text = alert.name + (" just triggered" if new_state == "triggered" else " went back to normal")
-            payload = {"attachments": [{"text": text, "color": color, "fields": [{"value": alert.custom_body}]}]}
+            payload = {"attachments": [{"text": text, "color": color, "fields": [{"title": "Description", "value": alert.custom_body}]}]}
         else:
             fields = [
                 {
