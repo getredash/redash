@@ -42,7 +42,7 @@ class Webhook(BaseDestination):
             auth = HTTPBasicAuth(options.get("username"), options.get("password")) if options.get("username") else None
             resp = requests.post(
                 options.get("url"),
-                data=json_dumps(data),
+                data=json_dumps(data).encode("utf-8"),
                 auth=auth,
                 headers=headers,
                 timeout=5.0,
