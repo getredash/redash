@@ -67,7 +67,10 @@ class DuckDB(BaseSQLQueryRunner):
                     "title": "Database Path",
                     "default": ":memory:",
                 },
-                "extensions": {"type": "string", "title": "Extensions (comma separated)"},
+                "extensions": {
+                    "type": "string",
+                    "title": "Extensions (comma separated)",
+                },
             },
             "order": ["dbpath", "extensions"],
             "required": ["dbpath"],
@@ -138,9 +141,7 @@ class DuckDB(BaseSQLQueryRunner):
             schema[full_table_name] = {"name": full_table_name, "columns": []}
             columns_results, error = self.run_query(describe_query, None)
             if error:
-                logger.warning(
-                    "Failed to describe table %s: %s", full_table_name, error
-                )
+                logger.warning("Failed to describe table %s: %s", full_table_name, error)
                 continue
 
             for col_row in columns_results["rows"]:
