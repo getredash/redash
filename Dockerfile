@@ -1,4 +1,4 @@
-FROM node:18-bookworm AS frontend-builder
+FROM node:20-trixie AS frontend-builder
 
 RUN npm install --global --force yarn@1.22.22
 
@@ -37,7 +37,7 @@ RUN <<EOF
   fi
 EOF
 
-FROM python:3.10-slim-bookworm
+FROM python:3.11-slim-trixie
 
 EXPOSE 5000
 
@@ -74,11 +74,11 @@ RUN apt-get update && \
 
 
 ARG TARGETPLATFORM
-ARG databricks_odbc_driver_url=https://databricks-bi-artifacts.s3.us-east-2.amazonaws.com/simbaspark-drivers/odbc/2.6.26/SimbaSparkODBC-2.6.26.1045-Debian-64bit.zip
+ARG databricks_odbc_driver_url=https://databricks-bi-artifacts.s3.us-east-2.amazonaws.com/simbaspark-drivers/odbc/2.9.2/SimbaSparkODBC-2.9.2.1008-Debian-64bit.zip
 RUN <<EOF
   if [ "$TARGETPLATFORM" = "linux/amd64" ]; then
     curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg
-    curl https://packages.microsoft.com/config/debian/12/prod.list > /etc/apt/sources.list.d/mssql-release.list
+    curl https://packages.microsoft.com/config/debian/13/prod.list > /etc/apt/sources.list.d/mssql-release.list
     apt-get update
     ACCEPT_EULA=Y apt-get install  -y --no-install-recommends msodbcsql18
     apt-get clean
