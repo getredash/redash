@@ -10,9 +10,9 @@ export const urlForDashboard = ({ id, slug }) => `dashboards/${id}-${slug}`;
 
 export function collectDashboardFilters(dashboard, queryResults, urlParams) {
   const filters = {};
-  _.each(queryResults, queryResult => {
+  _.each(queryResults, (queryResult) => {
     const queryFilters = queryResult && queryResult.getFilters ? queryResult.getFilters() : [];
-    _.each(queryFilters, queryFilter => {
+    _.each(queryFilters, (queryFilter) => {
       const hasQueryStringValue = _.has(urlParams, queryFilter.name);
 
       if (!(hasQueryStringValue || dashboard.dashboard_filters_enabled)) {
@@ -44,7 +44,7 @@ function prepareWidgetsForDashboard(widgets) {
   const defaultWidgetSizeY =
     Math.max(
       _.chain(widgets)
-        .map(w => w.options.position.sizeY)
+        .map((w) => w.options.position.sizeY)
         .max()
         .value(),
       20
@@ -55,11 +55,11 @@ function prepareWidgetsForDashboard(widgets) {
   // 2. update position of widgets in each row - place it right below
   //    biggest widget from previous row
   _.chain(widgets)
-    .sortBy(widget => widget.options.position.row)
-    .groupBy(widget => widget.options.position.row)
+    .sortBy((widget) => widget.options.position.row)
+    .groupBy((widget) => widget.options.position.row)
     .reduce((row, widgetsAtRow) => {
       let height = 1;
-      _.each(widgetsAtRow, widget => {
+      _.each(widgetsAtRow, (widget) => {
         height = Math.max(
           height,
           widget.options.position.autoHeight ? defaultWidgetSizeY : widget.options.position.sizeY
@@ -74,8 +74,8 @@ function prepareWidgetsForDashboard(widgets) {
     .value();
 
   // Sort widgets by updated column and row value
-  widgets = _.sortBy(widgets, widget => widget.options.position.col);
-  widgets = _.sortBy(widgets, widget => widget.options.position.row);
+  widgets = _.sortBy(widgets, (widget) => widget.options.position.col);
+  widgets = _.sortBy(widgets, (widget) => widget.options.position.row);
 
   return widgets;
 }
@@ -85,7 +85,7 @@ function calculateNewWidgetPosition(existingWidgets, newWidget) {
 
   // Find first free row for each column
   const bottomLine = _.chain(existingWidgets)
-    .map(w => {
+    .map((w) => {
       const options = _.extend({}, w.options);
       const position = _.extend({ row: 0, sizeY: 0 }, options.position);
       return {
@@ -97,21 +97,24 @@ function calculateNewWidgetPosition(existingWidgets, newWidget) {
         height: position.sizeY,
       };
     })
-    .reduce((result, item) => {
-      const from = Math.max(item.left, 0);
-      const to = Math.min(item.right, result.length + 1);
-      for (let i = from; i < to; i += 1) {
-        result[i] = Math.max(result[i], item.bottom);
-      }
-      return result;
-    }, _.map(new Array(dashboardGridOptions.columns), _.constant(0)))
+    .reduce(
+      (result, item) => {
+        const from = Math.max(item.left, 0);
+        const to = Math.min(item.right, result.length + 1);
+        for (let i = from; i < to; i += 1) {
+          result[i] = Math.max(result[i], item.bottom);
+        }
+        return result;
+      },
+      _.map(new Array(dashboardGridOptions.columns), _.constant(0))
+    )
     .value();
 
   // Go through columns, pick them by count necessary to hold new block,
   // and calculate bottom-most free row per group.
   // Choose group with the top-most free row (comparing to other groups)
   return _.chain(_.range(0, dashboardGridOptions.columns - width + 1))
-    .map(col => ({
+    .map((col) => ({
       col,
       row: _.chain(bottomLine)
         .slice(col, col + width)
@@ -126,14 +129,14 @@ function calculateNewWidgetPosition(existingWidgets, newWidget) {
 export function Dashboard(dashboard) {
   _.extend(this, dashboard);
   Object.defineProperty(this, "url", {
-    get: function() {
+    get: function () {
       return urlForDashboard(this);
     },
   });
 }
 
 function prepareDashboardWidgets(widgets) {
-  return prepareWidgetsForDashboard(_.map(widgets, widget => new Widget(widget)));
+  return prepareWidgetsForDashboard(_.map(widgets, (widget) => new Widget(widget)));
 }
 
 function transformSingle(dashboard) {
@@ -154,7 +157,7 @@ function transformResponse(data) {
   return data;
 }
 
-const saveOrCreateUrl = data => (data.id ? `api/dashboards/${data.id}` : "api/dashboards");
+const saveOrCreateUrl = (data) => (data.id ? `api/dashboards/${data.id}` : "api/dashboards");
 const DashboardService = {
   get: ({ id, slug }) => {
     const params = {};
@@ -164,12 +167,12 @@ const DashboardService = {
     return axios.get(`api/dashboards/${id || slug}`, { params }).then(transformResponse);
   },
   getByToken: ({ token }) => axios.get(`api/dashboards/public/${token}`).then(transformResponse),
-  save: data => axios.post(saveOrCreateUrl(data), data).then(transformResponse),
+  save: (data) => axios.post(saveOrCreateUrl(data), data).then(transformResponse),
   delete: ({ id }) => axios.delete(`api/dashboards/${id}`).then(transformResponse),
-  query: params => axios.get("api/dashboards", { params }).then(transformResponse),
-  recent: params => axios.get("api/dashboards/recent", { params }).then(transformResponse),
-  myDashboards: params => axios.get("api/dashboards/my", { params }).then(transformResponse),
-  favorites: params => axios.get("api/dashboards/favorites", { params }).then(transformResponse),
+  query: (params) => axios.get("api/dashboards", { params }).then(transformResponse),
+  recent: (params) => axios.get("api/dashboards/recent", { params }).then(transformResponse),
+  myDashboards: (params) => axios.get("api/dashboards/my", { params }).then(transformResponse),
+  favorites: (params) => axios.get("api/dashboards/favorites", { params }).then(transformResponse),
   favorite: ({ id }) => axios.post(`api/dashboards/${id}/favorite`),
   unfavorite: ({ id }) => axios.delete(`api/dashboards/${id}/favorite`),
   fork: ({ id }) => axios.post(`api/dashboards/${id}/fork`, { id }).then(transformResponse),
@@ -187,13 +190,13 @@ Dashboard.prototype.canEdit = function canEdit() {
 Dashboard.prototype.getParametersDefs = function getParametersDefs() {
   const globalParams = {};
   const queryParams = location.search;
-  _.each(this.widgets, widget => {
+  _.each(this.widgets, (widget) => {
     if (widget.getQuery()) {
       const mappings = widget.getParameterMappings();
       widget
         .getQuery()
         .getParametersDefs(false)
-        .forEach(param => {
+        .forEach((param) => {
           const mapping = mappings[param.name];
           if (mapping.type === Widget.MappingType.DashboardLevel) {
             // create global param
@@ -210,15 +213,19 @@ Dashboard.prototype.getParametersDefs = function getParametersDefs() {
         });
     }
   });
+  const mergedValues = {
+    ..._.mapValues(globalParams, (p) => p.value),
+    ...Object.fromEntries((this.options.parameters || []).map((param) => [param.name, param.value])),
+  };
   const resultingGlobalParams = _.values(
-    _.each(globalParams, param => {
-      param.setValue(param.value); // apply global param value to all locals
-      param.fromUrlParams(queryParams); // try to initialize from url (may do nothing)
+    _.each(globalParams, (param) => {
+      param.setValue(mergedValues[param.name]); // apply merged value
+      param.fromUrlParams(queryParams); // allow param-specific parsing logic
     })
   );
 
   // order dashboard params using paramOrder
-  return _.sortBy(resultingGlobalParams, param =>
+  return _.sortBy(resultingGlobalParams, (param) =>
     _.includes(this.options.globalParamOrder, param.name)
       ? _.indexOf(this.options.globalParamOrder, param.name)
       : _.size(this.options.globalParamOrder)
