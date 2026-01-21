@@ -880,7 +880,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         parameters_dict = {p["name"]: p.get("value") for p in self.parameters} if self.options else {}
         if any(parameters_dict):
             try:
-                query_text = self.parameterized.apply(parameters_dict).query
+                query_text = self.parameterized.apply(parameters_dict, self.user).query
             except InvalidParameterError as e:
                 logging.info(f"Unable to update hash for query {self.id} because of invalid parameters: {str(e)}")
             except QueryDetachedFromDataSourceError as e:

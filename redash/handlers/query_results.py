@@ -1,3 +1,4 @@
+import logging
 import unicodedata
 from urllib.parse import quote
 
@@ -9,10 +10,11 @@ from flask_restful import abort
 from redash import models, settings
 from redash.handlers.base import BaseResource, get_object_or_404, record_event, add_cors_headers
 from redash.models.parameterized_query import (
+    dropdown_values,
+    DropdownSubqueryError,
     InvalidParameterError,
     ParameterizedQuery,
     QueryDetachedFromDataSourceError,
-    dropdown_values,
 )
 from redash.permissions import (
     has_access,
@@ -35,6 +37,8 @@ from redash.utils import (
     json_dumps,
     to_filename,
 )
+
+logger = logging.getLogger(__name__)
 
 
 def error_response(message, http_status=400):
@@ -69,7 +73,7 @@ def run_query(query, parameters, data_source, query_id, should_apply_auto_limit,
         return error_response(message)
 
     try:
-        query.apply(parameters)
+        query.apply(parameters, current_user)
     except (InvalidParameterError, QueryDetachedFromDataSourceError) as e:
         abort(400, message=str(e))
 
@@ -197,8 +201,11 @@ class QueryResultDropdownResource(BaseResource):
         query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
         require_access(query.data_source, current_user, view_only)
         try:
-            return dropdown_values(query_id, self.current_org)
-        except QueryDetachedFromDataSourceError as e:
+            result = dropdown_values(query_id, self.current_org, self.current_user, run_if_not_cached=True)
+            models.db.session.commit()
+            return result
+        except (DropdownSubqueryError, InvalidParameterError, QueryDetachedFromDataSourceError) as e:
+            logger.exception(e)
             abort(400, message=str(e))
 
 
@@ -212,8 +219,13 @@ class QueryDropdownsResource(BaseResource):
             dropdown_query = get_object_or_404(models.Query.get_by_id_and_org, dropdown_query_id, self.current_org)
             require_access(dropdown_query.data_source, current_user, view_only)
 
-        return dropdown_values(dropdown_query_id, self.current_org)
-
+        try:
+            result = dropdown_values(dropdown_query_id, self.current_org, self.current_user, run_if_not_cached=True)
+            models.db.session.commit()
+            return result
+        except (DropdownSubqueryError, InvalidParameterError, QueryDetachedFromDataSourceError) as e:
+            logger.exception(e)
+            abort(400, message=str(e))
 
 class QueryResultResource(BaseResource):
     @staticmethod

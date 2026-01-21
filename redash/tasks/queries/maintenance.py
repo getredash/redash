@@ -56,7 +56,7 @@ def _apply_default_parameters(query):
     parameters = {p["name"]: p.get("value") for p in query.parameters}
     if any(parameters):
         try:
-            return query.parameterized.apply(parameters).query
+            return query.parameterized.apply(parameters, query.user).query
         except InvalidParameterError as e:
             error = f"Skipping refresh of {query.id} because of invalid parameters: {str(e)}"
             track_failure(query, error)
