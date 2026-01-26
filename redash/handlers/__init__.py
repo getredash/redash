@@ -3,7 +3,7 @@ from flask import jsonify
 from flask_login import login_required
 
 from redash.handlers.api import api
-from redash.handlers.base import routes, add_cors_headers
+from redash.handlers.base import routes, add_cors_headers, json_response
 from redash.monitor import get_status
 from redash.permissions import require_super_admin
 from redash.security import talisman
@@ -14,6 +14,15 @@ from redash.settings.helpers import set_from_string
 @talisman(force_https=False)
 def ping():
     return "PONG."
+
+
+@routes.route("/stacklet/config", methods=["GET"])
+@talisman(force_https=False)
+def stacklet_config():
+    from redash.stacklet.config import get_application_config
+
+    config = get_application_config()
+    return json_response(config)
 
 
 @routes.route("/status.json")
