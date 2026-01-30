@@ -320,6 +320,7 @@ class RDSMySQL(Mysql):
                 "db": {"type": "string", "title": "Database name"},
                 "port": {"type": "number", "default": 3306},
                 "use_ssl": {"type": "boolean", "title": "Use SSL"},
+                "charset": {"type": "string", "default": "utf8mb4"},
             },
             "order": ["host", "port", "user", "passwd", "db"],
             "required": ["db", "user", "passwd", "host"],
