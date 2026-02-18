@@ -13,7 +13,15 @@ class TestDuckDBSchema(TestCase):
         # Simulate queries: first for tables, then for DESCRIBE
         mock_run_query.side_effect = [
             (
-                {"rows": [{"table_schema": "main", "table_name": "users"}]},
+                {
+                    "rows": [
+                        {
+                            "table_catalog": "memory",
+                            "table_schema": "main",
+                            "table_name": "users",
+                        }
+                    ]
+                },
                 None,
             ),
             (
@@ -40,7 +48,15 @@ class TestDuckDBSchema(TestCase):
         # First call to run_query -> tables list
         mock_run_query.side_effect = [
             (
-                {"rows": [{"table_schema": "main", "table_name": "events"}]},
+                {
+                    "rows": [
+                        {
+                            "table_catalog": "memory",
+                            "table_schema": "main",
+                            "table_name": "events",
+                        }
+                    ]
+                },
                 None,
             ),
             # Second call -> DESCRIBE output
@@ -98,6 +114,37 @@ class TestDuckDBSchema(TestCase):
         assert "info.metrics.rank" in colnames
         assert "info.tags.primary_tag" in colnames
         assert "info.tags.secondary_tag" in colnames
+
+    @patch.object(DuckDB, "run_query")
+    def test_motherduck_catalog_included(self, mock_run_query) -> None:
+        # Test that non-default catalogs (like MotherDuck) include catalog in name
+        mock_run_query.side_effect = [
+            (
+                {
+                    "rows": [
+                        {
+                            "table_catalog": "sample_data",
+                            "table_schema": "kaggle",
+                            "table_name": "movies",
+                        }
+                    ]
+                },
+                None,
+            ),
+            (
+                {
+                    "rows": [
+                        {"column_name": "title", "column_type": "VARCHAR"},
+                    ]
+                },
+                None,
+            ),
+        ]
+
+        schema = self.runner.get_schema()
+        self.assertEqual(len(schema), 1)
+        # Should include catalog name for non-default catalogs
+        self.assertEqual(schema[0]["name"], "sample_data.kaggle.movies")
 
     @patch.object(DuckDB, "run_query")
     def test_error_propagation(self, mock_run_query) -> None:
