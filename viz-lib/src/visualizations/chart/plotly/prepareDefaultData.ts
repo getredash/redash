@@ -122,6 +122,23 @@ function prepareSeries(series: any, options: any, numSeries: any, additionalOpti
     const yError = cleanNumber(row.yError); // always number
     const size = cleanNumber(row.size); // always number
 
+    // aggregate y value for the same x
+    if (!isNil(x) && ["column", "line", "area"].includes(seriesOptions.type)) {
+      const item = sourceData.get(x);
+
+      if (item) {
+        if (!isNil(y)) {
+          item.y = (isNil(item.y) ? 0.0 : item.y) + y;
+        }
+        if (!isNil(yError)) {
+          item.yError = (isNil(item.yError) ? 0.0 : item.yError) + yError;
+        }
+        yValues[item.index] = item.y;
+        yErrorValues[item.index] = item.yError
+        return;
+      }
+    }
+
     sourceData.set(x, {
       x,
       y,
@@ -129,6 +146,7 @@ function prepareSeries(series: any, options: any, numSeries: any, additionalOpti
       size,
       yPercent: null, // will be updated later
       row,
+      index: xValues.length,
     });
     xValues.push(x);
     yValues.push(y);
