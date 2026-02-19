@@ -551,49 +551,51 @@ files = [
 
 [[package]]
 name = "cassandra-driver"
-version = "3.21.0"
+version = "3.29.3"
 description = "DataStax Driver for Apache Cassandra"
 optional = false
 python-versions = "*"
 groups = ["all_ds"]
 files = [
-    {file = "cassandra-driver-3.21.0.tar.gz", hash = "sha256:ee976a061a7f981c0b34f4564f6fc171a86de87a67c4057c4f04f2713202e157"},
-    {file = "cassandra_driver-3.21.0-cp27-cp27m-macosx_10_6_intel.whl", hash = "sha256:3a1e3ca35ad13084048ce901954cdf18a584146d10be46539b85412c3d45d5ac"},
-    {file = "cassandra_driver-3.21.0-cp27-cp27m-manylinux1_i686.whl", hash = "sha256:daf280b6cade9fe2cb54145621b6001a765985709a735a7695ea7ea2de0ab751"},
-    {file = "cassandra_driver-3.21.0-cp27-cp27m-manylinux1_x86_64.whl", hash = "sha256:ec5ee471348ec914d7c4f64584bd8bd7e1b33d3821917ff09054244d32918117"},
-    {file = "cassandra_driver-3.21.0-cp27-cp27mu-manylinux1_i686.whl", hash = "sha256:7b0cf5aa2bdd215179222b2f033bc39f19ae123bdaad6b16fc37b5b1ec3d5b28"},
-    {file = "cassandra_driver-3.21.0-cp27-cp27mu-manylinux1_x86_64.whl", hash = "sha256:ff477931d4b5f1db16b4899bb0a7e46c78d72b8470bdd07e794cbe70dc188199"},
-    {file = "cassandra_driver-3.21.0-cp34-cp34m-manylinux1_i686.whl", hash = "sha256:d66d4918f85c01da85e0cc6e0c5ed51c3e488c0196d13c0a0abd4e3414b6fa18"},
-    {file = "cassandra_driver-3.21.0-cp34-cp34m-manylinux1_x86_64.whl", hash = "sha256:5a49a5a37b0768eb48eaf12c53c91b0653ace5d083af4346e6603fa28beb62a0"},
-    {file = "cassandra_driver-3.21.0-cp35-cp35m-macosx_10_6_intel.whl", hash = "sha256:2b3a9ef665872e89449cbd6e6dc723d0ed9be5a1c831236761e8771a38f1d213"},
-    {file = "cassandra_driver-3.21.0-cp35-cp35m-manylinux1_i686.whl", hash = "sha256:77f43afc6b360e0d31a537938fbd60bebc1aed710e186755ccb2e00f8b05e8d0"},
-    {file = "cassandra_driver-3.21.0-cp35-cp35m-manylinux1_x86_64.whl", hash = "sha256:3b79cc2675ff6e2ec88b388379f5c69ed749b84a9b22d752905e5f1683cd4629"},
-    {file = "cassandra_driver-3.21.0-cp35-cp35m-win32.whl", hash = "sha256:f37b0710380063c5f42358a9534217f7a0fcd8a08985a43d4137fb954fcacb41"},
-    {file = "cassandra_driver-3.21.0-cp35-cp35m-win_amd64.whl", hash = "sha256:d9af252db0a0dcd2fa0f27ff0862c8dbd8a4ea03d2e7dc7bcbe3bbae0a02eabf"},
-    {file = "cassandra_driver-3.21.0-cp36-cp36m-macosx_10_6_intel.whl", hash = "sha256:1ae6622d5c338eacac0ade1ef416fd01a16187be729d824ca89c41954e9c0548"},
-    {file = "cassandra_driver-3.21.0-cp36-cp36m-manylinux1_i686.whl", hash = "sha256:56505e9c8cab996c892f5d688234c0f87fd792d2387c545048ee3e5f2a48eaca"},
-    {file = "cassandra_driver-3.21.0-cp36-cp36m-manylinux1_x86_64.whl", hash = "sha256:d49c8cbbcae2c5dc3b695e31c0e993e3c9c00143d9ba464bbf0efb61b7bb48c6"},
-    {file = "cassandra_driver-3.21.0-cp36-cp36m-win32.whl", hash = "sha256:b1c5e02b24090623f00febf3531f48aa0387f8c5cc1926075989266e70a894ac"},
-    {file = "cassandra_driver-3.21.0-cp36-cp36m-win_amd64.whl", hash = "sha256:5c4aaedcda980f8fe33b12f08a2197f54dc4c48f61072aec490ef7aa8309eb3f"},
-    {file = "cassandra_driver-3.21.0-cp37-cp37m-macosx_10_6_intel.whl", hash = "sha256:0eb6cf8421ecd6925030e115236072bd553730bce7c82b8889830b21159813e8"},
-    {file = "cassandra_driver-3.21.0-cp37-cp37m-manylinux1_i686.whl", hash = "sha256:4d6cbe0d005a71a28e8d6251139367745c7d3dc1ac152822b1de95af219a0a0c"},
-    {file = "cassandra_driver-3.21.0-cp37-cp37m-manylinux1_x86_64.whl", hash = "sha256:6648282da46bc18f2502249aa35535c12fc22e5d2d6e41bdc6809d9d845787f7"},
-    {file = "cassandra_driver-3.21.0-cp37-cp37m-win32.whl", hash = "sha256:a883979390e2f82f0fab37c8c1bf8cd0ad5a5cc2f5f8bd57f31718870366b083"},
-    {file = "cassandra_driver-3.21.0-cp37-cp37m-win_amd64.whl", hash = "sha256:fdbb1a5a8c02e9e8af95713aafe448020b9c8d04e4ac69486ab2fa4894a6146a"},
-    {file = "cassandra_driver-3.21.0-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:feb638c3be9f71f36823cedb92f3fa55eb47ada0dabf528f6ad20020afb3e8f9"},
-    {file = "cassandra_driver-3.21.0-cp38-cp38-manylinux1_i686.whl", hash = "sha256:5d54fb30aa3ecaa943025bc98fed8fa4bd653a7efba9c7573f493085b7442c97"},
-    {file = "cassandra_driver-3.21.0-cp38-cp38-manylinux1_x86_64.whl", hash = "sha256:ff248431521f4bf522b3f600f3a3a88b622a0a7b64326a5115f343d0b18c028e"},
-    {file = "cassandra_driver-3.21.0-cp38-cp38-win32.whl", hash = "sha256:5c942123f4cb42a188ab9a95f0ca27cbc48c263cc8c061ecf9cd959c23efbb04"},
-    {file = "cassandra_driver-3.21.0-cp38-cp38-win_amd64.whl", hash = "sha256:71d5f3e322feea3d8a8f32d593598b6f9790e3f7e28cadf3bce98af170984f5c"},
+    {file = "cassandra_driver-3.29.3-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:96ad742f5cbfb771df512959ab5de36e248ce9aa2c487fd81c37d5c0a627c094"},
+    {file = "cassandra_driver-3.29.3-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:c935431682557ffcd3efc1c7bcb01b0f6769a1c90751a7154d5e3c905a6a2042"},
+    {file = "cassandra_driver-3.29.3-cp310-cp310-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:54afde4aaa5b55fbc2c075e1c55fb14a5739459428f3bb81f849ad020f7d5bcf"},
+    {file = "cassandra_driver-3.29.3-cp310-cp310-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:7552fb7189acd06161f8feac7045a387dc9e03b3b9f7dcb5675178906cee792e"},
+    {file = "cassandra_driver-3.29.3-cp310-cp310-win32.whl", hash = "sha256:891a1b6a111a591ad9f1c9e088846848dc9e6be030a6086c8c3aa5d2d837f266"},
+    {file = "cassandra_driver-3.29.3-cp310-cp310-win_amd64.whl", hash = "sha256:29fc241475801872dc27c3dd1a3976373536223dd4fd1c01868ff86bdbbfd48b"},
+    {file = "cassandra_driver-3.29.3-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:0785f6e0986089e922378ae3b64b5f696440aeb595fb84c2cf3ccef220c6ae91"},
+    {file = "cassandra_driver-3.29.3-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:1c241ba08473baf31a333feb59793190d01625541c2368d3bbb0f43a586f1d6a"},
+    {file = "cassandra_driver-3.29.3-cp311-cp311-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:064bf45d3ca87239e11168c0110676fc64f7fdbddb4bcba9be787b8ad5f6d734"},
+    {file = "cassandra_driver-3.29.3-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:5f9858b5ccdf75dd89c20d74474b59dd3a2e2f86c7251b310011c46acdef3874"},
+    {file = "cassandra_driver-3.29.3-cp311-cp311-win32.whl", hash = "sha256:84b24f69a7bbe76302330d47422a7fcc1998a6a96ffd414a795d7d95992b49cb"},
+    {file = "cassandra_driver-3.29.3-cp311-cp311-win_amd64.whl", hash = "sha256:26013d768b2ea4728c09144b08c0eb86ad692e85cb15f4e52e3107abca83683c"},
+    {file = "cassandra_driver-3.29.3-cp312-cp312-macosx_10_13_x86_64.whl", hash = "sha256:7a2f371af54cd1d153ef373a733889ebfbcc9c30e00429fc12a2569bad9239e1"},
+    {file = "cassandra_driver-3.29.3-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:3f654b01d8d49f68deedfaff1edcff314e3103d29130b2a034df6c490c522351"},
+    {file = "cassandra_driver-3.29.3-cp312-cp312-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:facd488c2b9be8bffcad5903566581e96d2863d2ec4bcad7f114d1b2b2f39ad0"},
+    {file = "cassandra_driver-3.29.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:572bd5a01089ab92da12f4f52b32b878547bbc544a798d8cfd042e7fc2601c75"},
+    {file = "cassandra_driver-3.29.3-cp312-cp312-win32.whl", hash = "sha256:63adca0f9219be3fe8789f4aa7b77c5f6a7bf65d6442959db52c653140ca4185"},
+    {file = "cassandra_driver-3.29.3-cp312-cp312-win_amd64.whl", hash = "sha256:9b7032b44769c454e96aa11483bfd167a87ea341268f1075b0ff84f780c910a9"},
+    {file = "cassandra_driver-3.29.3-cp313-cp313-macosx_10_13_x86_64.whl", hash = "sha256:5a0113020d86e8f61c7a2ae3d508720cd036df7462a55926b85dd97ada27e143"},
+    {file = "cassandra_driver-3.29.3-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:2b72312a8b62a905da6133effbba9b0731c8e30af96e10ca77fc5c34532c6827"},
+    {file = "cassandra_driver-3.29.3-cp313-cp313-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:38216e13d6f2e0d4513a5b8806e70ce4a8f28a82962793a67371582fc2c7141b"},
+    {file = "cassandra_driver-3.29.3-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:51d6a5390e2454b599500049f0a5c72aa701db155c1e542f9a1157c1c45814b1"},
+    {file = "cassandra_driver-3.29.3-cp313-cp313-win32.whl", hash = "sha256:638047c1f70fb14c9d8f743931d4f4f42aff6793b47afded3097c002ef8c1165"},
+    {file = "cassandra_driver-3.29.3-cp313-cp313-win_amd64.whl", hash = "sha256:27adf8869937461ad08c5fefb47857532e467b408db496db4dbf8b132a4bd623"},
+    {file = "cassandra_driver-3.29.3-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:281f67af1b8df88741eef551afbb49f78e4f366a7ab23e7060a1f0d6ba655752"},
+    {file = "cassandra_driver-3.29.3-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:158f7e5cb894a76a592aa0ca659a8e7c2a57ef603e04c07bbbc289a70e9ac893"},
+    {file = "cassandra_driver-3.29.3-cp39-cp39-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:fcf45725ae1751cb934b9b827a7d9cd899bbd09eb1ad28e2160b4584de35ba77"},
+    {file = "cassandra_driver-3.29.3-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:9abedc832e9a6636741299aae46c032d8c1248b507d8cebbaa2f48ec202904bc"},
+    {file = "cassandra_driver-3.29.3-cp39-cp39-win32.whl", hash = "sha256:2cb72808dfc46c40a6ee352ace181ce3170adde1cfd1447da91709a8cf482e20"},
+    {file = "cassandra_driver-3.29.3-cp39-cp39-win_amd64.whl", hash = "sha256:e1d09691d757f5b1900a98cc3b6cc7d8506683a2188c01eca86545f91edbbaf5"},
+    {file = "cassandra_driver-3.29.3.tar.gz", hash = "sha256:ff6b82ee4533f6fd4474d833e693b44b984f58337173ee98ed76bce08721a636"},
 ]
 
 [package.dependencies]
-futures = "*"
-geomet = ">=0.1,<0.2"
-six = ">=1.9"
+geomet = ">=1.1"
 
 [package.extras]
-graph = ["gremlinpython (==3.3.4)"]
+cle = ["cryptography (>=42.0)"]
+graph = ["gremlinpython (==3.4.6)"]
 
 [[package]]
 name = "certifi"
@@ -1590,31 +1592,19 @@ files = [
 ]
 
 [[package]]
-name = "futures"
-version = "3.0.5"
-description = "Backport of the concurrent.futures package from Python 3.2"
-optional = false
-python-versions = "*"
-groups = ["all_ds"]
-files = [
-    {file = "futures-3.0.5-py2-none-any.whl", hash = "sha256:f7f16b6bf9653a918a03f1f2c2d62aac0cd64b1bc088e93ea279517f6b61120b"},
-    {file = "futures-3.0.5.tar.gz", hash = "sha256:0542525145d5afc984c88f914a0c85c77527f65946617edb5274f72406f981df"},
-]
-
-[[package]]
 name = "geomet"
-version = "0.1.2"
-description = "GeoJSON <-> WKT/WKB conversion utilities"
+version = "1.1.0"
+description = "Pure Python conversion library for common geospatial data formats"
 optional = false
-python-versions = "*"
+python-versions = ">=3.7"
 groups = ["all_ds"]
 files = [
-    {file = "geomet-0.1.2.tar.gz", hash = "sha256:cef6c73cfc0c4ea3961e16a6979dce75ef0298f0023cbd482855134dcdf7c010"},
+    {file = "geomet-1.1.0-py3-none-any.whl", hash = "sha256:4372fe4e286a34acc6f2e9308284850bd8c4aa5bc12065e2abbd4995900db12f"},
+    {file = "geomet-1.1.0.tar.gz", hash = "sha256:51e92231a0ef6aaa63ac20c443377ba78a303fd2ecd179dc3567de79f3c11605"},
 ]
 
 [package.dependencies]
 click = "*"
-six = "*"
 
 [[package]]
 name = "gevent"
@@ -2313,23 +2303,24 @@ type = ["pytest-mypy"]
 
 [[package]]
 name = "impyla"
-version = "0.16.0"
+version = "0.22.0"
 description = "Python client for the Impala distributed query engine"
 optional = false
 python-versions = "*"
 groups = ["all_ds"]
 files = [
-    {file = "impyla-0.16.0.tar.gz", hash = "sha256:df46d6aae12cb3657293c739e2b61efead4ebf8186e813e7ea0d20e3527a3099"},
+    {file = "impyla-0.22.0-py2.py3-none-any.whl", hash = "sha256:bb27777dcd712ea2f0267338e0c925dade7d8fa3b1436e49097ed37ef3a90c92"},
+    {file = "impyla-0.22.0.tar.gz", hash = "sha256:19def919ef8295a622fdf2f6d04fe1e5954c4d932a397fbde26a89c6c29ef33d"},
 ]
 
 [package.dependencies]
-bitarray = "*"
+bitarray = {version = "*", markers = "python_version >= \"3\""}
 six = "*"
-thrift = ">=0.9.3"
-thriftpy2 = {version = ">=0.4.0,<0.5.0", markers = "python_version >= \"3.0\""}
+thrift = "0.16.0"
+thrift-sasl = "0.4.3"
 
 [package.extras]
-kerberos = ["thrift_sasl (==0.2.1)"]
+kerberos = ["kerberos (>=1.3.0)"]
 
 [[package]]
 name = "influxdb"
@@ -3409,18 +3400,6 @@ files = [
 [package.extras]
 dev = ["pre-commit", "tox"]
 testing = ["pytest", "pytest-benchmark"]
-
-[[package]]
-name = "ply"
-version = "3.11"
-description = "Python Lex & Yacc"
-optional = false
-python-versions = "*"
-groups = ["all_ds"]
-files = [
-    {file = "ply-3.11-py2.py3-none-any.whl", hash = "sha256:096f9b8350b65ebd2fd1346b12452efe5b9607f7482813ffca50c22722a807ce"},
-    {file = "ply-3.11.tar.gz", hash = "sha256:00c7c1aaa88358b9c765b6d3000c6eec0ba42abca5351b095321aef446081da3"},
-]
 
 [[package]]
 name = "pre-commit"
@@ -5429,13 +5408,13 @@ test = ["pytest", "tornado (>=4.5)", "typeguard"]
 
 [[package]]
 name = "thrift"
-version = "0.21.0"
+version = "0.16.0"
 description = "Python bindings for the Apache Thrift RPC system"
 optional = false
 python-versions = "*"
 groups = ["all_ds"]
 files = [
-    {file = "thrift-0.21.0.tar.gz", hash = "sha256:5e6f7c50f936ebfa23e924229afc95eb219f8c8e5a83202dd4a391244803e402"},
+    {file = "thrift-0.16.0.tar.gz", hash = "sha256:2b5b6488fcded21f9d312aa23c9ff6a0195d0f6ae26ddbd5ad9e3e25dfc14408"},
 ]
 
 [package.dependencies]
@@ -5462,26 +5441,6 @@ files = [
 pure-sasl = ">=0.6.2"
 six = ">=1.13.0"
 thrift = {version = ">=0.10.0", markers = "python_version >= \"3.0\""}
-
-[[package]]
-name = "thriftpy2"
-version = "0.4.20"
-description = "Pure python implementation of Apache Thrift."
-optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
-groups = ["all_ds"]
-files = [
-    {file = "thriftpy2-0.4.20-cp312-cp312-macosx_14_0_x86_64.whl", hash = "sha256:3acb81ea6ce44d655c67db0d46f0acce221ecbfa33bee5a4b6356d25cc9be712"},
-    {file = "thriftpy2-0.4.20.tar.gz", hash = "sha256:8d2ffc5a9a3e3b239418726f83572512240c13adaa135701996749c81a75c2c5"},
-]
-
-[package.dependencies]
-ply = ">=3.4,<4.0"
-six = ">=1.15,<2.0"
-
-[package.extras]
-dev = ["flake8 (>=2.5)", "pytest (>=2.8)", "pytest (>=6.1.1)", "sphinx (>=1.3)", "sphinx-rtd-theme (>=0.1.9)", "tornado (>=4.0,<6.0) ; python_version < \"3.12\"", "tornado (>=4.0,<7.0) ; python_version >= \"3.12\""]
-tornado = ["tornado (>=4.0,<6.0) ; python_version < \"3.12\"", "tornado (>=4.0,<7.0) ; python_version >= \"3.12\""]
 
 [[package]]
 name = "tomli"
@@ -6064,4 +6023,4 @@ testing = ["coverage[toml]", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.8,<3.11"
-content-hash = "84271dccdac5067fb1940204ec74f10c4063119efd16107327090dcbb5b1b8c5"
+content-hash = "5814a0edce26d31283987631bac3f5d8e9d2ee2ac863ce34097a7ff93de8f661"
