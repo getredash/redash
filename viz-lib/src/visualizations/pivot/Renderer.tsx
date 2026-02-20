@@ -1,12 +1,18 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { get, find, pick, map, mapValues } from "lodash";
-// @ts-expect-error ts-migrate(7016) FIXME: Could not find a declaration file for module 'reac... Remove this comment to see the full error message
 import PivotTableUI from "react-pivottable/PivotTableUI";
+import TableRenderers from "react-pivottable/TableRenderers";
 import { RendererPropTypes } from "@/visualizations/prop-types";
 import { formatColumnValue } from "@/lib/utils";
+import createPlotlyComponent from "react-plotly.js/factory";
+import createPlotlyRenderers from "react-pivottable/PlotlyRenderers";
+import { Plotly } from "@/visualizations/chart/plotly";
 
 import "react-pivottable/pivottable.css";
 import "./renderer.less";
+
+const Plot = createPlotlyComponent(Plotly);
+const PlotlyRenderers = createPlotlyRenderers(Plot);
 
 const VALID_OPTIONS = [
   "rows",
@@ -56,8 +62,14 @@ export default function Renderer({ data, options, onOptionsChange }: any) {
       data-hide-controls={hideControls || null}
       data-hide-row-totals={hideRowTotals || null}
       data-hide-column-totals={hideColumnTotals || null}
-      data-test="PivotTableVisualization">
-      <PivotTableUI {...pick(config, VALID_OPTIONS)} data={dataRows} onChange={onChange} />
+      data-test="PivotTableVisualization"
+    >
+      <PivotTableUI
+        {...pick(config, VALID_OPTIONS)}
+        data={dataRows}
+        onChange={onChange}
+        renderers={Object.assign({}, TableRenderers, PlotlyRenderers)}
+      />
     </div>
   );
 }
