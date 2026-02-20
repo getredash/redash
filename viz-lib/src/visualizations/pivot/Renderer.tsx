@@ -35,7 +35,9 @@ const VALID_OPTIONS = [
 ];
 
 function formatRows({ rows, columns }: any) {
-  return map(rows, row => mapValues(row, (value, key) => formatColumnValue(value, find(columns, { name: key }).type)));
+  return map(rows, (row) =>
+    mapValues(row, (value, key) => formatColumnValue(value, find(columns, { name: key }).type))
+  );
 }
 
 export default function Renderer({ data, options, onOptionsChange }: any) {
