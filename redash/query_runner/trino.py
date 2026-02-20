@@ -59,6 +59,7 @@ class Trino(BaseQueryRunner):
                 "username": {"type": "string"},
                 "password": {"type": "string"},
                 "source": {"type": "string", "default": "redash"},
+                "client_tags": {"type": "string", "title": "Client tags (comma separated)"},
                 "catalog": {"type": "string"},
                 "schema": {"type": "string"},
                 "impersonation": {"type": "boolean", "default": False},
@@ -76,6 +77,7 @@ class Trino(BaseQueryRunner):
                 "username",
                 "password",
                 "source",
+                "client_tags",
                 "catalog",
                 "schema",
                 "impersonation",
@@ -83,6 +85,7 @@ class Trino(BaseQueryRunner):
             "required": ["host", "username"],
             "secret": ["password"],
             "extra_options": [
+                "client_tags",
                 "impersonation",
                 "impersonationField",
             ],
@@ -161,6 +164,21 @@ class Trino(BaseQueryRunner):
 
         return default_user
 
+    def _get_client_tags(self):
+        client_tags = self.configuration.get("client_tags")
+        if client_tags is None:
+            return None
+
+        if isinstance(client_tags, str):
+            tags = [tag.strip() for tag in client_tags.split(",")]
+        elif isinstance(client_tags, list):
+            tags = [str(tag).strip() for tag in client_tags]
+        else:
+            return None
+
+        tags = [tag for tag in tags if tag]
+        return tags or None
+
     def run_query(self, query, user):
         if self.configuration.get("password"):
             auth = trino.auth.BasicAuthentication(
@@ -177,6 +195,7 @@ class Trino(BaseQueryRunner):
             catalog=self.configuration.get("catalog", ""),
             schema=self.configuration.get("schema", ""),
             user=self._get_trino_user(user),
+            client_tags=self._get_client_tags(),
             auth=auth,
         )
 
