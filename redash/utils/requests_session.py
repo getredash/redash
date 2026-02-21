@@ -1,6 +1,13 @@
-from advocate.exceptions import UnacceptableAddressException  # noqa: F401
+import warnings
 
 from redash import settings
+
+# Supress advocate warning below
+#   /usr/local/lib/python3.13/site-packages/advocate/api.py:102: SyntaxWarning: invalid escape sequence '\*'
+#   server-1     |   :param \*\*kwargs: Optional arguments that ``request`` takes.
+warnings.filterwarnings("ignore", category=SyntaxWarning, module=r".*advocate.*")
+
+from advocate.exceptions import UnacceptableAddressException  # noqa: F401, E402
 
 if settings.ENFORCE_PRIVATE_ADDRESS_BLOCK:
     import advocate as requests_or_advocate
