@@ -166,17 +166,9 @@ class Trino(BaseQueryRunner):
 
     def _get_client_tags(self):
         client_tags = self.configuration.get("client_tags")
-        if client_tags is None:
+        if not isinstance(client_tags, str):
             return None
-
-        if isinstance(client_tags, str):
-            tags = [tag.strip() for tag in client_tags.split(",")]
-        elif isinstance(client_tags, list):
-            tags = [str(tag).strip() for tag in client_tags]
-        else:
-            return None
-
-        tags = [tag for tag in tags if tag]
+        tags = [tag.strip() for tag in client_tags.split(",") if tag.strip()]
         return tags or None
 
     def run_query(self, query, user):
