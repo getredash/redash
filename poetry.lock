@@ -5551,24 +5551,24 @@ test = ["psutil"]
 
 [[package]]
 name = "td-client"
-version = "1.0.0"
+version = "1.5.0"
 description = "Treasure Data API library for Python"
 optional = false
-python-versions = ">=3.5"
+python-versions = ">=3.8"
 groups = ["all_ds"]
 files = [
-    {file = "td-client-1.0.0.tar.gz", hash = "sha256:48842cb4b22dd7fece4e1d2593985b9a151796cfff504bf2de24d04dafbea1ab"},
-    {file = "td_client-1.0.0-py3-none-any.whl", hash = "sha256:017dc6d21eb44e8ef5f3a9e0e313a37760e83dc0df3684b49d29cb73fdac89d6"},
+    {file = "td_client-1.5.0-py3-none-any.whl", hash = "sha256:1f09f607d2a030f41b301921c09cf1876d02d64c20a0ad371453ff9daed51e64"},
+    {file = "td_client-1.5.0.tar.gz", hash = "sha256:9c2180b7815e6db245932df24c0afb30f76950f3d31bb48f44ef3e669bfa559d"},
 ]
 
 [package.dependencies]
-msgpack = ">=0.5.2"
+msgpack = ">=0.6.2"
 python-dateutil = "*"
 urllib3 = "*"
 
 [package.extras]
-dev = ["black (==19.3b0)", "isort"]
-docs = ["sphinx", "sphinx-rtd-theme"]
+dev = ["ruff"]
+docs = ["sphinx", "sphinx_rtd_theme"]
 
 [[package]]
 name = "tenacity"
@@ -6159,4 +6159,4 @@ testing = ["coverage[toml]", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.13,<3.14"
-content-hash = "4a02ea8f00df0ffc821ae752d9a2f18a98b3a618a9005902903774df1e8d0142"
+content-hash = "059875cc4ef3045843c508c693f57018226da8a3440033d724d88b42ecfb1b01"
