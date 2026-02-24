@@ -8,6 +8,7 @@ function getDefaultMap() {
 
 const DEFAULT_OPTIONS = {
   mapType: "countries",
+  customMapUrl: null,
   keyColumn: null,
   targetField: null,
   valueColumn: null,
@@ -44,9 +45,11 @@ export default function getOptions(options: any) {
   // Keeping original object also reduces amount of updates in components
   result.bounds = get(options, "bounds");
 
-  // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
-  if (isNil(visualizationsSettings.choroplethAvailableMaps[result.mapType])) {
-    result.mapType = getDefaultMap();
+  if (result.mapType !== "custom") {
+    // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
+    if (isNil(visualizationsSettings.choroplethAvailableMaps[result.mapType])) {
+      result.mapType = getDefaultMap();
+    }
   }
 
   // backward compatibility

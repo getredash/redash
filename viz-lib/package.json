@@ -57,10 +57,12 @@
     "enzyme": "^3.8.0",
     "enzyme-adapter-react-16": "^1.15.7",
     "enzyme-to-json": "^3.3.5",
+    "identity-obj-proxy": "^3.0.0",
     "jest": "^24.1.0",
     "less": "^4.1.3",
     "less-loader": "^11.1.3",
     "less-plugin-autoprefix": "^2.0.0",
+    "mockdate": "^3.0.5",
     "npm-run-all": "^4.1.5",
     "prettier": "3.3.2",
     "prop-types": "^15.7.2",
@@ -113,7 +115,7 @@
     }
   },
   "browser": {
-      "fs": false,
-      "path": false
+    "fs": false,
+    "path": false
   }
 }
