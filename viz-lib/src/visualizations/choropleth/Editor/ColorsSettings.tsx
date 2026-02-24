@@ -16,7 +16,8 @@ export default function ColorsSettings({ options, onOptionsChange }: any) {
           label="Clustering Mode"
           data-test="Choropleth.Editor.ClusteringMode"
           defaultValue={options.clusteringMode}
-          onChange={(clusteringMode: any) => onOptionsChange({ clusteringMode })}>
+          onChange={(clusteringMode: any) => onOptionsChange({ clusteringMode })}
+        >
           {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
           <Select.Option value="q" data-test="Choropleth.Editor.ClusteringMode.q">
             quantile

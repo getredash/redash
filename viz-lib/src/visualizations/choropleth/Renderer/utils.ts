@@ -3,9 +3,7 @@ import chroma from "chroma-js";
 import { createNumberFormatter as createFormatter } from "@/lib/value-format";
 
 export function darkenColor(color: any) {
-  return chroma(color)
-    .darken()
-    .hex();
+  return chroma(color).darken().hex();
 }
 
 export function createNumberFormatter(format: any, placeholder: any) {
@@ -24,7 +22,7 @@ export function prepareData(data: any, keyColumn: any, valueColumn: any) {
   }
 
   const result = {};
-  each(data, item => {
+  each(data, (item) => {
     if (item[keyColumn]) {
       const value = parseFloat(item[valueColumn]);
       // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
@@ -46,6 +44,12 @@ export function prepareFeatureProperties(feature: any, valueFormatted: any, data
   });
   // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
   result["@@value"] = valueFormatted;
+  // Alias @@name to the target field so the default tooltip template works with any GeoJSON
+  // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
+  if (targetField && feature.properties[targetField] && !result["@@name"]) {
+    // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
+    result["@@name"] = feature.properties[targetField];
+  }
   const datum = data[feature.properties[targetField]] || {};
   return extend(result, datum.item);
 }
@@ -73,7 +77,7 @@ export function createScale(features: any, data: any, options: any) {
   // Calculate limits
   const values = uniq(
     filter(
-      map(features, feature => getValueForFeature(feature, data, options.targetField)),
+      map(features, (feature) => getValueForFeature(feature, data, options.targetField)),
       isFinite
     )
   );
