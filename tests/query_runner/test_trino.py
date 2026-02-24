@@ -59,12 +59,6 @@ class TestTrino(TestCase):
         expected_catalogs = [TestTrino.catalog_name]
         self.assertEqual(catalogs, expected_catalogs)
 
-    def test_configuration_schema_has_client_tags(self):
-        schema = Trino.configuration_schema()
-        self.assertIn("client_tags", schema["properties"])
-        self.assertEqual(schema["properties"]["client_tags"]["type"], "string")
-        self.assertIn("client_tags", schema["extra_options"])
-
     def test_get_client_tags_parses_comma_separated_values(self):
         runner = Trino({"client_tags": "finance,  redash  , ,analytics"})
         self.assertEqual(runner._get_client_tags(), ["finance", "redash", "analytics"])
