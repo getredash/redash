@@ -466,5 +466,11 @@ ENFORCE_CSRF = parse_boolean(os.environ.get("REDASH_ENFORCE_CSRF", "false"))
 
 CSRF_TIME_LIMIT = int(os.environ.get("REDASH_CSRF_TIME_LIMIT", 3600 * 6))
 
+# LLM / AI integration (natural language to SQL)
+OPENAI_API_KEY = os.environ.get("REDASH_OPENAI_API_KEY", "")
+OPENAI_BASE_URL = os.environ.get("REDASH_OPENAI_BASE_URL", "https://api.openai.com/v1")
+OPENAI_MODEL = os.environ.get("REDASH_OPENAI_MODEL", "gpt-4o-mini")
+LLM_ENABLED = bool(OPENAI_API_KEY)
+
 # Email blocked domains, use delimiter comma to separated multiple domains
 BLOCKED_DOMAINS = set_from_string(os.environ.get("REDASH_BLOCKED_DOMAINS", "qq.com"))

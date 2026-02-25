@@ -5,6 +5,7 @@ import cx from "classnames";
 import { useDebouncedCallback } from "use-debounce";
 import useMedia from "use-media";
 import Button from "antd/lib/button";
+import Input from "antd/lib/input";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import Resizable from "@/components/Resizable";
 import Parameters from "@/components/Parameters";
@@ -15,6 +16,8 @@ import { ExecutionStatus } from "@/services/query-result";
 import routes from "@/services/routes";
 import notification from "@/services/notification";
 import * as queryFormat from "@/lib/queryFormat";
+import { clientConfig } from "@/services/auth";
+import { generateQuery } from "@/services/ai";
 
 import QueryPageHeader from "./components/QueryPageHeader";
 import QueryMetadata from "./components/QueryMetadata";
@@ -158,6 +161,33 @@ function QuerySource(props) {
   }, []);
 
   const [selectedText, setSelectedText] = useState(null);
+
+  const [aiPrompt, setAiPrompt] = useState("");
+  const [isAiGenerating, setIsAiGenerating] = useState(false);
+
+  const handleAIGenerate = useCallback(() => {
+    if (!aiPrompt.trim() || isAiGenerating) {
+      return;
+    }
+    setIsAiGenerating(true);
+    const schemaForAI = schema.map(table => ({
+      name: table.name,
+      columns: (table.columns || []).map(col => (typeof col === "string" ? col : col.name)),
+    }));
+    generateQuery(aiPrompt, { dialect: querySyntax || "sql", schema: schemaForAI })
+      .then(data => {
+        if (editorRef.current) {
+          editorRef.current.paste(data.query);
+        }
+        setAiPrompt("");
+      })
+      .catch(() => {
+        notification.error("Failed to generate query. Please check your AI configuration.");
+      })
+      .finally(() => {
+        setIsAiGenerating(false);
+      });
+  }, [aiPrompt, isAiGenerating, schema, querySyntax]);
 
   const doExecuteQuery = useCallback(
     (skipParametersDirtyFlag = false) => {
@@ -324,6 +354,25 @@ function QuerySource(props) {
                           : false
                       }
                     />
+                    {clientConfig.llmEnabled && (
+                      <div className="query-editor-ai-prompt" style={{ display: "flex", gap: 4, padding: "4px 0" }}>
+                        <Input
+                          placeholder="Describe the query you want to generate…"
+                          value={aiPrompt}
+                          onChange={e => setAiPrompt(e.target.value)}
+                          onPressEnter={handleAIGenerate}
+                          disabled={isAiGenerating}
+                          data-test="AIPromptInput"
+                        />
+                        <Button
+                          onClick={handleAIGenerate}
+                          loading={isAiGenerating}
+                          disabled={!aiPrompt.trim()}
+                          data-test="AIGenerateButton">
+                          Generate
+                        </Button>
+                      </div>
+                    )}
                   </section>
                 </div>
               </Resizable>

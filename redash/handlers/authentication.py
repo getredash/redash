@@ -290,6 +290,7 @@ def client_config():
         "pageSize": settings.PAGE_SIZE,
         "pageSizeOptions": settings.PAGE_SIZE_OPTIONS,
         "tableCellMaxJSONSize": settings.TABLE_CELL_MAX_JSON_SIZE,
+        "llmEnabled": settings.LLM_ENABLED,
     }
 
     client_config.update(defaults)

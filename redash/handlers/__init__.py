@@ -25,6 +25,7 @@ def status_api():
 def init_app(app):
     from redash.handlers import (
         admin,
+        ai,
         authentication,
         embed,
         organization,
