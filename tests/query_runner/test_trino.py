@@ -61,6 +61,14 @@ class TestTrino(TestCase):
         expected_catalogs = [TestTrino.catalog_name]
         self.assertEqual(catalogs, expected_catalogs)
 
+    def test_get_client_tags_parses_comma_separated_values(self):
+        runner = Trino({"client_tags": "finance,  redash  , ,analytics"})
+        self.assertEqual(runner._get_client_tags(), ["finance", "redash", "analytics"])
+
+    def test_get_client_tags_returns_none_when_empty(self):
+        runner = Trino({"client_tags": " ,  , "})
+        self.assertIsNone(runner._get_client_tags())
+
 
 class TestConvertRowTypes(TestCase):
     def test_plain_values_unchanged(self):
