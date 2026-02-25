@@ -80,6 +80,26 @@ const DYNAMIC_DATE_OPTIONS = [
 
 const DYNAMIC_DATETIME_OPTIONS = [
   {
+    name: "Last 15 minutes",
+    value: getDynamicDateRangeFromString("d_last_15_minutes"),
+    label: null
+  },
+  {
+    name: "Last 30 minutes",
+    value: getDynamicDateRangeFromString("d_last_30_minutes"),
+    label: null
+  },
+  {
+    name: "Last Hour",
+    value: getDynamicDateRangeFromString("d_last_hour"),
+    label: null
+  },
+  {
+    name: "Last 8 Hours",
+    value: getDynamicDateRangeFromString("d_last_8_hours"),
+    label: null
+  },
+  {
     name: "Today",
     value: getDynamicDateRangeFromString("d_today"),
     label: () => getDynamicDateRangeFromString("d_today").value()[0].format("MMM D"),
