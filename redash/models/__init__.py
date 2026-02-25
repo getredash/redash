@@ -2,6 +2,7 @@ import calendar
 import datetime
 import logging
 import numbers
+import re
 import time
 
 import pytz
@@ -228,7 +229,7 @@ class DataSource(BelongsToOrgMixin, db.Model):
 
     def _sort_schema(self, schema):
         return [
-            {"name": i["name"], "columns": sorted(i["columns"], key=lambda x: x["name"] if isinstance(x, dict) else x)}
+            {**i, "columns": sorted(i["columns"], key=lambda x: x["name"] if isinstance(x, dict) else x)}
             for i in sorted(schema, key=lambda x: x["name"])
         ]
 
@@ -564,7 +565,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
             db.session.query(tag_column, usage_count)
             .group_by(tag_column)
             .filter(Query.id.in_(queries.options(load_only("id"))))
-            .order_by(usage_count.desc())
+            .order_by(tag_column)
         )
         return query
 
@@ -645,6 +646,43 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         return list(outdated_queries.values())
 
     @classmethod
+    def _do_multi_byte_search(cls, all_queries, term, limit=None):
+        # term examples:
+        #    - word
+        #    - name:word
+        #    - query:word
+        #    - "multiple words"
+        #    - name:"multiple words"
+        #    - word1 word2 word3
+        #    - word1 "multiple word" query:"select foo"
+        tokens = re.findall(r'(?:([^:\s]+):)?(?:"([^"]+)"|(\S+))', term)
+        conditions = []
+        for token in tokens:
+            key = None
+            if token[0]:
+                key = token[0]
+
+            if token[1]:
+                value = token[1]
+            else:
+                value = token[2]
+
+            pattern = f"%{value}%"
+
+            if key == "id" and value.isdigit():
+                conditions.append(cls.id.equal(int(value)))
+            elif key == "name":
+                conditions.append(cls.name.ilike(pattern))
+            elif key == "query":
+                conditions.append(cls.query_text.ilike(pattern))
+            elif key == "description":
+                conditions.append(cls.description.ilike(pattern))
+            else:
+                conditions.append(or_(cls.name.ilike(pattern), cls.description.ilike(pattern)))
+
+        return all_queries.filter(and_(*conditions)).order_by(Query.id).limit(limit)
+
+    @classmethod
     def search(
         cls,
         term,
@@ -664,12 +702,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
 
         if multi_byte_search:
             # Since tsvector doesn't work well with CJK languages, use `ilike` too
-            pattern = "%{}%".format(term)
-            return (
-                all_queries.filter(or_(cls.name.ilike(pattern), cls.description.ilike(pattern)))
-                .order_by(Query.id)
-                .limit(limit)
-            )
+            return cls._do_multi_byte_search(all_queries, term, limit)
 
         # sort the result using the weight as defined in the search vector column
         return all_queries.search(term, sort=True).limit(limit)
@@ -678,13 +711,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     def search_by_user(cls, term, user, limit=None, multi_byte_search=False):
         if multi_byte_search:
             # Since tsvector doesn't work well with CJK languages, use `ilike` too
-            pattern = "%{}%".format(term)
-            return (
-                cls.by_user(user)
-                .filter(or_(cls.name.ilike(pattern), cls.description.ilike(pattern)))
-                .order_by(Query.id)
-                .limit(limit)
-            )
+            return cls._do_multi_byte_search(cls.by_user(user), term, limit)
 
         return cls.by_user(user).search(term, sort=True).limit(limit)
 
@@ -725,6 +752,23 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
                    WHERE queries.id in :ids"""
 
         return db.session.execute(query, {"ids": tuple(query_ids)}).fetchall()
+
+    def update_latest_result_by_query_hash(self):
+        query_hash = self.query_hash
+        data_source_id = self.data_source_id
+        query_result = (
+            QueryResult.query.options(load_only("id"))
+            .filter(
+                QueryResult.query_hash == query_hash,
+                QueryResult.data_source_id == data_source_id,
+            )
+            .order_by(QueryResult.retrieved_at.desc())
+            .first()
+        )
+        if query_result:
+            latest_query_data_id = query_result.id
+            self.latest_query_data_id = latest_query_data_id
+            db.session.add(self)
 
     @classmethod
     def update_latest_result(cls, query_result):
@@ -1137,7 +1181,7 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
             db.session.query(tag_column, usage_count)
             .group_by(tag_column)
             .filter(Dashboard.id.in_(dashboards.options(load_only("id"))))
-            .order_by(usage_count.desc())
+            .order_by(tag_column)
         )
         return query
 
@@ -1145,15 +1189,19 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     def favorites(cls, user, base_query=None):
         if base_query is None:
             base_query = cls.all(user.org, user.group_ids, user.id)
-        return base_query.join(
-            (
-                Favorite,
-                and_(
-                    Favorite.object_type == "Dashboard",
-                    Favorite.object_id == Dashboard.id,
-                ),
+        return (
+            base_query.distinct(cls.lowercase_name, Dashboard.created_at, Dashboard.slug, Favorite.created_at)
+            .join(
+                (
+                    Favorite,
+                    and_(
+                        Favorite.object_type == "Dashboard",
+                        Favorite.object_id == Dashboard.id,
+                    ),
+                )
             )
-        ).filter(Favorite.user_id == user.id)
+            .filter(Favorite.user_id == user.id)
+        )
 
     @classmethod
     def by_user(cls, user):
