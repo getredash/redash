@@ -106,8 +106,9 @@ export function createNumberFormatter(format: any, canReturnHTMLElement: boolean
         // Large integers are serialized as strings by the backend to avoid
         // precision loss.  Passing them through numeral would convert them
         // back to a JavaScript Number, reintroducing the precision problem.
-        // Detect this by checking if Number round-trips to a different string.
-        if (isString(value) && /^-?\d+$/.test(value) && String(Number(value)) !== value) {
+        // Even values that survive Number() conversion can drift during
+        // numeral's internal arithmetic, so skip any beyond MAX_SAFE_INTEGER.
+        if (isString(value) && /^-?\d+$/.test(value) && !Number.isSafeInteger(Number(value))) {
             return value;
         }
         return n.set(value).format(format);
