@@ -1,6 +1,6 @@
 {
   "name": "redash-client",
-  "version": "25.09.0-dev",
+  "version": "26.02.0-dev",
   "description": "The frontend part of Redash.",
   "main": "index.js",
   "scripts": {
@@ -46,7 +46,7 @@
   "dependencies": {
     "@ant-design/icons": "^4.2.1",
     "@redash/viz": "file:viz-lib",
-    "ace-builds": "^1.4.12",
+    "ace-builds": "^1.43.3",
     "antd": "4.4.3",
     "axios": "0.27.2",
     "axios-auth-refresh": "3.3.6",
@@ -68,7 +68,7 @@
     "prop-types": "^15.6.1",
     "query-string": "^6.9.0",
     "react": "16.14.0",
-    "react-ace": "^9.1.1",
+    "react-ace": "^14.0.1",
     "react-dom": "^16.14.0",
     "react-grid-layout": "^0.18.2",
     "react-resizable": "^1.10.1",

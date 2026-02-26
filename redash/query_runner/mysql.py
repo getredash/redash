@@ -64,7 +64,7 @@ class Mysql(BaseSQLQueryRunner):
                 "db": {"type": "string", "title": "Database name"},
                 "port": {"type": "number", "default": 3306},
                 "connect_timeout": {"type": "number", "default": 60, "title": "Connection Timeout"},
-                "charset": {"type": "string", "default": "utf8"},
+                "charset": {"type": "string", "default": "utf8mb4"},
                 "use_unicode": {"type": "boolean", "default": True},
                 "autocommit": {"type": "boolean", "default": False},
             },
@@ -131,7 +131,7 @@ class Mysql(BaseSQLQueryRunner):
             passwd=self.configuration.get("passwd", ""),
             db=self.configuration["db"],
             port=self.configuration.get("port", 3306),
-            charset=self.configuration.get("charset", "utf8"),
+            charset=self.configuration.get("charset", "utf8mb4"),
             use_unicode=self.configuration.get("use_unicode", True),
             connect_timeout=self.configuration.get("connect_timeout", 60),
             autocommit=self.configuration.get("autocommit", True),
@@ -150,7 +150,9 @@ class Mysql(BaseSQLQueryRunner):
         query = """
         SELECT col.table_schema as table_schema,
                col.table_name as table_name,
-               col.column_name as column_name
+               col.column_name as column_name,
+               col.data_type as data_type,
+               col.column_comment as column_comment
         FROM `information_schema`.`columns` col
         WHERE LOWER(col.table_schema) NOT IN ('information_schema', 'performance_schema', 'mysql', 'sys');
         """
@@ -169,7 +171,38 @@ class Mysql(BaseSQLQueryRunner):
             if table_name not in schema:
                 schema[table_name] = {"name": table_name, "columns": []}
 
-            schema[table_name]["columns"].append(row["column_name"])
+            schema[table_name]["columns"].append(
+                {
+                    "name": row["column_name"],
+                    "type": row["data_type"],
+                    "description": row["column_comment"],
+                }
+            )
+
+        table_query = """
+                      SELECT col.table_schema as table_schema,
+                             col.table_name as table_name,
+                             col.table_comment as table_comment
+                      FROM `information_schema`.`tables` col
+                      WHERE LOWER(col.table_schema) NOT IN ('information_schema', 'performance_schema', 'mysql', 'sys'); \
+                      """
+
+        results, error = self.run_query(table_query, None)
+
+        if error is not None:
+            self._handle_run_query_error(error)
+
+        for row in results["rows"]:
+            if row["table_schema"] != self.configuration["db"]:
+                table_name = "{}.{}".format(row["table_schema"], row["table_name"])
+            else:
+                table_name = row["table_name"]
+
+            if table_name not in schema:
+                schema[table_name] = {"name": table_name, "columns": []}
+
+            if "table_comment" in row and row["table_comment"]:
+                schema[table_name]["description"] = row["table_comment"]
 
         return list(schema.values())
 
@@ -287,6 +320,7 @@ class RDSMySQL(Mysql):
                 "db": {"type": "string", "title": "Database name"},
                 "port": {"type": "number", "default": 3306},
                 "use_ssl": {"type": "boolean", "title": "Use SSL"},
+                "charset": {"type": "string", "default": "utf8mb4"},
             },
             "order": ["host", "port", "user", "passwd", "db"],
             "required": ["db", "user", "passwd", "host"],

@@ -7,7 +7,7 @@ function getSeriesColor(options: any, seriesOptions: any, seriesIndex: any, numS
   // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
   let palette = AllColorPaletteArrays[options.color_scheme];
   // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
-  if (ColorPaletteTypes[options.color_scheme] === 'continuous' && palette.length > numSeries) {
+  if (ColorPaletteTypes[options.color_scheme] === "continuous" && palette.length > numSeries) {
     const step = (palette.length - 1) / (numSeries - 1 || 1);
     const index = Math.round(step * seriesIndex);
     return seriesOptions.color || palette[index % palette.length];
@@ -39,11 +39,17 @@ function prepareBarSeries(series: any, options: any, additionalOptions: any) {
 
 function prepareLineSeries(series: any, options: any) {
   series.mode = "lines" + (options.showDataLabels ? "+text" : "");
+  series.line = {
+    shape: options.lineShape,
+  };
   return series;
 }
 
 function prepareAreaSeries(series: any, options: any) {
   series.mode = "lines" + (options.showDataLabels ? "+text" : "");
+  series.line = {
+    shape: options.lineShape,
+  };
   series.fill = options.series.stacking ? "tonexty" : "tozeroy";
   return series;
 }
@@ -59,7 +65,7 @@ function prepareBubbleSeries(series: any, options: any, { seriesColor, data }: a
   series.mode = "markers";
   series.marker = {
     color: seriesColor,
-    size: map(data, i => i.size * coefficient),
+    size: map(data, (i) => i.size * coefficient),
     sizemode: options.sizemode || "diameter",
   };
   return series;
@@ -91,7 +97,7 @@ function prepareSeries(series: any, options: any, numSeries: any, additionalOpti
   const seriesYAxis = getSeriesAxis(series, options);
 
   // Sort by x - `Map` preserves order of items
-  const data = options.sortX ? sortBy(series.data, d => normalizeValue(d.x, options.xAxis.type)) : series.data;
+  const data = options.sortX ? sortBy(series.data, (d) => normalizeValue(d.x, options.xAxis.type)) : series.data;
 
   // For bubble/scatter charts `y` may be any (similar to `x`) - numeric is only bubble size;
   // for other types `y` is always number
@@ -110,11 +116,28 @@ function prepareSeries(series: any, options: any, numSeries: any, additionalOpti
   const yValues: any[] = [];
 
   const yErrorValues: any = [];
-  each(data, row => {
+  each(data, (row) => {
     const x = normalizeValue(row.x, options.xAxis.type); // number/datetime/category
     const y = cleanYValue(row.y, seriesYAxis === "y2" ? options.yAxis[1].type : options.yAxis[0].type); // depends on series type!
     const yError = cleanNumber(row.yError); // always number
     const size = cleanNumber(row.size); // always number
+
+    // aggregate y value for the same x
+    if (!isNil(x) && ["column", "line", "area"].includes(seriesOptions.type)) {
+      const item = sourceData.get(x);
+
+      if (item) {
+        if (!isNil(y)) {
+          item.y = (isNil(item.y) ? 0.0 : item.y) + y;
+        }
+        if (!isNil(yError)) {
+          item.yError = (isNil(item.yError) ? 0.0 : item.yError) + yError;
+        }
+        yValues[item.index] = item.y;
+        yErrorValues[item.index] = item.yError;
+        return;
+      }
+    }
 
     sourceData.set(x, {
       x,
@@ -123,6 +146,7 @@ function prepareSeries(series: any, options: any, numSeries: any, additionalOpti
       size,
       yPercent: null, // will be updated later
       row,
+      index: xValues.length,
     });
     xValues.push(x);
     yValues.push(y);
@@ -174,7 +198,7 @@ export default function prepareDefaultData(seriesList: any, options: any) {
   const additionalOptions = {
     hoverInfoPattern: getHoverInfoPattern(options),
   };
-  const numSeries = seriesList.length
+  const numSeries = seriesList.length;
 
   return map(seriesList, (series, index) => prepareSeries(series, options, numSeries, { ...additionalOptions, index }));
 }
