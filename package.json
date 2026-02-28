@@ -33,7 +33,7 @@
     "url": "git+https://github.com/getredash/redash.git"
   },
   "engines": {
-    "node": ">16.0 <21.0",
+    "node": ">16.0 <25.0",
     "npm": "please-use-yarn",
     "yarn": "^1.22.10"
   },

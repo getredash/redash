@@ -1,4 +1,4 @@
-FROM node:18-bookworm AS frontend-builder
+FROM node:24-bookworm AS frontend-builder
 
 RUN npm install --global --force yarn@1.22.22
 
@@ -23,11 +23,21 @@ ENV BABEL_ENV=${code_coverage:+test}
 # Avoid issues caused by lags in disk and network I/O speeds when working on top of QEMU emulation for multi-platform image building.
 RUN yarn config set network-timeout 300000
 
-RUN if [ "x$skip_frontend_build" = "x" ] ; then yarn --frozen-lockfile --network-concurrency 1; fi
+# Use BuildKit cache mounts for yarn cache and node_modules to speed rebuilds
+# Set Yarn cache folder to inside the build workdir (user `redash` home is /frontend)
+ENV YARN_CACHE_FOLDER=/frontend/.cache/yarn
+
+# Mount caches for yarn cache and node_modules when installing
+RUN --mount=type=cache,id=yarn-cache,target=/frontend/.cache/yarn \
+  --mount=type=cache,id=node-modules,target=/frontend/node_modules \
+  if [ "x$skip_frontend_build" = "x" ] ; then yarn --frozen-lockfile --network-concurrency 1; fi
 
 COPY --chown=redash client /frontend/client
 COPY --chown=redash webpack.config.js /frontend/
-RUN <<EOF
+
+# Use the same cache mounts for the build step so build artifacts reuse cached installs
+RUN --mount=type=cache,id=yarn-cache,target=/frontend/.cache/yarn \
+    --mount=type=cache,id=node-modules,target=/frontend/node_modules <<EOF
   if [ "x$skip_frontend_build" = "x" ]; then
     yarn build
   else
