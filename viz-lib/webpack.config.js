@@ -17,7 +17,8 @@ module.exports = {
     extensions: [".js", ".jsx", ".ts", ".tsx"],
     fallback: {
       fs: false,
-      path: false
+      path: false,
+      stream: false
     }
   },
   module: {
