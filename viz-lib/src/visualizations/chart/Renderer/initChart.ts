@@ -36,8 +36,7 @@ function initPlotUpdater() {
       }
       return updater;
     },
-    // @ts-expect-error ts-migrate(7023) FIXME: 'process' implicitly has return type 'any' because... Remove this comment to see the full error message
-    process(plotlyElement: any) {
+    process(plotlyElement: any): Promise<void> {
       if (actions.length > 0) {
         const updates = reduce(actions, (updates, action) => merge(updates, action[0]), {});
         const handlers = map(actions, action => (isFunction(action[1]) ? action[1] : () => null));
@@ -149,8 +148,7 @@ export default function initChart(container: any, options: any, data: any, addit
     )
     .catch(handleError);
 
-  // @ts-expect-error ts-migrate(7022) FIXME: 'result' implicitly has type 'any' because it does... Remove this comment to see the full error message
-  const result = {
+  const result: any = {
     initialized: promise.then(() => result),
     setZoomEnabled: createSafeFunction((allowZoom: any) => {
       const layoutUpdates = { dragmode: allowZoom ? "zoom" : false };

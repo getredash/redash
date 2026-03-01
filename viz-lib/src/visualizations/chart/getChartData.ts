@@ -100,7 +100,7 @@ export default function getChartData(data: any, options: any) {
   });
   return sortBy(values(series), ({ name }) => {
     if (isObject(options.seriesOptions[name])) {
-      return options.seriesOptions[name].zIndex || 0;
+      return (options.seriesOptions[name] as any).zIndex || 0;
     }
     return 0;
   });

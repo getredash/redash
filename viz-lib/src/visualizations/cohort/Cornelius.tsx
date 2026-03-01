@@ -193,7 +193,12 @@ type OwnCorneliusProps = {
   };
 };
 
-type CorneliusProps = OwnCorneliusProps & typeof Cornelius.defaultProps;
+const corneliusDefaultProps = {
+  data: [],
+  options: {},
+};
+
+type CorneliusProps = OwnCorneliusProps & typeof corneliusDefaultProps;
 
 export default function Cornelius({ data, options }: CorneliusProps) {
   options = useMemo(() => prepareOptions(options), [options]);
@@ -231,7 +236,4 @@ export default function Cornelius({ data, options }: CorneliusProps) {
   );
 }
 
-Cornelius.defaultProps = {
-  data: [],
-  options: {},
-};
+Cornelius.defaultProps = corneliusDefaultProps;

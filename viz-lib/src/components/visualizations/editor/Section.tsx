@@ -8,7 +8,12 @@ type OwnSectionTitleProps = {
   children?: React.ReactNode;
 };
 
-type SectionTitleProps = OwnSectionTitleProps & typeof SectionTitle.defaultProps;
+const sectionTitleDefaultProps = {
+  className: null,
+  children: null,
+};
+
+type SectionTitleProps = OwnSectionTitleProps & typeof sectionTitleDefaultProps;
 
 // @ts-expect-error ts-migrate(2700) FIXME: Rest types may only be created from object types.
 function SectionTitle({ className, children, ...props }: SectionTitleProps) {
@@ -23,17 +28,19 @@ function SectionTitle({ className, children, ...props }: SectionTitleProps) {
   );
 }
 
-SectionTitle.defaultProps = {
-  className: null,
-  children: null,
-};
+SectionTitle.defaultProps = sectionTitleDefaultProps;
 
 type OwnSectionProps = {
   className?: string;
   children?: React.ReactNode;
 };
 
-type SectionProps = OwnSectionProps & typeof Section.defaultProps;
+const sectionDefaultProps = {
+  className: null,
+  children: null,
+};
+
+type SectionProps = OwnSectionProps & typeof sectionDefaultProps;
 
 // @ts-expect-error ts-migrate(2700) FIXME: Rest types may only be created from object types.
 export default function Section({ className, children, ...props }: SectionProps) {
@@ -44,9 +51,6 @@ export default function Section({ className, children, ...props }: SectionProps)
   );
 }
 
-Section.defaultProps = {
-  className: null,
-  children: null,
-};
+Section.defaultProps = sectionDefaultProps;
 
 Section.Title = SectionTitle;

@@ -44,7 +44,15 @@ type OwnProps = {
   onPressEnter?: (...args: any[]) => any;
 };
 
-type Props = OwnProps & typeof Input.defaultProps;
+const inputDefaultProps = {
+  color: "#FFFFFF",
+  presetColors: null,
+  presetColumns: 8,
+  onChange: () => {},
+  onPressEnter: () => {},
+};
+
+type Props = OwnProps & typeof inputDefaultProps;
 
 export default function Input({ color, presetColors, presetColumns, onChange, onPressEnter }: Props) {
   const [inputValue, setInputValue] = useState("");
@@ -88,10 +96,4 @@ export default function Input({ color, presetColors, presetColumns, onChange, on
   );
 }
 
-Input.defaultProps = {
-  color: "#FFFFFF",
-  presetColors: null,
-  presetColumns: 8,
-  onChange: () => {},
-  onPressEnter: () => {},
-};
+Input.defaultProps = inputDefaultProps;

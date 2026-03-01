@@ -7,8 +7,8 @@ on:
     branches:
       - master
 env:
-  NODE_VERSION: 18
-  YARN_VERSION: 1.22.22
+  NODE_VERSION: 24
+  PNPM_VERSION: 10.30.3
 jobs:
   backend-lint:
     runs-on: ubuntu-22.04
@@ -22,7 +22,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.8'
+          python-version: '3.13'
       - run: sudo pip install black==23.1.0 ruff==0.0.287
       - run: ruff check .
       - run: black --check .
@@ -85,16 +85,17 @@ jobs:
         with:
           fetch-depth: 1
           ref: ${{ github.event.pull_request.head.sha }}
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'yarn'
+          cache: 'pnpm'
       - name: Install Dependencies
-        run: |
-          npm install --global --force yarn@$YARN_VERSION
-          yarn cache clean && yarn --frozen-lockfile --network-concurrency 1
+        run: pnpm install --frozen-lockfile
       - name: Run Lint
-        run: yarn lint:ci
+        run: pnpm run lint:ci
       - name: Store Test Results
         uses: actions/upload-artifact@v4
         with:
@@ -112,19 +113,20 @@ jobs:
         with:
           fetch-depth: 1
           ref: ${{ github.event.pull_request.head.sha }}
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'yarn'
+          cache: 'pnpm'
       - name: Install Dependencies
-        run: |
-          npm install --global --force yarn@$YARN_VERSION
-          yarn cache clean && yarn --frozen-lockfile --network-concurrency 1
+        run: pnpm install --frozen-lockfile
       - name: Run App Tests
-        run: yarn test
+        run: pnpm run test
       - name: Run Visualizations Tests
-        run: cd viz-lib && yarn test
-      - run: yarn lint
+        run: pnpm --filter @redash/viz test
+      - run: pnpm run lint
 
   frontend-e2e-tests:
     runs-on: ubuntu-22.04
@@ -145,26 +147,27 @@ jobs:
         with:
           fetch-depth: 1
           ref: ${{ github.event.pull_request.head.sha }}
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'yarn'
+          cache: 'pnpm'
       - name: Enable Code Coverage Report For Master Branch
         if: endsWith(github.ref, '/master')
         run: |
           echo "CODE_COVERAGE=true" >> "$GITHUB_ENV"
       - name: Install Dependencies
-        run: |
-          npm install --global --force yarn@$YARN_VERSION
-          yarn cache clean && yarn --frozen-lockfile --network-concurrency 1
+        run: pnpm install --frozen-lockfile
       - name: Setup Redash Server
         run: |
           set -x
-          yarn cypress build
-          yarn cypress start -- --skip-db-seed
-          docker compose run cypress yarn cypress db-seed
+          pnpm run cypress build
+          pnpm run cypress start -- --skip-db-seed
+          docker compose run cypress pnpm run cypress db-seed
       - name: Execute Cypress Tests
-        run: yarn cypress run-ci
+        run: pnpm run cypress run-ci
       - name: "Failure: output container logs to console"
         if: failure()
         run: docker compose logs
