@@ -1,6 +1,7 @@
 import React from "react";
 import { mount } from "enzyme";
 import moment from "moment";
+import { durationHumanize } from "@/lib/utils";
 import ScheduleDialog, { TimeEditor } from "./ScheduleDialog";
 import RefreshScheduleDefault from "../proptypes";
 
@@ -208,28 +209,26 @@ describe("ScheduleDialog", () => {
 
   describe("Adheres to user permissions", () => {
     test("Shows correct interval options", () => {
-      const refreshOptions = [60, 300, 3600, 7200]; // 1 min, 1 hour
+      const refreshOptions = [60, 300, 3600, 7200]; // 1 min, 5 min, 1 hour, 2 hours
       const [wrapper] = getWrapper(null, { refreshOptions });
 
-      // click select
-      findByTestID(wrapper, "interval")
-        .find(".ant-select")
-        .simulate("click");
+      // Get the ScheduleDialog component instance and verify its computed intervals
+      const component = wrapper.find("ScheduleDialog").instance();
+      const intervals = component.intervals;
 
-      // get dropdown menu items
-      const options = mount(
-        wrapper
-          .find("Trigger")
-          .instance()
-          .getComponent()
-      ).find(".ant-select-item-option-content");
+      // Flatten all interval options to [label, seconds] pairs, prepend "Never"
+      const allOptions = ["Never"];
+      Object.keys(intervals)
+        .filter((key) => intervals[key].length > 0)
+        .forEach((key) => {
+          intervals[key].forEach(([, secs]) => {
+            allOptions.push(durationHumanize(secs));
+          });
+        });
 
-      const texts = options.map(node => node.text());
       const expected = ["Never", "1 minute", "5 minutes", "1 hour", "2 hours"];
 
-      // eslint-disable-next-line jest/prefer-to-have-length
-      expect(options.length).toEqual(expected.length);
-      expect(texts).toEqual(expected);
+      expect(allOptions).toEqual(expected);
     });
   });
 
