@@ -81,6 +81,7 @@ function UserSelect({ onSelect, shouldShowUser }) {
   const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedSearchUsers = useCallback(
     debounce(
       search =>

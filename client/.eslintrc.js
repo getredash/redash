@@ -10,6 +10,10 @@ module.exports = {
   plugins: ["jest", "compat", "no-only-tests", "@typescript-eslint", "jsx-a11y"],
   settings: {
     "import/resolver": "webpack",
+    polyfills: [
+      "document.body",
+      "Notification",
+    ],
   },
   env: {
     browser: true,
@@ -18,6 +22,10 @@ module.exports = {
   rules: {
     // allow debugger during development
     "no-debugger": process.env.NODE_ENV === "production" ? 2 : 0,
+    // Pre-existing patterns - anonymous default exports are used throughout
+    "import/no-anonymous-default-export": "off",
+    // Some tests verify no-throw behavior without explicit assertions
+    "jest/expect-expect": "off",
     "jsx-a11y/anchor-is-valid": [
       // TMP
       "off",
@@ -63,6 +71,24 @@ module.exports = {
         "@typescript-eslint/no-useless-constructor": "error",
         // Many API fields and generated types use camelcase
         camelcase: "off",
+        // Allow {} type - used extensively in existing codebase
+        "@typescript-eslint/ban-types": ["error", { types: { "{}": false } }],
+      },
+    },
+    {
+      // Cypress test files
+      files: ["**/cypress/**/*.js"],
+      extends: ["plugin:cypress/recommended"],
+      plugins: ["cypress", "chai-friendly"],
+      env: {
+        "cypress/globals": true,
+      },
+      rules: {
+        "no-redeclare": "off",
+        "cypress/unsafe-to-chain-command": "off",
+        "func-names": ["error", "never"],
+        "no-unused-expressions": "off",
+        "chai-friendly/no-unused-expressions": "error",
       },
     },
   ],
