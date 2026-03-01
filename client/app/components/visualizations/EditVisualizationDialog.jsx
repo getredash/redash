@@ -184,6 +184,7 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
               id={vizTypeId}
               className="w-100"
               disabled={!isNew}
+              virtual={false}
               value={type}
               onChange={onTypeChanged}>
               {map(availableVisualizations, vis => (
