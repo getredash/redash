@@ -24,10 +24,10 @@ const DEBOUNCE_SEARCH_DURATION = 200;
 function useGrantees(url) {
   const loadGrantees = useCallback(
     () =>
-      axios.get(url).then(data => {
+      axios.get(url).then((data) => {
         const resultGrantees = [];
         each(data, (grantees, accessType) => {
-          grantees.forEach(grantee => {
+          grantees.forEach((grantee) => {
             grantee.accessType = toHuman(accessType);
             resultGrantees.push(grantee);
           });
@@ -56,7 +56,7 @@ function useGrantees(url) {
   return { loadGrantees, addPermission, removePermission };
 }
 
-const searchUsers = searchTerm =>
+const searchUsers = (searchTerm) =>
   User.query({ q: searchTerm })
     .then(({ results }) => results)
     .catch(() => []);
@@ -84,7 +84,7 @@ function UserSelect({ onSelect, shouldShowUser }) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedSearchUsers = useCallback(
     debounce(
-      search =>
+      (search) =>
         searchUsers(search)
           .then(setUsers)
           .finally(() => setLoadingUsers(false)),
@@ -117,9 +117,10 @@ function UserSelect({ onSelect, shouldShowUser }) {
       filterOption={false}
       notFoundContent={null}
       value={undefined}
-      getPopupContainer={trigger => trigger.parentNode}
-      onSelect={onSelect}>
-      {users.filter(shouldShowUser).map(user => (
+      getPopupContainer={(trigger) => trigger.parentNode}
+      onSelect={onSelect}
+    >
+      {users.filter(shouldShowUser).map((user) => (
         <Option key={user.id} value={user.id}>
           <UserPreviewCard user={user} />
         </Option>
@@ -147,7 +148,7 @@ function PermissionsEditorDialog({ dialog, author, context, aclUrl }) {
   }, [loadGrantees]);
 
   const userHasPermission = useCallback(
-    user => user.id === author.id || !!get(find(grantees, { id: user.id }), "accessType"),
+    (user) => user.id === author.id || !!get(find(grantees, { id: user.id }), "accessType"),
     [author.id, grantees]
   );
 
@@ -160,10 +161,11 @@ function PermissionsEditorDialog({ dialog, author, context, aclUrl }) {
       {...dialog.props}
       className="permissions-editor-dialog"
       title={<PermissionsEditorDialogHeader context={context} />}
-      footer={<Button onClick={dialog.dismiss}>Close</Button>}>
+      footer={<Button onClick={dialog.dismiss}>Close</Button>}
+    >
       <UserSelect
-        onSelect={userId => addPermission(userId).then(loadUsersWithPermissions)}
-        shouldShowUser={user => !userHasPermission(user)}
+        onSelect={(userId) => addPermission(userId).then(loadUsersWithPermissions)}
+        shouldShowUser={(user) => !userHasPermission(user)}
       />
       <div className="d-flex align-items-center m-t-5">
         <h5 className="flex-fill">Users with permissions</h5>
@@ -178,7 +180,7 @@ function PermissionsEditorDialog({ dialog, author, context, aclUrl }) {
         <List
           size="small"
           dataSource={[author, ...grantees]}
-          renderItem={user => (
+          renderItem={(user) => (
             <List.Item>
               <UserPreviewCard key={user.id} user={user}>
                 {user.id === author.id ? (
@@ -187,7 +189,8 @@ function PermissionsEditorDialog({ dialog, author, context, aclUrl }) {
                   <Tooltip title="Remove user permissions">
                     <PlainButton
                       aria-label="Remove permissions"
-                      onClick={() => removePermission(user.id).then(loadUsersWithPermissions)}>
+                      onClick={() => removePermission(user.id).then(loadUsersWithPermissions)}
+                    >
                       <i className="fa fa-remove clickable" aria-hidden="true" />
                     </PlainButton>
                   </Tooltip>

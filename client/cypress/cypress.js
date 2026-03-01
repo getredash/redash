@@ -20,7 +20,7 @@ function seedDatabase(seedValues) {
     const data = request.type === "form" ? { formData: request.data } : { json: request.data };
 
     if (headers["set-cookie"]) {
-      const cookies = headers["set-cookie"].map(cookie => new Cookie(cookie));
+      const cookies = headers["set-cookie"].map((cookie) => new Cookie(cookie));
       const csrfCookie = find(cookies, { key: "csrf_token" });
       if (csrfCookie) {
         if (request.type === "form") {
