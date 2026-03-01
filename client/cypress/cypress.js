@@ -107,6 +107,6 @@ switch (command) {
     stopServer();
     break;
   default:
-    console.log("Usage: yarn cypress [build|start|db-seed|open|run|stop]");
+    console.log("Usage: pnpm run cypress [build|start|db-seed|open|run|stop]");
     break;
 }
