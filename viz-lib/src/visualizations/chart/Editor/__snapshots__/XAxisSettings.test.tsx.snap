@@ -1,12 +1,12 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`Visualizations -> Chart -> Editor -> X-Axis Settings Changes axis name 1`] = `
-Object {
-  "xAxis": Object {
-    "labels": Object {
+{
+  "xAxis": {
+    "labels": {
       "enabled": true,
     },
-    "title": Object {
+    "title": {
       "text": "test",
     },
     "type": "-",
@@ -15,9 +15,9 @@ Object {
 `;
 
 exports[`Visualizations -> Chart -> Editor -> X-Axis Settings Changes axis tick format 1`] = `
-Object {
-  "xAxis": Object {
-    "labels": Object {
+{
+  "xAxis": {
+    "labels": {
       "enabled": true,
     },
     "tickFormat": "%B",
@@ -27,9 +27,9 @@ Object {
 `;
 
 exports[`Visualizations -> Chart -> Editor -> X-Axis Settings Changes axis type 1`] = `
-Object {
-  "xAxis": Object {
-    "labels": Object {
+{
+  "xAxis": {
+    "labels": {
       "enabled": true,
     },
     "type": "linear",
@@ -38,15 +38,15 @@ Object {
 `;
 
 exports[`Visualizations -> Chart -> Editor -> X-Axis Settings Sets Reverse X Values option 1`] = `
-Object {
+{
   "reverseX": true,
 }
 `;
 
 exports[`Visualizations -> Chart -> Editor -> X-Axis Settings Sets Show Labels option 1`] = `
-Object {
-  "xAxis": Object {
-    "labels": Object {
+{
+  "xAxis": {
+    "labels": {
       "enabled": true,
     },
   },
@@ -54,7 +54,7 @@ Object {
 `;
 
 exports[`Visualizations -> Chart -> Editor -> X-Axis Settings Sets Sort X Values option 1`] = `
-Object {
+{
   "sortX": true,
 }
 `;

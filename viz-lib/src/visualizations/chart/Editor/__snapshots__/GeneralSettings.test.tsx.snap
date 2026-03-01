@@ -1,19 +1,19 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`Visualizations -> Chart -> Editor -> General Settings Box: toggles show points 1`] = `
-Object {
+{
   "showpoints": true,
 }
 `;
 
 exports[`Visualizations -> Chart -> Editor -> General Settings Changes global series type 1`] = `
-Object {
+{
   "globalSeriesType": "pie",
-  "seriesOptions": Object {
-    "a": Object {
+  "seriesOptions": {
+    "a": {
       "type": "pie",
     },
-    "b": Object {
+    "b": {
       "type": "pie",
     },
   },
@@ -23,51 +23,51 @@ Object {
 `;
 
 exports[`Visualizations -> Chart -> Editor -> General Settings Enables stacking 1`] = `
-Object {
-  "series": Object {
+{
+  "series": {
     "stacking": "stack",
   },
 }
 `;
 
 exports[`Visualizations -> Chart -> Editor -> General Settings Keep missing/null values 1`] = `
-Object {
+{
   "missingValuesAsZero": false,
 }
 `;
 
 exports[`Visualizations -> Chart -> Editor -> General Settings Pie: changes direction 1`] = `
-Object {
-  "direction": Object {
+{
+  "direction": {
     "type": "clockwise",
   },
 }
 `;
 
 exports[`Visualizations -> Chart -> Editor -> General Settings Toggles Enable click events 1`] = `
-Object {
+{
   "enableLink": true,
 }
 `;
 
 exports[`Visualizations -> Chart -> Editor -> General Settings Toggles horizontal bar chart 1`] = `
-Object {
-  "seriesOptions": Object {},
+{
+  "seriesOptions": {},
   "swappedAxes": true,
 }
 `;
 
 exports[`Visualizations -> Chart -> Editor -> General Settings Toggles legend 1`] = `
-Object {
-  "legend": Object {
+{
+  "legend": {
     "enabled": false,
   },
 }
 `;
 
 exports[`Visualizations -> Chart -> Editor -> General Settings Toggles normalize values to percentage 1`] = `
-Object {
-  "series": Object {
+{
+  "series": {
     "percentValues": true,
   },
 }

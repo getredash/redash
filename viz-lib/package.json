@@ -103,6 +103,10 @@
   },
   "jest": {
     "rootDir": "./src",
+    "testEnvironment": "jsdom",
+    "transform": {
+      "\\.[jt]sx?$": "babel-jest"
+    },
     "setupFiles": [
       "../__tests__/enzyme_setup.js",
       "../__tests__/mocks.js"

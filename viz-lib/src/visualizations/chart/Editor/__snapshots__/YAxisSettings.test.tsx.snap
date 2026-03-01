@@ -1,13 +1,13 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`Visualizations -> Chart -> Editor -> Y-Axis Settings Changes axis max value 1`] = `
-Object {
-  "yAxis": Array [
-    Object {
+{
+  "yAxis": [
+    {
       "rangeMax": 200,
       "type": "linear",
     },
-    Object {
+    {
       "opposite": true,
       "type": "linear",
     },
@@ -16,13 +16,13 @@ Object {
 `;
 
 exports[`Visualizations -> Chart -> Editor -> Y-Axis Settings Changes axis min value 1`] = `
-Object {
-  "yAxis": Array [
-    Object {
+{
+  "yAxis": [
+    {
       "rangeMin": 50,
       "type": "linear",
     },
-    Object {
+    {
       "opposite": true,
       "type": "linear",
     },
@@ -31,15 +31,15 @@ Object {
 `;
 
 exports[`Visualizations -> Chart -> Editor -> Y-Axis Settings Changes axis name 1`] = `
-Object {
-  "yAxis": Array [
-    Object {
-      "title": Object {
+{
+  "yAxis": [
+    {
+      "title": {
         "text": "test",
       },
       "type": "linear",
     },
-    Object {
+    {
       "opposite": true,
       "type": "linear",
     },
@@ -48,13 +48,13 @@ Object {
 `;
 
 exports[`Visualizations -> Chart -> Editor -> Y-Axis Settings Changes axis tick format 1`] = `
-Object {
-  "yAxis": Array [
-    Object {
+{
+  "yAxis": [
+    {
       "tickFormat": "s",
       "type": "linear",
     },
-    Object {
+    {
       "opposite": true,
       "type": "linear",
     },
@@ -63,12 +63,12 @@ Object {
 `;
 
 exports[`Visualizations -> Chart -> Editor -> Y-Axis Settings Changes axis type 1`] = `
-Object {
-  "yAxis": Array [
-    Object {
+{
+  "yAxis": [
+    {
       "type": "category",
     },
-    Object {
+    {
       "opposite": true,
       "type": "linear",
     },
@@ -77,13 +77,13 @@ Object {
 `;
 
 exports[`Visualizations -> Chart -> Editor -> Y-Axis Settings for heatmap Sets Reverse Y Values option 1`] = `
-Object {
+{
   "reverseY": true,
 }
 `;
 
 exports[`Visualizations -> Chart -> Editor -> Y-Axis Settings for heatmap Sets Sort X Values option 1`] = `
-Object {
+{
   "sortY": true,
 }
 `;
