@@ -1,13 +1,11 @@
-FROM cypress/browsers:node18.12.0-chrome106-ff106
+FROM cypress/browsers:node-24.14.0-chrome-145.0.7632.116-1-ff-148.0-edge-145.0.3800.70-1
 
 ENV APP /usr/src/app
 WORKDIR $APP
 
-RUN npm install -g pnpm@10.30.3
-
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc $APP/
 COPY viz-lib $APP/viz-lib
-RUN pnpm install --frozen-lockfile > /dev/null
+RUN npm install -g pnpm@10.30.3 && pnpm install --frozen-lockfile > /dev/null
 
 COPY . $APP
 
