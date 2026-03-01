@@ -1,6 +1,6 @@
 FROM node:24-bookworm AS frontend-builder
 
-RUN npm install --global --force yarn@1.22.22
+RUN npm install --global pnpm@10.30.3
 
 # Controls whether to build the frontend assets
 ARG skip_frontend_build
@@ -12,7 +12,7 @@ RUN useradd -m -d /frontend redash
 USER redash
 
 WORKDIR /frontend
-COPY --chown=redash package.json yarn.lock .yarnrc /frontend/
+COPY --chown=redash package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc /frontend/
 COPY --chown=redash viz-lib /frontend/viz-lib
 COPY --chown=redash scripts /frontend/scripts
 
@@ -20,26 +20,18 @@ COPY --chown=redash scripts /frontend/scripts
 ARG code_coverage
 ENV BABEL_ENV=${code_coverage:+test}
 
-# Avoid issues caused by lags in disk and network I/O speeds when working on top of QEMU emulation for multi-platform image building.
-RUN yarn config set network-timeout 300000
-
-# Use BuildKit cache mounts for yarn cache and node_modules to speed rebuilds
-# Set Yarn cache folder to inside the build workdir (user `redash` home is /frontend)
-ENV YARN_CACHE_FOLDER=/frontend/.cache/yarn
-
-# Mount caches for yarn cache and node_modules when installing
-RUN --mount=type=cache,id=yarn-cache,target=/frontend/.cache/yarn,uid=1001,gid=1001 \
-  --mount=type=cache,id=node-modules,target=/frontend/node_modules,uid=1001,gid=1001 \
-  if [ "x$skip_frontend_build" = "x" ] ; then yarn --frozen-lockfile --network-concurrency 1; fi
+# Use BuildKit cache mount for pnpm store to speed rebuilds
+RUN --mount=type=cache,id=pnpm-store,target=/frontend/.cache/pnpm,uid=1001,gid=1001 \
+  pnpm config set store-dir /frontend/.cache/pnpm && \
+  if [ "x$skip_frontend_build" = "x" ] ; then pnpm install --frozen-lockfile; fi
 
 COPY --chown=redash client /frontend/client
 COPY --chown=redash webpack.config.js /frontend/
 
-# Use the same cache mounts for the build step so build artifacts reuse cached installs
-RUN --mount=type=cache,id=yarn-cache,target=/frontend/.cache/yarn,uid=1001,gid=1001 \
-    --mount=type=cache,id=node-modules,target=/frontend/node_modules,uid=1001,gid=1001 <<EOF
+# Use the same cache mount for the build step
+RUN --mount=type=cache,id=pnpm-store,target=/frontend/.cache/pnpm,uid=1001,gid=1001 <<EOF
   if [ "x$skip_frontend_build" = "x" ]; then
-    yarn build
+    pnpm run build
   else
     mkdir -p /frontend/client/dist
     touch /frontend/client/dist/multi_org.html

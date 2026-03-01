@@ -79,7 +79,7 @@ const config = {
   node: {
   },
   resolve: {
-    symlinks: false,
+    symlinks: true,
     extensions: [".js", ".jsx", ".ts", ".tsx"],
     alias: {
       "@": appPath,
