@@ -22,7 +22,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.8'
+          python-version: '3.13'
       - run: sudo pip install black==23.1.0 ruff==0.0.287
       - run: ruff check .
       - run: black --check .
