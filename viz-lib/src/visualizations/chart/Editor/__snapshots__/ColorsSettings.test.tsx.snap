@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`Visualizations -> Chart -> Editor -> Colors Settings for all except of pie and heatmap Changes series color 1`] = `
 Object {

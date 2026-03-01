@@ -100,7 +100,7 @@ WORKDIR /app
 ENV POETRY_VERSION=2.1.4
 ENV POETRY_HOME=/etc/poetry
 ENV POETRY_VIRTUALENVS_CREATE=false
-RUN curl -sSL https://install.python-poetry.org | python3 -
+RUN curl -sSL --retry 3 --retry-delay 5 https://install.python-poetry.org | python3 -
 
 # Avoid crashes, including corrupted cache artifacts, when building multi-platform images with GitHub Actions.
 RUN /etc/poetry/bin/poetry cache clear pypi --all
