@@ -35,7 +35,6 @@ function box() {
         : d3.range(n);
 
       // Compute the new x-scale.
-      // @ts-expect-error ts-migrate(2339) FIXME: Property 'scale' does not exist on type 'typeof im... Remove this comment to see the full error message
       const x1 = d3.scale
         .linear()
         // @ts-expect-error ts-migrate(2683) FIXME: 'this' implicitly has type 'any' because it does n... Remove this comment to see the full error message
@@ -46,7 +45,6 @@ function box() {
       const x0 =
         // @ts-expect-error ts-migrate(2683) FIXME: 'this' implicitly has type 'any' because it does n... Remove this comment to see the full error message
         this.__chart__ ||
-        // @ts-expect-error ts-migrate(2339) FIXME: Property 'scale' does not exist on type 'typeof im... Remove this comment to see the full error message
         d3.scale
           .linear()
           .domain([0, Infinity])
@@ -69,32 +67,30 @@ function box() {
         .insert("line", "rect")
         .attr("class", "center")
         .attr("x1", width / 2)
-        .attr("y1", d => x0(d[0]))
+        .attr("y1", (d: any) => x0(d[0]))
         .attr("x2", width / 2)
-        .attr("y2", d => x0(d[1]))
+        .attr("y2", (d: any) => x0(d[1]))
         .style("opacity", 1e-6)
         .transition()
         .duration(duration)
         .style("opacity", 1)
-        .attr("y1", d => x1(d[0]))
-        .attr("y2", d => x1(d[1]));
+        .attr("y1", (d: any) => x1(d[0]))
+        .attr("y2", (d: any) => x1(d[1]));
 
       center
         .transition()
         .duration(duration)
         .style("opacity", 1)
-        .attr("y1", d => x1(d[0]))
-        .attr("y2", d => x1(d[1]));
+        .attr("y1", (d: any) => x1(d[0]))
+        .attr("y2", (d: any) => x1(d[1]));
 
       center
         .exit()
         .transition()
         .duration(duration)
         .style("opacity", 1e-6)
-        // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
-        .attr("y1", d => x1(d[0]))
-        // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
-        .attr("y2", d => x1(d[1]))
+        .attr("y1", (d: any) => x1(d[0]))
+        .attr("y2", (d: any) => x1(d[1]))
         .remove();
 
       // Update innerquartile box.
@@ -105,19 +101,19 @@ function box() {
         .append("rect")
         .attr("class", "box")
         .attr("x", 0)
-        .attr("y", d => x0(d[2]))
+        .attr("y", (d: any) => x0(d[2]))
         .attr("width", width)
-        .attr("height", d => x0(d[0]) - x0(d[2]))
+        .attr("height", (d: any) => x0(d[0]) - x0(d[2]))
         .transition()
         .duration(duration)
-        .attr("y", d => x1(d[2]))
-        .attr("height", d => x1(d[0]) - x1(d[2]));
+        .attr("y", (d: any) => x1(d[2]))
+        .attr("height", (d: any) => x1(d[0]) - x1(d[2]));
 
       box
         .transition()
         .duration(duration)
-        .attr("y", d => x1(d[2]))
-        .attr("height", d => x1(d[0]) - x1(d[2]));
+        .attr("y", (d: any) => x1(d[2]))
+        .attr("height", (d: any) => x1(d[0]) - x1(d[2]));
 
       box.exit().remove();
 
@@ -188,25 +184,24 @@ function box() {
         .attr("class", "outlier")
         .attr("r", 5)
         .attr("cx", width / 2)
-        .attr("cy", i => x0(d[i]))
+        .attr("cy", (i: any) => x0(d[i]))
         .style("opacity", 1e-6)
         .transition()
         .duration(duration)
-        .attr("cy", i => x1(d[i]))
+        .attr("cy", (i: any) => x1(d[i]))
         .style("opacity", 1);
 
       outlier
         .transition()
         .duration(duration)
-        .attr("cy", i => x1(d[i]))
+        .attr("cy", (i: any) => x1(d[i]))
         .style("opacity", 1);
 
       outlier
         .exit()
         .transition()
         .duration(duration)
-        // @ts-expect-error ts-migrate(2538) FIXME: Type 'unknown' cannot be used as an index type.
-        .attr("cy", i => x1(d[i]))
+        .attr("cy", (i: any) => x1(d[i]))
         .style("opacity", 1e-6)
         .remove();
 
@@ -221,10 +216,10 @@ function box() {
         .append("text")
         .attr("class", "box")
         .attr("dy", ".3em")
-        .attr("dx", (d, i) => (i & 1 ? 6 : -6))
-        .attr("x", (d, i) => (i & 1 ? width : 0))
+        .attr("dx", (d: any, i: any) => (i & 1 ? 6 : -6))
+        .attr("x", (d: any, i: any) => (i & 1 ? width : 0))
         .attr("y", x0)
-        .attr("text-anchor", (d, i) => (i & 1 ? "start" : "end"))
+        .attr("text-anchor", (d: any, i: any) => (i & 1 ? "start" : "end"))
         .text(format)
         .transition()
         .duration(duration)
@@ -273,7 +268,6 @@ function box() {
         .style("opacity", 1e-6)
         .remove();
     });
-    // @ts-expect-error ts-migrate(2339) FIXME: Property 'flush' does not exist on type '(callback... Remove this comment to see the full error message
     d3.timer.flush();
   }
 
@@ -303,7 +297,6 @@ function box() {
 
   box.domain = function(x: any) {
     if (!arguments.length) return domain;
-    // @ts-expect-error ts-migrate(2339) FIXME: Property 'functor' does not exist on type 'typeof ... Remove this comment to see the full error message
     domain = x == null ? x : d3.functor(x);
     return box;
   };

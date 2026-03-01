@@ -14,7 +14,14 @@ type OwnProps = {
   children?: React.ReactNode;
 };
 
-type Props = OwnProps & typeof ControlLabel.defaultProps;
+const controlLabelDefaultProps = {
+  layout: "vertical",
+  label: null,
+  disabled: false,
+  children: null,
+};
+
+type Props = OwnProps & typeof controlLabelDefaultProps;
 
 export function ControlLabel({ layout, label, labelProps, disabled, children }: Props) {
   if (layout === "vertical" && label) {
@@ -49,12 +56,7 @@ export function ControlLabel({ layout, label, labelProps, disabled, children }: 
   return children;
 }
 
-ControlLabel.defaultProps = {
-  layout: "vertical",
-  label: null,
-  disabled: false,
-  children: null,
-};
+ControlLabel.defaultProps = controlLabelDefaultProps;
 
 export default function withControlLabel(WrappedControl: any) {
   // eslint-disable-next-line react/prop-types

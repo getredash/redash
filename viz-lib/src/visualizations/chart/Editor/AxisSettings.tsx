@@ -27,7 +27,12 @@ type OwnProps = {
   onChange?: (...args: any[]) => any;
 };
 
-type Props = OwnProps & typeof AxisSettings.defaultProps;
+const axisSettingsDefaultProps = {
+  features: {},
+  onChange: () => {},
+};
+
+type Props = OwnProps & typeof axisSettingsDefaultProps;
 
 export default function AxisSettings({ id, options, features, onChange }: Props) {
   function optionsChanged(newOptions: any) {
@@ -137,7 +142,4 @@ export default function AxisSettings({ id, options, features, onChange }: Props)
   );
 }
 
-AxisSettings.defaultProps = {
-  features: {},
-  onChange: () => {},
-};
+AxisSettings.defaultProps = axisSettingsDefaultProps;

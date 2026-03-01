@@ -6,8 +6,6 @@ module.exports = {
     "plugin:compat/recommended",
     "prettier",
     "plugin:jsx-a11y/recommended",
-    // Remove any typescript-eslint rules that would conflict with prettier
-    "prettier/@typescript-eslint",
   ],
   plugins: ["jest", "compat", "no-only-tests", "@typescript-eslint", "jsx-a11y"],
   settings: {
@@ -64,7 +62,7 @@ module.exports = {
         "no-useless-constructor": "off",
         "@typescript-eslint/no-useless-constructor": "error",
         // Many API fields and generated types use camelcase
-        "@typescript-eslint/camelcase": "off",
+        camelcase: "off",
       },
     },
   ],

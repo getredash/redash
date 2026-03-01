@@ -66,6 +66,7 @@ export default function Renderer({ data, options, onOptionsChange }: any) {
       data-hide-column-totals={hideColumnTotals || null}
       data-test="PivotTableVisualization"
     >
+      {/* @ts-expect-error PivotTableUI types mismatch with @types/react@17 */}
       <PivotTableUI
         {...pick(config, VALID_OPTIONS)}
         data={dataRows}

@@ -14,7 +14,11 @@ type OwnProps = {
   onChange?: (...args: any[]) => any;
 };
 
-type Props = OwnProps & typeof ColumnEditor.defaultProps;
+const columnEditorDefaultProps = {
+  onChange: () => {},
+};
+
+type Props = OwnProps & typeof columnEditorDefaultProps;
 
 export default function ColumnEditor({ column, onChange }: Props) {
   return (
@@ -27,6 +31,4 @@ export default function ColumnEditor({ column, onChange }: Props) {
   );
 }
 
-ColumnEditor.defaultProps = {
-  onChange: () => {},
-};
+ColumnEditor.defaultProps = columnEditorDefaultProps;

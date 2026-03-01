@@ -28,16 +28,16 @@ RUN yarn config set network-timeout 300000
 ENV YARN_CACHE_FOLDER=/frontend/.cache/yarn
 
 # Mount caches for yarn cache and node_modules when installing
-RUN --mount=type=cache,id=yarn-cache,target=/frontend/.cache/yarn \
-  --mount=type=cache,id=node-modules,target=/frontend/node_modules \
+RUN --mount=type=cache,id=yarn-cache,target=/frontend/.cache/yarn,uid=1001,gid=1001 \
+  --mount=type=cache,id=node-modules,target=/frontend/node_modules,uid=1001,gid=1001 \
   if [ "x$skip_frontend_build" = "x" ] ; then yarn --frozen-lockfile --network-concurrency 1; fi
 
 COPY --chown=redash client /frontend/client
 COPY --chown=redash webpack.config.js /frontend/
 
 # Use the same cache mounts for the build step so build artifacts reuse cached installs
-RUN --mount=type=cache,id=yarn-cache,target=/frontend/.cache/yarn \
-    --mount=type=cache,id=node-modules,target=/frontend/node_modules <<EOF
+RUN --mount=type=cache,id=yarn-cache,target=/frontend/.cache/yarn,uid=1001,gid=1001 \
+    --mount=type=cache,id=node-modules,target=/frontend/node_modules,uid=1001,gid=1001 <<EOF
   if [ "x$skip_frontend_build" = "x" ]; then
     yarn build
   else
