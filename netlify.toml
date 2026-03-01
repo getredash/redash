@@ -1,9 +1,7 @@
 [build]
   base    = "client"
   publish = "client/dist"
-  # Netlify doesn't seem to install pnpm automatically
-  # command = "cd ../ && npm i -g pnpm@10.30.3 && pnpm install --frozen-lockfile && cd viz-lib && pnpm run build:babel && cd .. && rm -r ./node_modules/@redash/viz && cp -r ./viz-lib/. ./node_modules/@redash/viz && pnpm run build && cd ./client"
-  command = "cd ../ && npm i -g pnpm@10.30.3 && pnpm install --frozen-lockfile && pnpm run build && cd ./client"
+  command = "cd ../ && pnpm install --frozen-lockfile && pnpm run build && cd ./client"
 
 [build.environment]
   NODE_VERSION = "24"
