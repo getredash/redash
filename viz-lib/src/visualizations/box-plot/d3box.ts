@@ -1,5 +1,7 @@
 /* eslint-disable */
 // Inspired by http://informationandvisualization.de/blog/box-plot
+import d3 from "d3";
+
 function box() {
   let width = 1,
     height = 1,
