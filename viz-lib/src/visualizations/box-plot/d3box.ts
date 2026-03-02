@@ -1,6 +1,7 @@
 /* eslint-disable */
 // Inspired by http://informationandvisualization.de/blog/box-plot
-import d3 from "d3";
+// d3 v3 is provided as a global by the caller; using `any` since @types/d3 targets v6+
+declare const d3: any;
 
 function box() {
   let width = 1,
