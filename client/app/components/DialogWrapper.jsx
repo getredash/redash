@@ -1,7 +1,7 @@
 import { isFunction } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 
 /**
   Wrapper for dialogs based on Ant's <Modal> component.
@@ -98,7 +98,7 @@ import ReactDOM from "react-dom";
 
 export const DialogPropType = PropTypes.shape({
   props: PropTypes.shape({
-    visible: PropTypes.bool,
+    open: PropTypes.bool,
     onOk: PropTypes.func,
     onCancel: PropTypes.func,
     afterClose: PropTypes.func,
@@ -110,7 +110,7 @@ export const DialogPropType = PropTypes.shape({
 function openDialog(DialogComponent, props) {
   const dialog = {
     props: {
-      visible: true,
+      open: true,
       okButtonProps: {},
       cancelButtonProps: {},
       onOk: () => {},
@@ -130,15 +130,16 @@ function openDialog(DialogComponent, props) {
 
   const container = document.createElement("div");
   document.body.appendChild(container);
+  const root = createRoot(container);
 
   function render() {
-    ReactDOM.render(<DialogComponent {...props} dialog={dialog} />, container);
+    root.render(<DialogComponent {...props} dialog={dialog} />);
   }
 
   function destroyDialog() {
     // Allow calling chain to roll up, and then destroy component
     setTimeout(() => {
-      ReactDOM.unmountComponentAtNode(container);
+      root.unmount();
       document.body.removeChild(container);
     }, 10);
   }
@@ -151,7 +152,7 @@ function openDialog(DialogComponent, props) {
 
     return Promise.resolve(result)
       .then(() => {
-        dialog.props.visible = false;
+        dialog.props.open = false;
       })
       .finally(() => {
         dialog.props.okButtonProps = {};

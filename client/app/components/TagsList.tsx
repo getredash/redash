@@ -38,7 +38,7 @@ function TagsList({ tagsUrl, showUnselectAll = false, onUpdate }: TagsListProps)
   }, [tagsUrl]);
 
   const toggleTag = useCallback(
-    (event, tag) => {
+    (event: any, tag: any) => {
       let newSelectedTags;
       if (event.shiftKey) {
         // toggle tag

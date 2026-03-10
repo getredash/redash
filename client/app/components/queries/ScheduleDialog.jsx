@@ -19,18 +19,18 @@ const DATE_FORMAT = "YYYY-MM-DD";
 const HOUR_FORMAT = "HH:mm";
 const { Option, OptGroup } = Select;
 
-export function TimeEditor(props) {
-  const [time, setTime] = useState(props.defaultValue);
+export function TimeEditor({ defaultValue = null, onChange }) {
+  const [time, setTime] = useState(defaultValue);
   const showUtc = time && !time.isUTC();
 
-  function onChange(newTime) {
+  function handleChange(newTime) {
     setTime(newTime);
-    props.onChange(newTime);
+    onChange(newTime);
   }
 
   return (
     <React.Fragment>
-      <TimePicker allowClear={false} value={time} format={HOUR_FORMAT} minuteStep={5} onChange={onChange} />
+      <TimePicker allowClear={false} value={time} format={HOUR_FORMAT} minuteStep={5} onChange={handleChange} />
       {showUtc && (
         <span className="utc" data-testid="utc">
           ({moment.utc(time).format(HOUR_FORMAT)} UTC)
@@ -43,10 +43,6 @@ export function TimeEditor(props) {
 TimeEditor.propTypes = {
   defaultValue: Moment,
   onChange: PropTypes.func.isRequired,
-};
-
-TimeEditor.defaultProps = {
-  defaultValue: null,
 };
 
 class ScheduleDialog extends React.Component {
@@ -203,8 +199,8 @@ class ScheduleDialog extends React.Component {
         <div className="schedule-component">
           <h5>Refresh every</h5>
           <div data-testid="interval">
-            <Select className="input" value={seconds} onChange={this.setInterval} dropdownMatchSelectWidth={false}>
-              <Option value={null} key="never">
+            <Select className="input" value={seconds || 0} onChange={this.setInterval} dropdownMatchSelectWidth={false}>
+              <Option value={0} key="never">
                 Never
               </Option>
               {Object.keys(this.intervals)

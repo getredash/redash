@@ -137,6 +137,7 @@ export default function ColorPicker({
               color: chooseTextColorForBackground(currentColor),
             }}
             actions={actions}>
+            {/* @ts-expect-error ColorInput types incompatible with React 18 JSX */}
             <ColorInput
               // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
               color={currentColor}
@@ -154,6 +155,7 @@ export default function ColorPicker({
         visible={visible}
         onVisibleChange={setVisible}>
         {children || (
+          // @ts-expect-error Swatch types incompatible with React 18 JSX
           <Swatch
             color={validatedColor}
             size={30}

@@ -93,6 +93,7 @@ type StateStorage = any; // TODO: Type StateStore
 
 export interface ItemsListWrappedComponentProps<I, P = any> {
   controller: Controller<I, P>;
+  children?: React.ReactNode;
 }
 
 export function wrap<I, P = any>(

@@ -1,4 +1,5 @@
 import React from "react";
+import { act } from "react";
 import { mount } from "enzyme";
 import moment from "moment";
 import { durationHumanize } from "@/lib/utils";
@@ -22,7 +23,7 @@ const defaultProps = {
   ],
   dialog: {
     props: {
-      visible: true,
+      open: true,
       onOk: () => {},
       onCancel: () => {},
       afterClose: () => {},
@@ -45,7 +46,7 @@ function getWrapper(schedule = {}, { onConfirm, onCancel, ...props } = {}) {
     },
     dialog: {
       props: {
-        visible: true,
+        open: true,
         onOk: onConfirm,
         onCancel,
         afterClose: () => {},
@@ -237,10 +238,16 @@ describe("ScheduleDialog", () => {
       // change state
       const change = { time: "22:15" };
       const newSchedule = Object.assign({}, props.schedule, change);
-      wrapper.setState({ newSchedule });
+      act(() => {
+        wrapper.setState({ newSchedule });
+      });
+      wrapper.update();
 
       // click confirm button
-      wrapper.find(".ant-modal-footer").find(".ant-btn-primary").simulate("click");
+      act(() => {
+        wrapper.find(".ant-modal-footer").find(".ant-btn-primary").simulate("click");
+      });
+      wrapper.update();
 
       // expect calls
       expect(confirmCb).toHaveBeenCalled();
@@ -266,10 +273,16 @@ describe("ScheduleDialog", () => {
       // change state
       const change = { time: "22:15" };
       const newSchedule = Object.assign({}, props.schedule, change);
-      wrapper.setState({ newSchedule });
+      act(() => {
+        wrapper.setState({ newSchedule });
+      });
+      wrapper.update();
 
       // click cancel button
-      wrapper.find(".ant-modal-footer").find("button:not(.ant-btn-primary)").simulate("click");
+      act(() => {
+        wrapper.find(".ant-modal-footer").find("button:not(.ant-btn-primary)").simulate("click");
+      });
+      wrapper.update();
 
       // expect calls
       expect(confirmCb).not.toHaveBeenCalled();

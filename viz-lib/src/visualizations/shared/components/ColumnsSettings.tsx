@@ -3,9 +3,7 @@ import React from "react";
 import Collapse from "antd/lib/collapse";
 import Tooltip from "antd/lib/tooltip";
 import Typography from "antd/lib/typography";
-// @ts-expect-error ts-migrate(2724) FIXME: Module '"../../../../node_modules/react-sortable-h... Remove this comment to see the full error message
-import { sortableElement } from "react-sortable-hoc";
-import { SortableContainer, DragHandle } from "@/components/sortable";
+import { SortableContainer, DragHandle, SortableElement } from "@/components/sortable";
 import PropTypes from "prop-types";
 
 import EyeOutlinedIcon from "@ant-design/icons/EyeOutlined";
@@ -15,7 +13,7 @@ import ColumnEditor from "./ColumnEditor";
 
 const { Text } = Typography;
 
-const SortableItem = sortableElement(Collapse.Panel);
+const SortableItem = (props: any) => <SortableElement as={Collapse.Panel} {...props} />;
 
 type ColumnsSettingsProps = {
   options: any;
@@ -44,6 +42,7 @@ export default function ColumnsSettings({ options, onOptionsChange, variant }: C
 
   return (
     <SortableContainer
+      items={options.columns.map((column: any) => column.name)}
       axis="y"
       lockAxis="y"
       useDragHandle
@@ -53,11 +52,12 @@ export default function ColumnsSettings({ options, onOptionsChange, variant }: C
       containerProps={{
         className: containerClass,
       }}>
-      {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'Element' is not assignable to type 'null | u... Remove this comment to see the full error message */}
+      {/* @ts-expect-error antd Collapse children not typed for React 18 */}
       <Collapse bordered={false} defaultActiveKey={[]} expandIconPosition="right">
         {map(options.columns, (column, index) => (
           <SortableItem
             key={column.name}
+            id={column.name}
             index={index}
             header={
               <React.Fragment>

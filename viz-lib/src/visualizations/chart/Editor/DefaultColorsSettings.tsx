@@ -27,7 +27,7 @@ export default function DefaultColorsSettings({ options, data, onOptionsChange }
   );
 
   const updateSeriesOption = useCallback(
-    (key, prop, value) => {
+    (key: any, prop: any, value: any) => {
       onOptionsChange({
         seriesOptions: {
           [key]: {
@@ -49,6 +49,7 @@ export default function DefaultColorsSettings({ options, data, onOptionsChange }
       dataIndex: "color",
       width: "1%",
       render: (unused: any, item: any) => (
+        // @ts-expect-error ColorPicker types incompatible with React 18 JSX
         <ColorPicker
           data-test={`Chart.Series.${item.key}.Color`}
           // @ts-expect-error ts-migrate(2322) FIXME: Type 'boolean' is not assignable to type 'never'.
