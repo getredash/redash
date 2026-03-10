@@ -1,6 +1,6 @@
 import { isFunction, isObject, isArray, map } from "lodash";
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot, Root } from "react-dom/client";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-fullscreen";
@@ -30,8 +30,7 @@ const CustomControl = L.Control.extend({
     return div;
   },
   onRemove() {
-    // @ts-expect-error ts-migrate(2339) FIXME: Property 'getContainer' does not exist on type '{ ... Remove this comment to see the full error message
-    ReactDOM.unmountComponentAtNode(this.getContainer());
+    // Root lifecycle is managed externally via _legendRoot
   },
 });
 
@@ -96,6 +95,7 @@ export default function initChoropleth(container: any, onBoundsChange: any) {
   });
   let _choropleth: any = null;
   const _legend = new CustomControl();
+  let _legendRoot: Root | null = null;
 
   function handleMapBoundsChange() {
     if (isFunction(onBoundsChange)) {
@@ -123,6 +123,10 @@ export default function initChoropleth(container: any, onBoundsChange: any) {
   });
 
   function updateLayers(geoJson: any, data: any, options: any) {
+    if (_legendRoot) {
+      _legendRoot.unmount();
+      _legendRoot = null;
+    }
     _map.eachLayer(layer => _map.removeLayer(layer));
     _map.removeControl(_legend);
 
@@ -157,14 +161,15 @@ export default function initChoropleth(container: any, onBoundsChange: any) {
     if (options.legend.visible && legend.length > 0) {
       _legend.setPosition(options.legend.position.replace("-", ""));
       _map.addControl(_legend);
-      ReactDOM.render(
-        // @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call.
+      if (!_legendRoot) {
+        _legendRoot = createRoot(_legend.getContainer()!);
+      }
+      _legendRoot.render(
         <Legend
           // @ts-expect-error ts-migrate(2322) FIXME: Type '{ text: any; color: any; limit: any; }[]' is... Remove this comment to see the full error message
           items={map(legend, item => ({ ...item, text: formatValue(item.limit) }))}
           alignText={options.legend.alignText}
-        />,
-        _legend.getContainer()
+        />
       );
     }
   }
@@ -188,6 +193,10 @@ export default function initChoropleth(container: any, onBoundsChange: any) {
     updateBounds,
     destroy() {
       unwatchResize();
+      if (_legendRoot) {
+        _legendRoot.unmount();
+        _legendRoot = null;
+      }
       _map.removeControl(_legend); // _map.remove() does not cleanup controls - bug in Leaflet?
       _map.remove();
     },

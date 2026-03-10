@@ -38,7 +38,7 @@ export default function PieColorsSettings({ options, data, onOptionsChange }: an
   );
 
   const updateValuesOption = useCallback(
-    (key, prop, value) => {
+    (key: any, prop: any, value: any) => {
       onOptionsChange({
         valuesOptions: {
           [key]: {
@@ -60,6 +60,7 @@ export default function PieColorsSettings({ options, data, onOptionsChange }: an
       dataIndex: "color",
       width: "1%",
       render: (unused: any, item: any) => (
+        // @ts-expect-error ColorPicker types incompatible with React 18 JSX
         <ColorPicker
           data-test={`Chart.Series.${item.key}.Color`}
           // @ts-expect-error ts-migrate(2322) FIXME: Type 'boolean' is not assignable to type 'never'.

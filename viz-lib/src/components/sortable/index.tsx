@@ -1,24 +1,113 @@
-import { isFunction, wrap } from "lodash";
-import React, { useRef, useState } from "react";
+import React, { createContext, useContext, useMemo, useState } from "react";
 import cx from "classnames";
-// @ts-expect-error ts-migrate(2724) FIXME: Module '"../../../node_modules/react-sortable-hoc/... Remove this comment to see the full error message
-import { sortableContainer, sortableElement, sortableHandle } from "react-sortable-hoc";
+import { DndContext, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
+import type { UniqueIdentifier } from "@dnd-kit/core";
+import {
+  SortableContext,
+  useSortable,
+  rectSortingStrategy,
+  verticalListSortingStrategy,
+  horizontalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { restrictToHorizontalAxis, restrictToParentElement, restrictToVerticalAxis } from "@dnd-kit/modifiers";
 
 import "./style.less";
 
-export const DragHandle = sortableHandle(({ className, ...restProps }: any) => (
-  <div className={cx("drag-handle", className)} {...restProps} />
-));
+type SortableContainerContextValue = {
+  useDragHandle: boolean;
+  activeId: UniqueIdentifier | null;
+  helperClass?: string;
+  disabled: boolean;
+};
 
-export const SortableContainerWrapper = sortableContainer(({ children }: any) => children);
+const SortableContainerContext = createContext<SortableContainerContextValue | null>(null);
 
-export const SortableElement = sortableElement(({ children }: any) => children);
+type SortableItemContextValue = {
+  setActivatorNodeRef: (node: HTMLElement | null) => void;
+  listeners?: Record<string, any>;
+  attributes?: Record<string, any>;
+  useDragHandle: boolean;
+};
 
-type OwnProps = {
+const SortableItemContext = createContext<SortableItemContextValue | null>(null);
+
+export const DragHandle = ({ className, ...restProps }: any) => {
+  const context = useContext(SortableItemContext);
+  if (!context || !context.useDragHandle) {
+    return <div className={cx("drag-handle", className)} {...restProps} />;
+  }
+
+  const { setActivatorNodeRef, listeners, attributes } = context;
+  return (
+    <div
+      className={cx("drag-handle", className)}
+      {...restProps}
+      {...attributes}
+      {...listeners}
+      ref={setActivatorNodeRef}
+    />
+  );
+};
+
+export const SortableContainerWrapper = ({ children }: any) => <>{children}</>;
+
+type SortableElementProps = {
+  id: UniqueIdentifier;
+  index?: number;
+  as?: React.ElementType;
   disabled?: boolean;
-  containerComponent?: React.ReactElement;
+  className?: string;
+  style?: React.CSSProperties;
+  children?: React.ReactNode;
+};
+
+export function SortableElement({ id, as, disabled, className, style, children, ...restProps }: SortableElementProps) {
+  const containerContext = useContext(SortableContainerContext);
+  const containerDisabled = containerContext?.disabled ?? false;
+  const useDragHandle = containerContext?.useDragHandle ?? false;
+  const helperClass = containerContext?.helperClass;
+  const activeId = containerContext?.activeId;
+
+  const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition } = useSortable({
+    id,
+    disabled: containerDisabled || Boolean(disabled),
+  });
+
+  const Component: any = as || "div";
+  const resolvedClassName = cx(className, helperClass && activeId === id && helperClass);
+  const resolvedStyle = {
+    ...style,
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  const rootDragProps = useDragHandle ? {} : { ...attributes, ...listeners };
+
+  return (
+    <SortableItemContext.Provider value={{ setActivatorNodeRef, listeners, attributes, useDragHandle }}>
+      <Component ref={setNodeRef} className={resolvedClassName} style={resolvedStyle} {...rootDragProps} {...restProps}>
+        {children}
+      </Component>
+    </SortableItemContext.Provider>
+  );
+}
+
+type SortableContainerProps = {
+  disabled?: boolean;
+  containerComponent?: React.ElementType;
   containerProps?: any;
   children?: React.ReactNode;
+  items?: UniqueIdentifier[];
+  useDragHandle?: boolean;
+  axis?: "x" | "y" | "xy";
+  lockAxis?: "x" | "y";
+  lockToContainerEdges?: boolean;
+  helperClass?: string;
+  helperContainer?: (container: any) => any;
+  updateBeforeSortStart?: (event: any) => void;
+  onSortStart?: (event: any) => void;
+  onSortEnd?: ({ oldIndex, newIndex }: { oldIndex: number; newIndex: number }) => void;
 };
 
 const sortableContainerDefaultProps = {
@@ -26,72 +115,120 @@ const sortableContainerDefaultProps = {
   containerComponent: "div",
   containerProps: {},
   children: null,
+  useDragHandle: false,
 };
 
-type Props = OwnProps & typeof sortableContainerDefaultProps;
-
-export function SortableContainer({ disabled, containerComponent, containerProps, children, ...wrapperProps }: Props) {
-  const containerRef = useRef();
+export function SortableContainer({
+  disabled,
+  containerComponent,
+  containerProps,
+  children,
+  items: itemsProp,
+  useDragHandle,
+  axis,
+  lockAxis,
+  lockToContainerEdges,
+  helperClass,
+  helperContainer,
+  updateBeforeSortStart,
+  onSortStart,
+  onSortEnd,
+}: SortableContainerProps) {
+  const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const [isDragging, setIsDragging] = useState(false);
 
-  wrapperProps = { ...wrapperProps };
-  containerProps = { ...containerProps };
+  const items = useMemo(() => {
+    if (itemsProp) {
+      return itemsProp;
+    }
+    return React.Children.toArray(children)
+      .map(child => (React.isValidElement(child) ? child.props.id : null))
+      .filter(Boolean) as UniqueIdentifier[];
+  }, [itemsProp, children]);
 
-  if (disabled) {
-    // Disabled state:
-    // - forbid drag'n'drop (and therefore no need to hook events
-    // - don't override anything on container element
-    // @ts-expect-error ts-migrate(2339) FIXME: Property 'shouldCancelStart' does not exist on typ... Remove this comment to see the full error message
-    wrapperProps.shouldCancelStart = () => true;
-  } else {
-    // Enabled state:
+  const modifiers = useMemo(() => {
+    const result = [];
+    if (lockAxis === "x" || axis === "x") {
+      result.push(restrictToHorizontalAxis);
+    }
+    if (lockAxis === "y" || axis === "y") {
+      result.push(restrictToVerticalAxis);
+    }
+    if (lockToContainerEdges) {
+      result.push(restrictToParentElement);
+    }
+    return result;
+  }, [axis, lockAxis, lockToContainerEdges]);
 
-    // - use container element as a default helper element
-    // @ts-expect-error
-    wrapperProps.helperContainer = wrap(wrapperProps.helperContainer, helperContainer =>
-      isFunction(helperContainer) ? helperContainer(containerRef.current) : containerRef.current
-    );
+  const strategy = useMemo(() => {
+    if (axis === "y" || lockAxis === "y") {
+      return verticalListSortingStrategy;
+    }
+    if (axis === "x" || lockAxis === "x") {
+      return horizontalListSortingStrategy;
+    }
+    return rectSortingStrategy;
+  }, [axis, lockAxis]);
 
-    // - hook drag start/end events
-    // @ts-expect-error ts-migrate(2339) FIXME: Property 'updateBeforeSortStart' does not exist on... Remove this comment to see the full error message
-    wrapperProps.updateBeforeSortStart = wrap(wrapperProps.updateBeforeSortStart, (updateBeforeSortStart, ...args) => {
-      setIsDragging(true);
-      if (isFunction(updateBeforeSortStart)) {
-        updateBeforeSortStart(...args);
-      }
-    });
-    // @ts-expect-error
-    wrapperProps.onSortStart = wrap(wrapperProps.onSortStart, (onSortStart, ...args) => {
-      if (isFunction(onSortStart)) {
-        onSortStart(...args);
-      } else {
-        const event = args[1] as DragEvent;
-        event.preventDefault();
-      }
-    });
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
 
-    // @ts-expect-error ts-migrate(2339) FIXME: Property 'onSortEnd' does not exist on type '{}'.
-    wrapperProps.onSortEnd = wrap(wrapperProps.onSortEnd, (onSortEnd, ...args) => {
-      setIsDragging(false);
-      if (isFunction(onSortEnd)) {
-        onSortEnd(...args);
-      }
-    });
+  const handleDragStart = (event: any) => {
+    if (disabled) {
+      return;
+    }
+    setActiveId(event.active?.id ?? null);
+    setIsDragging(true);
+    if (typeof updateBeforeSortStart === "function") {
+      updateBeforeSortStart(event);
+    }
+    if (typeof onSortStart === "function") {
+      onSortStart(event);
+    }
+  };
 
-    // - update container element: add classes and take a ref
-    containerProps.className = cx(
+  const handleDragEnd = (event: any) => {
+    setIsDragging(false);
+    setActiveId(null);
+    if (!event?.over || typeof onSortEnd !== "function") {
+      return;
+    }
+    const oldIndex = items.indexOf(event.active.id);
+    const newIndex = items.indexOf(event.over.id);
+    if (oldIndex !== -1 && newIndex !== -1) {
+      onSortEnd({ oldIndex, newIndex });
+    }
+  };
+
+  const handleDragCancel = () => {
+    setIsDragging(false);
+    setActiveId(null);
+  };
+
+  const ContainerComponent: any = containerComponent || "div";
+  const resolvedContainerProps = {
+    ...containerProps,
+    className: cx(
       "sortable-container",
       { "sortable-container-dragging": isDragging },
-      containerProps.className
-    );
-    containerProps.ref = containerRef;
-  }
+      containerProps?.className
+    ),
+  };
 
-  const ContainerComponent = containerComponent;
   return (
-    <SortableContainerWrapper {...wrapperProps}>
-      {/* @ts-expect-error ts-migrate(2604) FIXME: JSX element type 'ContainerComponent' does not hav... Remove this comment to see the full error message */}
-      <ContainerComponent {...containerProps}>{children}</ContainerComponent>
+    <SortableContainerWrapper>
+      <DndContext
+        sensors={sensors}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+        onDragCancel={handleDragCancel}
+        modifiers={modifiers}>
+        <SortableContext items={items} strategy={strategy}>
+          <SortableContainerContext.Provider
+            value={{ useDragHandle: Boolean(useDragHandle), activeId, helperClass, disabled: Boolean(disabled) }}>
+            <ContainerComponent {...resolvedContainerProps}>{children}</ContainerComponent>
+          </SortableContainerContext.Provider>
+        </SortableContext>
+      </DndContext>
     </SortableContainerWrapper>
   );
 }

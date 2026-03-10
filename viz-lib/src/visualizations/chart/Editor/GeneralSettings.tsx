@@ -152,6 +152,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
       )}
 
       {map(mappedColumns, (value, type) => (
+        // @ts-expect-error ColumnMappingSelect types incompatible with React 18 JSX
         <ColumnMappingSelect
           // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
           key={type}

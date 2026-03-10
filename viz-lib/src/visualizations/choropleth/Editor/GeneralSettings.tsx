@@ -18,7 +18,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
   const fieldNames = get(visualizationsSettings, `choroplethAvailableMaps.${options.mapType}.fieldNames`, {});
 
   const handleMapChange = useCallback(
-    mapType => {
+    (mapType: any) => {
       onOptionsChange({ mapType: mapType || null });
     },
     [onOptionsChange]

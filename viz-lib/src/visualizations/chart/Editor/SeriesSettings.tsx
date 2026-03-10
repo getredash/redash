@@ -4,14 +4,12 @@ import { useDebouncedCallback } from "use-debounce";
 import Table from "antd/lib/table";
 import Input from "antd/lib/input";
 import Radio from "antd/lib/radio";
-// @ts-expect-error ts-migrate(2724) FIXME: Module '"../../../../node_modules/react-sortable-h... Remove this comment to see the full error message
-import { sortableElement } from "react-sortable-hoc";
-import { SortableContainer, DragHandle } from "@/components/sortable";
+import { SortableContainer, DragHandle, SortableElement } from "@/components/sortable";
 import { EditorPropTypes } from "@/visualizations/prop-types";
 import ChartTypeSelect from "./ChartTypeSelect";
 import getChartData from "../getChartData";
 
-const SortableBodyRow = sortableElement((props: any) => <tr {...props} />);
+const SortableBodyRow = (props: any) => <SortableElement as="tr" {...props} />;
 
 function getTableColumns(options: any, updateSeriesOption: any, debouncedUpdateSeriesOption: any) {
   const result = [
@@ -91,17 +89,18 @@ export default function SeriesSettings({ options, data, onOptionsChange }: any) 
   );
 
   const handleSortEnd = useCallback(
-    ({ oldIndex, newIndex }) => {
+    ({ oldIndex, newIndex }: { oldIndex: number; newIndex: number }) => {
       const seriesOptions = [...series];
       seriesOptions.splice(newIndex, 0, ...seriesOptions.splice(oldIndex, 1));
-      // @ts-expect-error ts-migrate(2339) FIXME: Property 'key' does not exist on type 'Boolean'.
-      onOptionsChange({ seriesOptions: fromPairs(map(seriesOptions, ({ key }, zIndex) => [key, { zIndex }])) });
+      onOptionsChange({
+        seriesOptions: fromPairs(seriesOptions.map((item: any, zIndex: number) => [item.key, { zIndex }])),
+      });
     },
     [onOptionsChange, series]
   );
 
   const updateSeriesOption = useCallback(
-    (key, prop, value) => {
+    (key: any, prop: any, value: any) => {
       onOptionsChange({
         seriesOptions: {
           [key]: {
@@ -120,8 +119,11 @@ export default function SeriesSettings({ options, data, onOptionsChange }: any) 
     debouncedUpdateSeriesOption,
   ]);
 
+  const items = useMemo(() => series.map((item: any) => item.key), [series]);
+
   return (
     <SortableContainer
+      items={items}
       axis="y"
       lockAxis="y"
       lockToContainerEdges
@@ -132,7 +134,6 @@ export default function SeriesSettings({ options, data, onOptionsChange }: any) 
       containerProps={{
         className: "chart-editor-series",
       }}>
-      {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'Element' is not assignable to type 'null | u... Remove this comment to see the full error message */}
       <Table
         dataSource={series}
         columns={columns}
@@ -141,8 +142,7 @@ export default function SeriesSettings({ options, data, onOptionsChange }: any) 
             row: SortableBodyRow,
           },
         }}
-        // @ts-expect-error ts-migrate(2322) FIXME: Type '(item: object) => { index: any; }' is not as... Remove this comment to see the full error message
-        onRow={item => ({ index: item.zIndex })}
+        onRow={item => ({ id: item.key, index: item.zIndex })}
         pagination={false}
       />
     </SortableContainer>
