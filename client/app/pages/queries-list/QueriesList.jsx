@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import cx from "classnames";
 
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
@@ -20,7 +20,7 @@ import ItemsTable, { Columns } from "@/components/items-list/components/ItemsTab
 import Layout from "@/components/layouts/ContentWithSidebar";
 
 import { Query } from "@/services/query";
-import { currentUser } from "@/services/auth";
+import { clientConfig, currentUser } from "@/services/auth";
 import location from "@/services/location";
 import routes from "@/services/routes";
 
@@ -95,25 +95,39 @@ function QueriesList({ controller }) {
   const controllerRef = useRef();
   controllerRef.current = controller;
 
+  const updateSearch = useCallback(
+    (searchTemm) => {
+      controller.updateSearch(searchTemm, { isServerSideFTS: !clientConfig.multiByteSearchEnabled });
+    },
+    [controller]
+  );
+
   useEffect(() => {
     const unlistenLocationChanges = location.listen((unused, action) => {
       const searchTerm = location.search.q || "";
       if (action === "PUSH" && searchTerm !== controllerRef.current.searchTerm) {
-        controllerRef.current.updateSearch(searchTerm);
+        updateSearch(searchTerm);
       }
     });
 
     return () => {
       unlistenLocationChanges();
     };
-  }, []);
+  }, [updateSearch]);
 
+  let usedListColumns = listColumns;
+  if (controller.params.currentPage === "favorites") {
+    usedListColumns = [
+      ...usedListColumns,
+      Columns.dateTime.sortable({ title: "Starred At", field: "starred_at", width: "1%" }),
+    ];
+  }
   const {
     areExtraActionsAvailable,
     listColumns: tableColumns,
     Component: ExtraActionsComponent,
     selectedItems,
-  } = useItemsListExtraActions(controller, listColumns, QueriesListExtraActions);
+  } = useItemsListExtraActions(controller, usedListColumns, QueriesListExtraActions);
 
   return (
     <div className="page-queries-list">
@@ -135,7 +149,7 @@ function QueriesList({ controller }) {
               placeholder="Search Queries..."
               label="Search queries"
               value={controller.searchTerm}
-              onChange={controller.updateSearch}
+              onChange={updateSearch}
             />
             <Sidebar.Menu items={sidebarMenu} selected={controller.params.currentPage} />
             <Sidebar.Tags url="api/queries/tags" onChange={controller.updateSelectedTags} showUnselectAll />
@@ -200,7 +214,7 @@ const QueriesListPage = itemsList(
         return (item) => new Query(item);
       },
     }),
-  () => new UrlStateStorage({ orderByField: "created_at", orderByReverse: true })
+  ({ ...props }) => new UrlStateStorage({ orderByField: props.orderByField ?? "created_at", orderByReverse: true })
 );
 
 routes.register(
@@ -216,7 +230,7 @@ routes.register(
   routeWithUserSession({
     path: "/queries/favorites",
     title: "Favorite Queries",
-    render: (pageProps) => <QueriesListPage {...pageProps} currentPage="favorites" />,
+    render: (pageProps) => <QueriesListPage {...pageProps} currentPage="favorites" orderByField="starred_at" />,
   })
 );
 routes.register(

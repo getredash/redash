@@ -215,10 +215,10 @@ class MongoDB(BaseQueryRunner):
             if readPreference:
                 kwargs["readPreference"] = readPreference
 
-        if "username" in self.configuration:
+        if self.configuration.get("username"):
             kwargs["username"] = self.configuration["username"]
 
-        if "password" in self.configuration:
+        if self.configuration.get("password"):
             kwargs["password"] = self.configuration["password"]
 
         db_connection = pymongo.MongoClient(self.configuration["connectionString"], **kwargs)

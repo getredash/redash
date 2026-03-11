@@ -21,7 +21,7 @@ depends_on = None
 
 
 def upgrade():
-    tags_regex = re.compile("^([\w\s]+):|#([\w-]+)", re.I | re.U)
+    tags_regex = re.compile(r"^([\w\s]+):|#([\w-]+)", re.I | re.U)
     connection = op.get_bind()
 
     dashboards = connection.execute("SELECT id, name FROM dashboards")

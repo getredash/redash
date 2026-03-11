@@ -59,6 +59,7 @@ function wrapComponentWithSettings(WrappedComponent) {
         "dateTimeFormat",
         "integerFormat",
         "floatFormat",
+        "nullValue",
         "booleanValues",
         "tableCellMaxJSONSize",
         "allowCustomJSVisualizations",

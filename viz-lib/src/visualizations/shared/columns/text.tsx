@@ -52,7 +52,7 @@ export default function initTextColumn(column: any) {
   function TextColumn({ row }: any) {
     // eslint-disable-line react/prop-types
     const { text } = prepareData(row);
-    return column.allowHTML ? <HtmlContent>{text}</HtmlContent> : text;
+    return (column.allowHTML && typeof text === 'string') ? <HtmlContent>{text}</HtmlContent> : text;
   }
 
   TextColumn.prepareData = prepareData;
