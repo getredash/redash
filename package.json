@@ -65,9 +65,9 @@
     "path-to-regexp": "^3.3.0",
     "prop-types": "^15.6.1",
     "query-string": "^6.9.0",
-    "react": "^18.3.1",
+    "react": "^19.1.0",
     "react-ace": "^14.0.1",
-    "react-dom": "^18.3.1",
+    "react-dom": "^19.1.0",
     "react-grid-layout": "^0.18.2",
     "react-resizable": "^1.10.1",
     "react-virtualized": "^9.21.2",
@@ -93,8 +93,8 @@
     "@types/hoist-non-react-statics": "^3.3.1",
     "@types/lodash": "^4.14.157",
     "@types/prop-types": "^15.7.3",
-    "@types/react": "^18.0.0",
-    "@types/react-dom": "^18.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
     "@types/sql-formatter": "^2.3.0",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
@@ -108,9 +108,8 @@
     "css-loader": "^7.1.4",
     "cypress": "^11.2.0",
     "dayjs": "^1.11.9",
-    "enzyme": "^3.8.0",
-    "@cfaester/enzyme-adapter-react-18": "^0.8.0",
-    "enzyme-to-json": "^3.3.5",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/jest-dom": "^6.6.3",
     "eslint": "^8.57.1",
     "eslint-config-prettier": "^8.10.0",
     "eslint-config-react-app": "^7.0.1",
@@ -138,8 +137,7 @@
     "npm-run-all": "^4.1.5",
     "prettier": "3.3.2",
     "process": "^0.11.10",
-    "react-refresh": "^0.14.0",
-    "react-test-renderer": "^18.3.1",
+    "react-refresh": "^0.17.0",
     "request-cookies": "^1.1.0",
     "source-map-loader": "^5.0.0",
     "stream-browserify": "^3.0.0",
@@ -160,12 +158,9 @@
     "testEnvironment": "jsdom",
     "rootDir": "./client",
     "setupFiles": [
-      "./app/__tests__/enzyme_setup.js",
       "./app/__tests__/mocks.js"
     ],
-    "snapshotSerializers": [
-      "enzyme-to-json/serializer"
-    ],
+    "setupFilesAfterFramework": [],
     "moduleNameMapper": {
       "^@/(.*)": "<rootDir>/app/$1",
       "\\.(css|less)$": "identity-obj-proxy"
@@ -201,9 +196,10 @@
   ],
   "pnpm": {
     "overrides": {
-      "@types/react": "^18.0.0",
-      "@types/react-dom": "^18.0.0",
-      "cheerio": "1.0.0-rc.12"
+      "@types/react": "^19.0.0",
+      "@types/react-dom": "^19.0.0",
+      "cheerio": "1.0.0-rc.12",
+      "@testing-library/dom": "^10.4.0"
     }
   }
 }

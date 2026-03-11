@@ -9,6 +9,7 @@ import GoogleLoginSettings from "./GoogleLoginSettings";
 import SAMLSettings from "./SAMLSettings";
 
 export default function AuthSettings(props) {
+  props = { ...SettingsEditorDefaultProps, ...props };
   const { values, onChange } = props;
   const handleChange = useCallback(
     changes => {
@@ -37,4 +38,3 @@ export default function AuthSettings(props) {
 }
 
 AuthSettings.propTypes = SettingsEditorPropTypes;
-AuthSettings.defaultProps = SettingsEditorDefaultProps;

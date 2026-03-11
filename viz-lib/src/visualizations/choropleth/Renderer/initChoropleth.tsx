@@ -166,7 +166,6 @@ export default function initChoropleth(container: any, onBoundsChange: any) {
       }
       _legendRoot.render(
         <Legend
-          // @ts-expect-error ts-migrate(2322) FIXME: Type '{ text: any; color: any; limit: any; }[]' is... Remove this comment to see the full error message
           items={map(legend, item => ({ ...item, text: formatValue(item.limit) }))}
           alignText={options.legend.alignText}
         />

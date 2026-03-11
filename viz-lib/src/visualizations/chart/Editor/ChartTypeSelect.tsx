@@ -15,16 +15,17 @@ const allChartTypes = [
 ];
 
 type OwnProps = {
-  hiddenChartTypes?: any[]; // TODO: PropTypes.oneOf(map(allChartTypes, "type"))
+  hiddenChartTypes?: any[];
+  [key: string]: any;
 };
 
 const chartTypeSelectDefaultProps = {
   hiddenChartTypes: [],
 };
 
-type Props = OwnProps & typeof chartTypeSelectDefaultProps;
+type Props = OwnProps;
 
-export default function ChartTypeSelect({ hiddenChartTypes, ...props }: Props) {
+export default function ChartTypeSelect({ hiddenChartTypes: hiddenChartTypes = [], ...props }: Props) {
   const chartTypes = useMemo(() => {
     const result = [...allChartTypes];
 
@@ -43,14 +44,12 @@ export default function ChartTypeSelect({ hiddenChartTypes, ...props }: Props) {
     <Select {...props}>
       {map(chartTypes, ({ type, name, icon }) => (
         // @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message
-        <Select.Option key={type} value={type} data-test={`Chart.ChartType.${type}`}>
+        (<Select.Option key={type} value={type} data-test={`Chart.ChartType.${type}`}>
           <i className={`fa fa-${icon}`} style={{ marginRight: 5 }} />
           {name}
           {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
-        </Select.Option>
+        </Select.Option>)
       ))}
     </Select>
   );
 }
-
-ChartTypeSelect.defaultProps = chartTypeSelectDefaultProps;

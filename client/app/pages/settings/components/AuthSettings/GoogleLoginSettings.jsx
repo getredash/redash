@@ -8,6 +8,7 @@ import { clientConfig } from "@/services/auth";
 import { SettingsEditorPropTypes, SettingsEditorDefaultProps } from "../prop-types";
 
 export default function GoogleLoginSettings(props) {
+  props = { ...SettingsEditorDefaultProps, ...props };
   const { values, onChange } = props;
 
   if (!clientConfig.googleLoginEnabled) {
@@ -42,4 +43,3 @@ export default function GoogleLoginSettings(props) {
 
 GoogleLoginSettings.propTypes = SettingsEditorPropTypes;
 
-GoogleLoginSettings.defaultProps = SettingsEditorDefaultProps;

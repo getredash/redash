@@ -10,7 +10,7 @@ import notification from "@/services/notification";
 import { Query } from "@/services/query";
 import { useUniqueId } from "@/lib/hooks/useUniqueId";
 
-function VisualizationSelect({ query, visualization, onChange }) {
+function VisualizationSelect({ query = null, visualization = null, onChange = () => {} }) {
   const visualizationGroups = useMemo(() => {
     return query ? groupBy(query.visualizations, "type") : {};
   }, [query]);
@@ -57,12 +57,6 @@ VisualizationSelect.propTypes = {
   query: PropTypes.object,
   visualization: PropTypes.object,
   onChange: PropTypes.func,
-};
-
-VisualizationSelect.defaultProps = {
-  query: null,
-  visualization: null,
-  onChange: () => {},
 };
 
 function AddWidgetDialog({ dialog, dashboard }) {

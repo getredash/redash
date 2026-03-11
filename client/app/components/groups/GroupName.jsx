@@ -10,7 +10,7 @@ function updateGroupName(group, name, onChange) {
   onChange();
 }
 
-export default function GroupName({ group, onChange, ...props }) {
+export default function GroupName({ group = null, onChange = () => {}, ...props }) {
   if (!group) {
     return null;
   }
@@ -35,9 +35,4 @@ GroupName.propTypes = {
     name: PropTypes.string.isRequired,
   }),
   onChange: PropTypes.func,
-};
-
-GroupName.defaultProps = {
-  group: null,
-  onChange: () => {},
 };

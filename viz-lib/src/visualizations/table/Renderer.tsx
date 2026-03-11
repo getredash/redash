@@ -56,16 +56,20 @@ function SearchInputInfoIcon({ searchColumns }: any) {
 
 type OwnSearchInputProps = {
   onChange?: (...args: any[]) => any;
+  searchColumns?: any[];
 };
 
 const searchInputDefaultProps = {
   onChange: () => {},
 };
 
-type SearchInputProps = OwnSearchInputProps & typeof searchInputDefaultProps;
+type SearchInputProps = OwnSearchInputProps;
 
-// @ts-expect-error ts-migrate(2339) FIXME: Property 'searchColumns' does not exist on type 'S... Remove this comment to see the full error message
-function SearchInput({ searchColumns, ...props }: SearchInputProps) {
+function SearchInput({
+  searchColumns = [],
+  onChange: onChange = () => {},
+  ...props
+}: SearchInputProps) {
   if (searchColumns.length <= 0) {
     return null;
   }
@@ -80,8 +84,6 @@ function SearchInput({ searchColumns, ...props }: SearchInputProps) {
   );
 }
 
-SearchInput.defaultProps = searchInputDefaultProps;
-
 export default function Renderer({ options, data }: any) {
   const [searchTerm, setSearchTerm] = useState("");
   const [orderBy, setOrderBy] = useState([]);
@@ -91,8 +93,7 @@ export default function Renderer({ options, data }: any) {
   const tableColumns = useMemo(() => {
     const searchInput =
       searchColumns.length > 0 ? (
-        // @ts-expect-error ts-migrate(2322) FIXME: Type '(event: any) => void' is not assignable to t... Remove this comment to see the full error message
-        <SearchInput searchColumns={searchColumns} onChange={(event: any) => setSearchTerm(event.target.value)} />
+        (<SearchInput searchColumns={searchColumns} onChange={(event: any) => setSearchTerm(event.target.value)} />)
       ) : null;
     return prepareColumns(options.columns, searchInput, orderBy, (newOrderBy: any) => {
       setOrderBy(newOrderBy);

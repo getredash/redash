@@ -28,8 +28,8 @@
   "peerDependencies": {
     "@ant-design/icons": ">=4.0.0",
     "antd": ">=4.0.0",
-    "react": ">=18.0.0",
-    "react-dom": ">=18.0.0"
+    "react": ">=19.0.0",
+    "react-dom": ">=19.0.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.28.6",
@@ -43,13 +43,14 @@
     "@types/d3-cloud": "^1.2.3",
     "@types/debug": "^4.1.5",
     "@types/dompurify": "^2.0.4",
-    "@types/enzyme": "^3.10.8",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/jest-dom": "^6.6.3",
     "@types/jest": "^26.0.18",
     "@types/leaflet": "^1.5.19",
     "@types/numeral": "0.0.28",
     "@types/plotly.js": "^3.0.10",
-    "@types/react": "^18.0.0",
-    "@types/react-dom": "^18.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
     "@types/react-pivottable": "^0.11.6",
     "@types/react-plotly.js": "^2.6.4",
     "@types/tinycolor2": "^1.4.2",
@@ -58,9 +59,7 @@
     "babel-plugin-module-resolver": "^5.0.0",
     "css-loader": "^7.1.4",
     "babel-jest": "^30.2.0",
-    "enzyme": "^3.8.0",
-    "@cfaester/enzyme-adapter-react-18": "^0.8.0",
-    "enzyme-to-json": "^3.3.5",
+    "jest-environment-jsdom": "^30.2.0",
     "jest": "^30.2.0",
     "less": "^4.5.1",
     "less-loader": "^12.3.1",
@@ -113,11 +112,7 @@
       "\\.[jt]sx?$": "babel-jest"
     },
     "setupFiles": [
-      "../__tests__/enzyme_setup.js",
       "../__tests__/mocks.js"
-    ],
-    "snapshotSerializers": [
-      "enzyme-to-json/serializer"
     ],
     "moduleNameMapper": {
       "^@/(.*)": "<rootDir>/$1",

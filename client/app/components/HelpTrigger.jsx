@@ -261,8 +261,18 @@ export function helpTriggerWithTypes(types, allowedDomains = [], drawerClassName
 registerComponent("HelpTrigger", helpTriggerWithTypes(TYPES, [DOMAIN]));
 
 export default function HelpTrigger(props) {
+  props = {
+    type: null,
+    href: null,
+    title: null,
+    className: null,
+    showTooltip: true,
+    renderAsLink: false,
+    children: <i className="fa fa-question-circle" aria-hidden="true" />,
+    ...props
+  };
+
   return <DynamicComponent {...props} name="HelpTrigger" />;
 }
 
 HelpTrigger.propTypes = HelpTriggerPropTypes;
-HelpTrigger.defaultProps = HelpTriggerDefaultProps;

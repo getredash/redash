@@ -21,9 +21,9 @@ const controlLabelDefaultProps = {
   children: null,
 };
 
-type Props = OwnProps & typeof controlLabelDefaultProps;
+type Props = OwnProps;
 
-export function ControlLabel({ layout, label, labelProps, disabled, children }: Props) {
+export function ControlLabel({ layout: layout = "vertical", label: label = null, labelProps, disabled: disabled = false, children: children = null }: Props) {
   if (layout === "vertical" && label) {
     return (
       <div className="visualization-editor-control-label visualization-editor-control-label-vertical">
@@ -56,8 +56,6 @@ export function ControlLabel({ layout, label, labelProps, disabled, children }: 
   return children;
 }
 
-ControlLabel.defaultProps = controlLabelDefaultProps;
-
 export default function withControlLabel(WrappedControl: any) {
   // eslint-disable-next-line react/prop-types
   function ControlWrapper({ className, id, layout, label, labelProps, disabled, ...props }: any) {
@@ -75,7 +73,6 @@ export default function withControlLabel(WrappedControl: any) {
 
     return (
       <ControlLabel layout={layout} label={label} labelProps={labelProps} disabled={disabled}>
-        {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'Element' is not assignable to type 'null | u... Remove this comment to see the full error message */}
         <WrappedControl
           className={cx("visualization-editor-input", className)}
           id={labelProps.htmlFor}

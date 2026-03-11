@@ -7,7 +7,7 @@ import { Alert as AlertType } from "@/components/proptypes";
 
 import "./Title.less";
 
-export default function Title({ alert, editMode, name, onChange, children }) {
+export default function Title({ alert, editMode = false, name = null, onChange = null, children = null }) {
   const defaultName = getDefaultName(alert);
   return (
     <div className="alert-header">
@@ -16,13 +16,13 @@ export default function Title({ alert, editMode, name, onChange, children }) {
           {editMode && alert.query ? (
             // BUG: Input is not the same width as the container
             // TODO: consider adding a label (not obvious for sighted users)
-            <Input
+            (<Input
               className="f-inherit"
               placeholder={defaultName}
               value={name}
               aria-label="Alert title"
               onChange={e => onChange(e.target.value)}
-            />
+            />)
           ) : (
             name || defaultName
           )}
@@ -39,11 +39,4 @@ Title.propTypes = {
   children: PropTypes.node,
   onChange: PropTypes.func,
   editMode: PropTypes.bool,
-};
-
-Title.defaultProps = {
-  name: null,
-  children: null,
-  onChange: null,
-  editMode: false,
 };

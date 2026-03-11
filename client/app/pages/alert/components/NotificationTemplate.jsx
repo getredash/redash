@@ -30,7 +30,7 @@ function normalizeCustomTemplateData(alert, query, columnNames, resultValues) {
   };
 }
 
-function NotificationTemplate({ alert, query, columnNames, resultValues, subject, setSubject, body, setBody }) {
+function NotificationTemplate({ alert, query, columnNames, resultValues, subject = "", setSubject, body = "", setBody }) {
   const hasContent = !!(subject || body);
   const [enabled, setEnabled] = useState(hasContent ? 1 : 0);
   const [showPreview, setShowPreview] = useState(false);
@@ -115,11 +115,6 @@ NotificationTemplate.propTypes = {
   setSubject: PropTypes.func.isRequired,
   body: PropTypes.string,
   setBody: PropTypes.func.isRequired,
-};
-
-NotificationTemplate.defaultProps = {
-  subject: "",
-  body: "",
 };
 
 export default NotificationTemplate;

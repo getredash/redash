@@ -35,7 +35,7 @@ DisabledInput.propTypes = {
   minWidth: PropTypes.number.isRequired,
 };
 
-export default function Criteria({ columnNames, resultValues, alertOptions, onChange, editMode }) {
+export default function Criteria({ columnNames, resultValues, alertOptions, onChange = () => {}, editMode = false }) {
   const columnValue = !isEmpty(resultValues) ? head(resultValues)[alertOptions.column] : null;
   const invalidMessage = (() => {
     // bail if condition is valid for strings
@@ -202,9 +202,4 @@ Criteria.propTypes = {
   alertOptions: AlertOptionsType.isRequired,
   onChange: PropTypes.func,
   editMode: PropTypes.bool,
-};
-
-Criteria.defaultProps = {
-  onChange: () => {},
-  editMode: false,
 };

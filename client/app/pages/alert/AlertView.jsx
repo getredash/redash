@@ -21,7 +21,7 @@ import HorizontalFormItem from "./components/HorizontalFormItem";
 import { STATE_CLASS } from "../alerts/AlertsList";
 import DynamicComponent from "@/components/DynamicComponent";
 
-function AlertState({ state, lastTriggered }) {
+function AlertState({ state, lastTriggered = null }) {
   return (
     <div className="alert-state">
       <span className={`alert-state-indicator label ${STATE_CLASS[state]}`}>Status: {state}</span>
@@ -41,10 +41,6 @@ function AlertState({ state, lastTriggered }) {
 AlertState.propTypes = {
   state: PropTypes.string.isRequired,
   lastTriggered: PropTypes.string,
-};
-
-AlertState.defaultProps = {
-  lastTriggered: null,
 };
 
 // eslint-disable-next-line react/prefer-stateless-function

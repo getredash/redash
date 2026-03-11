@@ -6,7 +6,7 @@ import KeyboardShortcuts from "@/services/KeyboardShortcuts";
 
 import "./index.less";
 
-export default function Resizable({ toggleShortcut, direction, sizeAttribute, children }) {
+export default function Resizable({ toggleShortcut = null, direction = "horizontal", sizeAttribute = null, children = null }) {
   const [size, setSize] = useState(0);
   const elementRef = useRef();
   const wasUsingTouchEventsRef = useRef(false);
@@ -52,7 +52,7 @@ export default function Resizable({ toggleShortcut, direction, sizeAttribute, ch
   const resizeHandle = useMemo(
     () => (
       // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions
-      <span
+      (<span
         className={`react-resizable-handle react-resizable-handle-${direction}`}
         role="separator"
         onClick={() => {
@@ -70,7 +70,7 @@ export default function Resizable({ toggleShortcut, direction, sizeAttribute, ch
           wasUsingTouchEventsRef.current = false;
           wasResizedRef.current = false;
         }}
-      />
+      />)
     ),
     [direction, toggle]
   );
@@ -156,11 +156,4 @@ Resizable.propTypes = {
   sizeAttribute: PropTypes.string,
   toggleShortcut: PropTypes.string,
   children: PropTypes.element,
-};
-
-Resizable.defaultProps = {
-  direction: "horizontal",
-  sizeAttribute: null, // "width"/"height" - depending on `direction`
-  toggleShortcut: null,
-  children: null,
 };

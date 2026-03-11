@@ -1,20 +1,41 @@
 import React from "react";
-import enzyme from "enzyme";
+import { render, fireEvent } from "@testing-library/react";
 
 import getOptions from "../getOptions";
 import GeneralSettings from "./GeneralSettings";
 
-function findByTestID(wrapper: any, testId: any) {
-  return wrapper.find(`[data-test="${testId}"]`);
+function findByTestID(testId: string): HTMLElement[] {
+  return Array.from(document.body.querySelectorAll(`[data-test="${testId}"]`));
 }
 
-function elementExists(wrapper: any, testId: any) {
-  return findByTestID(wrapper, testId).length > 0;
+function getInput(el: HTMLElement): HTMLInputElement {
+  return (el.tagName === "INPUT" ? el : el.querySelector("input")!) as HTMLInputElement;
+}
+
+function openSelect(testId: string) {
+  const el = findByTestID(testId).pop()!;
+  const selector = el.querySelector(".ant-select-selector") || el;
+  fireEvent.mouseDown(selector);
+}
+
+function clickOption(testId: string) {
+  const el = findByTestID(testId).pop();
+  if (el) {
+    fireEvent.click(el);
+    return;
+  }
+  // Try by title as fallback for antd options that may not preserve data-test
+  const option = document.body.querySelector(`[data-test="${testId}"]`);
+  if (option) fireEvent.click(option);
+}
+
+function elementExists(testId: string) {
+  return findByTestID(testId).length > 0;
 }
 
 function mount(options: any, done: any) {
   options = getOptions(options);
-  return enzyme.mount(
+  const { container } = render(
     <GeneralSettings
       visualizationName="Test"
       data={{ columns: [], rows: [] }}
@@ -25,6 +46,7 @@ function mount(options: any, done: any) {
       }}
     />
   );
+  return container;
 }
 
 describe("Visualizations -> Chart -> Editor -> General Settings", () => {
@@ -41,12 +63,8 @@ describe("Visualizations -> Chart -> Editor -> General Settings", () => {
       done
     );
 
-    findByTestID(el, "Chart.GlobalSeriesType")
-      .last()
-      .simulate("mouseDown");
-    findByTestID(el, "Chart.ChartType.pie")
-      .last()
-      .simulate("click");
+    openSelect("Chart.GlobalSeriesType");
+    clickOption("Chart.ChartType.pie");
   });
 
   test("Pie: changes direction", done => {
@@ -58,12 +76,8 @@ describe("Visualizations -> Chart -> Editor -> General Settings", () => {
       done
     );
 
-    findByTestID(el, "Chart.PieDirection")
-      .last()
-      .simulate("mouseDown");
-    findByTestID(el, "Chart.PieDirection.Clockwise")
-      .last()
-      .simulate("click");
+    openSelect("Chart.PieDirection");
+    clickOption("Chart.PieDirection.Clockwise");
   });
 
   test("Toggles legend", done => {
@@ -75,12 +89,8 @@ describe("Visualizations -> Chart -> Editor -> General Settings", () => {
       done
     );
 
-    findByTestID(el, "Chart.LegendPlacement")
-      .last()
-      .simulate("mouseDown");
-    findByTestID(el, "Chart.LegendPlacement.HideLegend")
-      .last()
-      .simulate("click");
+    openSelect("Chart.LegendPlacement");
+    clickOption("Chart.LegendPlacement.HideLegend");
   });
 
   test("Box: toggles show points", done => {
@@ -92,10 +102,7 @@ describe("Visualizations -> Chart -> Editor -> General Settings", () => {
       done
     );
 
-    findByTestID(el, "Chart.ShowPoints")
-      .last()
-      .find("input")
-      .simulate("change", { target: { checked: true } });
+    fireEvent.click(getInput(findByTestID("Chart.ShowPoints").pop()!));
   });
 
   test("Enables stacking", done => {
@@ -107,12 +114,8 @@ describe("Visualizations -> Chart -> Editor -> General Settings", () => {
       done
     );
 
-    findByTestID(el, "Chart.Stacking")
-      .last()
-      .simulate("mouseDown");
-    findByTestID(el, "Chart.Stacking.Stack")
-      .last()
-      .simulate("click");
+    openSelect("Chart.Stacking");
+    clickOption("Chart.Stacking.Stack");
   });
 
   test("Toggles normalize values to percentage", done => {
@@ -124,10 +127,7 @@ describe("Visualizations -> Chart -> Editor -> General Settings", () => {
       done
     );
 
-    findByTestID(el, "Chart.NormalizeValues")
-      .last()
-      .find("input")
-      .simulate("change", { target: { checked: true } });
+    fireEvent.click(getInput(findByTestID("Chart.NormalizeValues").pop()!));
   });
 
   test("Keep missing/null values", done => {
@@ -139,12 +139,8 @@ describe("Visualizations -> Chart -> Editor -> General Settings", () => {
       done
     );
 
-    findByTestID(el, "Chart.MissingValues")
-      .last()
-      .simulate("mouseDown");
-    findByTestID(el, "Chart.MissingValues.Keep")
-      .last()
-      .simulate("click");
+    openSelect("Chart.MissingValues");
+    clickOption("Chart.MissingValues.Keep");
   });
 
   describe("Column mappings should be available", () => {
@@ -159,9 +155,9 @@ describe("Visualizations -> Chart -> Editor -> General Settings", () => {
         },
       });
 
-      expect(elementExists(el, "Chart.ColumnMapping.x")).toBeTruthy();
-      expect(elementExists(el, "Chart.ColumnMapping.y")).toBeTruthy();
-      expect(elementExists(el, "Chart.ColumnMapping.size")).toBeTruthy();
+      expect(elementExists("Chart.ColumnMapping.x")).toBeTruthy();
+      expect(elementExists("Chart.ColumnMapping.y")).toBeTruthy();
+      expect(elementExists("Chart.ColumnMapping.size")).toBeTruthy();
     });
 
     test("for heatmap", () => {
@@ -175,9 +171,9 @@ describe("Visualizations -> Chart -> Editor -> General Settings", () => {
         },
       });
 
-      expect(elementExists(el, "Chart.ColumnMapping.x")).toBeTruthy();
-      expect(elementExists(el, "Chart.ColumnMapping.y")).toBeTruthy();
-      expect(elementExists(el, "Chart.ColumnMapping.zVal")).toBeTruthy();
+      expect(elementExists("Chart.ColumnMapping.x")).toBeTruthy();
+      expect(elementExists("Chart.ColumnMapping.y")).toBeTruthy();
+      expect(elementExists("Chart.ColumnMapping.zVal")).toBeTruthy();
     });
 
     test("for all types except of bubble, heatmap and custom", () => {
@@ -191,10 +187,10 @@ describe("Visualizations -> Chart -> Editor -> General Settings", () => {
         },
       });
 
-      expect(elementExists(el, "Chart.ColumnMapping.x")).toBeTruthy();
-      expect(elementExists(el, "Chart.ColumnMapping.y")).toBeTruthy();
-      expect(elementExists(el, "Chart.ColumnMapping.series")).toBeTruthy();
-      expect(elementExists(el, "Chart.ColumnMapping.yError")).toBeTruthy();
+      expect(elementExists("Chart.ColumnMapping.x")).toBeTruthy();
+      expect(elementExists("Chart.ColumnMapping.y")).toBeTruthy();
+      expect(elementExists("Chart.ColumnMapping.series")).toBeTruthy();
+      expect(elementExists("Chart.ColumnMapping.yError")).toBeTruthy();
     });
   });
 
@@ -207,10 +203,7 @@ describe("Visualizations -> Chart -> Editor -> General Settings", () => {
       done
     );
 
-    findByTestID(el, "Chart.SwappedAxes")
-      .last()
-      .find("input")
-      .simulate("change", { target: { checked: true } });
+    fireEvent.click(getInput(findByTestID("Chart.SwappedAxes").pop()!));
   });
 
   test("Toggles Enable click events", done => {
@@ -222,10 +215,7 @@ describe("Visualizations -> Chart -> Editor -> General Settings", () => {
       done
     );
 
-    findByTestID(el, "Chart.EnableClickEvents")
-      .last()
-      .find("input")
-      .simulate("change", { target: { checked: true } });
+    fireEvent.click(getInput(findByTestID("Chart.EnableClickEvents").pop()!));
   });
 
   

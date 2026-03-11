@@ -13,7 +13,7 @@ import "./index.less";
 const editorProps = { $blockScrolling: Infinity };
 
 const QueryEditor = React.forwardRef(function(
-  { className, syntax, value, autocompleteEnabled, schema, onChange, onSelectionChange, ...props },
+  { className = null, syntax = null, value = null, autocompleteEnabled = true, schema = [], onChange = () => {}, onSelectionChange = () => {}, ...props },
   ref
 ) {
   const [container, setContainer] = useState(null);
@@ -181,16 +181,6 @@ QueryEditor.propTypes = {
   schema: PropTypes.arrayOf(SchemaItemType),
   onChange: PropTypes.func,
   onSelectionChange: PropTypes.func,
-};
-
-QueryEditor.defaultProps = {
-  className: null,
-  syntax: null,
-  value: null,
-  autocompleteEnabled: true,
-  schema: [],
-  onChange: () => {},
-  onSelectionChange: () => {},
 };
 
 QueryEditor.Controls = QueryEditorControls;

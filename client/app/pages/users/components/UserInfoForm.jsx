@@ -13,6 +13,11 @@ import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 import useUserGroups from "../hooks/useUserGroups";
 
 export default function UserInfoForm(props) {
+  props = {
+    onChange: () => {},
+    ...props
+  };
+
   const { user, onChange } = props;
 
   const { groups, allGroups, isLoading: isLoadingGroups } = useUserGroups(user);
@@ -88,8 +93,4 @@ export default function UserInfoForm(props) {
 UserInfoForm.propTypes = {
   user: UserProfile.isRequired,
   onChange: PropTypes.func,
-};
-
-UserInfoForm.defaultProps = {
-  onChange: () => {},
 };

@@ -7,6 +7,11 @@ import TextboxDialog from "@/components/dashboards/TextboxDialog";
 import Widget from "./Widget";
 
 function TextboxWidget(props) {
+  props = {
+    canEdit: false,
+    ...props
+  };
+
   const { widget, canEdit } = props;
   const [text, setText] = useState(widget.text);
 
@@ -40,10 +45,6 @@ function TextboxWidget(props) {
 TextboxWidget.propTypes = {
   widget: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
   canEdit: PropTypes.bool,
-};
-
-TextboxWidget.defaultProps = {
-  canEdit: false,
 };
 
 export default TextboxWidget;

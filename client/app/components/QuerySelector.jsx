@@ -26,6 +26,14 @@ function search(term) {
 }
 
 export default function QuerySelector(props) {
+  props = {
+    selectedQuery: null,
+    type: "default",
+    className: null,
+    disabled: false,
+    ...props
+  };
+
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedQuery, setSelectedQuery] = useState();
   const [doSearch, searchResults, searching] = useSearchResults(search, { initialResults: [] });
@@ -167,11 +175,4 @@ QuerySelector.propTypes = {
   type: PropTypes.oneOf(["select", "default"]),
   className: PropTypes.string,
   disabled: PropTypes.bool,
-};
-
-QuerySelector.defaultProps = {
-  selectedQuery: null,
-  type: "default",
-  className: null,
-  disabled: false,
 };

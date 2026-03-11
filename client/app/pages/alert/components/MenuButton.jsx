@@ -11,7 +11,7 @@ import LoadingOutlinedIcon from "@ant-design/icons/LoadingOutlined";
 import EllipsisOutlinedIcon from "@ant-design/icons/EllipsisOutlined";
 import PlainButton from "@/components/PlainButton";
 
-export default function MenuButton({ doDelete, canEdit, mute, unmute, evaluate, muted }) {
+export default function MenuButton({ doDelete, canEdit, mute, unmute, evaluate, muted = false }) {
   const [loading, setLoading] = useState(false);
 
   const execute = useCallback(action => {
@@ -74,8 +74,4 @@ MenuButton.propTypes = {
   unmute: PropTypes.func.isRequired,
   evaluate: PropTypes.func.isRequired,
   muted: PropTypes.bool,
-};
-
-MenuButton.defaultProps = {
-  muted: false,
 };

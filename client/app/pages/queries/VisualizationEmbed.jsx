@@ -32,7 +32,7 @@ import routes from "@/services/routes";
 
 import logoUrl from "@/assets/images/redash_icon_small.png";
 
-function VisualizationEmbedHeader({ queryName, queryDescription, visualization }) {
+function VisualizationEmbedHeader({ queryName, queryDescription = "", visualization }) {
   return (
     <div className="embed-heading p-b-10 p-r-15 p-l-15">
       <h3>
@@ -54,16 +54,14 @@ VisualizationEmbedHeader.propTypes = {
   visualization: VisualizationType.isRequired,
 };
 
-VisualizationEmbedHeader.defaultProps = { queryDescription: "" };
-
 function VisualizationEmbedFooter({
   query,
-  queryResults,
-  updatedAt,
-  refreshStartedAt,
-  queryUrl,
-  hideTimestamp,
-  apiKey,
+  queryResults = null,
+  updatedAt = null,
+  refreshStartedAt = null,
+  queryUrl = null,
+  hideTimestamp = false,
+  apiKey = null,
 }) {
   const downloadMenu = (
     <Menu>
@@ -148,16 +146,7 @@ VisualizationEmbedFooter.propTypes = {
   apiKey: PropTypes.string,
 };
 
-VisualizationEmbedFooter.defaultProps = {
-  queryResults: null,
-  updatedAt: null,
-  refreshStartedAt: null,
-  queryUrl: null,
-  hideTimestamp: false,
-  apiKey: null,
-};
-
-function VisualizationEmbed({ queryId, visualizationId, apiKey, onError }) {
+function VisualizationEmbed({ queryId, visualizationId, apiKey, onError = () => {} }) {
   const [query, setQuery] = useState(null);
   const [error, setError] = useState(null);
   const [refreshStartedAt, setRefreshStartedAt] = useState(null);
@@ -268,10 +257,6 @@ VisualizationEmbed.propTypes = {
   visualizationId: PropTypes.string,
   apiKey: PropTypes.string.isRequired,
   onError: PropTypes.func,
-};
-
-VisualizationEmbed.defaultProps = {
-  onError: () => {},
 };
 
 routes.register(

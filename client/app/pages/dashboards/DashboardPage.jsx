@@ -170,7 +170,7 @@ DashboardComponent.propTypes = {
   dashboard: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
 };
 
-function DashboardPage({ dashboardSlug, dashboardId, onError }) {
+function DashboardPage({ dashboardSlug = null, dashboardId = null, onError = PropTypes.func }) {
   const [dashboard, setDashboard] = useState(null);
   const handleError = useImmutableCallback(onError);
 
@@ -194,12 +194,6 @@ function DashboardPage({ dashboardSlug, dashboardId, onError }) {
 DashboardPage.propTypes = {
   dashboardSlug: PropTypes.string,
   dashboardId: PropTypes.string,
-  onError: PropTypes.func,
-};
-
-DashboardPage.defaultProps = {
-  dashboardSlug: null,
-  dashboardId: null,
   onError: PropTypes.func,
 };
 

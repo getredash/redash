@@ -10,7 +10,7 @@ import AutocompleteToggle from "./AutocompleteToggle";
 import "./QueryEditorControls.less";
 import AutoLimitCheckbox from "@/components/queries/QueryEditor/AutoLimitCheckbox";
 
-export function ButtonTooltip({ title, shortcut, ...props }) {
+export function ButtonTooltip({ title = null, shortcut = null, ...props }) {
   shortcut = humanReadableShortcut(shortcut, 1); // show only primary shortcut
   title =
     title && shortcut ? (
@@ -28,19 +28,14 @@ ButtonTooltip.propTypes = {
   shortcut: PropTypes.string,
 };
 
-ButtonTooltip.defaultProps = {
-  title: null,
-  shortcut: null,
-};
-
 export default function EditorControl({
-  addParameterButtonProps,
-  formatButtonProps,
-  saveButtonProps,
-  executeButtonProps,
-  autocompleteToggleProps,
-  autoLimitCheckboxProps,
-  dataSourceSelectorProps,
+  addParameterButtonProps = false,
+  formatButtonProps = false,
+  saveButtonProps = false,
+  executeButtonProps = false,
+  autocompleteToggleProps = false,
+  autoLimitCheckboxProps = false,
+  dataSourceSelectorProps = false,
 }) {
   useEffect(() => {
     const buttons = filter(
@@ -174,14 +169,4 @@ EditorControl.propTypes = {
       onChange: PropTypes.func,
     }),
   ]),
-};
-
-EditorControl.defaultProps = {
-  addParameterButtonProps: false,
-  formatButtonProps: false,
-  saveButtonProps: false,
-  executeButtonProps: false,
-  autocompleteToggleProps: false,
-  autoLimitCheckboxProps: false,
-  dataSourceSelectorProps: false,
 };

@@ -23,7 +23,7 @@ function deleteGroup(event, group, onGroupDeleted) {
   });
 }
 
-export default function DeleteGroupButton({ group, title, onClick, children, ...props }) {
+export default function DeleteGroupButton({ group = null, title = null, onClick = () => {}, children = null, ...props }) {
   if (!group) {
     return null;
   }
@@ -49,11 +49,4 @@ DeleteGroupButton.propTypes = {
   title: PropTypes.string,
   onClick: PropTypes.func,
   children: PropTypes.node,
-};
-
-DeleteGroupButton.defaultProps = {
-  group: null,
-  title: null,
-  onClick: () => {},
-  children: null,
 };

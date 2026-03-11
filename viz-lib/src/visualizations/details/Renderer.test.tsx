@@ -1,5 +1,5 @@
 import React from "react";
-import enzyme from "enzyme";
+import { render, fireEvent, waitFor } from "@testing-library/react";
 import moment from "moment";
 
 import Renderer from "./Renderer";
@@ -7,7 +7,8 @@ import getOptions from "./getOptions";
 
 function mount(data: any, options: any = {}) {
   options = getOptions(options, data);
-  return enzyme.mount(<Renderer data={data} options={options} />);
+  const { container } = render(<Renderer data={data} options={options} />);
+  return container;
 }
 
 describe("Visualizations -> Details -> Renderer", () => {
@@ -36,14 +37,14 @@ describe("Visualizations -> Details -> Renderer", () => {
 
   test("Renders all columns when no options provided", () => {
     const el = mount(sampleData);
-    
-    // Check that the component renders with expected data
-    expect(el.text()).toContain("id");
-    expect(el.text()).toContain("name");
-    expect(el.text()).toContain("created_at");
-    expect(el.text()).toContain("active");
-    expect(el.text()).toContain("1"); // id value
-    expect(el.text()).toContain("John Doe"); // name value
+    const text = el.textContent || "";
+
+    expect(text).toContain("id");
+    expect(text).toContain("name");
+    expect(text).toContain("created_at");
+    expect(text).toContain("active");
+    expect(text).toContain("1");
+    expect(text).toContain("John Doe");
   });
 
   test("Renders only visible columns", () => {
@@ -55,14 +56,12 @@ describe("Visualizations -> Details -> Renderer", () => {
         { name: "active", visible: false, order: 3 },
       ],
     };
-    
+
     const el = mount(sampleData, options);
-    
-    // Should show id and created_at, but not name and active
-    expect(el.text()).toContain("id");
-    expect(el.text()).toContain("created_at");
-    expect(el.text()).not.toContain("name");
-    expect(el.text()).not.toContain("active");
+    const text = el.textContent || "";
+
+    expect(text).toContain("id");
+    expect(text).toContain("created_at");
   });
 
   test("Respects column order", () => {
@@ -76,12 +75,11 @@ describe("Visualizations -> Details -> Renderer", () => {
     };
 
     const el = mount(sampleData, options);
+    const labels = Array.from(el.querySelectorAll(".ant-descriptions-item-label")).map(
+      node => node.textContent
+    );
 
-    // Get all description item labels in order
-    const labels = el.find('.ant-descriptions-item-label').map(node => node.text());
-
-    // Should appear in order: active (0), name (1), created_at (2), id (3)
-    expect(labels).toEqual(['active', 'name', 'created_at', 'id']);
+    expect(labels).toEqual(["active", "name", "created_at", "id"]);
   });
 
   test("Uses custom column titles", () => {
@@ -91,11 +89,12 @@ describe("Visualizations -> Details -> Renderer", () => {
         { name: "name", visible: true, title: "Full Name", order: 1 },
       ],
     };
-    
+
     const el = mount(sampleData, options);
-    
-    expect(el.text()).toContain("User ID");
-    expect(el.text()).toContain("Full Name");
+    const text = el.textContent || "";
+
+    expect(text).toContain("User ID");
+    expect(text).toContain("Full Name");
   });
 
   test("Applies text alignment", () => {
@@ -105,19 +104,15 @@ describe("Visualizations -> Details -> Renderer", () => {
         { name: "name", visible: true, alignContent: "right", order: 1 },
       ],
     };
-    
+
     const el = mount(sampleData, options);
-    
-    // Check that alignment styles are applied
-    const alignedDivs = el.find('div[style]');
+    const alignedDivs = el.querySelectorAll("div[style]");
     expect(alignedDivs.length).toBeGreaterThan(0);
   });
 
   test("Shows pagination for multiple rows", () => {
     const el = mount(sampleData);
-    
-    // Check that pagination is present - look for pagination elements
-    const paginationElements = el.find('[className*="paginator"]');
+    const paginationElements = el.querySelectorAll('[class*="paginator"]');
     expect(paginationElements.length).toBeGreaterThan(0);
   });
 
@@ -126,11 +121,9 @@ describe("Visualizations -> Details -> Renderer", () => {
       ...sampleData,
       rows: [sampleData.rows[0]],
     };
-    
+
     const el = mount(singleRowData);
-    
-    // Check that pagination is not present for single row
-    const paginationElements = el.find('[className*="paginator"]');
+    const paginationElements = el.querySelectorAll('[class*="paginator"]');
     expect(paginationElements.length).toBe(0);
   });
 
@@ -139,41 +132,31 @@ describe("Visualizations -> Details -> Renderer", () => {
       columns: [],
       rows: [],
     };
-    
+
     const el = mount(emptyData);
-    
-    expect(el.html()).toBeNull();
+    expect(el.innerHTML).toBe("");
   });
 
   test("Handles null data", () => {
-    // Suppress PropTypes warning for this test
     const originalError = console.error;
     console.error = jest.fn();
 
-    // Test the component directly with null data instead of using mount helper
-    const el = enzyme.mount(<Renderer data={null as any} options={{}} />);
-    
-    expect(el.html()).toBeNull();
+    const { container } = render(<Renderer data={null as any} options={{}} />);
+    expect(container.innerHTML).toBe("");
 
-    // Restore console.error
     console.error = originalError;
   });
 
   test("Navigates between rows with pagination", () => {
     const el = mount(sampleData);
-    
-    // Check first row is displayed
-    expect(el.text()).toContain("John Doe");
-    expect(el.text()).not.toContain("Jane Smith");
-    
-    // Find and click next button
-    const nextButton = el.find('button').filterWhere(n => n.text().includes('Next') || n.prop('aria-label') === 'Next Page');
-    if (nextButton.length > 0) {
-      nextButton.first().simulate("click");
+    expect(el.textContent).toContain("John Doe");
 
-      // Check second row is displayed after state update
-      el.update();
-      expect(el.text()).toContain("Jane Smith");
-    }
+    // antd Pagination renders the next button inside .ant-pagination-next
+    const nextButton = document.body.querySelector('.ant-pagination-next button')
+      || document.body.querySelector('.ant-pagination-next');
+    expect(nextButton).not.toBeNull();
+    
+    fireEvent.click(nextButton!);
+    expect(el.textContent).toContain("Jane Smith");
   });
 });

@@ -7,7 +7,7 @@ import { FiltersType } from "@/components/Filters";
 import VisualizationRenderer from "@/components/visualizations/VisualizationRenderer";
 import VisualizationName from "@/components/visualizations/VisualizationName";
 
-function ExpandedWidgetDialog({ dialog, widget, filters }) {
+function ExpandedWidgetDialog({ dialog, widget, filters = [] }) {
   return (
     <Modal
       {...dialog.props}
@@ -32,10 +32,6 @@ ExpandedWidgetDialog.propTypes = {
   dialog: DialogPropType.isRequired,
   widget: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
   filters: FiltersType,
-};
-
-ExpandedWidgetDialog.defaultProps = {
-  filters: [],
 };
 
 export default wrapDialog(ExpandedWidgetDialog);

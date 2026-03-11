@@ -64,12 +64,12 @@ function createMenu(menu) {
 
 export default function QueryPageHeader({
   query,
-  dataSource,
-  sourceMode,
-  selectedVisualization,
-  headerExtra,
-  tagsExtra,
-  onChange,
+  dataSource = null,
+  sourceMode = false,
+  selectedVisualization = null,
+  headerExtra = null,
+  tagsExtra = null,
+  onChange = () => {},
 }) {
   const isDesktop = useMedia({ minWidth: 768 });
   const queryFlags = useQueryFlags(query, dataSource);
@@ -221,13 +221,4 @@ QueryPageHeader.propTypes = {
   headerExtra: PropTypes.node,
   tagsExtra: PropTypes.node,
   onChange: PropTypes.func,
-};
-
-QueryPageHeader.defaultProps = {
-  dataSource: null,
-  sourceMode: false,
-  selectedVisualization: null,
-  headerExtra: null,
-  tagsExtra: null,
-  onChange: () => {},
 };

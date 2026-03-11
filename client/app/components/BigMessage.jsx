@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { useUniqueId } from "@/lib/hooks/useUniqueId";
 import cx from "classnames";
 
-function BigMessage({ message, icon, children, className }) {
+function BigMessage({ message = "", icon, children = null, className = "tiled bg-white" }) {
   const messageId = useUniqueId("bm-message");
   return (
     <div
@@ -26,12 +26,6 @@ BigMessage.propTypes = {
   icon: PropTypes.string.isRequired,
   children: PropTypes.node,
   className: PropTypes.string,
-};
-
-BigMessage.defaultProps = {
-  message: "",
-  children: null,
-  className: "tiled bg-white",
 };
 
 export default BigMessage;

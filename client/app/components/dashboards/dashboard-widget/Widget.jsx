@@ -11,7 +11,7 @@ import PlainButton from "@/components/PlainButton";
 
 import "./Widget.less";
 
-function WidgetDropdownButton({ extraOptions, showDeleteOption, onDelete }) {
+function WidgetDropdownButton({ extraOptions = null, showDeleteOption = false, onDelete = () => {} }) {
   const WidgetMenu = (
     <Menu data-test="WidgetDropdownButtonMenu">
       {extraOptions}
@@ -37,13 +37,7 @@ WidgetDropdownButton.propTypes = {
   onDelete: PropTypes.func,
 };
 
-WidgetDropdownButton.defaultProps = {
-  extraOptions: null,
-  showDeleteOption: false,
-  onDelete: () => {},
-};
-
-function WidgetDeleteButton({ onClick }) {
+function WidgetDeleteButton({ onClick = () => {} }) {
   return (
     <div className="widget-menu-remove">
       <PlainButton
@@ -59,7 +53,6 @@ function WidgetDeleteButton({ onClick }) {
 }
 
 WidgetDeleteButton.propTypes = { onClick: PropTypes.func };
-WidgetDeleteButton.defaultProps = { onClick: () => {} };
 
 class Widget extends React.Component {
   static propTypes = {

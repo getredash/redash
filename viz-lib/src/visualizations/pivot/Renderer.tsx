@@ -40,7 +40,7 @@ function formatRows({ rows, columns }: any) {
   );
 }
 
-export default function Renderer({ data, options, onOptionsChange }: any) {
+export default function Renderer({ data, options, onOptionsChange: onOptionsChange = () => {} }: any) {
   const [config, setConfig] = useState({ ...options });
   const dataRows = useMemo(() => formatRows(data), [data]);
 
@@ -78,4 +78,3 @@ export default function Renderer({ data, options, onOptionsChange }: any) {
 }
 
 Renderer.propTypes = RendererPropTypes;
-Renderer.defaultProps = { onOptionsChange: () => {} };

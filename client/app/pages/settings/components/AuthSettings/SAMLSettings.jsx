@@ -7,6 +7,7 @@ import DynamicComponent from "@/components/DynamicComponent";
 import { SettingsEditorPropTypes, SettingsEditorDefaultProps } from "../prop-types";
 
 export default function SAMLSettings(props) {
+  props = { ...SettingsEditorDefaultProps, ...props };
   const { values, onChange, loading } = props;
 
   const onChangeEnabledStatus = e => {
@@ -87,4 +88,3 @@ export default function SAMLSettings(props) {
 
 SAMLSettings.propTypes = SettingsEditorPropTypes;
 
-SAMLSettings.defaultProps = SettingsEditorDefaultProps;

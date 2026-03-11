@@ -15,7 +15,6 @@ export default function DataLabelsSettings({ options, onOptionsChange }: any) {
   return (
     <React.Fragment>
       {isShowDataLabelsAvailable && (
-        // @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message
         <Section>
           <Checkbox
             data-test="Chart.DataLabels.ShowDataLabels"
@@ -26,7 +25,6 @@ export default function DataLabelsSettings({ options, onOptionsChange }: any) {
         </Section>
       )}
 
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Input
           label={
@@ -41,7 +39,6 @@ export default function DataLabelsSettings({ options, onOptionsChange }: any) {
         />
       </Section>
 
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Input
           label={
@@ -56,7 +53,6 @@ export default function DataLabelsSettings({ options, onOptionsChange }: any) {
         />
       </Section>
 
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Input
           label={
@@ -71,13 +67,11 @@ export default function DataLabelsSettings({ options, onOptionsChange }: any) {
         />
       </Section>
 
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Input
           label={
             <React.Fragment>
               Data Labels
-              {/* @ts-expect-error ts-migrate(2746) FIXME: This JSX tag's 'children' prop expects a single ch... Remove this comment to see the full error message */}
               <ContextHelp placement="topRight" arrowPointAtCenter>
                 <div style={{ paddingBottom: 5 }}>Use special names to access additional properties:</div>
                 <div>

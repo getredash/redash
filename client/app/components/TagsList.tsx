@@ -19,7 +19,7 @@ type TagsListProps = {
   onUpdate?: (selectedTags: string[]) => void;
 };
 
-function TagsList({ tagsUrl, showUnselectAll = false, onUpdate }: TagsListProps): JSX.Element | null {
+function TagsList({ tagsUrl, showUnselectAll = false, onUpdate }: TagsListProps): React.JSX.Element | null {
   const [allTags, setAllTags] = useState<Tag[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
 

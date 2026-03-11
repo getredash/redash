@@ -14,7 +14,7 @@ import useSearchResults from "@/lib/hooks/useSearchResults";
 
 import "./SelectItemsDialog.less";
 
-function ItemsList({ items, renderItem, onItemClick }) {
+function ItemsList({ items = [], renderItem = () => {}, onItemClick = () => {} }) {
   const renderListItem = useCallback(
     item => {
       const { content, className, isDisabled } = renderItem(item);
@@ -39,24 +39,18 @@ ItemsList.propTypes = {
   onItemClick: PropTypes.func,
 };
 
-ItemsList.defaultProps = {
-  items: [],
-  renderItem: () => {},
-  onItemClick: () => {},
-};
-
 function SelectItemsDialog({
   dialog,
-  dialogTitle,
-  inputPlaceholder,
-  itemKey,
-  renderItem,
-  renderStagedItem,
+  dialogTitle = "Add Items",
+  inputPlaceholder = "Search...",
+  itemKey = item => item.id,
+  renderItem = () => "",
+  renderStagedItem = null,
   searchItems,
-  selectedItemsTitle,
-  width,
-  showCount,
-  extraFooterContent,
+  selectedItemsTitle = "Selected items",
+  width = "80%",
+  showCount = false,
+  extraFooterContent = null,
 }) {
   const [selectedItems, setSelectedItems] = useState([]);
   const [search, items, isLoading] = useSearchResults(searchItems, { initialResults: [] });
@@ -183,18 +177,6 @@ SelectItemsDialog.propTypes = {
   width: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   extraFooterContent: PropTypes.node,
   showCount: PropTypes.bool,
-};
-
-SelectItemsDialog.defaultProps = {
-  dialogTitle: "Add Items",
-  inputPlaceholder: "Search...",
-  selectedItemsTitle: "Selected items",
-  itemKey: item => item.id,
-  renderItem: () => "",
-  renderStagedItem: null, // hidden by default
-  width: "80%",
-  extraFooterContent: null,
-  showCount: false,
 };
 
 export default wrapDialog(SelectItemsDialog);

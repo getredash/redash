@@ -7,7 +7,7 @@ import { Moment } from "@/components/proptypes";
 
 const { RangePicker } = DatePicker;
 
-const DateRangeInput = React.forwardRef(({ defaultValue, value, onSelect, className, ...props }, ref) => {
+const DateRangeInput = React.forwardRef(({ defaultValue = null, value = undefined, onSelect = () => {}, className = "", ...props }, ref) => {
   const format = clientConfig.dateFormat || "YYYY-MM-DD";
   const additionalAttributes = {};
   if (isArray(defaultValue) && defaultValue[0].isValid() && defaultValue[1].isValid()) {
@@ -33,13 +33,6 @@ DateRangeInput.propTypes = {
   value: PropTypes.arrayOf(Moment),
   onSelect: PropTypes.func,
   className: PropTypes.string,
-};
-
-DateRangeInput.defaultProps = {
-  defaultValue: null,
-  value: undefined,
-  onSelect: () => {},
-  className: "",
 };
 
 export default DateRangeInput;

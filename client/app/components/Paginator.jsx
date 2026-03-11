@@ -4,7 +4,7 @@ import Pagination from "antd/lib/pagination";
 
 const MIN_ITEMS_PER_PAGE = 5;
 
-export default function Paginator({ page, showPageSizeSelect, pageSize, onPageSizeChange, totalCount, onChange }) {
+export default function Paginator({ page, showPageSizeSelect = false, pageSize, onPageSizeChange = () => {}, totalCount, onChange = () => {} }) {
   if (totalCount <= (showPageSizeSelect ? MIN_ITEMS_PER_PAGE : pageSize)) {
     return null;
   }
@@ -30,10 +30,4 @@ Paginator.propTypes = {
   totalCount: PropTypes.number.isRequired,
   onPageSizeChange: PropTypes.func,
   onChange: PropTypes.func,
-};
-
-Paginator.defaultProps = {
-  showPageSizeSelect: false,
-  onChange: () => {},
-  onPageSizeChange: () => {},
 };

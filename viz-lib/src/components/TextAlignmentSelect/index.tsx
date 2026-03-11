@@ -18,10 +18,10 @@ const textAlignmentSelectDefaultProps = {
   className: null,
 };
 
-type Props = OwnProps & typeof textAlignmentSelectDefaultProps;
+type Props = OwnProps;
 
 // @ts-expect-error ts-migrate(2700) FIXME: Rest types may only be created from object types.
-export default function TextAlignmentSelect({ className, ...props }: Props) {
+export default function TextAlignmentSelect({ className: className = null, ...props }: Props) {
   return (
     // Antd RadioGroup does not use any custom attributes
     <div {...pickBy(props, (v, k) => startsWith(k, "data-"))}>
@@ -45,5 +45,3 @@ export default function TextAlignmentSelect({ className, ...props }: Props) {
     </div>
   );
 }
-
-TextAlignmentSelect.defaultProps = textAlignmentSelectDefaultProps;

@@ -37,6 +37,13 @@ function areFiltersEqual(a, b) {
 }
 
 export default function VisualizationRenderer(props) {
+  props = {
+    showFilters: true,
+    filters: [],
+    onFiltersChange: () => {},
+    ...props
+  };
+
   const data = useQueryResultData(props.queryResult);
   const [filters, setFilters] = useState(() => combineFilters(data.filters, props.filters)); // lazy initialization
   const filtersRef = useRef();
@@ -97,10 +104,4 @@ VisualizationRenderer.propTypes = {
   filters: FiltersType,
   onFiltersChange: PropTypes.func,
   context: PropTypes.oneOf(["query", "widget"]).isRequired,
-};
-
-VisualizationRenderer.defaultProps = {
-  showFilters: true,
-  filters: [],
-  onFiltersChange: () => {},
 };

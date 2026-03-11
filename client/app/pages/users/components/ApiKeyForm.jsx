@@ -11,6 +11,11 @@ import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 import { useUniqueId } from "@/lib/hooks/useUniqueId";
 
 export default function ApiKeyForm(props) {
+  props = {
+    onChange: () => {},
+    ...props
+  };
+
   const { user, onChange } = props;
 
   const [loading, setLoading] = useState(false);
@@ -59,8 +64,4 @@ export default function ApiKeyForm(props) {
 ApiKeyForm.propTypes = {
   user: UserProfile.isRequired,
   onChange: PropTypes.func,
-};
-
-ApiKeyForm.defaultProps = {
-  onChange: () => {},
 };

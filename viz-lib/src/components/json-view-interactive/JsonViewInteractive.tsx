@@ -100,14 +100,12 @@ const jsonViewInteractiveDefaultProps = {
   value: undefined,
 };
 
-type JsonViewInteractiveProps = OwnJsonViewInteractiveProps & typeof jsonViewInteractiveDefaultProps;
+type JsonViewInteractiveProps = OwnJsonViewInteractiveProps;
 
-export default function JsonViewInteractive({ value }: JsonViewInteractiveProps) {
+export default function JsonViewInteractive({ value: value = undefined }: JsonViewInteractiveProps) {
   return (
     <span className="jvi-item jvi-root">
       <JsonValue value={value} />
     </span>
   );
 }
-
-JsonViewInteractive.defaultProps = jsonViewInteractiveDefaultProps;

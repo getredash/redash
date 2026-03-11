@@ -127,10 +127,8 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
 
   return (
     <React.Fragment>
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <ChartTypeSelect
-          // @ts-expect-error ts-migrate(2322) FIXME: Type '{ label: string; "data-test": string; defaul... Remove this comment to see the full error message
           label="Chart Type"
           data-test="Chart.GlobalSeriesType"
           defaultValue={options.globalSeriesType}
@@ -139,7 +137,6 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
       </Section>
 
       {includes(["column", "line", "box"], options.globalSeriesType) && (
-        // @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message
         <Section>
           <Checkbox
             data-test="Chart.SwappedAxes"
@@ -152,25 +149,19 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
       )}
 
       {map(mappedColumns, (value, type) => (
-        // @ts-expect-error ColumnMappingSelect types incompatible with React 18 JSX
         <ColumnMappingSelect
-          // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
           key={type}
-          // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
           type={type}
           value={value}
-          // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
           areAxesSwapped={options.swappedAxes}
           // @ts-expect-error ts-migrate(2322) FIXME: Type 'unknown[]' is not assignable to type 'never'... Remove this comment to see the full error message
           availableColumns={unusedColumns}
-          // @ts-expect-error ts-migrate(2322) FIXME: Type '(column: any, type: any) => void' is not ass... Remove this comment to see the full error message
           onChange={handleColumnMappingChange}
         />
       ))}
 
       {includes(["bubble"], options.globalSeriesType) && (
         <React.Fragment>
-          {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
           <Section>
             <InputNumber
               label="Bubble Size Coefficient"
@@ -180,7 +171,6 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
             />
           </Section>
 
-          {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
           <Section>
             <Select
               label="Bubble Size Proportional To"
@@ -203,7 +193,6 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
       )}
 
       {includes(["pie"], options.globalSeriesType) && (
-        // @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message
         <Section>
           <Select
             label="Direction"
@@ -241,7 +230,6 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
 
       {!includes(["custom", "heatmap"], options.globalSeriesType) && (
         <React.Fragment>
-          {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
           <Section>
             <Select
               label="Legend Placement"
@@ -267,7 +255,6 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
           </Section>
 
           {options.legend.enabled && (
-            // @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message
             <Section>
               <Select
                 label="Legend Items Order"
@@ -291,7 +278,6 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
       )}
 
       {includes(["box"], options.globalSeriesType) && (
-        // @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message
         <Section>
           <Checkbox
             data-test="Chart.ShowPoints"
@@ -303,7 +289,6 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
       )}
 
       {!includes(["custom", "heatmap"], options.globalSeriesType) && (
-        // @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message
         <Section>
           <Select
             label="Stacking"
@@ -326,7 +311,6 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
       )}
 
       {includes(["line", "area", "column"], options.globalSeriesType) && (
-        // @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message
         <Section>
           <Checkbox
             data-test="Chart.NormalizeValues"
@@ -338,7 +322,6 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
       )}
 
       {includes(["line", "area"], options.globalSeriesType) && (
-        // @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message
         <Section>
           <Select
             label="Line Shape"
@@ -370,7 +353,6 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
       )}
 
       {!includes(["custom", "heatmap", "bubble"], options.globalSeriesType) && (
-        // @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message
         <Section>
           <Select
             label="Missing and NULL values"
@@ -391,7 +373,6 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
         </Section>
       )}
 
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Checkbox
           data-test="Chart.EnableClickEvents"
@@ -401,7 +382,6 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
         </Checkbox>
       </Section>
 
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Checkbox
           data-test="Chart.EnableClickEvents.NewTab"
@@ -413,17 +393,14 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
         </Checkbox>
       </Section>
 
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Input
           label={
             <React.Fragment>
               URL template
-              {/* @ts-expect-error ts-migrate(2746) FIXME: This JSX tag's 'children' prop expects a single ch... Remove this comment to see the full error message */}
               <ContextHelp
                 placement="topLeft"
                 arrowPointAtCenter
-                // @ts-expect-error ts-migrate(2322) FIXME: Type 'Element' is not assignable to type 'null | u... Remove this comment to see the full error message
                 icon={ContextHelp.defaultIcon}>
                 <div>
                   Every curve can be referenced using <code>{"{{ @@x1 }} {{ @@y1 }} {{ @@x2 }} {{ @@y2 }} ..."}</code> syntax:<br/>

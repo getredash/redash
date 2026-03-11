@@ -21,14 +21,13 @@ const swatchDefaultProps = {
   size: 12,
 };
 
-type Props = OwnProps & typeof swatchDefaultProps;
+type Props = OwnProps;
 
 // @ts-expect-error ts-migrate(2700) FIXME: Rest types may only be created from object types.
-export default function Swatch({ className, color, title, size, style, ...props }: Props) {
+export default function Swatch({ className: className = null, color: color = "transparent", title: title = null, size: size = 12, style: style = null, ...props }: Props) {
   const result = (
     <span
       className={cx("color-swatch", className)}
-      // @ts-expect-error ts-migrate(2698) FIXME: Spread types may only be created from object types... Remove this comment to see the full error message
       style={{ backgroundColor: color, width: size, ...style }}
       {...props}
     />
@@ -43,5 +42,3 @@ export default function Swatch({ className, color, title, size, style, ...props 
   }
   return result;
 }
-
-Swatch.defaultProps = swatchDefaultProps;

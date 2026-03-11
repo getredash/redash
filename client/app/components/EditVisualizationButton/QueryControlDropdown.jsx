@@ -15,6 +15,14 @@ import EllipsisOutlinedIcon from "@ant-design/icons/EllipsisOutlined";
 import QueryResultsLink from "./QueryResultsLink";
 
 export default function QueryControlDropdown(props) {
+  props = {
+    queryResult: {},
+    embed: false,
+    apiKey: "",
+    selectedTab: "",
+    ...props
+  };
+
   const menu = (
     <Menu>
       {!props.query.isNew() && (!props.query.is_draft || !props.query.is_archived) && (
@@ -87,11 +95,4 @@ QueryControlDropdown.propTypes = {
   apiKey: PropTypes.string,
   selectedTab: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   openAddToDashboardForm: PropTypes.func.isRequired,
-};
-
-QueryControlDropdown.defaultProps = {
-  queryResult: {},
-  embed: false,
-  apiKey: "",
-  selectedTab: "",
 };

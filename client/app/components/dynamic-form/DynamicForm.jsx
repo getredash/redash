@@ -46,7 +46,7 @@ function normalizeEmptyValuesToNull(fields, values) {
   });
 }
 
-function DynamicFormFields({ fields, feedbackIcons, form }) {
+function DynamicFormFields({ fields = [], feedbackIcons = false, form }) {
   return fields.map(field => {
     const { name, type, initialValue, contentAfter } = field;
     const fieldLabel = getFieldLabel(field);
@@ -90,11 +90,6 @@ DynamicFormFields.propTypes = {
   form: AntdFormType.isRequired,
 };
 
-DynamicFormFields.defaultProps = {
-  fields: [],
-  feedbackIcons: false,
-};
-
 const reducerForActionSet = (state, action) => {
   if (action.inProgress) {
     state.add(action.actionName);
@@ -104,7 +99,7 @@ const reducerForActionSet = (state, action) => {
   return new Set(state);
 };
 
-function DynamicFormActions({ actions, isFormDirty }) {
+function DynamicFormActions({ actions = [], isFormDirty = false }) {
   const [inProgressActions, setActionInProgress] = useReducer(reducerForActionSet, new Set());
 
   const handleAction = useCallback(action => {
@@ -135,20 +130,15 @@ DynamicFormActions.propTypes = {
   isFormDirty: PropTypes.bool,
 };
 
-DynamicFormActions.defaultProps = {
-  actions: [],
-  isFormDirty: false,
-};
-
 export default function DynamicForm({
-  id,
-  fields,
-  actions,
-  feedbackIcons,
-  hideSubmitButton,
-  defaultShowExtraFields,
-  saveText,
-  onSubmit,
+  id = null,
+  fields = [],
+  actions = [],
+  feedbackIcons = false,
+  hideSubmitButton = false,
+  defaultShowExtraFields = false,
+  saveText = "Save",
+  onSubmit = () => {},
 }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isTouched, setIsTouched] = useState(false);
@@ -233,15 +223,4 @@ DynamicForm.propTypes = {
   defaultShowExtraFields: PropTypes.bool,
   saveText: PropTypes.string,
   onSubmit: PropTypes.func,
-};
-
-DynamicForm.defaultProps = {
-  id: null,
-  fields: [],
-  actions: [],
-  feedbackIcons: false,
-  hideSubmitButton: false,
-  defaultShowExtraFields: false,
-  saveText: "Save",
-  onSubmit: () => {},
 };

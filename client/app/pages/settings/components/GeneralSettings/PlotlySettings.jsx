@@ -6,6 +6,7 @@ import DynamicComponent from "@/components/DynamicComponent";
 import { SettingsEditorPropTypes, SettingsEditorDefaultProps } from "../prop-types";
 
 export default function PlotlySettings(props) {
+  props = { ...SettingsEditorDefaultProps, ...props };
   const { values, onChange, loading } = props;
 
   return (
@@ -28,4 +29,3 @@ export default function PlotlySettings(props) {
 
 PlotlySettings.propTypes = SettingsEditorPropTypes;
 
-PlotlySettings.defaultProps = SettingsEditorDefaultProps;
