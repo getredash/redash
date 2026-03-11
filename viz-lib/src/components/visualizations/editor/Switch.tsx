@@ -16,10 +16,10 @@ const switchDefaultProps = {
   children: null,
 };
 
-type Props = OwnProps & typeof switchDefaultProps;
+type Props = OwnProps;
 
 // @ts-expect-error ts-migrate(2700) FIXME: Rest types may only be created from object types.
-export default function Switch({ id, children, disabled, ...props }: Props) {
+export default function Switch({ id: id = null, children: children = null, disabled: disabled = false, ...props }: Props) {
   const fallbackId = useMemo(
     () =>
       `visualization-editor-control-${Math.random()
@@ -32,7 +32,7 @@ export default function Switch({ id, children, disabled, ...props }: Props) {
   if (children) {
     return (
       <label htmlFor={id} className="switch-with-label">
-        <AntSwitch id={id} disabled={disabled} {...props} />
+        <AntSwitch {...{id, disabled, ...props} as any} />
         <Typography.Text className="switch-text" disabled={disabled}>
           {children}
         </Typography.Text>
@@ -42,5 +42,3 @@ export default function Switch({ id, children, disabled, ...props }: Props) {
 
   return <AntSwitch {...props} />;
 }
-
-Switch.defaultProps = switchDefaultProps;

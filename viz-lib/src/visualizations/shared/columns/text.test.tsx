@@ -1,14 +1,18 @@
 import React from "react";
-import enzyme from "enzyme";
+import { render, fireEvent } from "@testing-library/react";
 
 import Column from "./text";
 
-function findByTestID(wrapper: any, testId: any) {
-  return wrapper.find(`[data-test="${testId}"]`);
+function findByTestID(testId: string): HTMLElement[] {
+  return Array.from(document.body.querySelectorAll(`[data-test="${testId}"]`));
+}
+
+function getInput(el: HTMLElement): HTMLInputElement {
+  return (el.tagName === "INPUT" ? el : el.querySelector("input")!) as HTMLInputElement;
 }
 
 function mount(column: any, done: any) {
-  return enzyme.mount(
+  const { container } = render(
     <Column.Editor
       // @ts-expect-error ts-migrate(2322) FIXME: Type '{ visualizationName: string; column: any; on... Remove this comment to see the full error message
       visualizationName="Test"
@@ -19,6 +23,7 @@ function mount(column: any, done: any) {
       }}
     />
   );
+  return container;
 }
 
 describe("Visualizations -> Table -> Columns -> Text", () => {
@@ -33,10 +38,7 @@ describe("Visualizations -> Table -> Columns -> Text", () => {
         done
       );
 
-      findByTestID(el, "Table.ColumnEditor.Text.AllowHTML")
-        .last()
-        .find("input")
-        .simulate("change", { target: { checked: true } });
+      fireEvent.click(getInput(findByTestID("Table.ColumnEditor.Text.AllowHTML").pop()!));
     });
 
     test("Enables highlight links option", done => {
@@ -49,10 +51,7 @@ describe("Visualizations -> Table -> Columns -> Text", () => {
         done
       );
 
-      findByTestID(el, "Table.ColumnEditor.Text.HighlightLinks")
-        .last()
-        .find("input")
-        .simulate("change", { target: { checked: true } });
+      fireEvent.click(getInput(findByTestID("Table.ColumnEditor.Text.HighlightLinks").pop()!));
     });
   });
 });

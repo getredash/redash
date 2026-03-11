@@ -28,7 +28,7 @@ export const SchemaItemType = PropTypes.shape({
 const schemaTableHeight = 22;
 const schemaColumnHeight = 18;
 
-function SchemaItem({ item, expanded, onToggle, onSelect, ...props }) {
+function SchemaItem({ item = null, expanded = false, onToggle = () => {}, onSelect = () => {}, ...props }) {
   const handleSelect = useCallback(
     (event, ...args) => {
       event.preventDefault();
@@ -120,13 +120,6 @@ SchemaItem.propTypes = {
   expanded: PropTypes.bool,
   onToggle: PropTypes.func,
   onSelect: PropTypes.func,
-};
-
-SchemaItem.defaultProps = {
-  item: null,
-  expanded: false,
-  onToggle: () => {},
-  onSelect: () => {},
 };
 
 function SchemaLoadingState() {
@@ -221,9 +214,9 @@ export function applyFilterOnSchema(schema, filterString) {
 }
 
 export default function SchemaBrowser({
-  dataSource,
-  onSchemaUpdate,
-  onItemSelect,
+  dataSource = null,
+  onSchemaUpdate = () => {},
+  onItemSelect = () => {},
   options,
   onOptionsUpdate,
   ...props
@@ -285,10 +278,4 @@ SchemaBrowser.propTypes = {
   dataSource: PropTypes.object, // eslint-disable-line react/forbid-prop-types
   onSchemaUpdate: PropTypes.func,
   onItemSelect: PropTypes.func,
-};
-
-SchemaBrowser.defaultProps = {
-  dataSource: null,
-  onSchemaUpdate: () => {},
-  onItemSelect: () => {},
 };

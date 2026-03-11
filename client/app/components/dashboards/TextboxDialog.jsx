@@ -14,7 +14,8 @@ import notification from "@/services/notification";
 
 import "./TextboxDialog.less";
 
-function TextboxDialog({ dialog, isNew, ...props }) {
+function TextboxDialog({ dialog, isNew = false, ...props }) {
+  props = { text: "", ...props };
   const [text, setText] = useState(toString(props.text));
   const [preview, setPreview] = useState(null);
 
@@ -104,11 +105,6 @@ TextboxDialog.propTypes = {
   dialog: DialogPropType.isRequired,
   isNew: PropTypes.bool,
   text: PropTypes.string,
-};
-
-TextboxDialog.defaultProps = {
-  isNew: false,
-  text: "",
 };
 
 export default wrapDialog(TextboxDialog);

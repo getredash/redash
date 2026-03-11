@@ -26,7 +26,6 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
 
   return (
     <React.Fragment>
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Select
           label="Map"
@@ -43,7 +42,6 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
         </Select>
       </Section>
 
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Grid.Row gutter={15}>
           <Grid.Col span={12}>
@@ -84,7 +82,6 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
         </Grid.Row>
       </Section>
 
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Select
           label="Value Column"

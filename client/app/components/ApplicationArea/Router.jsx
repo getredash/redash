@@ -36,7 +36,7 @@ export function stripBase(href) {
   return false;
 }
 
-export default function Router({ routes, onRouteChange }) {
+export default function Router({ routes = [], onRouteChange = () => {} }) {
   const [currentRoute, setCurrentRoute] = useState(null);
 
   const currentPathRef = useRef(null);
@@ -137,9 +137,4 @@ Router.propTypes = {
     })
   ),
   onRouteChange: PropTypes.func,
-};
-
-Router.defaultProps = {
-  routes: [],
-  onRouteChange: () => {},
 };

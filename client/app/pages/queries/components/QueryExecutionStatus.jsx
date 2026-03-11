@@ -5,7 +5,7 @@ import Alert from "antd/lib/alert";
 import Button from "antd/lib/button";
 import Timer from "@/components/Timer";
 
-export default function QueryExecutionStatus({ status, updatedAt, error, isCancelling, onCancel }) {
+export default function QueryExecutionStatus({ status = "waiting", updatedAt = null, error = null, isCancelling = true, onCancel = () => {} }) {
   const alertType = status === "failed" ? "error" : "info";
   const showTimer = status !== "failed" && updatedAt;
   const isCancelButtonAvailable = includes(["waiting", "processing"], status);
@@ -63,12 +63,4 @@ QueryExecutionStatus.propTypes = {
   error: PropTypes.string,
   isCancelling: PropTypes.bool,
   onCancel: PropTypes.func,
-};
-
-QueryExecutionStatus.defaultProps = {
-  status: "waiting",
-  updatedAt: null,
-  error: null,
-  isCancelling: true,
-  onCancel: () => {},
 };

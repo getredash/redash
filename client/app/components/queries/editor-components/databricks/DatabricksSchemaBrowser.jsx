@@ -14,11 +14,11 @@ import useDatabricksSchema from "./useDatabricksSchema";
 import "./DatabricksSchemaBrowser.less";
 
 export default function DatabricksSchemaBrowser({
-  dataSource,
-  options,
-  onOptionsUpdate,
-  onSchemaUpdate,
-  onItemSelect,
+  dataSource = null,
+  options = null,
+  onOptionsUpdate = () => {},
+  onSchemaUpdate = () => {},
+  onItemSelect = () => {},
   ...props
 }) {
   const {
@@ -140,12 +140,4 @@ DatabricksSchemaBrowser.propTypes = {
   onOptionsUpdate: PropTypes.func,
   onSchemaUpdate: PropTypes.func,
   onItemSelect: PropTypes.func,
-};
-
-DatabricksSchemaBrowser.defaultProps = {
-  dataSource: null,
-  options: null,
-  onOptionsUpdate: () => {},
-  onSchemaUpdate: () => {},
-  onItemSelect: () => {},
 };

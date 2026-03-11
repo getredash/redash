@@ -9,6 +9,7 @@ import { clientConfig } from "@/services/auth";
 import { SettingsEditorPropTypes, SettingsEditorDefaultProps } from "../prop-types";
 
 export default function PasswordLoginSettings(props) {
+  props = { ...SettingsEditorDefaultProps, ...props };
   const { settings, values, onChange, loading } = props;
 
   const isTheOnlyAuthMethod =
@@ -48,4 +49,3 @@ export default function PasswordLoginSettings(props) {
 
 PasswordLoginSettings.propTypes = SettingsEditorPropTypes;
 
-PasswordLoginSettings.defaultProps = SettingsEditorDefaultProps;

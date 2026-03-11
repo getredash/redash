@@ -78,7 +78,7 @@ export class TagsControl extends React.Component {
 function modelTagsControl({ archivedTooltip }) {
   // See comment for `propTypes`/`defaultProps`
   // eslint-disable-next-line react/prop-types
-  function ModelTagsControl({ isDraft, isArchived, ...props }) {
+  function ModelTagsControl({ isDraft = false, isArchived = false, ...props }) {
     return (
       <TagsControl {...props}>
         {!isArchived && isDraft && <span className="label label-tag-unpublished">Unpublished</span>}
@@ -94,11 +94,6 @@ function modelTagsControl({ archivedTooltip }) {
   ModelTagsControl.propTypes = {
     isDraft: PropTypes.bool,
     isArchived: PropTypes.bool,
-  };
-
-  ModelTagsControl.defaultProps = {
-    isDraft: false,
-    isArchived: false,
   };
 
   return ModelTagsControl;

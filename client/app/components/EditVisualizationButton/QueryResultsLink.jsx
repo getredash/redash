@@ -3,6 +3,14 @@ import PropTypes from "prop-types";
 import Link from "@/components/Link";
 
 export default function QueryResultsLink(props) {
+  props = {
+    queryResult: {},
+    fileType: "csv",
+    embed: false,
+    apiKey: "",
+    ...props
+  };
+
   let href = "";
 
   const { query, queryResult, fileType } = props;
@@ -32,11 +40,4 @@ QueryResultsLink.propTypes = {
   embed: PropTypes.bool,
   apiKey: PropTypes.string,
   children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]).isRequired,
-};
-
-QueryResultsLink.defaultProps = {
-  queryResult: {},
-  fileType: "csv",
-  embed: false,
-  apiKey: "",
 };

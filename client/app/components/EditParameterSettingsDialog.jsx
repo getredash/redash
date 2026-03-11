@@ -69,6 +69,11 @@ NameInput.propTypes = {
 };
 
 function EditParameterSettingsDialog(props) {
+  props = {
+    existingParams: [],
+    ...props
+  };
+
   const [param, setParam] = useState(clone(props.parameter));
   const [isNameValid, setIsNameValid] = useState(true);
   const [initialQuery, setInitialQuery] = useState();
@@ -292,10 +297,6 @@ EditParameterSettingsDialog.propTypes = {
   parameter: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
   dialog: DialogPropType.isRequired,
   existingParams: PropTypes.arrayOf(PropTypes.string),
-};
-
-EditParameterSettingsDialog.defaultProps = {
-  existingParams: [],
 };
 
 export default wrapDialog(EditParameterSettingsDialog);

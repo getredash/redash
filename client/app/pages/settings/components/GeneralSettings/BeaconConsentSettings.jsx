@@ -7,6 +7,7 @@ import DynamicComponent from "@/components/DynamicComponent";
 import { SettingsEditorPropTypes, SettingsEditorDefaultProps } from "../prop-types";
 
 export default function BeaconConsentSettings(props) {
+  props = { ...SettingsEditorDefaultProps, ...props };
   const { values, onChange, loading } = props;
 
   return (
@@ -37,4 +38,3 @@ export default function BeaconConsentSettings(props) {
 
 BeaconConsentSettings.propTypes = SettingsEditorPropTypes;
 
-BeaconConsentSettings.defaultProps = SettingsEditorDefaultProps;

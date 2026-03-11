@@ -4,7 +4,7 @@ import DatePicker from "antd/lib/date-picker";
 import { clientConfig } from "@/services/auth";
 import { Moment } from "@/components/proptypes";
 
-const DateInput = React.forwardRef(({ defaultValue, value, onSelect, className, ...props }, ref) => {
+const DateInput = React.forwardRef(({ defaultValue = null, value = undefined, onSelect = () => {}, className = "", ...props }, ref) => {
   const format = clientConfig.dateFormat || "YYYY-MM-DD";
   const additionalAttributes = {};
   if (defaultValue && defaultValue.isValid()) {
@@ -31,13 +31,6 @@ DateInput.propTypes = {
   value: Moment,
   onSelect: PropTypes.func,
   className: PropTypes.string,
-};
-
-DateInput.defaultProps = {
-  defaultValue: null,
-  value: undefined,
-  onSelect: () => {},
-  className: "",
 };
 
 export default DateInput;

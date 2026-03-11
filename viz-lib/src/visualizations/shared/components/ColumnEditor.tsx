@@ -26,7 +26,7 @@ type ColumnEditorProps = {
 
 export default function ColumnEditor({
   column,
-  onChange,
+  onChange: onChange = () => {},
   variant,
   showSearch = variant === "table",
   testPrefix,
@@ -47,7 +47,6 @@ export default function ColumnEditor({
 
   return (
     <div className={cssClass}>
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         {/* @ts-expect-error ts-migrate(2322) FIXME: Type '{ children: Element[]; gutter: number; type:... Remove this comment to see the full error message */}
         <Grid.Row gutter={15} type="flex" align="middle">
@@ -67,9 +66,7 @@ export default function ColumnEditor({
           </Grid.Col>
         </Grid.Row>
       </Section>
-
       {showSearch && (
-        /* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */
         <Section>
           <Checkbox
             data-test={`${dataTestPrefix}.UseForSearch`}
@@ -79,39 +76,28 @@ export default function ColumnEditor({
           </Checkbox>
         </Section>
       )}
-
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Input
-          label="Description"
           data-test={`${dataTestPrefix}.Description`}
           defaultValue={column.description}
           onChange={(event: any) => handleChangeDebounced({ description: event.target.value })}
         />
       </Section>
-
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Select
           label="Display as:"
-          data-test={`${dataTestPrefix}.DisplayAs`}
           defaultValue={column.displayAs}
           onChange={(displayAs: any) => handleChange({ displayAs })}>
           {map(ColumnTypes, ({ friendlyName }, key) => (
             // @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message
-            <Select.Option key={key} data-test={`${dataTestPrefix}.DisplayAs.${key}`}>
+            (<Select.Option key={key} data-test={`${dataTestPrefix}.DisplayAs.${key}`}>
               {friendlyName}
               {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
-            </Select.Option>
+            </Select.Option>)
           ))}
         </Select>
       </Section>
-
       {AdditionalOptions && <AdditionalOptions column={column} onChange={handleChange} />}
     </div>
   );
 }
-
-ColumnEditor.defaultProps = {
-  onChange: () => {},
-};

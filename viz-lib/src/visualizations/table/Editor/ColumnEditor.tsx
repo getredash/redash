@@ -18,9 +18,9 @@ const columnEditorDefaultProps = {
   onChange: () => {},
 };
 
-type Props = OwnProps & typeof columnEditorDefaultProps;
+type Props = OwnProps;
 
-export default function ColumnEditor({ column, onChange }: Props) {
+export default function ColumnEditor({ column, onChange: onChange = () => {} }: Props) {
   return (
     <SharedColumnEditor
       column={column}
@@ -30,5 +30,3 @@ export default function ColumnEditor({ column, onChange }: Props) {
     />
   );
 }
-
-ColumnEditor.defaultProps = columnEditorDefaultProps;

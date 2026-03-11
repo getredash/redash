@@ -1,11 +1,26 @@
 import React from "react";
-import enzyme from "enzyme";
+import { render, fireEvent } from "@testing-library/react";
 
 import getOptions from "../getOptions";
 import ColumnsSettings from "./ColumnsSettings";
 
-function findByTestID(wrapper: any, testId: any) {
-  return wrapper.find(`[data-test="${testId}"]`);
+function findByTestID(testId: string): HTMLElement[] {
+  return Array.from(document.body.querySelectorAll(`[data-test="${testId}"]`));
+}
+
+function getInput(el: HTMLElement): HTMLInputElement {
+  return (el.tagName === "INPUT" ? el : el.querySelector("input")!) as HTMLInputElement;
+}
+
+function openSelect(testId: string) {
+  const el = findByTestID(testId).pop()!;
+  const selector = el.querySelector(".ant-select-selector") || el;
+  fireEvent.mouseDown(selector);
+}
+
+function clickOption(testId: string) {
+  const el = findByTestID(testId).pop();
+  if (el) fireEvent.click(el);
 }
 
 function mount(options: any, done: any) {
@@ -14,7 +29,7 @@ function mount(options: any, done: any) {
     rows: [{ a: "test" }],
   };
   options = getOptions(options, data);
-  return enzyme.mount(
+  const { container } = render(
     <ColumnsSettings
       visualizationName="Test"
       data={data}
@@ -25,63 +40,47 @@ function mount(options: any, done: any) {
       }}
     />
   );
+  return container;
 }
 
 describe("Visualizations -> Table -> Editor -> Columns Settings", () => {
   test("Toggles column visibility", done => {
     const el = mount({}, done);
 
-    findByTestID(el, "Table.Column.a.Visibility")
-      .last()
-      .simulate("click");
+    clickOption("Table.Column.a.Visibility");
   });
 
   test("Changes column title", done => {
     const el = mount({}, done);
-    findByTestID(el, "Table.Column.a.Name")
-      .last()
-      .simulate("click"); // expand settings
+    clickOption("Table.Column.a.Name"); // expand settings
 
-    findByTestID(el, "Table.Column.a.Title")
-      .last()
-      .simulate("change", { target: { value: "test" } });
+    fireEvent.change(findByTestID("Table.Column.a.Title").pop()!, { target: { value: "test" } });
   });
 
   test("Changes column alignment", done => {
     const el = mount({}, done);
-    findByTestID(el, "Table.Column.a.Name")
-      .last()
-      .simulate("click"); // expand settings
+    clickOption("Table.Column.a.Name"); // expand settings
 
-    findByTestID(el, "Table.Column.a.TextAlignment")
-      .last()
-      .find('[data-test="TextAlignmentSelect.Right"] input')
-      .simulate("change", { target: { checked: true } });
+    const radio = document.body.querySelector('[data-test="TextAlignmentSelect.Right"]') as HTMLInputElement;
+    fireEvent.click(radio);
   });
 
   test("Enables search by column data", done => {
     const el = mount({}, done);
-    findByTestID(el, "Table.Column.a.Name")
-      .last()
-      .simulate("click"); // expand settings
+    clickOption("Table.Column.a.Name"); // expand settings
 
-    findByTestID(el, "Table.Column.a.UseForSearch")
-      .last()
-      .find("input")
-      .simulate("change", { target: { checked: true } });
+    const checkbox = findByTestID("Table.Column.a.UseForSearch").pop()!;
+    const cbInput = checkbox.querySelector("input[type='checkbox']") || checkbox;
+    fireEvent.click(cbInput);
   });
 
   test("Changes column display type", done => {
     const el = mount({}, done);
-    findByTestID(el, "Table.Column.a.Name")
-      .last()
-      .simulate("click"); // expand settings
+    clickOption("Table.Column.a.Name"); // expand settings
 
-    findByTestID(el, "Table.Column.a.DisplayAs")
-      .last()
-      .simulate("mouseDown");
-    findByTestID(el, "Table.Column.a.DisplayAs.number")
-      .last()
-      .simulate("click");
+    // Select doesn't have data-test on wrapper, find the ant-select in the expanded settings
+    const selectSelector = document.body.querySelector(".ant-select-selector")!;
+    fireEvent.mouseDown(selectSelector);
+    clickOption("Table.Column.a.DisplayAs.number");
   });
 });

@@ -15,7 +15,7 @@ const DURATIONS = [
   ["Week", 604800],
 ];
 
-function RearmByDuration({ value, onChange, editMode }) {
+function RearmByDuration({ value, onChange = () => {}, editMode }) {
   const [durationIdx, setDurationIdx] = useState();
   const [count, setCount] = useState();
 
@@ -70,10 +70,6 @@ RearmByDuration.propTypes = {
   onChange: PropTypes.func,
   value: PropTypes.number.isRequired,
   editMode: PropTypes.bool.isRequired,
-};
-
-RearmByDuration.defaultProps = {
-  onChange: () => {},
 };
 
 function RearmEditor({ value, onChange }) {
@@ -135,7 +131,11 @@ RearmViewer.propTypes = {
   value: PropTypes.number.isRequired,
 };
 
-export default function Rearm({ editMode, ...props }) {
+export default function Rearm({
+  editMode = false,
+  onChange: onChange = null,
+  ...props
+}) {
   return editMode ? <RearmEditor {...props} /> : <RearmViewer {...props} />;
 }
 
@@ -143,9 +143,4 @@ Rearm.propTypes = {
   onChange: PropTypes.func,
   value: PropTypes.number.isRequired,
   editMode: PropTypes.bool,
-};
-
-Rearm.defaultProps = {
-  onChange: null,
-  editMode: false,
 };

@@ -5,7 +5,7 @@ import Select from "antd/lib/select";
 import Modal from "antd/lib/modal";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 
-function EditTagsDialog({ dialog, tags, getAvailableTags }) {
+function EditTagsDialog({ dialog, tags = [], getAvailableTags }) {
   const [availableTags, setAvailableTags] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [values, setValues] = useState(() => uniq(map(tags, trim))); // lazy evaluate
@@ -61,10 +61,6 @@ EditTagsDialog.propTypes = {
   dialog: DialogPropType.isRequired,
   tags: PropTypes.arrayOf(PropTypes.string),
   getAvailableTags: PropTypes.func.isRequired,
-};
-
-EditTagsDialog.defaultProps = {
-  tags: [],
 };
 
 export default wrapDialog(EditTagsDialog);

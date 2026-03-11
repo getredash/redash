@@ -7,7 +7,7 @@ import DynamicForm from "@/components/dynamic-form/DynamicForm";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import { useUniqueId } from "@/lib/hooks/useUniqueId";
 
-function QuerySnippetDialog({ querySnippet, dialog, readOnly }) {
+function QuerySnippetDialog({ querySnippet = null, dialog, readOnly = false }) {
   const handleSubmit = useCallback(
     (values, successCallback, errorCallback) => {
       const querySnippetId = get(querySnippet, "id");
@@ -73,11 +73,6 @@ QuerySnippetDialog.propTypes = {
   dialog: DialogPropType.isRequired,
   querySnippet: PropTypes.object,
   readOnly: PropTypes.bool,
-};
-
-QuerySnippetDialog.defaultProps = {
-  querySnippet: null,
-  readOnly: false,
 };
 
 export default wrapDialog(QuerySnippetDialog);

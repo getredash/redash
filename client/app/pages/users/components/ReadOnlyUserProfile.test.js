@@ -1,5 +1,5 @@
 import React from "react";
-import renderer from "react-test-renderer";
+import { render } from "@testing-library/react";
 import Group from "@/services/group";
 import ReadOnlyUserProfile from "./ReadOnlyUserProfile";
 
@@ -16,7 +16,6 @@ test("renders correctly", () => {
     profileImageUrl: "http://www.images.com/llama.jpg",
   };
 
-  const component = renderer.create(<ReadOnlyUserProfile user={user} />);
-  const tree = component.toJSON();
-  expect(tree).toMatchSnapshot();
+  const { container } = render(<ReadOnlyUserProfile user={user} />);
+  expect(container).toMatchSnapshot();
 });

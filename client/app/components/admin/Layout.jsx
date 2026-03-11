@@ -6,7 +6,7 @@ import Link from "@/components/Link";
 
 import "./layout.less";
 
-export default function Layout({ activeTab, children }) {
+export default function Layout({ activeTab = "system_status", children = null }) {
   return (
     <div className="admin-page-layout">
       <div className="container">
@@ -33,9 +33,4 @@ export default function Layout({ activeTab, children }) {
 Layout.propTypes = {
   activeTab: PropTypes.string,
   children: PropTypes.node,
-};
-
-Layout.defaultProps = {
-  activeTab: "system_status",
-  children: null,
 };

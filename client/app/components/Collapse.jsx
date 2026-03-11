@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import cx from "classnames";
 import AntCollapse from "antd/lib/collapse";
 
-export default function Collapse({ collapsed, children, className, ...props }) {
+export default function Collapse({ collapsed = true, children = null, className = "", ...props }) {
   return (
     <AntCollapse
       {...props}
@@ -20,10 +20,4 @@ Collapse.propTypes = {
   collapsed: PropTypes.bool,
   children: PropTypes.node,
   className: PropTypes.string,
-};
-
-Collapse.defaultProps = {
-  collapsed: true,
-  children: null,
-  className: "",
 };

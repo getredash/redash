@@ -1,14 +1,18 @@
 import React from "react";
-import enzyme from "enzyme";
+import { render, fireEvent } from "@testing-library/react";
 
 import Column from "./link";
 
-function findByTestID(wrapper: any, testId: any) {
-  return wrapper.find(`[data-test="${testId}"]`);
+function findByTestID(testId: string): HTMLElement[] {
+  return Array.from(document.body.querySelectorAll(`[data-test="${testId}"]`));
+}
+
+function getInput(el: HTMLElement): HTMLInputElement {
+  return (el.tagName === "INPUT" ? el : el.querySelector("input")!) as HTMLInputElement;
 }
 
 function mount(column: any, done: any) {
-  return enzyme.mount(
+  const { container } = render(
     <Column.Editor
       // @ts-expect-error ts-migrate(2322) FIXME: Type '{ visualizationName: string; column: any; on... Remove this comment to see the full error message
       visualizationName="Test"
@@ -19,6 +23,7 @@ function mount(column: any, done: any) {
       }}
     />
   );
+  return container;
 }
 
 describe("Visualizations -> Table -> Columns -> Link", () => {
@@ -32,10 +37,7 @@ describe("Visualizations -> Table -> Columns -> Link", () => {
         done
       );
 
-      findByTestID(el, "Table.ColumnEditor.Link.UrlTemplate")
-        .last()
-        .find("input")
-        .simulate("change", { target: { value: "http://{{ @ }}/index.html" } });
+      fireEvent.change(getInput(findByTestID("Table.ColumnEditor.Link.UrlTemplate").pop()!), { target: { value: "http://{{ @ }}/index.html" } });
     });
 
     test("Changes text template", done => {
@@ -47,10 +49,7 @@ describe("Visualizations -> Table -> Columns -> Link", () => {
         done
       );
 
-      findByTestID(el, "Table.ColumnEditor.Link.TextTemplate")
-        .last()
-        .find("input")
-        .simulate("change", { target: { value: "Text of {{ @ }}" } });
+      fireEvent.change(getInput(findByTestID("Table.ColumnEditor.Link.TextTemplate").pop()!), { target: { value: "Text of {{ @ }}" } });
     });
 
     test("Changes title template", done => {
@@ -62,10 +61,7 @@ describe("Visualizations -> Table -> Columns -> Link", () => {
         done
       );
 
-      findByTestID(el, "Table.ColumnEditor.Link.TitleTemplate")
-        .last()
-        .find("input")
-        .simulate("change", { target: { value: "Title of {{ @ }}" } });
+      fireEvent.change(getInput(findByTestID("Table.ColumnEditor.Link.TitleTemplate").pop()!), { target: { value: "Title of {{ @ }}" } });
     });
 
     test("Makes link open in new tab ", done => {
@@ -77,10 +73,7 @@ describe("Visualizations -> Table -> Columns -> Link", () => {
         done
       );
 
-      findByTestID(el, "Table.ColumnEditor.Link.OpenInNewTab")
-        .last()
-        .find("input")
-        .simulate("change", { target: { checked: true } });
+      fireEvent.click(getInput(findByTestID("Table.ColumnEditor.Link.OpenInNewTab").pop()!));
     });
   });
 });

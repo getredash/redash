@@ -6,7 +6,7 @@ import Link from "@/components/Link";
 
 import "./UserGroups.less";
 
-export default function UserGroups({ groups, linkGroups, ...props }) {
+export default function UserGroups({ groups = [], linkGroups = true, ...props }) {
   return (
     <div className="user-groups" {...props}>
       {map(groups, group => (
@@ -24,9 +24,4 @@ UserGroups.propTypes = {
     })
   ),
   linkGroups: PropTypes.bool,
-};
-
-UserGroups.defaultProps = {
-  groups: [],
-  linkGroups: true,
 };

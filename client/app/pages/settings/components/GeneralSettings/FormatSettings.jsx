@@ -7,6 +7,7 @@ import DynamicComponent from "@/components/DynamicComponent";
 import { clientConfig } from "@/services/auth";
 
 export default function FormatSettings(props) {
+  props = { ...SettingsEditorDefaultProps, ...props };
   const { values, onChange, loading } = props;
 
   return (
@@ -47,4 +48,3 @@ export default function FormatSettings(props) {
 
 FormatSettings.propTypes = SettingsEditorPropTypes;
 
-FormatSettings.defaultProps = SettingsEditorDefaultProps;

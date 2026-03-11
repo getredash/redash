@@ -7,6 +7,7 @@ import DynamicComponent from "@/components/DynamicComponent";
 import { SettingsEditorPropTypes, SettingsEditorDefaultProps } from "../prop-types";
 
 export default function FeatureFlagsSettings(props) {
+  props = { ...SettingsEditorDefaultProps, ...props };
   const { values, onChange, loading } = props;
 
   return (
@@ -55,4 +56,3 @@ export default function FeatureFlagsSettings(props) {
 
 FeatureFlagsSettings.propTypes = SettingsEditorPropTypes;
 
-FeatureFlagsSettings.defaultProps = SettingsEditorDefaultProps;

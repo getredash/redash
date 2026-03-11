@@ -38,7 +38,8 @@ type OwnProps = {
     | string[]
     | {
         [key: string]: string;
-      };
+      }
+    | null;
   presetColumns?: number;
   onChange?: (...args: any[]) => any;
   onPressEnter?: (...args: any[]) => any;
@@ -52,9 +53,9 @@ const inputDefaultProps = {
   onPressEnter: () => {},
 };
 
-type Props = OwnProps & typeof inputDefaultProps;
+type Props = OwnProps;
 
-export default function Input({ color, presetColors, presetColumns, onChange, onPressEnter }: Props) {
+export default function Input({ color: color = "#FFFFFF", presetColors: presetColors = null, presetColumns: presetColumns = 8, onChange: onChange = () => {}, onPressEnter: onPressEnter = () => {} }: Props) {
   const [inputValue, setInputValue] = useState("");
   const [isInputFocused, setIsInputFocused] = useState(false);
 
@@ -77,7 +78,7 @@ export default function Input({ color, presetColors, presetColumns, onChange, on
         <div className="color-picker-input-swatches" key={`preset-row-${index}`}>
           {map(group, ([title, value]) => (
             // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
-            <Swatch key={value} color={value} title={title} size={30} onClick={() => validateColor(value, onChange)} />
+            (<Swatch key={value} color={value} title={title} size={30} onClick={() => validateColor(value, onChange)} />)
           ))}
         </div>
       ))}
@@ -95,5 +96,3 @@ export default function Input({ color, presetColors, presetColumns, onChange, on
     </React.Fragment>
   );
 }
-
-Input.defaultProps = inputDefaultProps;

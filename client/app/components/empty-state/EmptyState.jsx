@@ -12,7 +12,15 @@ import organizationStatus from "@/services/organizationStatus";
 
 import "./empty-state.less";
 
-export function Step({ show, completed, text, url, urlText, onClick }) {
+export function Step({
+  show,
+  completed,
+  text = null,
+  url = null,
+  urlText = null,
+  onClick = null,
+  urlTarget: urlTarget = null
+}) {
   if (!show) {
     return null;
   }
@@ -36,14 +44,6 @@ Step.propTypes = {
   onClick: PropTypes.func,
 };
 
-Step.defaultProps = {
-  url: null,
-  urlTarget: null,
-  urlText: null,
-  text: null,
-  onClick: null,
-};
-
 export function EmptyStateHelpMessage({ helpTriggerType }) {
   return (
     <p>
@@ -60,18 +60,18 @@ EmptyStateHelpMessage.propTypes = {
 };
 
 function EmptyState({
-  icon,
-  header,
+  icon = null,
+  header = null,
   description,
   illustration,
-  helpMessage,
-  closable,
-  onClose,
-  onboardingMode,
-  showAlertStep,
-  showDashboardStep,
-  showDataSourceStep,
-  showInviteStep,
+  helpMessage = null,
+  closable = false,
+  onClose = () => {},
+  onboardingMode = false,
+  showAlertStep = false,
+  showDashboardStep = false,
+  showDataSourceStep = true,
+  showInviteStep = false,
   getStepsItems,
   illustrationPath,
 }) {
@@ -226,20 +226,6 @@ EmptyState.propTypes = {
   showInviteStep: PropTypes.bool,
 
   getStepItems: PropTypes.func,
-};
-
-EmptyState.defaultProps = {
-  icon: null,
-  header: null,
-  helpMessage: null,
-  closable: false,
-  onClose: () => {},
-
-  onboardingMode: false,
-  showAlertStep: false,
-  showDashboardStep: false,
-  showDataSourceStep: true,
-  showInviteStep: false,
 };
 
 export default EmptyState;

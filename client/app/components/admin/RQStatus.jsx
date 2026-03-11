@@ -10,7 +10,7 @@ import { Columns } from "@/components/items-list/components/ItemsTable";
 
 // CounterCard
 
-export function CounterCard({ title, value, loading }) {
+export function CounterCard({ title, value = "", loading }) {
   return (
     <Spin spinning={loading}>
       <Card>
@@ -25,10 +25,6 @@ CounterCard.propTypes = {
   title: PropTypes.string.isRequired,
   value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   loading: PropTypes.bool.isRequired,
-};
-
-CounterCard.defaultProps = {
-  value: "",
 };
 
 // Tables

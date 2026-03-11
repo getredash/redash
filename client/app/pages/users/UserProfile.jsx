@@ -17,7 +17,7 @@ import ReadOnlyUserProfile from "./components/ReadOnlyUserProfile";
 
 import "./settings.less";
 
-function UserProfile({ userId, onError }) {
+function UserProfile({ userId = null, onError = () => {} }) {
   const [user, setUser] = useState(null);
 
   const handleError = useImmutableCallback(onError);
@@ -61,11 +61,6 @@ function UserProfile({ userId, onError }) {
 UserProfile.propTypes = {
   userId: PropTypes.string,
   onError: PropTypes.func,
-};
-
-UserProfile.defaultProps = {
-  userId: null, // defaults to `currentUser.id`
-  onError: () => {},
 };
 
 const UserProfilePage = wrapSettingsTab(

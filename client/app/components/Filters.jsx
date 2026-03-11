@@ -66,7 +66,7 @@ export function filterData(rows, filters = []) {
   return result;
 }
 
-function Filters({ filters, onChange }) {
+function Filters({ filters, onChange = () => {} }) {
   if (filters.length === 0) {
     return null;
   }
@@ -137,10 +137,6 @@ function Filters({ filters, onChange }) {
 Filters.propTypes = {
   filters: FiltersType.isRequired,
   onChange: PropTypes.func, // (name, value) => void
-};
-
-Filters.defaultProps = {
-  onChange: () => {},
 };
 
 export default Filters;

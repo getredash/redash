@@ -72,7 +72,7 @@ function visualizationWidgetMenuOptions({ widget, canEditDashboard, onParameters
   ]);
 }
 
-function RefreshIndicator({ refreshStartedAt }) {
+function RefreshIndicator({ refreshStartedAt = null }) {
   return (
     <div className="refresh-indicator">
       <div className="refresh-icon">
@@ -85,15 +85,14 @@ function RefreshIndicator({ refreshStartedAt }) {
 }
 
 RefreshIndicator.propTypes = { refreshStartedAt: Moment };
-RefreshIndicator.defaultProps = { refreshStartedAt: null };
 
 function VisualizationWidgetHeader({
   widget,
-  refreshStartedAt,
-  parameters,
-  isEditing,
-  onParametersUpdate,
-  onParametersEdit,
+  refreshStartedAt = null,
+  parameters = [],
+  isEditing = false,
+  onParametersUpdate = () => {},
+  onParametersEdit = () => {},
 }) {
   const canViewQuery = currentUser.hasPermission("view_query");
 
@@ -136,15 +135,7 @@ VisualizationWidgetHeader.propTypes = {
   onParametersEdit: PropTypes.func,
 };
 
-VisualizationWidgetHeader.defaultProps = {
-  refreshStartedAt: null,
-  onParametersUpdate: () => {},
-  onParametersEdit: () => {},
-  isEditing: false,
-  parameters: [],
-};
-
-function VisualizationWidgetFooter({ widget, isPublic, onRefresh, onExpand }) {
+function VisualizationWidgetFooter({ widget, isPublic = false, onRefresh, onExpand }) {
   const widgetQueryResult = widget.getQueryResult();
   const updatedAt = invoke(widgetQueryResult, "getUpdatedAt");
   const [refreshClickButtonId, setRefreshClickButtonId] = useState();
@@ -205,8 +196,6 @@ VisualizationWidgetFooter.propTypes = {
   onRefresh: PropTypes.func.isRequired,
   onExpand: PropTypes.func.isRequired,
 };
-
-VisualizationWidgetFooter.defaultProps = { isPublic: false };
 
 class VisualizationWidget extends React.Component {
   static propTypes = {

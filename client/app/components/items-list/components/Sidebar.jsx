@@ -10,7 +10,7 @@ import TagsList from "@/components/TagsList";
     SearchInput
  */
 
-export function SearchInput({ placeholder, value, showIcon, onChange, label }) {
+export function SearchInput({ placeholder = "Search...", value, showIcon = false, onChange, label = "Search" }) {
   const [currentValue, setCurrentValue] = useState(value);
 
   useEffect(() => {
@@ -48,17 +48,11 @@ SearchInput.propTypes = {
   label: PropTypes.string,
 };
 
-SearchInput.defaultProps = {
-  placeholder: "Search...",
-  showIcon: false,
-  label: "Search",
-};
-
 /*
     Menu
  */
 
-export function Menu({ items, selected }) {
+export function Menu({ items = [], selected = null }) {
   items = filter(items, item => (isFunction(item.isAvailable) ? item.isAvailable() : true));
   if (items.length === 0) {
     return null;
@@ -95,11 +89,6 @@ Menu.propTypes = {
     })
   ),
   selected: PropTypes.string,
-};
-
-Menu.defaultProps = {
-  items: [],
-  selected: null,
 };
 
 /*

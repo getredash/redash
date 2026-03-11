@@ -110,21 +110,13 @@ type SortableContainerProps = {
   onSortEnd?: ({ oldIndex, newIndex }: { oldIndex: number; newIndex: number }) => void;
 };
 
-const sortableContainerDefaultProps = {
-  disabled: false,
-  containerComponent: "div",
-  containerProps: {},
-  children: null,
-  useDragHandle: false,
-};
-
 export function SortableContainer({
-  disabled,
-  containerComponent,
-  containerProps,
-  children,
+  disabled: disabled = false,
+  containerComponent: containerComponent = "div",
+  containerProps: containerProps = {},
+  children: children = null,
   items: itemsProp,
-  useDragHandle,
+  useDragHandle: useDragHandle = false,
   axis,
   lockAxis,
   lockToContainerEdges,
@@ -142,7 +134,7 @@ export function SortableContainer({
       return itemsProp;
     }
     return React.Children.toArray(children)
-      .map(child => (React.isValidElement(child) ? child.props.id : null))
+      .map(child => (React.isValidElement(child) ? (child.props as any).id : null))
       .filter(Boolean) as UniqueIdentifier[];
   }, [itemsProp, children]);
 
@@ -232,5 +224,3 @@ export function SortableContainer({
     </SortableContainerWrapper>
   );
 }
-
-SortableContainer.defaultProps = sortableContainerDefaultProps;

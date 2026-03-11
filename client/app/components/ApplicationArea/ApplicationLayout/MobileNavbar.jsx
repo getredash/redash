@@ -12,7 +12,7 @@ import logoUrl from "@/assets/images/redash_icon_small.png";
 
 import "./MobileNavbar.less";
 
-export default function MobileNavbar({ getPopupContainer }) {
+export default function MobileNavbar({ getPopupContainer = null }) {
   const firstSettingsTab = first(settingsMenu.getAvailableItems());
 
   return (
@@ -81,8 +81,4 @@ export default function MobileNavbar({ getPopupContainer }) {
 
 MobileNavbar.propTypes = {
   getPopupContainer: PropTypes.func,
-};
-
-MobileNavbar.defaultProps = {
-  getPopupContainer: null,
 };

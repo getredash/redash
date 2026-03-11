@@ -8,6 +8,7 @@ import "./context-help.less";
 type OwnContextHelpProps = {
   icon?: React.ReactNode;
   children?: React.ReactNode;
+  [key: string]: any;
 };
 
 const contextHelpDefaultProps = {
@@ -15,17 +16,15 @@ const contextHelpDefaultProps = {
   children: null,
 };
 
-type ContextHelpProps = OwnContextHelpProps & typeof contextHelpDefaultProps;
+type ContextHelpProps = OwnContextHelpProps;
 
-export default function ContextHelp({ icon, children, ...props }: ContextHelpProps) {
+export default function ContextHelp({ icon: icon = null, children: children = null, ...props }: ContextHelpProps) {
   return (
     <Popover {...props} content={children}>
-      {icon || ContextHelp.defaultIcon}
+      {(icon || ContextHelp.defaultIcon) as React.ReactElement}
     </Popover>
   );
 }
-
-ContextHelp.defaultProps = contextHelpDefaultProps;
 
 ContextHelp.defaultIcon = <QuestionCircleFilledIcon className="context-help-default-icon" />;
 

@@ -15,7 +15,7 @@ import "./DynamicButton.less";
 
 const { Text } = Typography;
 
-function DynamicButton({ options, selectedDynamicValue, onSelect, enabled, staticValueLabel }) {
+function DynamicButton({ options = [], selectedDynamicValue = null, onSelect = () => {}, enabled = false, staticValueLabel = "Back to Static Value" }) {
   const menu = (
     <Menu
       className="dynamic-menu"
@@ -24,9 +24,9 @@ function DynamicButton({ options, selectedDynamicValue, onSelect, enabled, stati
       data-test="DynamicButtonMenu">
       {options.map((option, index) => (
         // eslint-disable-next-line react/no-array-index-key
-        <Menu.Item key={index}>
+        (<Menu.Item key={index}>
           {option.name} {option.label && <em>{isFunction(option.label) ? option.label() : option.label}</em>}
-        </Menu.Item>
+        </Menu.Item>)
       ))}
       {enabled && <Menu.Divider />}
       {enabled && (
@@ -69,14 +69,6 @@ DynamicButton.propTypes = {
   onSelect: PropTypes.func,
   enabled: PropTypes.bool,
   staticValueLabel: PropTypes.string,
-};
-
-DynamicButton.defaultProps = {
-  options: [],
-  selectedDynamicValue: null,
-  onSelect: () => {},
-  enabled: false,
-  staticValueLabel: "Back to Static Value",
 };
 
 export default DynamicButton;

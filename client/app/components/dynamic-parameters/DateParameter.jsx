@@ -23,6 +23,15 @@ const DYNAMIC_DATE_OPTIONS = [
 ];
 
 function DateParameter(props) {
+  props = {
+    type: "",
+    className: "",
+    value: null,
+    parameter: null,
+    onSelect: () => {},
+    ...props
+  };
+
   return (
     <DynamicDatePicker
       dynamicButtonOptions={{ options: DYNAMIC_DATE_OPTIONS }}
@@ -38,14 +47,6 @@ DateParameter.propTypes = {
   value: PropTypes.any, // eslint-disable-line react/forbid-prop-types
   parameter: PropTypes.any, // eslint-disable-line react/forbid-prop-types
   onSelect: PropTypes.func,
-};
-
-DateParameter.defaultProps = {
-  type: "",
-  className: "",
-  value: null,
-  parameter: null,
-  onSelect: () => {},
 };
 
 export default DateParameter;

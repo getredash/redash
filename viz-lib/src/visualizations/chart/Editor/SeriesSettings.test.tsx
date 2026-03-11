@@ -1,16 +1,31 @@
 import React from "react";
-import enzyme from "enzyme";
+import { render, fireEvent } from "@testing-library/react";
 
 import getOptions from "../getOptions";
 import SeriesSettings from "./SeriesSettings";
 
-function findByTestID(wrapper: any, testId: any) {
-  return wrapper.find(`[data-test="${testId}"]`);
+function findByTestID(testId: string): HTMLElement[] {
+  return Array.from(document.body.querySelectorAll(`[data-test="${testId}"]`));
+}
+
+function getInput(el: HTMLElement): HTMLInputElement {
+  return (el.tagName === "INPUT" ? el : el.querySelector("input")!) as HTMLInputElement;
+}
+
+function openSelect(testId: string) {
+  const el = findByTestID(testId).pop()!;
+  const selector = el.querySelector(".ant-select-selector") || el;
+  fireEvent.mouseDown(selector);
+}
+
+function clickOption(testId: string) {
+  const el = findByTestID(testId).pop();
+  if (el) fireEvent.click(el);
 }
 
 function mount(options: any, done: any) {
   options = getOptions(options);
-  return enzyme.mount(
+  const { container } = render(
     <SeriesSettings
       visualizationName="Test"
       data={{ columns: [{ name: "a", type: "string" }], rows: [{ a: "test" }] }}
@@ -21,6 +36,7 @@ function mount(options: any, done: any) {
       }}
     />
   );
+  return container;
 }
 
 describe("Visualizations -> Chart -> Editor -> Series Settings", () => {
@@ -36,12 +52,8 @@ describe("Visualizations -> Chart -> Editor -> Series Settings", () => {
       done
     );
 
-    findByTestID(el, "Chart.Series.a.Type")
-      .last()
-      .simulate("mouseDown");
-    findByTestID(el, "Chart.ChartType.area")
-      .last()
-      .simulate("click");
+    openSelect("Chart.Series.a.Type");
+    clickOption("Chart.ChartType.area");
   });
 
   test("Changes series label", done => {
@@ -56,9 +68,7 @@ describe("Visualizations -> Chart -> Editor -> Series Settings", () => {
       done
     );
 
-    findByTestID(el, "Chart.Series.a.Label")
-      .last()
-      .simulate("change", { target: { value: "test" } });
+    fireEvent.change(findByTestID("Chart.Series.a.Label").pop()!, { target: { value: "test" } });
   });
 
   test("Changes series axis", done => {
@@ -73,9 +83,6 @@ describe("Visualizations -> Chart -> Editor -> Series Settings", () => {
       done
     );
 
-    findByTestID(el, "Chart.Series.a.UseRightAxis")
-      .last()
-      .find("input")
-      .simulate("change", { target: { checked: true } });
+    fireEvent.click(getInput(findByTestID("Chart.Series.a.UseRightAxis").pop()!));
   });
 });
