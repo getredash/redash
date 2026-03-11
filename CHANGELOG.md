@@ -274,7 +274,7 @@
 
 ## 24.03.0
 
-- Publish preview Docker image when release candidate is tagged [#6787](https://github.com/getredash/redash/pull/6787) [#6789](https://github.com/getredash/redash/pull/6787)Update
+- Publish preview Docker image when release candidate is tagged [#6787](https://github.com/getredash/redash/pull/6787) [#6789](https://github.com/getredash/redash/pull/6789)
 
 ## 24.02.0
 
@@ -286,7 +286,7 @@
 - Prometheus:
   - Add ssl support [#6657](https://github.com/getredash/redash/pull/6657)
 - Influxdb
-  - Add v2 query runner [#6646](https://github.com/getredash/redash/pull/6683)
+  - Add v2 query runner [#6646](https://github.com/getredash/redash/pull/6646)
 
 ## 23.12.0
 
@@ -301,18 +301,18 @@
 - Add query Runner for Yandex Disk
 - New connection options for MySQL [#6538](https://github.com/getredash/redash/pull/6538)
 - Regression fix
-  - Revert "Render counter widgets using relative font size" [#6566](https://github.com/getredash/redash/pull/#6566)
+  - Revert "Render counter widgets using relative font size" [#6566](https://github.com/getredash/redash/pull/6566)
 
 ## 23.10.0
 
 - Avoid updating query result for archived queries [#6488](https://github.com/getredash/redash/pull/6488)
-- Add Tinybird query runner [#5616](https://github.com/getredash/redash/pull/#5616)
+- Add Tinybird query runner [#5616](https://github.com/getredash/redash/pull/5616)
 
 ## 23.09.0
 
 - Allow the X and Y tick format to be customized using a [D3 format string](https://redash.io/help/user-guide/visualizations/formatting-axis/) [#6370](https://github.com/getredash/redash/pull/6370)
 - Add support for a default alert template [#5996](https://github.com/getredash/redash/pull/5996)
-- New alert destination: Asana [#5753](https://github.com/getredash/redash/pull/5753]
+- New alert destination: Asana [#5753](https://github.com/getredash/redash/pull/5753)
 - Fix query refresh if name contain control characters [#5602](https://github.com/getredash/redash/pull/5602)
 - Allow RSA key used for JWT to be specified as a file path [#6271](https://github.com/getredash/redash/pull/6271)
 - Add 'click' functionality for Chart visualization
