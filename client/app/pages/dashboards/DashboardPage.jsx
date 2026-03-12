@@ -31,7 +31,8 @@ function DashboardSettings({ dashboardConfiguration }) {
       <Checkbox
         checked={!!dashboard.dashboard_filters_enabled}
         onChange={({ target }) => updateDashboard({ dashboard_filters_enabled: target.checked })}
-        data-test="DashboardFiltersCheckbox">
+        data-test="DashboardFiltersCheckbox"
+      >
         Use Dashboard Level Filters
       </Checkbox>
     </div>
@@ -90,9 +91,9 @@ function DashboardComponent(props) {
 
   const [pageContainer, setPageContainer] = useState(null);
   const [bottomPanelStyles, setBottomPanelStyles] = useState({});
-  const onParametersEdit = parameters => {
+  const onParametersEdit = (parameters) => {
     const paramOrder = map(parameters, "name");
-    updateDashboard({ options: { globalParamOrder: paramOrder } });
+    updateDashboard({ options: { ...dashboard.options, globalParamOrder: paramOrder } });
   };
 
   useEffect(() => {
@@ -175,7 +176,7 @@ function DashboardPage({ dashboardSlug, dashboardId, onError }) {
 
   useEffect(() => {
     Dashboard.get({ id: dashboardId, slug: dashboardSlug })
-      .then(dashboardData => {
+      .then((dashboardData) => {
         recordEvent("view", "dashboard", dashboardData.id);
         setDashboard(dashboardData);
 
@@ -207,7 +208,7 @@ routes.register(
   "Dashboards.LegacyViewOrEdit",
   routeWithUserSession({
     path: "/dashboard/:dashboardSlug",
-    render: pageProps => <DashboardPage {...pageProps} />,
+    render: (pageProps) => <DashboardPage {...pageProps} />,
   })
 );
 
@@ -215,6 +216,6 @@ routes.register(
   "Dashboards.ViewOrEdit",
   routeWithUserSession({
     path: "/dashboards/:dashboardId([^-]+)(-.*)?",
-    render: pageProps => <DashboardPage {...pageProps} />,
+    render: (pageProps) => <DashboardPage {...pageProps} />,
   })
 );

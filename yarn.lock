@@ -1999,7 +1999,7 @@
     leaflet.markercluster "^1.1.0"
     lodash "^4.17.10"
     numeral "^2.0.6"
-    plotly.js "3.1.0"
+    plotly.js "3.3.1"
     react-pivottable "^0.9.0"
     react-sortable-hoc "^1.10.1"
     tinycolor2 "^1.4.1"
@@ -10710,10 +10710,10 @@ pkg-dir@^4.1.0, pkg-dir@^4.2.0:
   dependencies:
     find-up "^4.0.0"
 
-plotly.js@3.1.0:
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/plotly.js/-/plotly.js-3.1.0.tgz#a095a37d0f1b04bb0e9686853df54a4e6437af2e"
-  integrity sha512-vx+CyzApL9tquFpwoPHOGSIWDbFPsA4om/tXZcnsygGUejXideDF9R5VwkltEIDG7Xuof45quVPyz1otv6Aqjw==
+plotly.js@3.3.1:
+  version "3.3.1"
+  resolved "https://registry.yarnpkg.com/plotly.js/-/plotly.js-3.3.1.tgz#213176ea82dc08f5ec69de3c3d184cfdbd29044a"
+  integrity sha512-SrGSZ02HvCWQIYsbQX4sgjgGo7k4T+Oz8a+RQwE5Caz+yu1vputBM1UThmiOPY51B5HzO9ajym8Rl4pmLj+i9Q==
   dependencies:
     "@plotly/d3" "3.8.2"
     "@plotly/d3-sankey" "0.7.2"
