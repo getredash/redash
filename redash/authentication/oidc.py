@@ -112,7 +112,7 @@ def create_oidc_blueprint(app):
 
         try:
             user_info = oauth.oidc.parse_id_token(token)
-        except Exception as e:
+        except AuthlibBaseError as e:
             logger.warning("Failed to parse/validate ID token: %s", e)
             flash("Validation error. Please retry.")
             return redirect(url_for("redash.login"))
