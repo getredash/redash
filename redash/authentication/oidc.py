@@ -19,12 +19,12 @@ def verify_account(org, email):
         return True
 
     domain = email.split("@")[-1]
-    logger.info(f"org domains: {org.oidc_domains}")
+    logger.debug(f"org domains: {org.oidc_domains}")
 
     if domain in org.oidc_domains:
         return True
 
-    if org.has_user(email) == 1:
+    if org.has_user(email):
         return True
 
     return False
@@ -56,8 +56,6 @@ def get_name_from_user_info(user_info):
 def create_oidc_blueprint(app):
     if not settings.OIDC_ENABLED:
         return None
-
-    oauth = OAuth(app)
 
     blueprint = Blueprint("oidc", __name__)
 
@@ -98,13 +96,6 @@ def create_oidc_blueprint(app):
             session["user"] = user_info
         else:
             logger.warning("Unable to get userinfo from returned token")
-            flash("Validation error. Please retry.")
-            return redirect(url_for("redash.login"))
-
-        access_token = token["access_token"]
-
-        if access_token is None:
-            logger.warning("Access token missing in the callback request.")
             flash("Validation error. Please retry.")
             return redirect(url_for("redash.login"))
 

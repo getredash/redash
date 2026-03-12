@@ -42,7 +42,7 @@ class TestOIDCAuthentication(BaseTestCase):
             with patch.object(settings, "OIDC_ENABLED", True):
                 blueprint = create_oidc_blueprint(self.app)
                 if blueprint is not None:
-                    self.app.register_blueprint(blueprint, url_prefix="/<org_slug>")
+                    self.app.register_blueprint(blueprint)
 
     def test_oidc_blueprint_enabled(self):
         # Ensure OIDC is enabled in settings
@@ -263,7 +263,7 @@ class TestCreateAndLoginUserOIDC(BaseTestCase):
         user = self.factory.create_user(email="test@example.com")
 
         with patch("redash.authentication.login_user") as login_user_mock:
-            create_and_login_user(self.factory.org, "New Name", user.email)
+            oidc.create_and_login_user(self.factory.org, "New Name", user.email)
             login_user_mock.assert_called_once_with(user, remember=True)
 
 
