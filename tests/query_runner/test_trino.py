@@ -110,10 +110,13 @@ class TestMapTrinoType(TestCase):
         self.assertEqual(_map_trino_type("timestamp(3)"), "datetime")
         self.assertEqual(_map_trino_type("timestamp(6)"), "datetime")
 
-    def test_parameterised_decimal(self):
-        # NOTE: upstream TRINO_TYPES_MAPPING maps "decimal" to TYPE_INTEGER,
-        # even though decimal(p,s) with s>0 would be better served by TYPE_FLOAT.
-        self.assertEqual(_map_trino_type("decimal(10,2)"), "integer")
+    def test_parameterised_decimal_with_scale(self):
+        self.assertEqual(_map_trino_type("decimal(10,2)"), "float")
+        self.assertEqual(_map_trino_type("decimal(18,6)"), "float")
+
+    def test_parameterised_decimal_without_scale(self):
+        self.assertEqual(_map_trino_type("decimal(10,0)"), "integer")
+        self.assertEqual(_map_trino_type("decimal"), "integer")
 
     def test_parameterised_varchar(self):
         self.assertEqual(_map_trino_type("varchar(255)"), "string")
