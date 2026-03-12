@@ -110,7 +110,13 @@ def create_oidc_blueprint(app):
             flash("Validation error. Please retry.")
             return redirect(url_for("redash.login"))
 
-        user_info = oauth.oidc.parse_id_token(token)
+        try:
+            user_info = oauth.oidc.parse_id_token(token)
+        except Exception as e:
+            logger.warning("Failed to parse/validate ID token: %s", e)
+            flash("Validation error. Please retry.")
+            return redirect(url_for("redash.login"))
+
         if not user_info:
             logger.warning("Unable to get userinfo from returned token")
             flash("Validation error. Please retry.")
