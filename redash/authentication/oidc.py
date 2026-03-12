@@ -1,5 +1,6 @@
 import logging
 
+from authlib.common.errors import AuthlibBaseError
 from authlib.integrations.flask_client import OAuth
 from flask import Blueprint, flash, redirect, request, session, url_for
 
@@ -12,6 +13,16 @@ from redash.authentication import (
 from redash.authentication.org_resolving import current_org
 
 logger = logging.getLogger(__name__)
+
+
+def _build_server_metadata_url(issuer_url):
+    """Build the OIDC discovery URL from the issuer URL.
+
+    Accepts either the full .well-known URL or just the issuer URL.
+    """
+    if issuer_url.endswith("/.well-known/openid-configuration"):
+        return issuer_url
+    return issuer_url.rstrip("/") + "/.well-known/openid-configuration"
 
 
 def verify_account(org, email):
@@ -63,7 +74,9 @@ def create_oidc_blueprint(app):
     scope = ensure_required_scope(settings.OIDC_SCOPE)
     oauth.register(
         name="oidc",
-        server_metadata_url=settings.OIDC_ISSUER_URL,
+        client_id=settings.OIDC_CLIENT_ID,
+        client_secret=settings.OIDC_CLIENT_SECRET,
+        server_metadata_url=_build_server_metadata_url(settings.OIDC_ISSUER_URL),
         client_kwargs={
             "scope": scope,
         },
@@ -90,11 +103,15 @@ def create_oidc_blueprint(app):
     def authorized():
         logger.debug("Authorized user inbound")
 
-        token = oauth.oidc.authorize_access_token()
+        try:
+            token = oauth.oidc.authorize_access_token()
+        except AuthlibBaseError as e:
+            logger.warning("Failed to exchange authorization code: %s", e)
+            flash("Validation error. Please retry.")
+            return redirect(url_for("redash.login"))
+
         user_info = oauth.oidc.parse_id_token(token)
-        if user_info:
-            session["user"] = user_info
-        else:
+        if not user_info:
             logger.warning("Unable to get userinfo from returned token")
             flash("Validation error. Please retry.")
             return redirect(url_for("redash.login"))

@@ -26,6 +26,7 @@ from redash.authentication.google_oauth import (
     verify_profile,
 )
 from redash.authentication.oidc import (
+    _build_server_metadata_url,
     create_oidc_blueprint,
     get_name_from_user_info,
     verify_account,
@@ -89,6 +90,28 @@ class TestOIDCAuthentication(BaseTestCase):
         # Non-public, domain not allowed, user does not exist
         mock_org.has_user = Mock(return_value=0)
         self.assertFalse(verify_account(mock_org, "user@example.com"))
+
+    def test_build_server_metadata_url_with_issuer_url(self):
+        self.assertEqual(
+            _build_server_metadata_url("https://accounts.google.com"),
+            "https://accounts.google.com/.well-known/openid-configuration",
+        )
+
+    def test_build_server_metadata_url_with_trailing_slash(self):
+        self.assertEqual(
+            _build_server_metadata_url("https://accounts.google.com/"),
+            "https://accounts.google.com/.well-known/openid-configuration",
+        )
+
+    def test_build_server_metadata_url_with_full_url(self):
+        url = "https://example.com/.well-known/openid-configuration"
+        self.assertEqual(_build_server_metadata_url(url), url)
+
+    def test_build_server_metadata_url_with_realm_path(self):
+        self.assertEqual(
+            _build_server_metadata_url("https://keycloak.example.com/realms/myapp"),
+            "https://keycloak.example.com/realms/myapp/.well-known/openid-configuration",
+        )
 
 
 class TestApiKeyAuthentication(BaseTestCase):
