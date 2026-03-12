@@ -1,4 +1,5 @@
 import logging
+import os
 
 from redash.models.users import ApiUser, User
 from redash.query_runner import (
@@ -13,8 +14,10 @@ from redash.query_runner import (
     JobTimeoutException,
     register,
 )
+from redash.settings import parse_boolean
 
 logger = logging.getLogger(__name__)
+ANNOTATE_QUERY = parse_boolean(os.environ.get("TRINO_ANNOTATE_QUERY", "true"))
 
 try:
     import trino
@@ -61,7 +64,7 @@ TRINO_TYPES_MAPPING = {
 
 class Trino(BaseQueryRunner):
     noop_query = "SELECT 1"
-    should_annotate_query = False
+    should_annotate_query = ANNOTATE_QUERY
 
     @classmethod
     def configuration_schema(cls):
