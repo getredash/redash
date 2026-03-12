@@ -95,7 +95,7 @@ export default function Criteria({ columnNames, resultValues, alertOptions, onCh
             value={alertOptions.selector}
             onChange={(selector) => onChange({ selector })}
             optionLabelProp="label"
-            dropdownMatchSelectWidth={false}
+            popupMatchSelectWidth={false}
             style={{ width: 80 }}
           >
             <Select.Option value="first" label="first">
@@ -118,7 +118,7 @@ export default function Criteria({ columnNames, resultValues, alertOptions, onCh
           <Select
             value={alertOptions.column}
             onChange={(column) => onChange({ column })}
-            dropdownMatchSelectWidth={false}
+            popupMatchSelectWidth={false}
             style={{ minWidth: 100 }}
           >
             {columnNames.map((name) => (
@@ -136,7 +136,7 @@ export default function Criteria({ columnNames, resultValues, alertOptions, onCh
             value={alertOptions.op}
             onChange={(op) => onChange({ op })}
             optionLabelProp="label"
-            dropdownMatchSelectWidth={false}
+            popupMatchSelectWidth={false}
             style={{ width: 55 }}
           >
             <Select.Option value=">" label={CONDITIONS[">"]}>

@@ -11,7 +11,7 @@ const propTypes = {
 
 // Sidebar
 
-function Sidebar({ className: className = null, children: children = null, ...props }) {
+function Sidebar({ className = null, children = null, ...props }) {
   return (
     <div className={classNames("layout-sidebar", className)} {...props}>
       <div>{children}</div>
@@ -23,7 +23,7 @@ Sidebar.propTypes = propTypes;
 
 // Content
 
-function Content({ className: className = null, children: children = null, ...props }) {
+function Content({ className = null, children = null, ...props }) {
   return (
     <div className={classNames("layout-content", className)} {...props}>
       <div>{children}</div>
@@ -35,7 +35,7 @@ Content.propTypes = propTypes;
 
 // Layout
 
-export default function Layout({ children: children = null, className = undefined, ...props }) {
+export default function Layout({ children = null, className = undefined, ...props }) {
   return (
     <div className={classNames("layout-with-sidebar", className)} {...props}>
       {children}

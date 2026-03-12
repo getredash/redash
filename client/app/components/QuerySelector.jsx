@@ -115,7 +115,7 @@ export default function QuerySelector(props) {
     return (
       <Select
         showSearch
-        dropdownMatchSelectWidth={false}
+        popupMatchSelectWidth={false}
         placeholder={placeholder}
         value={value || undefined} // undefined for the placeholder to show
         onSearch={setSearchTerm}

@@ -2,6 +2,8 @@ import { isFunction } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 import { createRoot } from "react-dom/client";
+import ConfigProvider from "antd/lib/config-provider";
+import antdTheme from "@/config/antd-theme";
 
 /**
   Wrapper for dialogs based on Ant's <Modal> component.
@@ -133,7 +135,11 @@ function openDialog(DialogComponent, props) {
   const root = createRoot(container);
 
   function render() {
-    root.render(<DialogComponent {...props} dialog={dialog} />);
+    root.render(
+      <ConfigProvider theme={antdTheme}>
+        <DialogComponent {...props} dialog={dialog} />
+      </ConfigProvider>
+    );
   }
 
   function destroyDialog() {

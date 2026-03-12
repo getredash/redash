@@ -64,7 +64,7 @@ function getTableColumns(options: any, updateSeriesOption: any, debouncedUpdateS
       render: (unused, item) => (
         <ChartTypeSelect
           data-test={`Chart.Series.${item.key}.Type`}
-          dropdownMatchSelectWidth={false}
+          popupMatchSelectWidth={false}
           value={item.type}
           hiddenChartTypes={["pie", "heatmap", "bubble", "box"]}
           onChange={(value: any) => updateSeriesOption(item.key, "type", value)}
@@ -141,7 +141,7 @@ export default function SeriesSettings({ options, data, onOptionsChange }: any) 
             row: SortableBodyRow,
           },
         }}
-        onRow={item => ({ id: item.key, index: item.zIndex })}
+        onRow={(item: any) => ({ id: item.key, index: item.zIndex })}
         pagination={false}
       />
     </SortableContainer>

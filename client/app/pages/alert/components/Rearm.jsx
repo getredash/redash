@@ -85,7 +85,7 @@ function RearmEditor({ value, onChange }) {
       <Select
         optionLabelProp="label"
         defaultValue={selected || 0}
-        dropdownMatchSelectWidth={false}
+        popupMatchSelectWidth={false}
         onChange={_onChange}>
         <Select.Option value={0} label="Just once">
           Just once <em>until back to normal</em>
@@ -133,7 +133,7 @@ RearmViewer.propTypes = {
 
 export default function Rearm({
   editMode = false,
-  onChange: onChange = null,
+  onChange = null,
   ...props
 }) {
   return editMode ? <RearmEditor {...props} /> : <RearmViewer {...props} />;
