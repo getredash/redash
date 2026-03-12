@@ -64,7 +64,7 @@ function NotificationTemplate({ alert, query, columnNames, resultValues, subject
         value={enabled}
         onChange={onEnabledChange}
         optionLabelProp="label"
-        dropdownMatchSelectWidth={false}
+        popupMatchSelectWidth={false}
         style={{ width: "fit-content" }}>
         <Select.Option value={0} label="Use default template">
           Default template

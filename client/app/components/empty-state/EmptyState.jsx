@@ -19,7 +19,7 @@ export function Step({
   url = null,
   urlText = null,
   onClick = null,
-  urlTarget: urlTarget = null
+  urlTarget = null
 }) {
   if (!show) {
     return null;

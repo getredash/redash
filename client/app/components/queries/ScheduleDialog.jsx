@@ -199,7 +199,7 @@ class ScheduleDialog extends React.Component {
         <div className="schedule-component">
           <h5>Refresh every</h5>
           <div data-testid="interval">
-            <Select className="input" value={seconds || 0} onChange={this.setInterval} dropdownMatchSelectWidth={false}>
+            <Select className="input" value={seconds || 0} onChange={this.setInterval} popupMatchSelectWidth={false}>
               <Option value={0} key="never">
                 Never
               </Option>

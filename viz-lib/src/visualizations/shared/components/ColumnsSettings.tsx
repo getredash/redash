@@ -52,7 +52,6 @@ export default function ColumnsSettings({ options, onOptionsChange, variant }: C
       containerProps={{
         className: containerClass,
       }}>
-      {/* @ts-expect-error antd Collapse children not typed for React 18 */}
       <Collapse bordered={false} defaultActiveKey={[]} expandIconPosition="right">
         {map(options.columns, (column, index) => (
           <SortableItem

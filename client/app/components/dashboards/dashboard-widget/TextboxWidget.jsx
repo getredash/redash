@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { markdown } from "markdown";
-import Menu from "antd/lib/menu";
+
 import HtmlContent from "@redash/viz/lib/components/HtmlContent";
 import TextboxDialog from "@/components/dashboards/TextboxDialog";
 import Widget from "./Widget";
@@ -26,9 +26,7 @@ function TextboxWidget(props) {
   };
 
   const TextboxMenuOptions = [
-    <Menu.Item key="edit" onClick={editTextBox}>
-      Edit
-    </Menu.Item>,
+    { key: "edit", label: "Edit", onClick: editTextBox },
   ];
 
   if (!widget.width) {

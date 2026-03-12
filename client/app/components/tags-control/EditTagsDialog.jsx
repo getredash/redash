@@ -9,16 +9,16 @@ function EditTagsDialog({ dialog, tags = [], getAvailableTags }) {
   const [availableTags, setAvailableTags] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [values, setValues] = useState(() => uniq(map(tags, trim))); // lazy evaluate
-  const [selectRef, setSelectRef] = useState(null);
+  const selectRef = React.useRef(null);
 
   // Select is initially disabled, so autoFocus prop cannot make it focused.
   // Solution is to pass focus to the select when available tags are loaded and
   // select becomes enabled.
   useEffect(() => {
-    if (selectRef && !isLoading) {
-      selectRef.focus();
+    if (selectRef.current && !isLoading) {
+      selectRef.current.focus();
     }
-  }, [selectRef, isLoading]);
+  }, [isLoading]);
 
   useEffect(() => {
     let isCancelled = false;
@@ -41,18 +41,16 @@ function EditTagsDialog({ dialog, tags = [], getAvailableTags }) {
       className="shortModal"
       wrapProps={{ "data-test": "EditTagsDialog" }}>
       <Select
-        ref={setSelectRef}
+        ref={selectRef}
         mode="tags"
         className="w-100"
         placeholder="Add some tags..."
         defaultValue={values}
         onChange={v => setValues(compact(map(v, trim)))}
         disabled={isLoading}
-        loading={isLoading}>
-        {map(availableTags, tag => (
-          <Select.Option key={tag}>{tag}</Select.Option>
-        ))}
-      </Select>
+        loading={isLoading}
+        options={map(availableTags, tag => ({ label: tag, value: tag }))}
+      />
     </Modal>
   );
 }

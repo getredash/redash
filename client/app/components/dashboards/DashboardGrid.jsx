@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import { chain, cloneDeep, find } from "lodash";
 import cx from "classnames";
-import { Responsive, WidthProvider } from "react-grid-layout";
+import { ResponsiveGridLayout, useContainerWidth } from "react-grid-layout";
 import { VisualizationWidget, TextboxWidget, RestrictedWidget } from "@/components/dashboards/dashboard-widget";
 import { FiltersType } from "@/components/Filters";
 import cfg from "@/config/dashboard-grid-options";
@@ -11,8 +11,6 @@ import { WidgetTypeEnum } from "@/services/widget";
 
 import "react-grid-layout/css/styles.css";
 import "./dashboard-grid.less";
-
-const ResponsiveGridLayout = WidthProvider(Responsive);
 
 const WidgetType = PropTypes.shape({
   id: PropTypes.number.isRequired,
@@ -128,6 +126,12 @@ class DashboardGrid extends React.Component {
     };
   }
 
+  static computeLayouts(widgets) {
+    return {
+      [MULTI]: widgets.map(DashboardGrid.normalizeFrom),
+    };
+  }
+
   mode = null;
 
   autoHeightCtrl = null;
@@ -136,7 +140,7 @@ class DashboardGrid extends React.Component {
     super(props);
 
     this.state = {
-      layouts: {},
+      layouts: DashboardGrid.computeLayouts(props.widgets),
       disableAnimations: true,
     };
 
@@ -154,9 +158,21 @@ class DashboardGrid extends React.Component {
     }, 50);
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps) {
     // update, in case widgets added or removed
     this.autoHeightCtrl.update(this.props.widgets);
+    if (prevProps.widgets !== this.props.widgets) {
+      this.setState(({ layouts }) => {
+        const newMultiLayout = this.props.widgets.map(DashboardGrid.normalizeFrom);
+        // Preserve existing layout positions for widgets that already have them
+        const existingByKey = {};
+        if (layouts[MULTI]) {
+          layouts[MULTI].forEach(item => { existingByKey[item.i] = item; });
+        }
+        const merged = newMultiLayout.map(item => existingByKey[item.i] || item);
+        return { layouts: { ...layouts, [MULTI]: merged } };
+      });
+    }
   }
 
   componentWillUnmount() {
@@ -164,17 +180,13 @@ class DashboardGrid extends React.Component {
   }
 
   onLayoutChange = (_, layouts) => {
-    // workaround for when dashboard starts at single mode and then multi is empty or carries single col data
-    // fixes test dashboard_spec['shows widgets with full width']
-    // TODO: open react-grid-layout issue
-    if (layouts[MULTI]) {
-      this.setState({ layouts });
-    }
+    // Do NOT setState here. In react-grid-layout 2.x, onLayoutChange fires on every
+    // render when the layouts prop changes, creating a feedback loop with auto-height.
+    // Layout state is managed exclusively by constructor, componentDidUpdate (widget
+    // changes), and onWidgetHeightUpdated (auto-height). User drag/resize positions
+    // are forwarded to the parent via onLayoutChange callback for saving.
 
-    // workaround for https://github.com/STRML/react-grid-layout/issues/889
-    // remove next line when fix lands
     this.mode = document.body.offsetWidth <= cfg.mobileBreakPoint ? SINGLE : MULTI;
-    // end workaround
 
     // don't save single column mode layout
     if (this.mode === SINGLE) {
@@ -200,8 +212,11 @@ class DashboardGrid extends React.Component {
       const layout = cloneDeep(layouts[MULTI]); // must clone to allow react-grid-layout to compare prev/next state
       const item = find(layout, { i: widgetId.toString() });
       if (item) {
-        // update widget height
-        item.h = Math.ceil((newHeight + cfg.margins) / cfg.rowHeight);
+        const newH = Math.ceil((newHeight + cfg.margins) / cfg.rowHeight);
+        if (item.h === newH) {
+          return null; // no change, skip re-render
+        }
+        item.h = newH;
       }
 
       return { layouts: { [MULTI]: layout } };
@@ -240,13 +255,16 @@ class DashboardGrid extends React.Component {
     const className = cx("dashboard-wrapper", isEditing ? "editing-mode" : "preview-mode");
 
     return (
-      <div className={className}>
+      <div className={className} ref={this.props.containerRef}>
         <ResponsiveGridLayout
           draggableCancel="input,.sortable-container"
           className={cx("layout", { "disable-animations": this.state.disableAnimations })}
           cols={{ [MULTI]: cfg.columns, [SINGLE]: 1 }}
           rowHeight={cfg.rowHeight - cfg.margins}
           margin={[cfg.margins, cfg.margins]}
+          // .layout has margin: -margins extending it beyond the wrapper;
+          // tell RGL about the actual layout width so containerPadding fills correctly
+          width={this.props.containerWidth + 2 * cfg.margins}
           isDraggable={isEditing}
           isResizable={isEditing}
           onResizeStart={this.autoHeightCtrl.stop}
@@ -258,7 +276,6 @@ class DashboardGrid extends React.Component {
           {widgets.map(widget => (
             <div
               key={widget.id}
-              data-grid={DashboardGrid.normalizeFrom(widget)}
               data-widgetid={widget.id}
               data-test={`WidgetId${widget.id}`}
               className={cx("dashboard-widget-wrapper", {
@@ -285,4 +302,9 @@ class DashboardGrid extends React.Component {
   }
 }
 
-export default DashboardGrid;
+function DashboardGridWithWidth(props) {
+  const { containerRef, width } = useContainerWidth({ initialWidth: 800 });
+  return <DashboardGrid {...props} containerRef={containerRef} containerWidth={width} />;
+}
+
+export default DashboardGridWithWidth;

@@ -1,9 +1,3 @@
-import React from "react";
-import Spin from "antd/lib/spin";
-
-Spin.setDefaultIndicator(
-  <span role="status" aria-live="polite" aria-relevant="additions removals">
-    <i className="fa fa-spinner fa-pulse" aria-hidden="true" />
-    <span className="sr-only">Loading...</span>
-  </span>
-);
+// antd 5: Spin.setDefaultIndicator was removed.
+// Custom spinner indicator is now configured via ConfigProvider in ApplicationArea.
+// This file is kept for backward compatibility of the import.

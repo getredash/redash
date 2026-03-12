@@ -1,58 +1,13 @@
-@import "~antd/lib/style/core/iconfont";
-@import "~antd/lib/style/core/motion";
-@import "~antd/lib/alert/style/index";
-@import "~antd/lib/input/style/index";
-@import "~antd/lib/input-number/style/index";
-@import "~antd/lib/date-picker/style/index";
-@import "~antd/lib/modal/style/index";
-@import "~antd/lib/tooltip/style/index";
-@import "~antd/lib/select/style/index";
-@import "~antd/lib/checkbox/style/index";
-@import "~antd/lib/upload/style/index";
-@import "~antd/lib/form/style/index";
-@import "~antd/lib/button/style/index";
-@import "~antd/lib/radio/style/index";
-@import "~antd/lib/time-picker/style/index";
-@import "~antd/lib/pagination/style/index";
-@import "~antd/lib/table/style/index";
-@import "~antd/lib/popover/style/index";
-@import "~antd/lib/tag/style/index";
-@import "~antd/lib/grid/style/index";
-@import "~antd/lib/switch/style/index";
-@import "~antd/lib/empty/style/index";
-@import "~antd/lib/drawer/style/index";
-@import "~antd/lib/card/style/index";
-@import "~antd/lib/steps/style/index";
-@import "~antd/lib/divider/style/index";
-@import "~antd/lib/dropdown/style/index";
-@import "~antd/lib/menu/style/index";
-@import "~antd/lib/list/style/index";
-@import "~antd/lib/badge/style/index";
-@import "~antd/lib/card/style/index";
-@import "~antd/lib/spin/style/index";
-@import "~antd/lib/skeleton/style/index";
-@import "~antd/lib/tabs/style/index";
-@import "~antd/lib/notification/style/index";
-@import "~antd/lib/collapse/style/index";
-@import "~antd/lib/progress/style/index";
-@import "~antd/lib/typography/style/index";
-@import "~antd/lib/descriptions/style/index";
+// Antd 5 uses CSS-in-JS — no style imports needed.
+// This file provides Redash theme variables and CSS overrides on top of antd.
 @import "inc/ant-variables";
 
-// Increase z-indexes to avoid conflicts with some other libraries (e.g. Plotly)
-@zindex-modal: 2000;
-@zindex-modal-mask: 2000;
-@zindex-message: 2010;
-@zindex-notification: 2010;
-@zindex-popover: 2030;
-@zindex-dropdown: 2050;
-@zindex-picker: 2050;
-@zindex-tooltip: 2060;
+// Custom variables for z-index overrides
 @item-hover-bg: #e5f8ff;
 
-.@{drawer-prefix-cls} {
+.ant-drawer {
   &.help-drawer {
-    z-index: @zindex-tooltip; // help drawer should be topmost
+    z-index: 2060; // help drawer should be topmost
   }
 }
 
@@ -62,15 +17,7 @@
   font-weight: normal;
 }
 
-.ant-select-dropdown-menu-item em {
-  color: @input-color-placeholder;
-  font-size: 11px;
-}
-
 // Fix for disabled button styles inside Tooltip component.
-// Tooltip wraps disabled buttons with `<span>` and moves all styles
-// and classes to that `<span>`. This resets all button styles and
-// turns it into simple inline element (because now it's wrapper is a button)
 .btn {
   button[disabled] {
     -moz-appearance: none !important;
@@ -85,7 +32,7 @@
 }
 
 // Button overrides
-.@{btn-prefix-cls} {
+.ant-btn {
   transition-duration: 150ms;
 
   &.icon-button {
@@ -102,7 +49,7 @@
 }
 
 // Pagination overrides (based on existing Bootstrap overrides)
-.@{pagination-prefix-cls} {
+.ant-pagination {
   display: inline-block;
   margin-top: 18px;
   margin-bottom: 18px;
@@ -128,20 +75,21 @@
         color: inherit;
       }
     }
+  }
 
-    &-active {
-      &,
-      &:hover,
-      &:focus {
-        background-color: @pagination-active-bg;
-        color: @pagination-active-color;
-        border-color: transparent;
-        pointer-events: none;
-        cursor: default;
+  // Descendant selector for specificity to override antd 5 CSS-in-JS
+  .ant-pagination-item-active {
+    &,
+    &:hover,
+    &:focus {
+      background-color: @pagination-active-bg;
+      color: @pagination-active-color;
+      border-color: transparent;
+      pointer-events: none;
+      cursor: default;
 
-        a {
-          color: inherit;
-        }
+      a {
+        color: inherit;
       }
     }
   }
@@ -157,19 +105,19 @@
 
   &-prev,
   &-next {
-    .@{pagination-prefix-cls}-item-link {
+    .ant-pagination-item-link {
       background-color: @pagination-bg;
       border-color: transparent;
       color: @pagination-color;
       line-height: @pagination-item-size - 2px;
 
-      .@{pagination-prefix-cls}.mini & {
+      .ant-pagination.mini & {
         line-height: @pagination-item-size-sm - 2px;
       }
     }
 
-    &:focus .@{pagination-prefix-cls}-item-link,
-    &:hover .@{pagination-prefix-cls}-item-link {
+    &:focus .ant-pagination-item-link,
+    &:hover .ant-pagination-item-link {
       background-color: @pagination-hover-bg;
       border-color: transparent;
       color: @pagination-hover-color;
@@ -184,8 +132,8 @@
 
   &-jump-prev,
   &-jump-next {
-    .@{pagination-prefix-cls}-item-container {
-      .@{pagination-prefix-cls}-item-link-icon {
+    .ant-pagination-item-container {
+      .ant-pagination-item-link-icon {
         color: @pagination-color;
       }
     }
@@ -194,7 +142,7 @@
 
 // Table
 
-.@{table-prefix-cls} {
+.ant-table {
   color: inherit;
 
   tr,
@@ -207,7 +155,7 @@
     padding: @table-padding-vertical * 2 @table-padding-horizontal;
   }
 
-  .@{table-prefix-cls}-column-sorters {
+  .ant-table-column-sorters {
     &:before,
     &:hover:before {
       content: none;
@@ -215,7 +163,7 @@
   }
 
   &-thead > tr > th {
-    .@{table-prefix-cls}-column-sorter {
+    .ant-table-column-sorter {
       &-up,
       &-down {
         &.on {
@@ -244,7 +192,7 @@
 
 // List
 
-.@{list-prefix-cls} {
+.ant-list {
   &-item {
     // custom rule
     &.selected {
@@ -261,10 +209,38 @@
   }
 }
 
-.@{dialog-prefix-cls} {
+.ant-modal {
+  // Restore antd 4 header/footer borders removed in antd 5
+  .ant-modal-header {
+    padding: 16px 24px;
+    border-bottom: 1px solid @border-color-split;
+    margin-bottom: 0;
+  }
+
+  .ant-modal-body {
+    padding: 24px;
+  }
+
+  .ant-modal-footer {
+    padding: 10px 16px;
+    border-top: 1px solid @border-color-split;
+    margin-top: 0;
+  }
+
+  .ant-modal-close {
+    top: 0;
+    inset-inline-end: 0;
+    width: 56px;
+    height: 56px;
+  }
+
+  .ant-modal-content {
+    padding: 0;
+  }
+
   // styling for short modals (no lines)
   &.shortModal {
-    .@{dialog-prefix-cls} {
+    .ant-modal {
       &-header,
       &-footer {
         border: none;
@@ -285,7 +261,7 @@
 
   // fullscreen modals
   &-fullscreen {
-    .@{dialog-prefix-cls} {
+    .ant-modal {
       position: absolute;
       left: 15px;
       top: 15px;
@@ -298,7 +274,7 @@
       margin: 0;
       padding: 0;
 
-      .@{dialog-prefix-cls}-content {
+      .ant-modal-content {
         position: absolute;
         left: 0;
         top: 0;
@@ -312,12 +288,32 @@
         flex-direction: column;
       }
 
-      .@{dialog-prefix-cls}-body {
+      .ant-modal-header {
+        padding: 16px 24px;
+      }
+
+      .ant-modal-body {
         flex: 1 1 auto;
         overflow: auto;
+        padding: 24px;
+      }
+
+      .ant-modal-footer {
+        padding: 10px 16px;
       }
     }
   }
+}
+
+// Restore antd 4 confirm dialog styling
+.ant-modal-confirm .ant-modal-content {
+  padding: 24px;
+}
+
+.ant-modal-confirm .ant-modal-confirm-btns {
+  border-top: 1px solid @border-color-split;
+  padding-top: 12px;
+  margin-top: 24px;
 }
 
 // description in modal header
@@ -329,7 +325,7 @@
 }
 
 // Notification overrides
-.@{notification-prefix-cls} {
+.ant-notification {
   // vertical centering
   &-notice-close {
     top: 20px;
@@ -341,36 +337,36 @@
   }
 }
 
-.@{btn-prefix-cls} .@{iconfont-css-prefix}-ellipsis {
+.ant-btn .anticon-ellipsis {
   margin: 0 -7px 0 -8px;
 }
 
 // Collapse
 
-.@{collapse-prefix-cls} {
+.ant-collapse {
   &&-headerless {
     border: 0;
     background: none;
 
-    .@{collapse-prefix-cls}-header {
+    .ant-collapse-header {
       display: none;
     }
 
-    .@{collapse-prefix-cls}-item,
-    .@{collapse-prefix-cls}-content {
+    .ant-collapse-item,
+    .ant-collapse-content {
       border: 0;
     }
 
-    .@{collapse-prefix-cls}-content-box {
+    .ant-collapse-content-box {
       padding: 0;
     }
   }
 }
 
 // overrides for tall form components such as ace editor
-.@{form-prefix-cls}-item {
+.ant-form-item {
   &-children {
-    display: block; // so feeback icon positions correctly
+    display: block; // so feedback icon positions correctly
   }
 
   // no change for short components, sticks to body for tall ones
@@ -386,16 +382,16 @@
   }
 
   // for form items that contain text
-  &.form-item-line-height-normal .@{form-prefix-cls}-item-control {
+  &.form-item-line-height-normal .ant-form-item-control {
     line-height: 20px;
     margin-top: 9px;
   }
 }
 
-.@{menu-prefix-cls} {
+.ant-menu {
   // invert stripe position with class .invert-stripe-position
   &-inline.invert-stripe-position {
-    .@{menu-prefix-cls}-item {
+    .ant-menu-item {
       &::after {
         right: auto;
         left: 0;
@@ -409,7 +405,7 @@
   }
 }
 
-.@{dropdown-prefix-cls}-menu-item {
+.ant-dropdown-menu-item {
   &:focus,
   &:focus-within {
     background-color: @item-hover-bg;
@@ -417,19 +413,17 @@
 }
 
 // overrides for checkbox
-@checkbox-prefix-cls: ~"@{ant-prefix}-checkbox";
-
-.@{checkbox-prefix-cls}-wrapper + span,
-.@{checkbox-prefix-cls} + span {
+.ant-checkbox-wrapper + span,
+.ant-checkbox + span {
   padding-right: 0;
 }
 
 // make sure Multiple select has room for icons
-.@{select-prefix-cls}-multiple {
-  &.@{select-prefix-cls}-show-arrow,
-  &.@{select-prefix-cls}-show-search,
-  &.@{select-prefix-cls}-loading {
-    .@{select-prefix-cls}-selector {
+.ant-select-multiple {
+  &.ant-select-show-arrow,
+  &.ant-select-show-search,
+  &.ant-select-loading {
+    .ant-select-selector {
       padding-right: 30px;
     }
   }

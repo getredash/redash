@@ -10,7 +10,7 @@ export default function QueryViewButton({
   disabled = false,
   children = null,
   onClick = () => {},
-  className: className = null,
+  className = null,
   ...props
 }) {
   const [tooltipVisible, setTooltipVisible] = useState(false);

@@ -1,5 +1,5 @@
 import { debounce, find, has, isMatch, map, pickBy } from "lodash";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import location from "@/services/location";
 import notification from "@/services/notification";
 
@@ -67,11 +67,11 @@ export default function useEditModeHandler(canEditDashboard, widgets) {
     [canEditDashboard, widgets]
   );
 
-  const saveDashboardLayoutDebounced = useCallback(
-    (...args) => {
-      setDashboardStatus(DashboardStatusEnum.SAVING);
-      return debounce(() => saveDashboardLayout(...args), 2000)();
-    },
+  const saveDashboardLayoutDebounced = useMemo(
+    () =>
+      debounce((...args) => {
+        saveDashboardLayout(...args);
+      }, 2000),
     [saveDashboardLayout]
   );
 

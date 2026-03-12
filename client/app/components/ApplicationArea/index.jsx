@@ -1,8 +1,17 @@
 import React, { useState, useEffect } from "react";
+import ConfigProvider from "antd/lib/config-provider";
 import routes from "@/services/routes";
+import antdTheme from "@/config/antd-theme";
 import Router from "./Router";
 import handleNavigationIntent from "./handleNavigationIntent";
 import ErrorMessage from "./ErrorMessage";
+
+const spinIndicator = (
+  <span role="status" aria-live="polite" aria-relevant="additions removals">
+    <i className="fa fa-spinner fa-pulse" aria-hidden="true" />
+    <span className="sr-only">Loading...</span>
+  </span>
+);
 
 export default function ApplicationArea() {
   const [currentRoute, setCurrentRoute] = useState(null);
@@ -40,5 +49,9 @@ export default function ApplicationArea() {
     return <ErrorMessage error={unhandledError} />;
   }
 
-  return <Router routes={routes.items} onRouteChange={setCurrentRoute} />;
+  return (
+    <ConfigProvider theme={antdTheme} spin={{ indicator: spinIndicator }}>
+      <Router routes={routes.items} onRouteChange={setCurrentRoute} />
+    </ConfigProvider>
+  );
 }
