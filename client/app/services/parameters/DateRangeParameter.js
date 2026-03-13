@@ -90,6 +90,14 @@ const DYNAMIC_DATE_RANGES = {
     name: "Last 12 months",
     value: untilNow(() => moment().subtract(12, "months").startOf("day")),
   },
+  last_2_years: {
+    name: "Last 2 years",
+    value: untilNow(() => moment().subtract(2, "years").startOf("day")),
+  },
+  last_3_years: {
+    name: "Last 3 years",
+    value: untilNow(() => moment().subtract(3, "years").startOf("day")),
+  },
   last_10_years: {
     name: "Last 10 years",
     value: untilNow(() => moment().subtract(10, "years").startOf("day")),

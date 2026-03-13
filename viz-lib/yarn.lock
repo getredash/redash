@@ -2234,7 +2234,7 @@
   resolved "https://registry.yarnpkg.com/@types/pbf/-/pbf-3.0.5.tgz#a9495a58d8c75be4ffe9a0bd749a307715c07404"
   integrity sha512-j3pOPiEcWZ34R6a6mN07mUkM4o4Lwf6hPNt8eilOeZhTFbxFXmKhvXl9Y28jotFPaI1bpPDJsbCprUoNke6OrA==
 
-"@types/plotly.js@^3.0.10":
+"@types/plotly.js@*", "@types/plotly.js@^3.0.10":
   version "3.0.10"
   resolved "https://registry.yarnpkg.com/@types/plotly.js/-/plotly.js-3.0.10.tgz#889d2c65e024db507b427ffa84ac870e8c1ac90f"
   integrity sha512-q+MgO4aajC2HrO7FllTYWzrpdfbTjboSMfjkz/aXKjg1v7HNo1zMEFfAW7quKfk6SL+bH74A5ThBEps/7hZxOA==
@@ -2249,6 +2249,22 @@
   resolved "https://registry.yarnpkg.com/@types/react-dom/-/react-dom-17.0.0.tgz#b3b691eb956c4b3401777ee67b900cb28415d95a"
   integrity sha512-lUqY7OlkF/RbNtD5nIq7ot8NquXrdFrjSOR6+w9a9RFQevGi1oZO1dcJbXMeONAPKtZ2UrZOEJ5UOCVsxbLk/g==
   dependencies:
+    "@types/react" "*"
+
+"@types/react-pivottable@^0.11.6":
+  version "0.11.6"
+  resolved "https://registry.yarnpkg.com/@types/react-pivottable/-/react-pivottable-0.11.6.tgz#a6b2255fc249cadde70a3461079bcb32e92851e4"
+  integrity sha512-dcQjLc9Sscd4A3D7rq3sUNo9NqbVTn1U1Cc284BLlgC2d66BkGkVDa8lFn8A5a+iemR7c1C+3P23ImIVxc6PQw==
+  dependencies:
+    "@types/react" "*"
+    "@types/react-plotly.js" "*"
+
+"@types/react-plotly.js@*", "@types/react-plotly.js@^2.6.4":
+  version "2.6.4"
+  resolved "https://registry.yarnpkg.com/@types/react-plotly.js/-/react-plotly.js-2.6.4.tgz#39af9f236887540a060e1598c3efb44924622bdd"
+  integrity sha512-AU6w1u3qEGM0NmBA69PaOgNc0KPFA/+qkH6Uu9EBTJ45/WYOUoXi9AF5O15PRM2klpHSiHAAs4WnlI+OZAFmUA==
+  dependencies:
+    "@types/plotly.js" "*"
     "@types/react" "*"
 
 "@types/react@*", "@types/react@^17.0.0":
@@ -7866,6 +7882,13 @@ react-pivottable@^0.11.0:
     react-draggable "^3.0.3"
     react-sortablejs "^1.3.4"
     sortablejs "^1.6.1"
+
+react-plotly.js@^2.6.0:
+  version "2.6.0"
+  resolved "https://registry.yarnpkg.com/react-plotly.js/-/react-plotly.js-2.6.0.tgz#ad6b68ee64f1b5cfa142ee92c59687f9c2c09209"
+  integrity sha512-g93xcyhAVCSt9kV1svqG1clAEdL6k3U+jjuSzfTV7owaSU9Go6Ph8bl25J+jKfKvIGAEYpe4qj++WHJuc9IaeA==
+  dependencies:
+    prop-types "^15.8.1"
 
 react-sortable-hoc@^1.10.1:
   version "1.11.0"

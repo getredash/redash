@@ -49,6 +49,8 @@
     "@types/plotly.js": "^3.0.10",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
+    "@types/react-pivottable": "^0.11.6",
+    "@types/react-plotly.js": "^2.6.4",
     "@types/tinycolor2": "^1.4.2",
     "babel-loader": "^8.1.0",
     "babel-plugin-istanbul": "^6.1.1",
@@ -93,6 +95,7 @@
     "numeral": "^2.0.6",
     "plotly.js": "3.3.1",
     "react-pivottable": "^0.11.0",
+    "react-plotly.js": "^2.6.0",
     "react-sortable-hoc": "^1.10.1",
     "tinycolor2": "^1.4.1",
     "use-debounce": "^3.4.1",
@@ -113,7 +116,7 @@
     }
   },
   "browser": {
-      "fs": false,
-      "path": false
+    "fs": false,
+    "path": false
   }
 }
