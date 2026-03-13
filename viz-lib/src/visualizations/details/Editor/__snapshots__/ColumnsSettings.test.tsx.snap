@@ -1,12 +1,12 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`Visualizations -> Details -> Editor -> Columns Settings Changes column alignment 1`] = `
-Object {
-  "columns": Array [
-    Object {
+{
+  "columns": [
+    {
       "alignContent": "center",
       "allowHTML": false,
-      "booleanValues": Array [
+      "booleanValues": [
         "false",
         "true",
       ],
@@ -30,10 +30,10 @@ Object {
       "type": "integer",
       "visible": true,
     },
-    Object {
+    {
       "alignContent": "left",
       "allowHTML": false,
-      "booleanValues": Array [
+      "booleanValues": [
         "false",
         "true",
       ],
@@ -57,10 +57,10 @@ Object {
       "type": "string",
       "visible": true,
     },
-    Object {
+    {
       "alignContent": "left",
       "allowHTML": false,
-      "booleanValues": Array [
+      "booleanValues": [
         "false",
         "true",
       ],
@@ -89,12 +89,12 @@ Object {
 `;
 
 exports[`Visualizations -> Details -> Editor -> Columns Settings Changes column description 1`] = `
-Object {
-  "columns": Array [
-    Object {
+{
+  "columns": [
+    {
       "alignContent": "left",
       "allowHTML": false,
-      "booleanValues": Array [
+      "booleanValues": [
         "false",
         "true",
       ],
@@ -118,10 +118,10 @@ Object {
       "type": "integer",
       "visible": true,
     },
-    Object {
+    {
       "alignContent": "left",
       "allowHTML": false,
-      "booleanValues": Array [
+      "booleanValues": [
         "false",
         "true",
       ],
@@ -145,10 +145,10 @@ Object {
       "type": "string",
       "visible": true,
     },
-    Object {
+    {
       "alignContent": "left",
       "allowHTML": false,
-      "booleanValues": Array [
+      "booleanValues": [
         "false",
         "true",
       ],
@@ -177,12 +177,12 @@ Object {
 `;
 
 exports[`Visualizations -> Details -> Editor -> Columns Settings Changes column display type 1`] = `
-Object {
-  "columns": Array [
-    Object {
+{
+  "columns": [
+    {
       "alignContent": "left",
       "allowHTML": false,
-      "booleanValues": Array [
+      "booleanValues": [
         "false",
         "true",
       ],
@@ -206,10 +206,10 @@ Object {
       "type": "integer",
       "visible": true,
     },
-    Object {
+    {
       "alignContent": "left",
       "allowHTML": false,
-      "booleanValues": Array [
+      "booleanValues": [
         "false",
         "true",
       ],
@@ -233,10 +233,10 @@ Object {
       "type": "string",
       "visible": true,
     },
-    Object {
+    {
       "alignContent": "left",
       "allowHTML": false,
-      "booleanValues": Array [
+      "booleanValues": [
         "false",
         "true",
       ],
@@ -265,12 +265,12 @@ Object {
 `;
 
 exports[`Visualizations -> Details -> Editor -> Columns Settings Changes column title 1`] = `
-Object {
-  "columns": Array [
-    Object {
+{
+  "columns": [
+    {
       "alignContent": "left",
       "allowHTML": false,
-      "booleanValues": Array [
+      "booleanValues": [
         "false",
         "true",
       ],
@@ -294,10 +294,10 @@ Object {
       "type": "integer",
       "visible": true,
     },
-    Object {
+    {
       "alignContent": "left",
       "allowHTML": false,
-      "booleanValues": Array [
+      "booleanValues": [
         "false",
         "true",
       ],
@@ -321,10 +321,10 @@ Object {
       "type": "string",
       "visible": true,
     },
-    Object {
+    {
       "alignContent": "left",
       "allowHTML": false,
-      "booleanValues": Array [
+      "booleanValues": [
         "false",
         "true",
       ],
@@ -353,12 +353,12 @@ Object {
 `;
 
 exports[`Visualizations -> Details -> Editor -> Columns Settings Hides multiple columns 1`] = `
-Object {
-  "columns": Array [
-    Object {
+{
+  "columns": [
+    {
       "alignContent": "left",
       "allowHTML": false,
-      "booleanValues": Array [
+      "booleanValues": [
         "false",
         "true",
       ],
@@ -382,10 +382,10 @@ Object {
       "type": "integer",
       "visible": false,
     },
-    Object {
+    {
       "alignContent": "left",
       "allowHTML": false,
-      "booleanValues": Array [
+      "booleanValues": [
         "false",
         "true",
       ],
@@ -409,10 +409,10 @@ Object {
       "type": "string",
       "visible": true,
     },
-    Object {
+    {
       "alignContent": "left",
       "allowHTML": false,
-      "booleanValues": Array [
+      "booleanValues": [
         "false",
         "true",
       ],
@@ -441,12 +441,12 @@ Object {
 `;
 
 exports[`Visualizations -> Details -> Editor -> Columns Settings Toggles column visibility 1`] = `
-Object {
-  "columns": Array [
-    Object {
+{
+  "columns": [
+    {
       "alignContent": "left",
       "allowHTML": false,
-      "booleanValues": Array [
+      "booleanValues": [
         "false",
         "true",
       ],
@@ -470,10 +470,10 @@ Object {
       "type": "integer",
       "visible": false,
     },
-    Object {
+    {
       "alignContent": "left",
       "allowHTML": false,
-      "booleanValues": Array [
+      "booleanValues": [
         "false",
         "true",
       ],
@@ -497,10 +497,10 @@ Object {
       "type": "string",
       "visible": true,
     },
-    Object {
+    {
       "alignContent": "left",
       "allowHTML": false,
-      "booleanValues": Array [
+      "booleanValues": [
         "false",
         "true",
       ],
