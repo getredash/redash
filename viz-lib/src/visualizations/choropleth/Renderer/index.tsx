@@ -10,7 +10,7 @@ import "./renderer.less";
 
 export default function Renderer({ data, options, onOptionsChange }: any) {
   const [container, setContainer] = useState(null);
-  const [geoJson] = useLoadGeoJson(options.mapType);
+  const [geoJson] = useLoadGeoJson(options.mapType, options.customMapUrl);
   const onBoundsChangeRef = useRef();
   // @ts-expect-error ts-migrate(2322) FIXME: Type '(...args: any[]) => void' is not assignable ... Remove this comment to see the full error message
   onBoundsChangeRef.current = onOptionsChange ? (bounds: any) => onOptionsChange({ ...options, bounds }) : noop;

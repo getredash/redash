@@ -19,7 +19,7 @@ export default function BoundsSettings({ options, onOptionsChange }: any) {
   const [bounds, setBounds] = useState(options.bounds);
   const [onOptionsChangeDebounced] = useDebouncedCallback(onOptionsChange, 200);
 
-  const [geoJson] = useLoadGeoJson(options.mapType);
+  const [geoJson] = useLoadGeoJson(options.mapType, options.customMapUrl);
 
   // `options.bounds` could be empty only if user didn't edit bounds yet - through preview or in this editor.
   // In this case we should keep empty bounds value because it tells renderer to fit map every time.
