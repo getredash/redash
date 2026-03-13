@@ -5,7 +5,7 @@
 [![Documentation](https://img.shields.io/badge/docs-redash.io/help-brightgreen.svg)](https://redash.io/help/)
 [![GitHub Build](https://github.com/getredash/redash/actions/workflows/ci.yml/badge.svg)](https://github.com/getredash/redash/actions)
 
-Redash is designed to enable anyone, regardless of the level of technical sophistication, to harness the power of data big and small. SQL users leverage Redash to explore, query, visualize, and share data from any data sources. Their work in turn enables anybody in their organization to use the data. Every day, millions of users at thousands of organizations around the world use Redash to develop insights and make data-driven decisions.
+Redash is designed to enable anyone, regardless of the level of technical sophistication, to harness the power of data big and small. SQL users leverage Redash to explore, query, visualize, and share data from any data source. Their work, in turn, enables anybody in their organization to use the data. Every day, millions of users at thousands of organizations around the world use Redash to develop insights and make data-driven decisions.
 
 Redash features:
 
@@ -16,14 +16,14 @@ Redash features:
 5. **Sharing**: Collaborate easily by sharing visualizations and their associated queries, enabling peer review of reports and queries.
 6. **Schedule refreshes**: Automatically update your charts and dashboards at regular intervals you define.
 7. **Alerts**: Define conditions and be alerted instantly when your data changes.
-8. **REST API**: Everything that can be done in the UI is also available through REST API.
-9. **Broad support for data sources**: Extensible data source API with native support for a long list of common databases and platforms.
+8. **REST API**: Everything that can be done in the UI is also available through the REST API.
+9. **Broad support for data sources**: An extensible data source API with native support for a long list of common databases and platforms.
 
 <img src="https://raw.githubusercontent.com/getredash/website/8e820cd02c73a8ddf4f946a9d293c54fd3fb08b9/website/_assets/images/redash-anim.gif" width="80%"/>
 
 ## Getting Started
 
-* [Setting up Redash instance](https://redash.io/help/open-source/setup) (includes links to ready-made AWS/GCE images).
+* [Setting up a Redash instance](https://redash.io/help/open-source/setup) (includes links to ready-made AWS/GCE images).
 * [Documentation](https://redash.io/help/).
 
 ## Supported Data Sources
@@ -97,7 +97,7 @@ Redash supports more than 35 SQL and NoSQL [data sources](https://redash.io/help
 - Trino
 - Uptycs
 - Vertica
-- Yandex AppMetrrica
+- Yandex AppMetrica
 - Yandex Metrica
 
 ## Getting Help
