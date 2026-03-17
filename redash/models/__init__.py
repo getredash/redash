@@ -185,7 +185,16 @@ class DataSource(BelongsToOrgMixin, db.Model):
         data_sources = cls.query.filter(cls.org == org).order_by(cls.id.asc())
 
         if group_ids:
-            data_sources = data_sources.join(DataSourceGroup).filter(DataSourceGroup.group_id.in_(group_ids))
+            # Use object_permissions for RBAC filtering
+            data_sources = data_sources.join(
+                ObjectPermission,
+                and_(
+                    ObjectPermission.object_id == cls.id,
+                    ObjectPermission.object_type == 'DataSource',
+                    ObjectPermission.group_id.in_(group_ids),
+                    ObjectPermission.can_read == True
+                )
+            )
 
         return data_sources.distinct()
 
@@ -306,6 +315,84 @@ class DataSourceGroup(db.Model):
 
     __tablename__ = "data_source_groups"
     __table_args__ = ({"extend_existing": True},)
+
+
+@generic_repr("id", "org_id", "group_id", "object_type", "object_id")
+class ObjectPermission(TimestampMixin, BelongsToOrgMixin, db.Model):
+    """
+    Stores CRUD permissions for a specific group on a specific object (Query or Dashboard).
+    """
+    id = primary_key("ObjectPermission")
+    org_id = Column(key_type("Organization"), db.ForeignKey("organizations.id"))
+    org = db.relationship(Organization, backref="object_permissions")
+    
+    group_id = Column(key_type("Group"), db.ForeignKey("groups.id"))
+    group = db.relationship(Group, backref="object_permissions")
+    
+    object_type = Column(db.String(255))  # "Query" or "Dashboard"
+    object_id = Column(key_type("ObjectPermission"))
+    
+    can_create = Column(db.Boolean, default=False)
+    can_read = Column(db.Boolean, default=True)
+    can_update = Column(db.Boolean, default=False)
+    can_delete = Column(db.Boolean, default=False)
+    
+    __tablename__ = "object_permissions"
+    __table_args__ = (
+        db.Index("object_permissions_group_object", "group_id", "object_type", "object_id"),
+        db.UniqueConstraint("group_id", "object_type", "object_id", name="unique_group_object_permission"),
+    )
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "org_id": self.org_id,
+            "group_id": self.group_id,
+            "object_type": self.object_type,
+            "object_id": self.object_id,
+            "can_create": self.can_create,
+            "can_read": self.can_read,
+            "can_update": self.can_update,
+            "can_delete": self.can_delete,
+            "created_at": self.created_at,
+            "updated_at": self.updated_at,
+        }
+    
+    @classmethod
+    def log_permission_change(cls, permission, user_id, action, old_values=None):
+        """
+        Log a permission change to the audit log.
+        
+        Args:
+            permission: ObjectPermission instance
+            user_id: ID of user making the change
+            action: "create", "update", or "delete"
+            old_values: Dictionary of old permission values (for updates)
+        """
+        from redash.tasks.general import record_event
+        
+        event_data = {
+            "org_id": permission.org_id,
+            "user_id": user_id,
+            "action": f"permission_{action}",
+            "object_type": "object_permission",
+            "object_id": str(permission.id),
+            "timestamp": int(time.time()),
+            "group_id": permission.group_id,
+            "target_object_type": permission.object_type,
+            "target_object_id": permission.object_id,
+            "permissions": {
+                "can_create": permission.can_create,
+                "can_read": permission.can_read,
+                "can_update": permission.can_update,
+                "can_delete": permission.can_delete,
+            }
+        }
+        
+        if old_values:
+            event_data["old_permissions"] = old_values
+        
+        record_event.delay(event_data)
 
 
 @generic_repr("id", "org_id", "data_source_id", "query_hash", "runtime", "retrieved_at")
@@ -1152,7 +1239,12 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
             .outerjoin(DataSourceGroup, Query.data_source_id == DataSourceGroup.data_source_id)
             .filter(
                 Dashboard.is_archived.is_(False),
-                (DataSourceGroup.group_id.in_(group_ids) | (Dashboard.user_id == user_id)),
+                # Allow dashboards if:
+                # 1. User owns the dashboard, OR
+                # 2. User's groups have access to data sources used in the dashboard, OR
+                # 3. Dashboard has no widgets (Widget.id is NULL), OR
+                # 4. Dashboard has widgets but no queries (Query.id is NULL - e.g., text widgets)
+                (DataSourceGroup.group_id.in_(group_ids) | (Dashboard.user_id == user_id) | (Widget.id.is_(None)) | (Query.id.is_(None))),
                 Dashboard.org == org,
             )
         )
@@ -1164,6 +1256,7 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     @classmethod
     def search(cls, org, groups_ids, user_id, search_term):
         # TODO: switch to FTS
+        # Note: Permission filtering is applied in the handler, not here
         return cls.all(org, groups_ids, user_id).filter(cls.name.ilike("%{}%".format(search_term)))
 
     @classmethod

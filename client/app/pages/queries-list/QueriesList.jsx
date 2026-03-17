@@ -25,6 +25,7 @@ import location from "@/services/location";
 import routes from "@/services/routes";
 
 import QueriesListEmptyState from "./QueriesListEmptyState";
+import "./QueryPermissionsList";
 
 import "./queries-list.css";
 
@@ -52,6 +53,12 @@ const sidebarMenu = [
     href: "queries/archive",
     title: "Archived",
     icon: () => <Sidebar.MenuIcon icon="fa fa-archive" />,
+  },
+  {
+    key: "permissions",
+    href: "queries/permissions",
+    title: "Permissions",
+    icon: () => <Sidebar.MenuIcon icon="fa fa-lock" />,
   },
 ];
 

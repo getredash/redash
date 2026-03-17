@@ -13,6 +13,9 @@ const Group = {
   addDataSource: ({ id }, data) => axios.post(`api/groups/${id}/data_sources`, data),
   removeDataSource: ({ id, dataSourceId }) => axios.delete(`api/groups/${id}/data_sources/${dataSourceId}`),
   updateDataSource: ({ id, dataSourceId }, data) => axios.post(`api/groups/${id}/data_sources/${dataSourceId}`, data),
+  // Object permissions methods
+  getObjectPermissions: ({ id }) => axios.get(`api/groups/${id}/object_permissions`),
+  saveObjectPermissions: ({ id }, data) => axios.post(`api/groups/${id}/object_permissions`, data),
 };
 
 export default Group;

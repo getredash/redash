@@ -52,6 +52,11 @@ from redash.handlers.groups import (
     GroupMemberResource,
     GroupResource,
 )
+from redash.handlers.object_permissions import (
+    DashboardPermissionsResource,
+    GroupObjectPermissionsResource,
+    QueryPermissionsResource,
+)
 from redash.handlers.permissions import (
     CheckPermissionResource,
     ObjectPermissionsListResource,
@@ -143,6 +148,11 @@ api.add_org_resource(
     "/api/dashboards/<dashboard_id>/share",
     endpoint="dashboard_share",
 )
+api.add_org_resource(
+    DashboardPermissionsResource,
+    "/api/dashboards/<dashboard_id>/permissions",
+    endpoint="dashboard_permissions",
+)
 
 api.add_org_resource(DataSourceTypeListResource, "/api/data_sources/types", endpoint="data_source_types")
 api.add_org_resource(DataSourceListResource, "/api/data_sources", endpoint="data_sources")
@@ -178,6 +188,11 @@ api.add_org_resource(
     "/api/groups/<group_id>/data_sources/<data_source_id>",
     endpoint="group_data_source",
 )
+api.add_org_resource(
+    GroupObjectPermissionsResource,
+    "/api/groups/<group_id>/object_permissions",
+    endpoint="group_object_permissions",
+)
 
 api.add_org_resource(EventsResource, "/api/events", endpoint="events")
 
@@ -212,6 +227,11 @@ api.add_org_resource(
     QueryRegenerateApiKeyResource,
     "/api/queries/<query_id>/regenerate_api_key",
     endpoint="query_regenerate_api_key",
+)
+api.add_org_resource(
+    QueryPermissionsResource,
+    "/api/queries/<query_id>/permissions",
+    endpoint="query_permissions",
 )
 
 api.add_org_resource(

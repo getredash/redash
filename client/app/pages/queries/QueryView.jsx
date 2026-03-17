@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import cx from "classnames";
 import useMedia from "use-media";
 import Button from "antd/lib/button";
+import Modal from "antd/lib/modal";
 
 import FullscreenOutlinedIcon from "@ant-design/icons/FullscreenOutlined";
 import FullscreenExitOutlinedIcon from "@ant-design/icons/FullscreenExitOutlined";
@@ -17,6 +18,7 @@ import DataSource from "@/services/data-source";
 import { ExecutionStatus } from "@/services/query-result";
 import routes from "@/services/routes";
 import { policy } from "@/services/policy";
+import { currentUser } from "@/services/auth";
 
 import useQueryResultData from "@/lib/useQueryResultData";
 
@@ -27,6 +29,7 @@ import QueryMetadata from "./components/QueryMetadata";
 import wrapQueryPage from "./components/wrapQueryPage";
 import QueryViewButton from "./components/QueryViewButton";
 import QueryExecutionMetadata from "./components/QueryExecutionMetadata";
+import QueryPermissionsComponent from "./components/QueryPermissions";
 
 import useVisualizationTabHandler from "./hooks/useVisualizationTabHandler";
 import useQueryExecute from "./hooks/useQueryExecute";
@@ -50,6 +53,7 @@ function QueryView(props) {
   const isFixedLayout = useMedia({ minHeight: 500 }) && isDesktop;
   const [fullscreen, toggleFullscreen] = useFullscreenHandler(isDesktop);
   const [addingDescription, setAddingDescription] = useState(false);
+  const [permissionsModalVisible, setPermissionsModalVisible] = useState(false);
 
   const {
     queryResult,
@@ -84,6 +88,8 @@ function QueryView(props) {
     [areParametersDirty, executeQuery, isExecuting, queryFlags.canExecute]
   );
 
+  const canManagePermissions = query.can_edit && currentUser.hasPermission("admin");
+
   useEffect(() => {
     document.title = query.name;
   }, [query.name]);
@@ -106,6 +112,16 @@ function QueryView(props) {
           selectedVisualization={selectedVisualization}
           headerExtra={
             <DynamicComponent name="QueryView.HeaderExtra" query={query}>
+              {canManagePermissions && (
+                <Button
+                  className="m-r-5"
+                  onClick={() => setPermissionsModalVisible(true)}
+                  data-test="QueryPermissionsButton"
+                >
+                  <i className="fa fa-lock m-r-5" aria-hidden="true" />
+                  Permissions
+                </Button>
+              )}
               {policy.canRun(query) && (
                 <QueryViewButton
                   className="m-r-5"
@@ -224,6 +240,16 @@ function QueryView(props) {
           <QueryMetadata layout="horizontal" query={query} dataSource={dataSource} onEditSchedule={editSchedule} />
         </div>
       </div>
+      
+      <Modal
+        title="Query Permissions"
+        visible={permissionsModalVisible}
+        onCancel={() => setPermissionsModalVisible(false)}
+        footer={null}
+        width={800}
+      >
+        <QueryPermissionsComponent queryId={query.id} />
+      </Modal>
     </div>
   );
 }

@@ -72,16 +72,6 @@ const DYNAMIC_DATE_OPTIONS = [
     label: null,
   },
   {
-    name: "Last 2 years",
-    value: getDynamicDateRangeFromString("d_last_2_years"),
-    label: null,
-  },
-  {
-    name: "Last 3 years",
-    value: getDynamicDateRangeFromString("d_last_3_years"),
-    label: null,
-  },
-  {
     name: "Last 10 years",
     value: getDynamicDateRangeFromString("d_last_10_years"),
     label: null,

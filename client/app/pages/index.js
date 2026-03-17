@@ -9,6 +9,7 @@ import "./alert/Alert";
 
 import "./dashboards/DashboardList";
 import "./dashboards/DashboardPage";
+import "./dashboards/DashboardPermissionsList";
 import "./dashboards/PublicDashboardPage";
 
 import "./data-sources/DataSourcesList";
@@ -20,6 +21,8 @@ import "./destinations/EditDestination";
 import "./groups/GroupsList";
 import "./groups/GroupDataSources";
 import "./groups/GroupMembers";
+import "./groups/GroupPermissions";
+import "./groups/GroupDashboardPermissions";
 
 import "./queries-list/QueriesList";
 import "./queries/QuerySource";

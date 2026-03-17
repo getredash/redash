@@ -5,6 +5,7 @@ import cx from "classnames";
 
 import Button from "antd/lib/button";
 import Checkbox from "antd/lib/checkbox";
+import Tabs from "antd/lib/tabs";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import DynamicComponent from "@/components/DynamicComponent";
 import DashboardGrid from "@/components/dashboards/DashboardGrid";
@@ -18,11 +19,15 @@ import routes from "@/services/routes";
 import location from "@/services/location";
 import url from "@/services/url";
 import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
+import { currentUser } from "@/services/auth";
 
 import useDashboard from "./hooks/useDashboard";
 import DashboardHeader from "./components/DashboardHeader";
+import DashboardPermissions from "./components/DashboardPermissions";
 
 import "./DashboardPage.less";
+
+const { TabPane } = Tabs;
 
 function DashboardSettings({ dashboardConfiguration }) {
   const { dashboard, updateDashboard } = dashboardConfiguration;
@@ -31,8 +36,7 @@ function DashboardSettings({ dashboardConfiguration }) {
       <Checkbox
         checked={!!dashboard.dashboard_filters_enabled}
         onChange={({ target }) => updateDashboard({ dashboard_filters_enabled: target.checked })}
-        data-test="DashboardFiltersCheckbox"
-      >
+        data-test="DashboardFiltersCheckbox">
         Use Dashboard Level Filters
       </Checkbox>
     </div>
@@ -40,7 +44,7 @@ function DashboardSettings({ dashboardConfiguration }) {
 }
 
 DashboardSettings.propTypes = {
-  dashboardConfiguration: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  dashboardConfiguration: PropTypes.object.isRequired,
 };
 
 function AddWidgetContainer({ dashboardConfiguration, className, ...props }) {
@@ -67,12 +71,11 @@ function AddWidgetContainer({ dashboardConfiguration, className, ...props }) {
 }
 
 AddWidgetContainer.propTypes = {
-  dashboardConfiguration: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  dashboardConfiguration: PropTypes.object.isRequired,
   className: PropTypes.string,
 };
 
-function DashboardComponent(props) {
-  const dashboardConfiguration = useDashboard(props.dashboard);
+function DashboardContent({ dashboardConfiguration, activeTab }) {
   const {
     dashboard,
     filters,
@@ -91,9 +94,10 @@ function DashboardComponent(props) {
 
   const [pageContainer, setPageContainer] = useState(null);
   const [bottomPanelStyles, setBottomPanelStyles] = useState({});
-  const onParametersEdit = (parameters) => {
+  
+  const onParametersEdit = parameters => {
     const paramOrder = map(parameters, "name");
-    updateDashboard({ options: { ...dashboard.options, globalParamOrder: paramOrder } });
+    updateDashboard({ options: { globalParamOrder: paramOrder } });
   };
 
   useEffect(() => {
@@ -109,26 +113,18 @@ function DashboardComponent(props) {
             width: pageContainer.clientWidth - paddingLeft - paddingRight,
           });
         }
-
-        // reflow grid when container changes its size
         window.dispatchEvent(new Event("resize"));
       });
       return unobserve;
     }
   }, [pageContainer, editingLayout]);
 
+  if (activeTab === "permissions") {
+    return <DashboardPermissions dashboard={dashboard} />;
+  }
+
   return (
-    <div className="container" ref={setPageContainer} data-test={`DashboardId${dashboard.id}Container`}>
-      <DashboardHeader
-        dashboardConfiguration={dashboardConfiguration}
-        headerExtra={
-          <DynamicComponent
-            name="Dashboard.HeaderExtra"
-            dashboard={dashboard}
-            dashboardConfiguration={dashboardConfiguration}
-          />
-        }
-      />
+    <div ref={setPageContainer}>
       {!isEmpty(globalParameters) && (
         <div className="dashboard-parameters m-b-10 p-15 bg-white tiled" data-test="DashboardParameters">
           <Parameters
@@ -166,8 +162,52 @@ function DashboardComponent(props) {
   );
 }
 
+DashboardContent.propTypes = {
+  dashboardConfiguration: PropTypes.object.isRequired,
+  activeTab: PropTypes.string.isRequired,
+};
+
+function DashboardComponent(props) {
+  const dashboardConfiguration = useDashboard(props.dashboard);
+  const { dashboard } = dashboardConfiguration;
+  const [activeTab, setActiveTab] = useState("dashboard");
+
+  const canManagePermissions = dashboard.can_edit && currentUser.hasPermission("admin");
+
+  return (
+    <div className="container" data-test={`DashboardId${dashboard.id}Container`}>
+      <DashboardHeader
+        dashboardConfiguration={dashboardConfiguration}
+        headerExtra={
+          <DynamicComponent
+            name="Dashboard.HeaderExtra"
+            dashboard={dashboard}
+            dashboardConfiguration={dashboardConfiguration}
+          />
+        }
+      />
+      
+      <Tabs
+        activeKey={activeTab}
+        onChange={setActiveTab}
+        className="dashboard-tabs"
+        type="card"
+      >
+        <TabPane tab="Dashboard" key="dashboard">
+          <DashboardContent dashboardConfiguration={dashboardConfiguration} activeTab={activeTab} />
+        </TabPane>
+        {canManagePermissions && (
+          <TabPane tab="Permissions" key="permissions">
+            <DashboardContent dashboardConfiguration={dashboardConfiguration} activeTab={activeTab} />
+          </TabPane>
+        )}
+      </Tabs>
+    </div>
+  );
+}
+
 DashboardComponent.propTypes = {
-  dashboard: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  dashboard: PropTypes.object.isRequired,
 };
 
 function DashboardPage({ dashboardSlug, dashboardId, onError }) {
@@ -176,11 +216,10 @@ function DashboardPage({ dashboardSlug, dashboardId, onError }) {
 
   useEffect(() => {
     Dashboard.get({ id: dashboardId, slug: dashboardSlug })
-      .then((dashboardData) => {
+      .then(dashboardData => {
         recordEvent("view", "dashboard", dashboardData.id);
         setDashboard(dashboardData);
 
-        // if loaded by slug, update location url to use the id
         if (!dashboardId) {
           location.setPath(url.parse(dashboardData.url).pathname, true);
         }
@@ -203,12 +242,11 @@ DashboardPage.defaultProps = {
   onError: PropTypes.func,
 };
 
-// route kept for backward compatibility
 routes.register(
   "Dashboards.LegacyViewOrEdit",
   routeWithUserSession({
     path: "/dashboard/:dashboardSlug",
-    render: (pageProps) => <DashboardPage {...pageProps} />,
+    render: pageProps => <DashboardPage {...pageProps} />,
   })
 );
 
@@ -216,6 +254,6 @@ routes.register(
   "Dashboards.ViewOrEdit",
   routeWithUserSession({
     path: "/dashboards/:dashboardId([^-]+)(-.*)?",
-    render: (pageProps) => <DashboardPage {...pageProps} />,
+    render: pageProps => <DashboardPage {...pageProps} />,
   })
 );

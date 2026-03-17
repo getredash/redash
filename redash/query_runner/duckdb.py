@@ -67,10 +67,7 @@ class DuckDB(BaseSQLQueryRunner):
                     "title": "Database Path",
                     "default": ":memory:",
                 },
-                "extensions": {
-                    "type": "string",
-                    "title": "Extensions (comma separated)",
-                },
+                "extensions": {"type": "string", "title": "Extensions (comma separated)"},
             },
             "order": ["dbpath", "extensions"],
             "required": ["dbpath"],
@@ -115,7 +112,7 @@ class DuckDB(BaseSQLQueryRunner):
 
     def get_schema(self, get_stats=False) -> list:
         tables_query = """
-            SELECT table_catalog, table_schema, table_name FROM information_schema.tables
+            SELECT table_schema, table_name FROM information_schema.tables
             WHERE table_schema NOT IN ('information_schema', 'pg_catalog');
         """
         tables_results, error = self.run_query(tables_query, None)
@@ -124,21 +121,10 @@ class DuckDB(BaseSQLQueryRunner):
 
         schema = {}
         for table_row in tables_results["rows"]:
-            # Include catalog (database) in the full table name for MotherDuck support
-            catalog = table_row["table_catalog"]
-            schema_name = table_row["table_schema"]
-            table_name = table_row["table_name"]
-
-            # Skip catalog prefix for default local databases (memory, temp)
-            # but include it for MotherDuck and attached databases
-            if catalog.lower() in ("memory", "temp", "system"):
-                full_table_name = f"{schema_name}.{table_name}"
-                describe_query = f'DESCRIBE "{schema_name}"."{table_name}";'
-            else:
-                full_table_name = f"{catalog}.{schema_name}.{table_name}"
-                describe_query = f'DESCRIBE "{catalog}"."{schema_name}"."{table_name}";'
-
+            full_table_name = f"{table_row['table_schema']}.{table_row['table_name']}"
             schema[full_table_name] = {"name": full_table_name, "columns": []}
+
+            describe_query = f'DESCRIBE "{table_row["table_schema"]}"."{table_row["table_name"]}";'
             columns_results, error = self.run_query(describe_query, None)
             if error:
                 logger.warning("Failed to describe table %s: %s", full_table_name, error)

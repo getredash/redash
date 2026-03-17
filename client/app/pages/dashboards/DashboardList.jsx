@@ -25,6 +25,10 @@ import DashboardListEmptyState from "./components/DashboardListEmptyState";
 
 import "./dashboard-list.css";
 
+/**
+ * Sidebar menu
+ * Order: All → My → Favorites → Permissions
+ */
 const sidebarMenu = [
   {
     key: "all",
@@ -44,14 +48,23 @@ const sidebarMenu = [
     title: "Favorites",
     icon: () => <Sidebar.MenuIcon icon="fa fa-star" />,
   },
+  {
+    key: "permissions",
+    href: "dashboards/permissions",
+    title: "Permissions",
+    icon: () => <Sidebar.MenuIcon icon="fa fa-lock" />,
+  },
 ];
 
 const listColumns = [
   Columns.favorites({ className: "p-r-0" }),
   Columns.custom.sortable(
     (text, item) => (
-      <React.Fragment>
-        <Link className="table-main-title" href={item.url} data-test={`DashboardId${item.id}`}>
+      <>
+        <Link
+          className="table-main-title"
+          href={item.url}
+          data-test={`DashboardId${item.id}`}>
           {item.name}
         </Link>
         <DashboardTagsControl
@@ -60,7 +73,7 @@ const listColumns = [
           isDraft={item.is_draft}
           isArchived={item.is_archived}
         />
-      </React.Fragment>
+      </>
     ),
     {
       title: "Name",
@@ -68,7 +81,10 @@ const listColumns = [
       width: null,
     }
   ),
-  Columns.custom((text, item) => item.user.name, { title: "Created By", width: "1%" }),
+  Columns.custom((text, item) => item.user.name, {
+    title: "Created By",
+    width: "1%",
+  }),
   Columns.dateTime.sortable({
     title: "Created At",
     field: "created_at",
@@ -82,18 +98,28 @@ function DashboardListExtraActions(props) {
 
 function DashboardList({ controller }) {
   let usedListColumns = listColumns;
+
   if (controller.params.currentPage === "favorites") {
     usedListColumns = [
       ...usedListColumns,
-      Columns.dateTime.sortable({ title: "Starred At", field: "starred_at", width: "1%" }),
+      Columns.dateTime.sortable({
+        title: "Starred At",
+        field: "starred_at",
+        width: "1%",
+      }),
     ];
   }
+
   const {
     areExtraActionsAvailable,
     listColumns: tableColumns,
     Component: ExtraActionsComponent,
     selectedItems,
-  } = useItemsListExtraActions(controller, usedListColumns, DashboardListExtraActions);
+  } = useItemsListExtraActions(
+    controller,
+    usedListColumns,
+    DashboardListExtraActions
+  );
 
   return (
     <div className="page-dashboard-list">
@@ -102,8 +128,11 @@ function DashboardList({ controller }) {
           title={controller.params.pageTitle}
           actions={
             currentUser.hasPermission("create_dashboard") ? (
-              <Button block type="primary" onClick={() => CreateDashboardDialog.showModal()}>
-                <i className="fa fa-plus m-r-5" aria-hidden="true" />
+              <Button
+                block
+                type="primary"
+                onClick={() => CreateDashboardDialog.showModal()}>
+                <i className="fa fa-plus m-r-5" />
                 New Dashboard
               </Button>
             ) : null
@@ -117,8 +146,15 @@ function DashboardList({ controller }) {
               value={controller.searchTerm}
               onChange={controller.updateSearch}
             />
-            <Sidebar.Menu items={sidebarMenu} selected={controller.params.currentPage} />
-            <Sidebar.Tags url="api/dashboards/tags" onChange={controller.updateSelectedTags} showUnselectAll />
+            <Sidebar.Menu
+              items={sidebarMenu}
+              selected={controller.params.currentPage}
+            />
+            <Sidebar.Tags
+              url="api/dashboards/tags"
+              onChange={controller.updateSelectedTags}
+              showUnselectAll
+            />
           </Layout.Sidebar>
           <Layout.Content>
             <div data-test="DashboardLayoutContent">
@@ -129,7 +165,7 @@ function DashboardList({ controller }) {
                   selectedTags={controller.selectedTags}
                 />
               ) : (
-                <React.Fragment>
+                <>
                   <div className={cx({ "m-b-10": areExtraActionsAvailable })}>
                     <ExtraActionsComponent selectedItems={selectedItems} />
                   </div>
@@ -146,12 +182,16 @@ function DashboardList({ controller }) {
                       showPageSizeSelect
                       totalCount={controller.totalItemsCount}
                       pageSize={controller.itemsPerPage}
-                      onPageSizeChange={(itemsPerPage) => controller.updatePagination({ itemsPerPage })}
+                      onPageSizeChange={(itemsPerPage) =>
+                        controller.updatePagination({ itemsPerPage })
+                      }
                       page={controller.page}
-                      onChange={(page) => controller.updatePagination({ page })}
+                      onChange={(page) =>
+                        controller.updatePagination({ page })
+                      }
                     />
                   </div>
-                </React.Fragment>
+                </>
               )}
             </div>
           </Layout.Content>
@@ -180,30 +220,49 @@ const DashboardListPage = itemsList(
         return (item) => new Dashboard(item);
       },
     }),
-  ({ ...props }) => new UrlStateStorage({ orderByField: props.orderByField ?? "created_at", orderByReverse: true })
+  (props) =>
+    new UrlStateStorage({
+      orderByField: props.orderByField ?? "created_at",
+      orderByReverse: true,
+    })
 );
 
+/**
+ * Routes
+ */
 routes.register(
   "Dashboards.List",
   routeWithUserSession({
     path: "/dashboards",
     title: "Dashboards",
-    render: (pageProps) => <DashboardListPage {...pageProps} currentPage="all" />,
+    render: (pageProps) => (
+      <DashboardListPage {...pageProps} currentPage="all" />
+    ),
   })
 );
+
 routes.register(
   "Dashboards.Favorites",
   routeWithUserSession({
     path: "/dashboards/favorites",
     title: "Favorite Dashboards",
-    render: (pageProps) => <DashboardListPage {...pageProps} currentPage="favorites" orderByField="starred_at" />,
+    render: (pageProps) => (
+      <DashboardListPage
+        {...pageProps}
+        currentPage="favorites"
+        orderByField="starred_at"
+      />
+    ),
   })
 );
+
 routes.register(
   "Dashboards.My",
   routeWithUserSession({
     path: "/dashboards/my",
     title: "My Dashboards",
-    render: (pageProps) => <DashboardListPage {...pageProps} currentPage="my" />,
+    render: (pageProps) => (
+      <DashboardListPage {...pageProps} currentPage="my" />
+    ),
   })
 );

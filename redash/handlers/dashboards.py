@@ -13,8 +13,10 @@ from redash.handlers.base import (
 from redash.handlers.base import order_results as _order_results
 from redash.permissions import (
     can_modify,
+    filter_by_object_permissions,
     require_admin_or_owner,
     require_object_modify_permission,
+    require_object_permission,
     require_permission,
 )
 from redash.security import csp_allows_embeding
@@ -59,6 +61,9 @@ class DashboardListResource(BaseResource):
         else:
             results = models.Dashboard.all(self.current_org, self.current_user.group_ids, self.current_user.id)
 
+        # Apply object-level permission filtering
+        results = filter_by_object_permissions(results, self.current_user, "Dashboard", "read")
+
         results = filter_by_tags(results, models.Dashboard.tags)
 
         # order results according to passed order parameter,
@@ -93,6 +98,13 @@ class DashboardListResource(BaseResource):
         Responds with a :ref:`dashboard <dashboard-response-label>`.
         """
         dashboard_properties = request.get_json(force=True)
+        
+        # Check if user has create permission
+        # For dashboards, we check if the user has the general "create_dashboard" permission
+        # Object-level permissions are checked after creation
+        # Note: We don't need to check object-level create permission here because
+        # dashboards don't have object-level create permissions (it's org-wide)
+        
         dashboard = models.Dashboard(
             name=dashboard_properties["name"],
             org=self.current_org,
@@ -180,6 +192,12 @@ class DashboardResource(BaseResource):
             fn = models.Dashboard.get_by_id_and_org
 
         dashboard = get_object_or_404(fn, dashboard_id, self.current_org)
+        
+        # Check read permission - return 404 if user lacks permission (not 403)
+        from redash.permissions import has_object_permission
+        if not has_object_permission(dashboard, self.current_user, "read"):
+            abort(404)
+        
         response = DashboardSerializer(dashboard, with_widgets=True, user=self.current_user).serialize()
 
         api_key = models.ApiKey.get_by_object(dashboard)
@@ -214,6 +232,9 @@ class DashboardResource(BaseResource):
         # TODO: either convert all requests to use slugs or ids
         dashboard = models.Dashboard.get_by_id_and_org(dashboard_id, self.current_org)
 
+        # Check object-level update permission
+        require_object_permission(dashboard, self.current_user, "update")
+        
         require_object_modify_permission(dashboard, self.current_user)
 
         updates = project(
@@ -261,6 +282,10 @@ class DashboardResource(BaseResource):
         Responds with the archived :ref:`dashboard <dashboard-response-label>`.
         """
         dashboard = models.Dashboard.get_by_id_and_org(dashboard_id, self.current_org)
+        
+        # Check object-level delete permission
+        require_object_permission(dashboard, self.current_user, "delete")
+        
         dashboard.is_archived = True
         dashboard.record_changes(changed_by=self.current_user)
         models.db.session.add(dashboard)

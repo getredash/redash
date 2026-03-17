@@ -105,6 +105,11 @@ class QueryRecentResource(BaseResource):
         """
 
         results = models.Query.by_user(self.current_user).order_by(models.Query.updated_at.desc()).limit(10)
+        
+        # Apply object-level permission filtering
+        from redash.permissions import filter_by_object_permissions
+        results = filter_by_object_permissions(results, self.current_user, "Query", "read")
+        
         return QuerySerializer(results, with_last_modified_by=False, with_user=False).serialize()
 
 
@@ -120,6 +125,11 @@ class BaseQueryListResource(BaseResource):
             )
         else:
             results = models.Query.all_queries(self.current_user.group_ids, self.current_user.id, include_drafts=True)
+        
+        # Apply object-level permission filtering
+        from redash.permissions import filter_by_object_permissions
+        results = filter_by_object_permissions(results, self.current_user, "Query", "read")
+        
         return filter_by_tags(results, models.Query.tags)
 
     @require_permission("view_query")
@@ -218,6 +228,27 @@ class QueryListResource(BaseQueryListResource):
         :>json string retrieved_at: Time when query results were last retrieved, in ISO format (may be null)
         :>json number runtime: Runtime of last query execution, in seconds (may be null)
         """
+        # Check if user has create permission for at least one group
+        # For backward compatibility, if no ObjectPermission records exist for Query type,
+        # allow creation (this maintains existing behavior)
+        from redash.models import ObjectPermission
+        if "admin" not in self.current_user.permissions:
+            # Check if any ObjectPermission records exist for Query type
+            any_query_permissions = ObjectPermission.query.filter(
+                ObjectPermission.object_type == "Query"
+            ).first() is not None
+            
+            if any_query_permissions:
+                # If permissions exist, check if user has create permission
+                has_create_permission = ObjectPermission.query.filter(
+                    ObjectPermission.object_type == "Query",
+                    ObjectPermission.group_id.in_(self.current_user.group_ids),
+                    ObjectPermission.can_create == True  # noqa: E712
+                ).first() is not None
+                
+                if not has_create_permission:
+                    abort(403, message="You don't have permission to create queries.")
+        
         query_def = request.get_json(force=True)
         data_source = models.DataSource.get_by_id_and_org(query_def.pop("data_source_id"), self.current_org)
         require_access(data_source, self.current_user, not_view_only)
@@ -240,6 +271,39 @@ class QueryListResource(BaseQueryListResource):
         query_def["is_draft"] = True
         query = models.Query.create(**query_def)
         models.db.session.add(query)
+        models.db.session.flush()  # Flush to get query.id
+        
+        # Create default permissions for the new query based on configuration
+        if settings.FEATURE_DEFAULT_QUERY_ADMIN_ONLY:
+            # Admin-only: Only admin group gets full access by default
+            admin_group = self.current_org.admin_group
+            if admin_group:
+                admin_permission = models.ObjectPermission(
+                    org_id=self.current_org.id,
+                    group_id=admin_group.id,
+                    object_type="Query",
+                    object_id=query.id,
+                    can_create=False,
+                    can_read=True,
+                    can_update=True,
+                    can_delete=True,
+                )
+                models.db.session.add(admin_permission)
+        else:
+            # Legacy behavior: Grant read access to all groups with data source access
+            for group_id, view_only in data_source.groups.items():
+                permission = models.ObjectPermission(
+                    org_id=self.current_org.id,
+                    group_id=group_id,
+                    object_type="Query",
+                    object_id=query.id,
+                    can_create=False,
+                    can_read=True,
+                    can_update=not view_only,
+                    can_delete=False,
+                )
+                models.db.session.add(permission)
+        
         models.db.session.commit()
         query.update_latest_result_by_query_hash()
         models.db.session.commit()
@@ -252,7 +316,7 @@ class QueryListResource(BaseQueryListResource):
 class QueryArchiveResource(BaseQueryListResource):
     def get_queries(self, search_term):
         if search_term:
-            return models.Query.search(
+            results = models.Query.search(
                 search_term,
                 self.current_user.group_ids,
                 self.current_user.id,
@@ -261,12 +325,18 @@ class QueryArchiveResource(BaseQueryListResource):
                 multi_byte_search=current_org.get_setting("multi_byte_search_enabled"),
             )
         else:
-            return models.Query.all_queries(
+            results = models.Query.all_queries(
                 self.current_user.group_ids,
                 self.current_user.id,
                 include_drafts=False,
                 include_archived=True,
             )
+        
+        # Apply object-level permission filtering
+        from redash.permissions import filter_by_object_permissions
+        results = filter_by_object_permissions(results, self.current_user, "Query", "read")
+        
+        return results
 
 
 class MyQueriesResource(BaseResource):
@@ -291,6 +361,10 @@ class MyQueriesResource(BaseResource):
             )
         else:
             results = models.Query.by_user(self.current_user)
+        
+        # Apply object-level permission filtering
+        from redash.permissions import filter_by_object_permissions
+        results = filter_by_object_permissions(results, self.current_user, "Query", "read")
 
         results = filter_by_tags(results, models.Query.tags)
 
@@ -331,6 +405,11 @@ class QueryResource(BaseResource):
         query_def = request.get_json(force=True)
 
         require_object_modify_permission(query, self.current_user)
+        
+        # Check object-level update permission
+        from redash.permissions import require_object_permission
+        require_object_permission(query, self.current_user, "update")
+        
         require_access_to_dropdown_queries(self.current_user, query_def)
 
         for field in [
@@ -384,6 +463,11 @@ class QueryResource(BaseResource):
         """
         q = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
         require_access(q, self.current_user, view_only)
+        
+        # Check object-level read permission (return 404 if no permission to avoid information leakage)
+        from redash.permissions import has_object_permission
+        if not has_object_permission(q, self.current_user, "read"):
+            abort(404, message="Query not found.")
 
         result = QuerySerializer(q, with_visualizations=True).serialize()
         result["can_edit"] = can_modify(q, self.current_user)
@@ -401,6 +485,11 @@ class QueryResource(BaseResource):
         """
         query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
         require_admin_or_owner(query.user_id)
+        
+        # Check object-level delete permission
+        from redash.permissions import require_object_permission
+        require_object_permission(query, self.current_user, "delete")
+        
         query.archive(self.current_user)
         models.db.session.commit()
 
@@ -438,6 +527,39 @@ class QueryForkResource(BaseResource):
         query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
         require_access(query.data_source, self.current_user, not_view_only)
         forked_query = query.fork(self.current_user)
+        models.db.session.flush()  # Flush to get forked_query.id
+        
+        # Create default permissions for the forked query based on configuration
+        if settings.FEATURE_DEFAULT_QUERY_ADMIN_ONLY:
+            # Admin-only: Only admin group gets full access by default
+            admin_group = self.current_org.admin_group
+            if admin_group:
+                admin_permission = models.ObjectPermission(
+                    org_id=self.current_org.id,
+                    group_id=admin_group.id,
+                    object_type="Query",
+                    object_id=forked_query.id,
+                    can_create=False,
+                    can_read=True,
+                    can_update=True,
+                    can_delete=True,
+                )
+                models.db.session.add(admin_permission)
+        else:
+            # Legacy behavior: Grant read access to all groups with data source access
+            for group_id, view_only in forked_query.data_source.groups.items():
+                permission = models.ObjectPermission(
+                    org_id=self.current_org.id,
+                    group_id=group_id,
+                    object_type="Query",
+                    object_id=forked_query.id,
+                    can_create=False,
+                    can_read=True,
+                    can_update=not view_only,
+                    can_delete=False,
+                )
+                models.db.session.add(permission)
+        
         models.db.session.commit()
 
         self.record_event({"action": "fork", "object_id": query_id, "object_type": "query"})
@@ -462,6 +584,10 @@ class QueryRefreshResource(BaseResource):
 
         query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
         require_access(query, self.current_user, not_view_only)
+        
+        # Check object-level read permission (execution requires read permission)
+        from redash.permissions import require_object_permission
+        require_object_permission(query, self.current_user, "read")
 
         parameter_values = collect_parameters_from_request(request.args)
         parameterized_query = ParameterizedQuery(query.query_text, org=self.current_org)
@@ -493,6 +619,10 @@ class QueryFavoriteListResource(BaseResource):
             favorites = models.Query.favorites(self.current_user, base_query=base_query)
         else:
             favorites = models.Query.favorites(self.current_user)
+        
+        # Apply object-level permission filtering
+        from redash.permissions import filter_by_object_permissions
+        favorites = filter_by_object_permissions(favorites, self.current_user, "Query", "read")
 
         favorites = filter_by_tags(favorites, models.Query.tags)
 
