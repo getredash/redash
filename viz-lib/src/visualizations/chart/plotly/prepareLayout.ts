@@ -63,10 +63,8 @@ function preparePieLayout(layout: any, options: any, data: any) {
   } else {
     layout.annotations = filter(
       map(data, (series, index) => {
-        // @ts-expect-error ts-migrate(2362) FIXME: The left-hand side of an arithmetic operation must... Remove this comment to see the full error message
-        const xPosition = (index % cellsInRow) * cellWidth;
-        // @ts-expect-error ts-migrate(2362) FIXME: The left-hand side of an arithmetic operation must... Remove this comment to see the full error message
-        const yPosition = Math.floor(index / cellsInRow) * cellHeight;
+        const xPosition = ((index as number) % cellsInRow) * cellWidth;
+        const yPosition = Math.floor((index as number) / cellsInRow) * cellHeight;
         return {
           x: xPosition + (cellWidth - xPadding) / 2,
           y: yPosition + cellHeight - 0.015,

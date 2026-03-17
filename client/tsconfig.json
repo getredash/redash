@@ -21,7 +21,9 @@
     "paths": {
       "@/*": ["./app/*"]
     },
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "typeRoots": ["../node_modules/@types"],
+    "types": ["jest", "node", "react", "react-dom"]
   },
   "include": ["app/**/*"],
   "exclude": ["dist"]
