@@ -12,7 +12,7 @@ import organizationStatus from "@/services/organizationStatus";
 
 import "./empty-state.less";
 
-export function Step({ show, completed, text = null, url = null, urlText = null, onClick = null, urlTarget = null }) {
+export function Step({ show, completed, text = null, url = null, urlText = null, onClick = null }) {
   if (!show) {
     return null;
   }
@@ -31,7 +31,6 @@ Step.propTypes = {
   completed: PropTypes.bool.isRequired,
   text: PropTypes.node,
   url: PropTypes.string,
-  urlTarget: PropTypes.string,
   urlText: PropTypes.node,
   onClick: PropTypes.func,
 };

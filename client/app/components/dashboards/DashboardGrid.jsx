@@ -171,7 +171,21 @@ class DashboardGrid extends React.Component {
             existingByKey[item.i] = item;
           });
         }
-        const merged = newMultiLayout.map((item) => existingByKey[item.i] || item);
+        const merged = newMultiLayout.map((item) => {
+          const existingItem = existingByKey[item.i];
+          if (!existingItem) {
+            return item;
+          }
+
+          // Preserve runtime position and size, but keep fresh constraints from props.
+          return {
+            ...item,
+            x: existingItem.x,
+            y: existingItem.y,
+            w: existingItem.w,
+            h: existingItem.h,
+          };
+        });
         return { layouts: { ...layouts, [MULTI]: merged } };
       });
     }

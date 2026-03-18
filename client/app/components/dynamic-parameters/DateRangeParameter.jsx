@@ -102,18 +102,21 @@ const DYNAMIC_DATETIME_OPTIONS = [
   ...DYNAMIC_DATE_OPTIONS,
 ];
 
-function DateRangeParameter(props) {
-  props = {
-    type: "",
-    className: "",
-    value: null,
-    parameter: null,
-    onSelect: () => {},
-    ...props,
-  };
+const NOOP = () => {};
 
-  const options = includes(props.type, "datetime-range") ? DYNAMIC_DATETIME_OPTIONS : DYNAMIC_DATE_OPTIONS;
-  return <DynamicDateRangePicker {...props} dynamicButtonOptions={{ options }} />;
+function DateRangeParameter({ type = "", className = "", value = null, parameter = null, onSelect = NOOP, ...props }) {
+  const options = includes(type, "datetime-range") ? DYNAMIC_DATETIME_OPTIONS : DYNAMIC_DATE_OPTIONS;
+  return (
+    <DynamicDateRangePicker
+      type={type}
+      className={className}
+      value={value}
+      parameter={parameter}
+      onSelect={onSelect}
+      {...props}
+      dynamicButtonOptions={{ options }}
+    />
+  );
 }
 
 DateRangeParameter.propTypes = {

@@ -62,6 +62,8 @@ const HelpTriggerPropTypes = {
   children: PropTypes.node,
 };
 
+const DEFAULT_CHILDREN = <i className="fa fa-question-circle" aria-hidden="true" />;
+
 const HelpTriggerDefaultProps = {
   type: null,
   href: null,
@@ -69,7 +71,7 @@ const HelpTriggerDefaultProps = {
   className: null,
   showTooltip: true,
   renderAsLink: false,
-  children: <i className="fa fa-question-circle" aria-hidden="true" />,
+  children: DEFAULT_CHILDREN,
 };
 
 export function helpTriggerWithTypes(types, allowedDomains = [], drawerClassName = null) {
@@ -260,19 +262,29 @@ export function helpTriggerWithTypes(types, allowedDomains = [], drawerClassName
 
 registerComponent("HelpTrigger", helpTriggerWithTypes(TYPES, [DOMAIN]));
 
-export default function HelpTrigger(props) {
-  props = {
-    type: null,
-    href: null,
-    title: null,
-    className: null,
-    showTooltip: true,
-    renderAsLink: false,
-    children: <i className="fa fa-question-circle" aria-hidden="true" />,
-    ...props,
-  };
-
-  return <DynamicComponent {...props} name="HelpTrigger" />;
+export default function HelpTrigger({
+  type = null,
+  href = null,
+  title = null,
+  className = null,
+  showTooltip = true,
+  renderAsLink = false,
+  children = DEFAULT_CHILDREN,
+  ...props
+}) {
+  return (
+    <DynamicComponent
+      {...props}
+      name="HelpTrigger"
+      type={type}
+      href={href}
+      title={title}
+      className={className}
+      showTooltip={showTooltip}
+      renderAsLink={renderAsLink}
+      children={children}
+    />
+  );
 }
 
 HelpTrigger.propTypes = HelpTriggerPropTypes;

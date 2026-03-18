@@ -16,18 +16,16 @@ const DYNAMIC_DATE_OPTIONS = [
   },
 ];
 
-function DateParameter(props) {
-  props = {
-    type: "",
-    className: "",
-    value: null,
-    parameter: null,
-    onSelect: () => {},
-    ...props,
-  };
+const NOOP = () => {};
 
+function DateParameter({ type = "", className = "", value = null, parameter = null, onSelect = NOOP, ...props }) {
   return (
     <DynamicDatePicker
+      type={type}
+      className={className}
+      value={value}
+      parameter={parameter}
+      onSelect={onSelect}
       dynamicButtonOptions={{ options: DYNAMIC_DATE_OPTIONS }}
       {...props}
       dateOptions={{ "aria-label": "Parameter date value" }}

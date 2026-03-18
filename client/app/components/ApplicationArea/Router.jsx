@@ -34,7 +34,10 @@ export function stripBase(href) {
   return false;
 }
 
-export default function Router({ routes = [], onRouteChange = () => {} }) {
+const DEFAULT_ROUTES = [];
+const NOOP = () => {};
+
+export default function Router({ routes = DEFAULT_ROUTES, onRouteChange = NOOP }) {
   const [currentRoute, setCurrentRoute] = useState(null);
 
   const currentPathRef = useRef(null);

@@ -11,6 +11,8 @@ import QueryEditorControls from "./QueryEditorControls";
 import "./index.less";
 
 const editorProps = { $blockScrolling: Infinity };
+const EMPTY_SCHEMA = [];
+const NOOP = () => {};
 
 const QueryEditor = React.forwardRef(function (
   {
@@ -18,9 +20,9 @@ const QueryEditor = React.forwardRef(function (
     syntax = null,
     value = null,
     autocompleteEnabled = true,
-    schema = [],
-    onChange = () => {},
-    onSelectionChange = () => {},
+    schema = EMPTY_SCHEMA,
+    onChange = NOOP,
+    onSelectionChange = NOOP,
     ...props
   },
   ref
