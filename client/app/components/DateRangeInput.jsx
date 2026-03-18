@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 import DatePicker from "antd/lib/date-picker";
 import { clientConfig } from "@/services/auth";
 import { Moment } from "@/components/proptypes";
+import { toMomentRange } from "@/lib/dateTimeUtils";
 
 const { RangePicker } = DatePicker;
 
@@ -23,7 +24,7 @@ const DateRangeInput = React.forwardRef(
         className={className}
         {...additionalAttributes}
         format={format}
-        onChange={onSelect}
+        onChange={(nextValue) => onSelect(toMomentRange(nextValue))}
         {...props}
       />
     );

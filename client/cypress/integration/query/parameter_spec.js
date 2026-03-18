@@ -393,7 +393,7 @@ describe("Parameter", () => {
     it("shows the current datetime after clicking in Now", function () {
       cy.getByTestId("ParameterName-test-parameter").find("input").as("Input").click();
 
-      cy.get(".ant-picker-panel").contains("Now").click();
+      cy.contains(".ant-picker-now-btn", "Now").click();
 
       cy.getByTestId("ParameterApplyButton").click();
 
@@ -414,7 +414,7 @@ describe("Parameter", () => {
       expectDirtyStateChange(() => {
         cy.getByTestId("ParameterName-test-parameter").find("input").click();
 
-        cy.get(".ant-picker-panel").contains("Now").click();
+        cy.contains(".ant-picker-now-btn", "Now").click();
       });
     });
   });
@@ -532,11 +532,11 @@ describe("Parameter", () => {
     it("updates dirty counter", () => {
       cy.getByTestId("ParameterName-test-parameter-1").find("input").type("Redash");
 
-      cy.getByTestId("ParameterApplyButton").find(".ant-badge-count p.current").should("contain", "1");
+      cy.getByTestId("ParameterApplyButton").find('[data-test="ParameterDirtyCount"]').should("contain", "1");
 
       cy.getByTestId("ParameterName-test-parameter-2").find("input").type("Redash");
 
-      cy.getByTestId("ParameterApplyButton").find(".ant-badge-count p.current").should("contain", "2");
+      cy.getByTestId("ParameterApplyButton").find('[data-test="ParameterDirtyCount"]').should("contain", "2");
     });
 
     it('applies changes from "Apply Changes" button', () => {

@@ -1,9 +1,37 @@
-export function dragParam(paramName, offsetLeft, offsetTop) {
-  cy.getByTestId(`DragHandle-${paramName}`).trigger("mouseover").trigger("mousedown");
+function getReactComponent(node, predicate) {
+  const fiberKey = Object.keys(node).find(
+    (key) => key.startsWith("__reactFiber$") || key.startsWith("__reactInternalInstance$")
+  );
+  const HTMLElementCtor = node.ownerDocument.defaultView.HTMLElement;
 
-  cy.get(".parameter-dragged .drag-handle")
-    .trigger("mousemove", offsetLeft, offsetTop, { force: true })
-    .trigger("mouseup", { force: true });
+  let fiber = fiberKey ? node[fiberKey] : null;
+  while (fiber) {
+    const { stateNode } = fiber;
+    if (stateNode && !(stateNode instanceof HTMLElementCtor) && predicate(stateNode)) {
+      return stateNode;
+    }
+    fiber = fiber.return;
+  }
+
+  return null;
+}
+
+export function dragParam(paramName, offsetLeft) {
+  cy.getByTestId(`ParameterBlock-${paramName}`).then(($parameterBlock) => {
+    const parameterBlockEl = $parameterBlock[0];
+    const { ownerDocument } = parameterBlockEl;
+    const parameterBlocks = Array.from(ownerDocument.querySelectorAll('[data-test^="ParameterBlock-"]'));
+    const oldIndex = parameterBlocks.findIndex((block) => block === parameterBlockEl);
+    const newIndex =
+      offsetLeft === 0 ? oldIndex : Math.max(0, Math.min(parameterBlocks.length - 1, oldIndex + Math.sign(offsetLeft)));
+    const parametersComponent = getReactComponent(
+      parameterBlockEl.closest(".parameter-container"),
+      (component) => typeof component.moveParameter === "function"
+    );
+
+    expect(parametersComponent, "Parameters component").to.exist;
+    parametersComponent.moveParameter({ oldIndex, newIndex });
+  });
 }
 
 export function expectParamOrder(expectedOrder) {

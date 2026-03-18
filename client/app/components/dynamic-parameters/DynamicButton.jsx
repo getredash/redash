@@ -2,6 +2,7 @@ import React, { useRef } from "react";
 import PropTypes from "prop-types";
 import { isFunction, get, findIndex } from "lodash";
 import Dropdown from "antd/lib/dropdown";
+import Button from "antd/lib/button";
 import Menu from "antd/lib/menu";
 import Typography from "antd/lib/typography";
 import { DynamicDateType } from "@/services/parameters/DateParameter";
@@ -49,22 +50,24 @@ function DynamicButton({
 
   return (
     <div ref={containerRef}>
-      <div role="presentation" onClick={(e) => e.stopPropagation()}>
-        <Dropdown.Button
+      <div className="dynamic-button" role="presentation" onClick={(e) => e.stopPropagation()}>
+        <Dropdown
           overlay={menu}
-          className="dynamic-button"
           placement="bottomRight"
           trigger={["click"]}
-          icon={
-            enabled ? (
-              <ThunderboltTwoToneIcon className="dynamic-icon" />
-            ) : (
-              <ThunderboltOutlinedIcon className="dynamic-icon" />
-            )
-          }
           getPopupContainer={() => containerRef.current}
-          data-test="DynamicButton"
-        />
+        >
+          <Button
+            data-test="DynamicButton"
+            icon={
+              enabled ? (
+                <ThunderboltTwoToneIcon className="dynamic-icon" />
+              ) : (
+                <ThunderboltOutlinedIcon className="dynamic-icon" />
+              )
+            }
+          />
+        </Dropdown>
       </div>
     </div>
   );

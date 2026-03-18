@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import DatePicker from "antd/lib/date-picker";
 import { clientConfig } from "@/services/auth";
 import { Moment } from "@/components/proptypes";
+import { toMoment } from "@/lib/dateTimeUtils";
 
 const DateInput = React.forwardRef(
   ({ defaultValue = null, value = undefined, onSelect = () => {}, className = "", ...props }, ref) => {
@@ -21,7 +22,7 @@ const DateInput = React.forwardRef(
         {...additionalAttributes}
         format={format}
         placeholder="Select Date"
-        onChange={onSelect}
+        onChange={(nextValue) => onSelect(toMoment(nextValue))}
         {...props}
       />
     );

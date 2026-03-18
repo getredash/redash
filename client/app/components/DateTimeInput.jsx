@@ -1,8 +1,10 @@
 import React from "react";
 import PropTypes from "prop-types";
+import moment from "moment";
 import DatePicker from "antd/lib/date-picker";
 import { clientConfig } from "@/services/auth";
 import { Moment } from "@/components/proptypes";
+import { toMoment } from "@/lib/dateTimeUtils";
 
 const DateTimeInput = React.forwardRef(
   (
@@ -21,11 +23,11 @@ const DateTimeInput = React.forwardRef(
       <DatePicker
         ref={ref}
         className={className}
-        showTime
+        showTime={{ defaultOpenValue: moment() }}
         {...additionalAttributes}
         format={format}
         placeholder="Select Date and Time"
-        onChange={onSelect}
+        onChange={(nextValue) => onSelect(toMoment(nextValue))}
         {...props}
       />
     );
