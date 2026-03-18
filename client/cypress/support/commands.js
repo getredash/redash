@@ -84,6 +84,30 @@ Cypress.Commands.add("fillInputs", (elements, { wait = 0 } = {}) => {
   });
 });
 
+function interpolateCoordinates(start, end, steps) {
+  return Array.from({ length: steps }, (_, index) => {
+    const progress = (index + 1) / steps;
+    return {
+      x: start.x + (end.x - start.x) * progress,
+      y: start.y + (end.y - start.y) * progress,
+    };
+  });
+}
+
+function dispatchMouseEvent(type, x, y, buttons) {
+  return Cypress.automation("remote:debugger:protocol", {
+    command: "Input.dispatchMouseEvent",
+    params: {
+      type,
+      x: Math.round(x),
+      y: Math.round(y),
+      button: type === "mouseMoved" ? "none" : "left",
+      buttons,
+      clickCount: 1,
+    },
+  });
+}
+
 Cypress.Commands.add("dragBy", { prevSubject: true }, (subject, offsetLeft, offsetTop, force = false) => {
   if (!offsetLeft) {
     offsetLeft = 1;
@@ -98,6 +122,97 @@ Cypress.Commands.add("dragBy", { prevSubject: true }, (subject, offsetLeft, offs
     .trigger("mousemove", 1, 1, { force }) // must have at least 2 mousemove events for react-grid-layout to trigger onLayoutChange
     .trigger("mousemove", offsetLeft, offsetTop, { force })
     .trigger("mouseup", { force });
+});
+
+Cypress.Commands.add("realDragBy", { prevSubject: true }, (subject, offsetLeft = 0, offsetTop = 0, options = {}) => {
+  const steps = options.steps || 12;
+  const delay = options.delay || 8;
+
+  return cy.wrap(subject).scrollIntoView().then(($element) => {
+    const rect = $element[0].getBoundingClientRect();
+    const start = {
+      x: rect.left + rect.width / 2,
+      y: rect.top + rect.height / 2,
+    };
+    const end = {
+      x: start.x + offsetLeft,
+      y: start.y + offsetTop,
+    };
+    const points = interpolateCoordinates(start, end, steps);
+
+    let chain = dispatchMouseEvent("mouseMoved", start.x, start.y, 0).then(() =>
+      dispatchMouseEvent("mousePressed", start.x, start.y, 1)
+    );
+
+    points.forEach(({ x, y }) => {
+      chain = chain
+        .then(() => dispatchMouseEvent("mouseMoved", x, y, 1))
+        .then(() => Cypress.Promise.delay(delay));
+    });
+
+    return chain
+      .then(() => dispatchMouseEvent("mouseReleased", end.x, end.y, 0))
+      .then(() => cy.wrap(subject));
+  });
+});
+
+Cypress.Commands.add("typeInAce", { prevSubject: "element" }, (subject, text, options = {}) => {
+  const replace = options.replace || false;
+  const delay = options.delay || 10;
+  const lines = text.replace(/\r\n/g, "\n").split("\n");
+  const editorInput = () => cy.wrap(subject).find(".ace_text-input").first();
+
+  editorInput().click({ force: true });
+
+  if (replace) {
+    editorInput().type("{selectall}{backspace}", { force: true });
+  }
+
+  lines.forEach((line, index) => {
+    if (line.length > 0) {
+      editorInput().type(line, {
+        force: true,
+        delay,
+        parseSpecialCharSequences: false,
+      });
+    }
+
+    if (index < lines.length - 1) {
+      editorInput().type("{enter}", { force: true });
+    }
+  });
+
+  return editorInput();
+});
+
+Cypress.Commands.add("pasteInAce", { prevSubject: "element" }, (subject, text, options = {}) => {
+  const replace = options.replace || false;
+  const editorInput = () => cy.wrap(subject).find(".ace_text-input").first();
+
+  editorInput().click({ force: true });
+
+  if (replace) {
+    editorInput().type("{selectall}{backspace}", { force: true });
+  }
+
+  return editorInput().then(($input) => {
+    const input = $input[0];
+    const pasteEvent = new input.ownerDocument.defaultView.Event("paste", {
+      bubbles: true,
+      cancelable: true,
+    });
+
+    Object.defineProperty(pasteEvent, "clipboardData", {
+      value: {
+        getData: (type) => (type === "text/plain" ? text : ""),
+        types: ["text/plain"],
+      },
+    });
+
+    input.dispatchEvent(pasteEvent);
+
+    return cy.wrap($input);
+  });
 });
 
 Cypress.Commands.add("all", (...functions) => {

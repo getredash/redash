@@ -15,6 +15,9 @@ const SQL = `
   SELECT 'c' AS stage1, 'c3' AS stage2, 63 AS value UNION ALL
   SELECT 'c' AS stage1, 'c4' AS stage2, 44 AS value\
 `;
+const UPDATED_SQL = `${SQL}
+UNION ALL
+SELECT 'c' AS stage1, 'c5' AS stage2, 55 AS value`;
 
 function createPivotThroughUI(visualizationName, options = {}) {
   cy.getByTestId("NewVisualization").click();
@@ -55,8 +58,7 @@ describe("Pivot", () => {
 
     const visualizationName = "Pivot";
 
-    cy.server();
-    cy.route("POST", "**/api/visualizations").as("SaveVisualization");
+    cy.intercept("POST", "**/api/visualizations").as("SaveVisualization");
 
     createPivotThroughUI(visualizationName, { hideControls: true });
 
@@ -78,26 +80,28 @@ describe("Pivot", () => {
       vals: ["value"],
     };
 
+    cy.intercept("POST", "**/api/queries/*/results").as("QueryResults");
+    cy.intercept("POST", "**/api/queries/*").as("SaveQuery");
+
     cy.createVisualization(this.queryId, "PIVOT", "Pivot", options).then((visualization) => {
       cy.visit(`queries/${this.queryId}/source#${visualization.id}`);
       cy.wait(1500); // eslint-disable-line cypress/no-unnecessary-waiting
       cy.getByTestId("ExecuteButton").click();
+      cy.wait("@QueryResults");
 
       // assert number of rows is 11
       cy.getByTestId("PivotTableVisualization").contains(".pvtGrandTotal", "11");
 
-      cy.getByTestId("QueryEditor")
-        .get(".ace_text-input")
-        .first()
-        .focus()
-        .type(" UNION ALL {enter}SELECT 'c' AS stage1, 'c5' AS stage2, 55 AS value");
+      cy.getByTestId("QueryEditor").pasteInAce(UPDATED_SQL, { replace: true });
 
-      // wait for the query text change to propagate (it's debounced in QuerySource.jsx)
-      // eslint-disable-next-line cypress/no-unnecessary-waiting
-      cy.wait(200);
-
-      cy.getByTestId("SaveButton").click();
+      // Wait for the query text change to propagate before saving.
+      cy.wait(200); // eslint-disable-line cypress/no-unnecessary-waiting
+      cy.getByTestId("SaveButton").should("not.be.disabled").click();
+      cy.wait("@SaveQuery");
+      cy.visit(`queries/${this.queryId}/source#${visualization.id}`);
+      cy.wait(1500); // eslint-disable-line cypress/no-unnecessary-waiting
       cy.getByTestId("ExecuteButton").should("be.enabled").click();
+      cy.wait("@QueryResults");
 
       // assert number of rows is 12
       cy.getByTestId("PivotTableVisualization").contains(".pvtGrandTotal", "12");

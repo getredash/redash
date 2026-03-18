@@ -34,7 +34,7 @@ describe("Dashboard Parameters", () => {
       cy.getByTestId("WidgetDropdownButton").click();
     });
 
-    cy.getByTestId("WidgetDropdownButtonMenu").contains("Edit Parameters").click();
+    cy.get(".ant-dropdown-menu:visible").contains("Edit Parameters").click();
   };
 
   const saveMappingOptions = (closeMappingMenu = false) => {

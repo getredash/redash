@@ -4,9 +4,8 @@ describe("Create Data Source", () => {
   });
 
   it("opens the creation dialog when clicking in the create link or button", () => {
+    cy.intercept("**/api/data_sources", { body: [] }); // force an empty response
     cy.visit("/data_sources");
-    cy.server();
-    cy.route("**/api/data_sources", []); // force an empty response
 
     ["CreateDataSourceButton", "CreateDataSourceLink"].forEach((createElementTestId) => {
       cy.getByTestId(createElementTestId).click();
@@ -17,9 +16,8 @@ describe("Create Data Source", () => {
   });
 
   it("renders the page and takes a screenshot", function () {
+    cy.intercept("**/api/data_sources/types").as("DataSourceTypesRequest");
     cy.visit("/data_sources/new");
-    cy.server();
-    cy.route("**/api/data_sources/types").as("DataSourceTypesRequest");
 
     cy.wait("@DataSourceTypesRequest")
       .then(({ response }) => response.body.filter((type) => type.deprecated))

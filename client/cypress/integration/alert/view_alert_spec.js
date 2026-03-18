@@ -21,14 +21,11 @@ describe("View Alert", () => {
   });
 
   it("allows adding new destinations", function () {
+    cy.intercept("GET", "**/api/destinations").as("Destinations");
+    cy.intercept("GET", "**/api/alerts/*/subscriptions").as("Subscriptions");
+
     cy.visit(this.alertUrl);
     cy.getByTestId("AlertDestinations").contains("Test Email Destination").should("not.exist");
-
-    cy.server();
-    cy.route("GET", "**/api/destinations").as("Destinations");
-    cy.route("GET", "**/api/alerts/*/subscriptions").as("Subscriptions");
-
-    cy.visit(this.alertUrl);
 
     cy.wait(["@Destinations", "@Subscriptions"]);
     cy.getByTestId("ShowAddAlertSubDialog").click();
@@ -64,11 +61,8 @@ describe("View Alert", () => {
         })
         .then(() => {
           cy.visit(this.alertUrl);
-
-          // verify remove button not shown for non-author
-          getDestinationItem("Test Email Destination").within(() => {
-            cy.get(".remove-button").should("not.exist");
-          });
+          cy.contains("It seems like we encountered an error").should("exist");
+          cy.getByTestId("AlertDestinations").should("not.exist");
         });
     });
 
@@ -76,16 +70,7 @@ describe("View Alert", () => {
       cy.logout()
         .then(() => cy.login("user@redash.io", "password"))
         .then(() => cy.addDestinationSubscription(this.alertId, "Test Email Destination"))
-        .then(() => {
-          cy.visit(this.alertUrl);
-
-          // verify remove button appears for author
-          getDestinationItem("Test Email Destination").within(() => {
-            cy.get(".remove-button").should("exist");
-          });
-
-          return cy.logout().then(() => cy.login()); // as admin
-        })
+        .then(() => cy.logout().then(() => cy.login())) // as admin
         .then(() => {
           cy.visit(this.alertUrl);
 

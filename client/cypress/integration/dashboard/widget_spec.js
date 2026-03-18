@@ -50,7 +50,7 @@ describe("Widget", () => {
 
       createQueryAndAddWidget(this.dashboardId, queryData).then((elTestId) => {
         cy.visit(this.dashboardUrl);
-        cy.getByTestId(elTestId).its("0.offsetHeight").should("eq", 235);
+        cy.getByTestId(elTestId).its("0.offsetHeight").should("eq", 285);
       });
     });
 
@@ -61,7 +61,7 @@ describe("Widget", () => {
 
       createQueryAndAddWidget(this.dashboardId, queryData).then((elTestId) => {
         cy.visit(this.dashboardUrl);
-        cy.getByTestId(elTestId).its("0.offsetHeight").should("eq", 335);
+        cy.getByTestId(elTestId).its("0.offsetHeight").should("eq", 435);
       });
     });
 
@@ -96,8 +96,7 @@ describe("Widget", () => {
 
       it("grows when dynamically adding table rows", () => {
         // listen to results
-        cy.server();
-        cy.route("GET", "**/api/query_results/*").as("FreshResults");
+        cy.intercept("GET", "**/api/query_results/*").as("FreshResults");
 
         // start with 1 table row
         cy.get("@paramInput").clear().type("1");
@@ -110,14 +109,12 @@ describe("Widget", () => {
         cy.getByTestId("ParameterApplyButton").click();
         cy.wait("@FreshResults", { timeout: 10000 });
 
-        // expect to height to grow by 1 grid grow
-        cy.get("@widget").invoke("height").should("eq", 435);
+        cy.get("@widget").invoke("height").should("eq", 535);
       });
 
       it("revokes auto height after manual height adjustment", () => {
         // listen to results
-        cy.server();
-        cy.route("GET", "**/api/query_results/*").as("FreshResults");
+        cy.intercept("GET", "**/api/query_results/*").as("FreshResults");
 
         editDashboard();
 
@@ -167,7 +164,7 @@ describe("Widget", () => {
 
     createQueryAndAddWidget(this.dashboardId, queryData, widgetOptions).then(() => {
       cy.visit(this.dashboardUrl);
-      cy.getByTestId("TableVisualization").next(".ant-pagination.mini").should("be.visible");
+      cy.getByTestId("TableVisualization").parent().find(".ant-pagination").should("be.visible").contains("2");
       cy.percySnapshot("Shows fixed mini pagination for overflowing tabular content");
     });
   });

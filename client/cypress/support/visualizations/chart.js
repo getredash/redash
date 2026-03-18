@@ -13,17 +13,16 @@ export function createChartThroughUI(chartName, chartSpecificAssertionFn = () =>
 
   chartSpecificAssertionFn();
 
-  cy.server();
-  cy.route("POST", "**/api/visualizations").as("SaveVisualization");
+  cy.intercept("POST", "**/api/visualizations").as("SaveVisualization");
 
   cy.getByTestId("EditVisualizationDialog").contains("button", "Save").click();
 
   cy.getByTestId("QueryPageVisualizationTabs").contains("span", chartName).should("exist");
 
-  cy.wait("@SaveVisualization").should("have.property", "status", 200);
+  cy.wait("@SaveVisualization").its("response.statusCode").should("eq", 200);
 
-  return cy.get("@SaveVisualization").then((xhr) => {
-    const { id, name, options } = xhr.response.body;
+  return cy.get("@SaveVisualization").then(({ response }) => {
+    const { id, name, options } = response.body;
     return cy.wrap({ id, name, options });
   });
 }

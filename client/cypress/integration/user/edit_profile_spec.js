@@ -30,9 +30,9 @@ describe("Edit Profile", () => {
       const previousApiKey = $apiKey.val();
 
       cy.getByTestId("RegenerateApiKey").click();
-      cy.get(".ant-btn-primary").contains("Regenerate").click({ force: true });
+      cy.contains(".ant-modal-confirm .ant-btn-primary", "Regenerate").click();
 
-      cy.getByTestId("ApiKey").should("not.eq", previousApiKey);
+      cy.getByTestId("ApiKey").invoke("val").should("not.eq", previousApiKey);
     });
   });
 

@@ -7,8 +7,7 @@ describe("Dashboard Tags", () => {
   });
 
   it("is possible to add and edit tags", () => {
-    cy.server();
-    cy.route("POST", "**/api/dashboards/*").as("DashboardSave");
+    cy.intercept("POST", "**/api/dashboards/*").as("DashboardSave");
 
     cy.getByTestId("TagsControl").contains(".label", "Unpublished");
 

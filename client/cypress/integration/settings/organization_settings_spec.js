@@ -21,8 +21,8 @@ describe("Settings", () => {
       name: "test date format",
       query: "SELECT NOW()",
     }).then(({ id: queryId }) => {
-      cy.visit(`/queries/${queryId}`);
-      cy.findByText("Refresh Now").click();
+      cy.visit(`/queries/${queryId}/source`);
+      cy.getByTestId("ExecuteButton").click();
 
       // "created at" field is formatted with the date format.
       cy.getByTestId("TableVisualization")
@@ -35,7 +35,7 @@ describe("Settings", () => {
       cy.getByTestId("DateFormatSelect:MM/DD/YY").click();
       cy.getByTestId("OrganizationSettingsSaveButton").click();
 
-      cy.visit(`/queries/${queryId}`);
+      cy.visit(`/queries/${queryId}/source`);
 
       cy.getByTestId("TableVisualization")
         .findAllByText(/\d{2}\/\d{2}\/\d{2}/)

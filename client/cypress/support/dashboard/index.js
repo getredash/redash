@@ -1,26 +1,7 @@
 /* global cy */
 
 const { get } = Cypress._;
-const DASHBOARD_LAYOUT_KEY = "multi-column";
-const GRID_MARGIN = 15;
-
-function getReactComponent(node, predicate) {
-  const fiberKey = Object.keys(node).find(
-    (key) => key.startsWith("__reactFiber$") || key.startsWith("__reactInternalInstance$")
-  );
-  const HTMLElementCtor = node.ownerDocument.defaultView.HTMLElement;
-
-  let fiber = fiberKey ? node[fiberKey] : null;
-  while (fiber) {
-    const { stateNode } = fiber;
-    if (stateNode && !(stateNode instanceof HTMLElementCtor) && predicate(stateNode)) {
-      return stateNode;
-    }
-    fiber = fiber.return;
-  }
-
-  return null;
-}
+const RESIZE_HANDLE_SELECTOR = ".react-resizable-handle";
 
 export function getWidgetTestId(widget) {
   return `WidgetId${widget.id}`;
@@ -54,52 +35,56 @@ export function shareDashboard() {
 }
 
 export function resizeBy(wrapper, offsetLeft = 0, offsetTop = 0) {
-  return wrapper.then(($widget) => {
-    const widgetEl = $widget[0];
-    const gridComponent = getReactComponent(
-      widgetEl,
-      (component) =>
-        component && component.state && component.state.layouts && typeof component.onLayoutChange === "function"
-    );
+  return wrapper.find(RESIZE_HANDLE_SELECTOR).first().then(($handle) => {
+    const handle = $handle[0];
+    const { ownerDocument } = handle;
+    const { scrollX, scrollY } = ownerDocument.defaultView;
+    const MouseEventCtor = ownerDocument.defaultView.MouseEvent;
+    const rect = handle.getBoundingClientRect();
+    const startX = rect.left + rect.width / 2;
+    const startY = rect.top + rect.height / 2;
+    const endX = startX + offsetLeft;
+    const endY = startY + offsetTop;
+    const mouseOptions = (clientX, clientY, buttons) => ({
+      bubbles: true,
+      cancelable: true,
+      button: 0,
+      buttons,
+      which: 1,
+      clientX,
+      clientY,
+      pageX: clientX + scrollX,
+      pageY: clientY + scrollY,
+      screenX: clientX,
+      screenY: clientY,
+      view: ownerDocument.defaultView,
+    });
 
-    expect(gridComponent, "DashboardGrid component").to.exist;
-
-    const widgetId = widgetEl.getAttribute("data-widgetid");
-    const currentLayout = gridComponent.state.layouts[DASHBOARD_LAYOUT_KEY];
-    const currentItem = currentLayout.find((item) => item.i === widgetId);
-
-    expect(currentItem, "DashboardGrid layout item").to.exist;
-
-    const currentWidth = widgetEl.getBoundingClientRect().width;
-    const currentHeight = widgetEl.getBoundingClientRect().height;
-    const columnWidth = (currentWidth - (currentItem.w - 1) * GRID_MARGIN) / currentItem.w;
-    const rowHeight = (currentHeight - (currentItem.h - 1) * GRID_MARGIN) / currentItem.h;
-    const columnStep = columnWidth + GRID_MARGIN;
-    const rowStep = rowHeight + GRID_MARGIN;
-    const nextItem = {
-      ...currentItem,
-      w: Math.max(
-        currentItem.minW || 1,
-        Math.min(currentItem.maxW || Infinity, currentItem.w + Math.round(offsetLeft / columnStep))
-      ),
-      h: Math.max(
-        currentItem.minH || 1,
-        Math.min(currentItem.maxH || Infinity, currentItem.h + Math.round(offsetTop / rowStep))
-      ),
-    };
-    const nextLayout = currentLayout.map((item) => (item.i === widgetId ? nextItem : item));
-
-    gridComponent.setState(
-      ({ layouts }) => ({
-        layouts: {
-          ...layouts,
-          [DASHBOARD_LAYOUT_KEY]: nextLayout,
-        },
-      }),
-      () => {
-        gridComponent.onWidgetResize(nextLayout, currentItem, nextItem);
-        gridComponent.onLayoutChange(null, { [DASHBOARD_LAYOUT_KEY]: nextLayout });
-      }
-    );
+    cy.wrap(handle)
+      .scrollIntoView()
+      .then(() => {
+        handle.dispatchEvent(new MouseEventCtor("mouseover", mouseOptions(startX, startY, 0)));
+        handle.dispatchEvent(new MouseEventCtor("mousedown", mouseOptions(startX, startY, 1)));
+      });
+    
+    return cy
+      .then(() => Cypress.Promise.delay(16))
+      .then(() => {
+        ownerDocument.dispatchEvent(new MouseEventCtor("mousemove", mouseOptions(startX + 2, startY + 2, 1)));
+      })
+      .then(() => Cypress.Promise.delay(16))
+      .then(() => {
+        ownerDocument.dispatchEvent(
+          new MouseEventCtor("mousemove", mouseOptions(startX + (endX - startX) / 2, startY + (endY - startY) / 2, 1))
+        );
+      })
+      .then(() => Cypress.Promise.delay(16))
+      .then(() => {
+        ownerDocument.dispatchEvent(new MouseEventCtor("mousemove", mouseOptions(endX, endY, 1)));
+      })
+      .then(() => Cypress.Promise.delay(16))
+      .then(() => {
+        ownerDocument.dispatchEvent(new MouseEventCtor("mouseup", mouseOptions(endX, endY, 0)));
+      });
   });
 }

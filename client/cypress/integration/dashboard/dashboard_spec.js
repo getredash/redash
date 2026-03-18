@@ -10,12 +10,11 @@ describe("Dashboard", () => {
   });
 
   it("creates new dashboard", () => {
+    cy.intercept("POST", "**/api/dashboards").as("NewDashboard");
+
     cy.visit("/dashboards");
     cy.getByTestId("CreateButton").click();
     cy.getByTestId("CreateDashboardMenuItem").click();
-
-    cy.server();
-    cy.route("POST", "**/api/dashboards").as("NewDashboard");
 
     cy.getByTestId("CreateDashboardDialog").within(() => {
       cy.getByTestId("DashboardSaveButton").should("be.disabled");
@@ -23,8 +22,8 @@ describe("Dashboard", () => {
       cy.getByTestId("DashboardSaveButton").click();
     });
 
-    cy.wait("@NewDashboard").then((xhr) => {
-      const id = Cypress._.get(xhr, "response.body.id");
+    cy.wait("@NewDashboard").then(({ response }) => {
+      const id = Cypress._.get(response, "body.id");
       assert.isDefined(id, "Dashboard api call returns id");
 
       cy.visit("/dashboards");

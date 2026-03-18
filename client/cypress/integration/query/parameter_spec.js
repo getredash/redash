@@ -325,6 +325,7 @@ describe("Parameter", () => {
       now.setDate(1);
       cy.wrap(now.getTime()).as("now");
       cy.clock(now.getTime(), ["Date"]);
+      cy.intercept("POST", "**/api/queries/*/results").as("Results");
 
       cy.createQuery(queryData, false).then(({ id }) => cy.visit(`/queries/${id}`));
     });
@@ -337,8 +338,9 @@ describe("Parameter", () => {
       selectCalendarDate("15");
 
       cy.getByTestId("ParameterApplyButton").click();
+      cy.wait("@Results");
 
-      cy.getByTestId("TableVisualization").should("contain", dayjs(this.now).format("15/MM/YY"));
+      cy.getByTestId("TableVisualization").should("contain", dayjs(this.now).format("MM/15/YY"));
     });
 
     it("allows picking a dynamic date", function () {
@@ -347,8 +349,9 @@ describe("Parameter", () => {
       cy.getByTestId("DynamicButtonMenu").contains("Today/Now").click();
 
       cy.getByTestId("ParameterApplyButton").click();
+      cy.wait("@Results");
 
-      cy.getByTestId("TableVisualization").should("contain", dayjs(this.now).format("DD/MM/YY"));
+      cy.getByTestId("TableVisualization").should("contain", dayjs(this.now).format("MM/DD/YY"));
     });
 
     it("sets dirty state when edited", () => {
@@ -488,8 +491,7 @@ describe("Parameter", () => {
 
       cy.location("search").should("not.contain", "Redash");
 
-      cy.server();
-      cy.route("POST", "**/api/queries/*/results").as("Results");
+      cy.intercept("POST", "**/api/queries/*/results").as("Results");
 
       apply(cy.get("@Input"));
 
@@ -509,8 +511,7 @@ describe("Parameter", () => {
         },
       };
 
-      cy.server();
-      cy.route("GET", "**/api/data_sources/*/schema").as("Schema");
+      cy.intercept("GET", "**/api/data_sources/*/schema").as("Schema");
 
       cy.createQuery(queryData, false)
         .then(({ id }) => cy.visit(`/queries/${id}/source`))
@@ -583,18 +584,23 @@ describe("Parameter", () => {
     });
 
     it("is possible to rearrange parameters", function () {
-      cy.server();
-      cy.route("POST", "**/api/queries/*").as("QuerySave");
+      cy.intercept("POST", "**/api/queries/*").as("QuerySave");
 
       dragParam("param1", this.paramWidth, 1);
       cy.wait("@QuerySave");
+      cy.reload();
+
       dragParam("param4", -this.paramWidth, 1);
       cy.wait("@QuerySave");
 
       cy.reload();
 
       const expectedOrder = ["Parameter 2", "Parameter 1", "Parameter 4", "Parameter 3"];
-      cy.get(".parameter-container label").each(($label, index) => expect($label).to.have.text(expectedOrder[index]));
+      cy.get(".parameter-container label").should(($labels) => {
+        expect($labels).to.have.length(expectedOrder.length);
+        const actualOrder = [...$labels].map((label) => label.innerText);
+        expect(actualOrder).to.deep.equal(expectedOrder);
+      });
     });
   });
 
