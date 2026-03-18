@@ -1,5 +1,5 @@
 import React from "react";
-import { render, fireEvent, act } from "@testing-library/react";
+import { render, fireEvent, act, screen } from "@testing-library/react";
 
 import ColumnEditor from "./ColumnEditor";
 
@@ -75,6 +75,12 @@ describe("Shared ColumnEditor", () => {
       jest.useRealTimers();
 
       expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ description: "Current order status" }));
+    });
+
+    test.each(["table", "details"] as const)("Renders description label - %s variant", (variant) => {
+      render(<ColumnEditor column={mockColumn} variant={variant} />);
+
+      expect(screen.getByText("Description").closest("label")).not.toBeNull();
     });
 
     test.each(["table", "details"] as const)("Changes display type - %s variant", (variant) => {

@@ -170,7 +170,7 @@ DashboardComponent.propTypes = {
   dashboard: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
 };
 
-function DashboardPage({ dashboardSlug = null, dashboardId = null, onError = PropTypes.func }) {
+function DashboardPage({ dashboardSlug = null, dashboardId = null, onError }) {
   const [dashboard, setDashboard] = useState(null);
   const handleError = useImmutableCallback(onError);
 

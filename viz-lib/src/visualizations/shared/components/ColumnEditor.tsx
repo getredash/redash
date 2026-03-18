@@ -79,6 +79,7 @@ export default function ColumnEditor({
       )}
       <Section>
         <Input
+          label="Description"
           data-test={`${dataTestPrefix}.Description`}
           defaultValue={column.description}
           onChange={(event: any) => handleChangeDebounced({ description: event.target.value })}
