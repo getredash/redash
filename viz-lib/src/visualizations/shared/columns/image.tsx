@@ -39,7 +39,8 @@ function Editor({ column, onChange }: Props) {
                 <div>Leave empty to use default value.</div>
               </ContextHelp>
             </React.Fragment>
-          }>
+          }
+        >
           <div className="image-dimension-selector">
             <Input
               data-test="Table.ColumnEditor.Image.Width"
@@ -71,7 +72,8 @@ function Editor({ column, onChange }: Props) {
         <ContextHelp
           placement="topLeft"
           arrowPointAtCenter
-          icon={<span style={{ cursor: "default" }}>Format specs {ContextHelp.defaultIcon}</span>}>
+          icon={<span style={{ cursor: "default" }}>Format specs {ContextHelp.defaultIcon}</span>}
+        >
           <div>
             All columns can be referenced using <code>{"{{ column_name }}"}</code> syntax.
           </div>

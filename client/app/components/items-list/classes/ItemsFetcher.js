@@ -20,7 +20,7 @@ class ItemsFetcher {
 
   fetch(changes, state, context) {
     const request = this._getRequest(state, context);
-    return this._originalDoRequest(request, context).then(data => this._processResults(data, state, context));
+    return this._originalDoRequest(request, context).then((data) => this._processResults(data, state, context));
   }
 }
 

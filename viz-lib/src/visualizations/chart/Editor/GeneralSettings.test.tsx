@@ -40,7 +40,7 @@ function mount(options: any, done: any) {
       visualizationName="Test"
       data={{ columns: [], rows: [] }}
       options={options}
-      onOptionsChange={changedOptions => {
+      onOptionsChange={(changedOptions) => {
         expect(changedOptions).toMatchSnapshot();
         done();
       }}
@@ -50,7 +50,7 @@ function mount(options: any, done: any) {
 }
 
 describe("Visualizations -> Chart -> Editor -> General Settings", () => {
-  test("Changes global series type", done => {
+  test("Changes global series type", (done) => {
     const el = mount(
       {
         globalSeriesType: "column",
@@ -67,7 +67,7 @@ describe("Visualizations -> Chart -> Editor -> General Settings", () => {
     clickOption("Chart.ChartType.pie");
   });
 
-  test("Pie: changes direction", done => {
+  test("Pie: changes direction", (done) => {
     const el = mount(
       {
         globalSeriesType: "pie",
@@ -80,7 +80,7 @@ describe("Visualizations -> Chart -> Editor -> General Settings", () => {
     clickOption("Chart.PieDirection.Clockwise");
   });
 
-  test("Toggles legend", done => {
+  test("Toggles legend", (done) => {
     const el = mount(
       {
         globalSeriesType: "column",
@@ -93,7 +93,7 @@ describe("Visualizations -> Chart -> Editor -> General Settings", () => {
     clickOption("Chart.LegendPlacement.HideLegend");
   });
 
-  test("Box: toggles show points", done => {
+  test("Box: toggles show points", (done) => {
     const el = mount(
       {
         globalSeriesType: "box",
@@ -105,7 +105,7 @@ describe("Visualizations -> Chart -> Editor -> General Settings", () => {
     fireEvent.click(getInput(findByTestID("Chart.ShowPoints").pop()!));
   });
 
-  test("Enables stacking", done => {
+  test("Enables stacking", (done) => {
     const el = mount(
       {
         globalSeriesType: "column",
@@ -118,7 +118,7 @@ describe("Visualizations -> Chart -> Editor -> General Settings", () => {
     clickOption("Chart.Stacking.Stack");
   });
 
-  test("Toggles normalize values to percentage", done => {
+  test("Toggles normalize values to percentage", (done) => {
     const el = mount(
       {
         globalSeriesType: "column",
@@ -130,7 +130,7 @@ describe("Visualizations -> Chart -> Editor -> General Settings", () => {
     fireEvent.click(getInput(findByTestID("Chart.NormalizeValues").pop()!));
   });
 
-  test("Keep missing/null values", done => {
+  test("Keep missing/null values", (done) => {
     const el = mount(
       {
         globalSeriesType: "column",
@@ -194,7 +194,7 @@ describe("Visualizations -> Chart -> Editor -> General Settings", () => {
     });
   });
 
-  test("Toggles horizontal bar chart", done => {
+  test("Toggles horizontal bar chart", (done) => {
     const el = mount(
       {
         globalSeriesType: "column",
@@ -206,7 +206,7 @@ describe("Visualizations -> Chart -> Editor -> General Settings", () => {
     fireEvent.click(getInput(findByTestID("Chart.SwappedAxes").pop()!));
   });
 
-  test("Toggles Enable click events", done => {
+  test("Toggles Enable click events", (done) => {
     const el = mount(
       {
         globalSeriesType: "column",
@@ -217,6 +217,4 @@ describe("Visualizations -> Chart -> Editor -> General Settings", () => {
 
     fireEvent.click(getInput(findByTestID("Chart.EnableClickEvents").pop()!));
   });
-
-  
 });

@@ -19,7 +19,8 @@ function Editor({ column, onChange }: Props) {
         <Checkbox
           data-test="Table.ColumnEditor.Text.AllowHTML"
           checked={column.allowHTML}
-          onChange={event => onChange({ allowHTML: event.target.checked })}>
+          onChange={(event) => onChange({ allowHTML: event.target.checked })}
+        >
           Allow HTML content
         </Checkbox>
       </Section>
@@ -29,7 +30,8 @@ function Editor({ column, onChange }: Props) {
           <Checkbox
             data-test="Table.ColumnEditor.Text.HighlightLinks"
             checked={column.highlightLinks}
-            onChange={event => onChange({ highlightLinks: event.target.checked })}>
+            onChange={(event) => onChange({ highlightLinks: event.target.checked })}
+          >
             Highlight links
           </Checkbox>
         </Section>
@@ -50,7 +52,7 @@ export default function initTextColumn(column: any) {
   function TextColumn({ row }: any) {
     // eslint-disable-line react/prop-types
     const { text } = prepareData(row);
-    return (column.allowHTML && typeof text === 'string') ? <HtmlContent>{text}</HtmlContent> : text;
+    return column.allowHTML && typeof text === "string" ? <HtmlContent>{text}</HtmlContent> : text;
   }
 
   TextColumn.prepareData = prepareData;

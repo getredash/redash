@@ -15,7 +15,7 @@ function box() {
 
   // For each small multiple…
   function box(g: any) {
-    g.each(function(d: any, i: any) {
+    g.each(function (d: any, i: any) {
       d = d.map(value).sort(d3.ascending);
       // @ts-expect-error ts-migrate(2683) FIXME: 'this' implicitly has type 'any' because it does n... Remove this comment to see the full error message
       let g = d3.select(this),
@@ -29,7 +29,7 @@ function box() {
       // Compute whiskers. Must return exactly 2 elements, or null.
       // @ts-expect-error ts-migrate(2683) FIXME: 'this' implicitly has type 'any' because it does n... Remove this comment to see the full error message
       let whiskerIndices = whiskers && whiskers.call(this, d, i),
-        whiskerData = whiskerIndices && whiskerIndices.map(i => d[i]);
+        whiskerData = whiskerIndices && whiskerIndices.map((i) => d[i]);
 
       // Compute outliers. If no whiskers are specified, all data are "outliers".
       // We compute the outliers as indices, so that we can join across transitions!
@@ -47,11 +47,7 @@ function box() {
       // Retrieve the old x-scale, if this is an update.
       const x0 =
         // @ts-expect-error ts-migrate(2683) FIXME: 'this' implicitly has type 'any' because it does n... Remove this comment to see the full error message
-        this.__chart__ ||
-        d3.scale
-          .linear()
-          .domain([0, Infinity])
-          .range(x1.range());
+        this.__chart__ || d3.scale.linear().domain([0, Infinity]).range(x1.range());
 
       // Stash the new scale.
       // @ts-expect-error ts-migrate(2683) FIXME: 'this' implicitly has type 'any' because it does n... Remove this comment to see the full error message
@@ -136,11 +132,7 @@ function box() {
         .attr("y1", x1)
         .attr("y2", x1);
 
-      medianLine
-        .transition()
-        .duration(duration)
-        .attr("y1", x1)
-        .attr("y2", x1);
+      medianLine.transition().duration(duration).attr("y1", x1).attr("y2", x1);
 
       medianLine.exit().remove();
 
@@ -162,21 +154,9 @@ function box() {
         .attr("y2", x1)
         .style("opacity", 1);
 
-      whisker
-        .transition()
-        .duration(duration)
-        .attr("y1", x1)
-        .attr("y2", x1)
-        .style("opacity", 1);
+      whisker.transition().duration(duration).attr("y1", x1).attr("y2", x1).style("opacity", 1);
 
-      whisker
-        .exit()
-        .transition()
-        .duration(duration)
-        .attr("y1", x1)
-        .attr("y2", x1)
-        .style("opacity", 1e-6)
-        .remove();
+      whisker.exit().transition().duration(duration).attr("y1", x1).attr("y2", x1).style("opacity", 1e-6).remove();
 
       // Update outliers.
       const outlier = g.selectAll("circle.outlier").data(outlierIndices, Number);
@@ -228,11 +208,7 @@ function box() {
         .duration(duration)
         .attr("y", x1);
 
-      boxTick
-        .transition()
-        .duration(duration)
-        .text(format)
-        .attr("y", x1);
+      boxTick.transition().duration(duration).text(format).attr("y", x1);
 
       boxTick.exit().remove();
 
@@ -256,67 +232,56 @@ function box() {
         .attr("y", x1)
         .style("opacity", 1);
 
-      whiskerTick
-        .transition()
-        .duration(duration)
-        .text(format)
-        .attr("y", x1)
-        .style("opacity", 1);
+      whiskerTick.transition().duration(duration).text(format).attr("y", x1).style("opacity", 1);
 
-      whiskerTick
-        .exit()
-        .transition()
-        .duration(duration)
-        .attr("y", x1)
-        .style("opacity", 1e-6)
-        .remove();
+      whiskerTick.exit().transition().duration(duration).attr("y", x1).style("opacity", 1e-6).remove();
     });
     d3.timer.flush();
   }
 
-  box.width = function(x: any) {
+  box.width = function (x: any) {
     if (!arguments.length) return width;
     width = x;
     return box;
   };
 
-  box.height = function(x: any) {
+  box.height = function (x: any) {
     if (!arguments.length) return height;
     height = x;
     return box;
   };
 
-  box.tickFormat = function(x: any) {
+  box.tickFormat = function (x: any) {
     if (!arguments.length) return tickFormat;
     tickFormat = x;
     return box;
   };
 
-  box.duration = function(x: any) {
+  box.duration = function (x: any) {
     if (!arguments.length) return duration;
     duration = x;
     return box;
   };
 
-  box.domain = function(x: any) {
+  box.domain = function (x: any) {
     if (!arguments.length) return domain;
     domain = x == null ? x : d3.functor(x);
     return box;
   };
 
-  box.value = function(x: any) {
+  box.value = function (x: any) {
     if (!arguments.length) return value;
     value = x;
     return box;
   };
 
-  box.whiskers = function(x: any) {
+  box.whiskers = function (x: any) {
     if (!arguments.length) return whiskers;
     whiskers = x;
     return box;
   };
 
-  box.quartiles = function(x: any) {
+  box.quartiles = function (x: any) {
     if (!arguments.length) return quartiles;
     quartiles = x;
     return box;

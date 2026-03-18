@@ -109,7 +109,7 @@ function DateRangeParameter(props) {
     value: null,
     parameter: null,
     onSelect: () => {},
-    ...props
+    ...props,
   };
 
   const options = includes(props.type, "datetime-range") ? DYNAMIC_DATETIME_OPTIONS : DYNAMIC_DATE_OPTIONS;

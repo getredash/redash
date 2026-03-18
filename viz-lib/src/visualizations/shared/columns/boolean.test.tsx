@@ -17,7 +17,7 @@ function mount(column: any, done: any) {
       // @ts-expect-error ts-migrate(2322) FIXME: Type '{ visualizationName: string; column: any; on... Remove this comment to see the full error message
       visualizationName="Test"
       column={column}
-      onChange={changedColumn => {
+      onChange={(changedColumn) => {
         expect(changedColumn).toMatchSnapshot();
         done();
       }}
@@ -28,7 +28,7 @@ function mount(column: any, done: any) {
 
 describe("Visualizations -> Table -> Columns -> Boolean", () => {
   describe("Editor", () => {
-    test("Changes value for FALSE", done => {
+    test("Changes value for FALSE", (done) => {
       const el = mount(
         {
           name: "a",
@@ -40,7 +40,7 @@ describe("Visualizations -> Table -> Columns -> Boolean", () => {
       fireEvent.change(getInput(findByTestID("Table.ColumnEditor.Boolean.False").pop()!), { target: { value: "no" } });
     });
 
-    test("Changes value for TRUE", done => {
+    test("Changes value for TRUE", (done) => {
       const el = mount(
         {
           name: "a",

@@ -17,7 +17,7 @@ function mount(column: any, done: any) {
       // @ts-expect-error ts-migrate(2322) FIXME: Type '{ visualizationName: string; column: any; on... Remove this comment to see the full error message
       visualizationName="Test"
       column={column}
-      onChange={changedColumn => {
+      onChange={(changedColumn) => {
         expect(changedColumn).toMatchSnapshot();
         done();
       }}
@@ -28,7 +28,7 @@ function mount(column: any, done: any) {
 
 describe("Visualizations -> Table -> Columns -> Link", () => {
   describe("Editor", () => {
-    test("Changes URL template", done => {
+    test("Changes URL template", (done) => {
       const el = mount(
         {
           name: "a",
@@ -37,10 +37,12 @@ describe("Visualizations -> Table -> Columns -> Link", () => {
         done
       );
 
-      fireEvent.change(getInput(findByTestID("Table.ColumnEditor.Link.UrlTemplate").pop()!), { target: { value: "http://{{ @ }}/index.html" } });
+      fireEvent.change(getInput(findByTestID("Table.ColumnEditor.Link.UrlTemplate").pop()!), {
+        target: { value: "http://{{ @ }}/index.html" },
+      });
     });
 
-    test("Changes text template", done => {
+    test("Changes text template", (done) => {
       const el = mount(
         {
           name: "a",
@@ -49,10 +51,12 @@ describe("Visualizations -> Table -> Columns -> Link", () => {
         done
       );
 
-      fireEvent.change(getInput(findByTestID("Table.ColumnEditor.Link.TextTemplate").pop()!), { target: { value: "Text of {{ @ }}" } });
+      fireEvent.change(getInput(findByTestID("Table.ColumnEditor.Link.TextTemplate").pop()!), {
+        target: { value: "Text of {{ @ }}" },
+      });
     });
 
-    test("Changes title template", done => {
+    test("Changes title template", (done) => {
       const el = mount(
         {
           name: "a",
@@ -61,10 +65,12 @@ describe("Visualizations -> Table -> Columns -> Link", () => {
         done
       );
 
-      fireEvent.change(getInput(findByTestID("Table.ColumnEditor.Link.TitleTemplate").pop()!), { target: { value: "Title of {{ @ }}" } });
+      fireEvent.change(getInput(findByTestID("Table.ColumnEditor.Link.TitleTemplate").pop()!), {
+        target: { value: "Title of {{ @ }}" },
+      });
     });
 
-    test("Makes link open in new tab ", done => {
+    test("Makes link open in new tab ", (done) => {
       const el = mount(
         {
           name: "a",

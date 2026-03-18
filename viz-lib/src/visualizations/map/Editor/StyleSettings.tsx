@@ -90,7 +90,8 @@ export default function StyleSettings({ options, onOptionsChange }: any) {
           label="Map Tiles"
           data-test="Map.Editor.Tiles"
           value={options.mapTileUrl}
-          onChange={(mapTileUrl: any) => onOptionsChange({ mapTileUrl })}>
+          onChange={(mapTileUrl: any) => onOptionsChange({ mapTileUrl })}
+        >
           {map(mapTiles, ({ name, url }) => (
             // @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message
             <Select.Option key={url} data-test={"Map.Editor.Tiles." + name}>
@@ -107,7 +108,8 @@ export default function StyleSettings({ options, onOptionsChange }: any) {
         <Checkbox
           data-test="Map.Editor.ClusterMarkers"
           defaultChecked={options.clusterMarkers}
-          onChange={event => onOptionsChange({ clusterMarkers: event.target.checked })}>
+          onChange={(event) => onOptionsChange({ clusterMarkers: event.target.checked })}
+        >
           Cluster Markers
         </Checkbox>
       </Section>
@@ -117,7 +119,8 @@ export default function StyleSettings({ options, onOptionsChange }: any) {
           data-test="Map.Editor.CustomizeMarkers"
           disabled={!isCustomMarkersStyleAllowed}
           defaultChecked={options.customizeMarkers}
-          onChange={event => onOptionsChange({ customizeMarkers: event.target.checked })}>
+          onChange={(event) => onOptionsChange({ customizeMarkers: event.target.checked })}
+        >
           Override default style
         </Checkbox>
         {!isCustomMarkersStyleAllowed && (
@@ -137,7 +140,8 @@ export default function StyleSettings({ options, onOptionsChange }: any) {
               label="Shape"
               data-test="Map.Editor.MarkerShape"
               value={options.iconShape}
-              onChange={(iconShape: any) => onOptionsChange({ iconShape })}>
+              onChange={(iconShape: any) => onOptionsChange({ iconShape })}
+            >
               {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
               <Select.Option key="marker" data-test="Map.Editor.MarkerShape.marker">
                 Marker + Icon

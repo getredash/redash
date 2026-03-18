@@ -30,7 +30,7 @@ function mount(options: any, done: any) {
       visualizationName="Test"
       data={{ columns: [{ name: "a", type: "string" }], rows: [{ a: "test" }] }}
       options={options}
-      onOptionsChange={changedOptions => {
+      onOptionsChange={(changedOptions) => {
         expect(changedOptions).toMatchSnapshot();
         done();
       }}
@@ -40,7 +40,7 @@ function mount(options: any, done: any) {
 }
 
 describe("Visualizations -> Chart -> Editor -> Series Settings", () => {
-  test("Changes series type", done => {
+  test("Changes series type", (done) => {
     const el = mount(
       {
         globalSeriesType: "column",
@@ -56,7 +56,7 @@ describe("Visualizations -> Chart -> Editor -> Series Settings", () => {
     clickOption("Chart.ChartType.area");
   });
 
-  test("Changes series label", done => {
+  test("Changes series label", (done) => {
     const el = mount(
       {
         globalSeriesType: "column",
@@ -71,7 +71,7 @@ describe("Visualizations -> Chart -> Editor -> Series Settings", () => {
     fireEvent.change(findByTestID("Chart.Series.a.Label").pop()!, { target: { value: "test" } });
   });
 
-  test("Changes series axis", done => {
+  test("Changes series axis", (done) => {
     const el = mount(
       {
         globalSeriesType: "column",

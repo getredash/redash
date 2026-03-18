@@ -5,7 +5,15 @@ import Link from "@/components/Link";
 
 // PreviewCard
 
-export function PreviewCard({ imageUrl, roundedImage = true, title, body = null, children = null, className = "", ...props }) {
+export function PreviewCard({
+  imageUrl,
+  roundedImage = true,
+  title,
+  body = null,
+  children = null,
+  className = "",
+  ...props
+}) {
   return (
     <div {...props} className={className + " w-100 d-flex align-items-center"}>
       <img

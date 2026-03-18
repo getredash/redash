@@ -2,7 +2,12 @@ import React from "react";
 import PropTypes from "prop-types";
 import Tooltip from "@/components/Tooltip";
 
-export default function ListItemAddon({ isSelected = false, isStaged = false, alreadyInGroup = false, deselectedIcon = "fa-angle-double-right" }) {
+export default function ListItemAddon({
+  isSelected = false,
+  isStaged = false,
+  alreadyInGroup = false,
+  deselectedIcon = "fa-angle-double-right",
+}) {
   if (isStaged) {
     return (
       <>

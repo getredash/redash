@@ -37,4 +37,3 @@ export default function BeaconConsentSettings(props) {
 }
 
 BeaconConsentSettings.propTypes = SettingsEditorPropTypes;
-

@@ -75,9 +75,7 @@ describe("Visualizations -> Details -> Renderer", () => {
     };
 
     const el = mount(sampleData, options);
-    const labels = Array.from(el.querySelectorAll(".ant-descriptions-item-label")).map(
-      node => node.textContent
-    );
+    const labels = Array.from(el.querySelectorAll(".ant-descriptions-item-label")).map((node) => node.textContent);
 
     expect(labels).toEqual(["active", "name", "created_at", "id"]);
   });
@@ -152,10 +150,10 @@ describe("Visualizations -> Details -> Renderer", () => {
     expect(el.textContent).toContain("John Doe");
 
     // antd Pagination renders the next button inside .ant-pagination-next
-    const nextButton = document.body.querySelector('.ant-pagination-next button')
-      || document.body.querySelector('.ant-pagination-next');
+    const nextButton =
+      document.body.querySelector(".ant-pagination-next button") || document.body.querySelector(".ant-pagination-next");
     expect(nextButton).not.toBeNull();
-    
+
     fireEvent.click(nextButton!);
     expect(el.textContent).toContain("Jane Smith");
   });

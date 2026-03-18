@@ -6,7 +6,12 @@ import KeyboardShortcuts from "@/services/KeyboardShortcuts";
 
 import "./index.less";
 
-export default function Resizable({ toggleShortcut = null, direction = "horizontal", sizeAttribute = null, children = null }) {
+export default function Resizable({
+  toggleShortcut = null,
+  direction = "horizontal",
+  sizeAttribute = null,
+  children = null,
+}) {
   const [size, setSize] = useState(0);
   const elementRef = useRef();
   const wasUsingTouchEventsRef = useRef(false);
@@ -52,7 +57,7 @@ export default function Resizable({ toggleShortcut = null, direction = "horizont
   const resizeHandle = useMemo(
     () => (
       // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions
-      (<span
+      <span
         className={`react-resizable-handle react-resizable-handle-${direction}`}
         role="separator"
         onClick={() => {
@@ -70,7 +75,7 @@ export default function Resizable({ toggleShortcut = null, direction = "horizont
           wasUsingTouchEventsRef.current = false;
           wasResizedRef.current = false;
         }}
-      />)
+      />
     ),
     [direction, toggle]
   );
@@ -112,7 +117,7 @@ export default function Resizable({ toggleShortcut = null, direction = "horizont
 
   const draggableCoreOptions = useMemo(
     () => ({
-      onMouseDown: e => {
+      onMouseDown: (e) => {
         // In some cases this handler is executed twice during the same resize operation - first time
         // with `touchstart` event and second time with `mousedown` (probably emulated by browser).
         // Therefore we set the flag only when we receive `touchstart` because in ths case it's definitely
@@ -145,7 +150,8 @@ export default function Resizable({ toggleShortcut = null, direction = "horizont
       height={direction === "vertical" ? size : 0}
       minConstraints={[0, 0]}
       {...resizeEventHandlers}
-      draggableOpts={draggableCoreOptions}>
+      draggableOpts={draggableCoreOptions}
+    >
       {children}
     </ReactResizable>
   );

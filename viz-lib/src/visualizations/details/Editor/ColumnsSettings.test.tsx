@@ -34,7 +34,7 @@ function mount(options: any, done: any) {
       visualizationName="Details"
       data={data}
       options={options}
-      onOptionsChange={changedOptions => {
+      onOptionsChange={(changedOptions) => {
         expect(changedOptions).toMatchSnapshot();
         done();
       }}
@@ -44,20 +44,20 @@ function mount(options: any, done: any) {
 }
 
 describe("Visualizations -> Details -> Editor -> Columns Settings", () => {
-  test("Toggles column visibility", done => {
+  test("Toggles column visibility", (done) => {
     const el = mount({}, done);
 
     clickOption("Details.Column.id.Visibility");
   });
 
-  test("Changes column title", done => {
+  test("Changes column title", (done) => {
     const el = mount({}, done);
     clickOption("Details.Column.name.Name"); // expand settings
 
     fireEvent.change(findByTestID("Details.Column.name.Title").pop()!, { target: { value: "Full Name" } });
   });
 
-  test("Changes column alignment", done => {
+  test("Changes column alignment", (done) => {
     const el = mount({}, done);
     clickOption("Details.Column.id.Name"); // expand settings
 
@@ -65,14 +65,14 @@ describe("Visualizations -> Details -> Editor -> Columns Settings", () => {
     fireEvent.click(radio);
   });
 
-  test("Changes column description", done => {
+  test("Changes column description", (done) => {
     const el = mount({}, done);
     clickOption("Details.Column.name.Name"); // expand settings
 
     fireEvent.change(findByTestID("Details.Column.name.Description").pop()!, { target: { value: "User full name" } });
   });
 
-  test("Changes column display type", done => {
+  test("Changes column display type", (done) => {
     const el = mount({}, done);
     clickOption("Details.Column.created_at.Name"); // expand settings
 
@@ -81,7 +81,7 @@ describe("Visualizations -> Details -> Editor -> Columns Settings", () => {
     clickOption("Details.Column.created_at.DisplayAs.string");
   });
 
-  test("Hides multiple columns", done => {
+  test("Hides multiple columns", (done) => {
     const el = mount({}, done);
 
     clickOption("Details.Column.id.Visibility");

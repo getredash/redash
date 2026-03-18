@@ -24,8 +24,9 @@ export default function GeneralSettings({ options, data, visualizationName, onOp
           data-test="Counter.General.ValueColumn"
           defaultValue={options.counterColName}
           disabled={options.countRow}
-          onChange={(counterColName: any) => onOptionsChange({ counterColName })}>
-          {map(data.columns, col => (
+          onChange={(counterColName: any) => onOptionsChange({ counterColName })}
+        >
+          {map(data.columns, (col) => (
             // @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message
             <Select.Option key={col.name} data-test={"Counter.General.ValueColumn." + col.name}>
               {col.name}
@@ -52,10 +53,11 @@ export default function GeneralSettings({ options, data, visualizationName, onOp
           label="Target Value Column Name"
           data-test="Counter.General.TargetValueColumn"
           defaultValue={options.targetColName}
-          onChange={(targetColName: any) => onOptionsChange({ targetColName })}>
+          onChange={(targetColName: any) => onOptionsChange({ targetColName })}
+        >
           {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
           <Select.Option value="">No target value</Select.Option>
-          {map(data.columns, col => (
+          {map(data.columns, (col) => (
             // @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message
             <Select.Option key={col.name} data-test={"Counter.General.TargetValueColumn." + col.name}>
               {col.name}
@@ -80,7 +82,8 @@ export default function GeneralSettings({ options, data, visualizationName, onOp
           data-test="Counter.General.CountRows"
           // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
           defaultChecked={options.countRow}
-          onChange={(countRow: any) => onOptionsChange({ countRow })}>
+          onChange={(countRow: any) => onOptionsChange({ countRow })}
+        >
           Count Rows
         </Switch>
       </Section>

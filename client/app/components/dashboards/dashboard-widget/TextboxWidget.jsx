@@ -9,7 +9,7 @@ import Widget from "./Widget";
 function TextboxWidget(props) {
   props = {
     canEdit: false,
-    ...props
+    ...props,
   };
 
   const { widget, canEdit } = props;
@@ -18,16 +18,14 @@ function TextboxWidget(props) {
   const editTextBox = () => {
     TextboxDialog.showModal({
       text: widget.text,
-    }).onClose(newText => {
+    }).onClose((newText) => {
       widget.text = newText;
       setText(newText);
       return widget.save();
     });
   };
 
-  const TextboxMenuOptions = [
-    { key: "edit", label: "Edit", onClick: editTextBox },
-  ];
+  const TextboxMenuOptions = [{ key: "edit", label: "Edit", onClick: editTextBox }];
 
   if (!widget.width) {
     return null;

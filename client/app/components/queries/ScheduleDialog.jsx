@@ -78,7 +78,7 @@ class ScheduleDialog extends React.Component {
     const ret = {
       [IntervalEnum.NEVER]: [],
     };
-    this.props.refreshOptions.forEach(seconds => {
+    this.props.refreshOptions.forEach((seconds) => {
       const { count, interval } = secondsToInterval(seconds);
       if (!(interval in ret)) {
         ret[interval] = [];
@@ -92,20 +92,18 @@ class ScheduleDialog extends React.Component {
   }
 
   set newSchedule(newProps) {
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       newSchedule: Object.assign(prevState.newSchedule, newProps),
     }));
   }
 
-  setTime = time => {
+  setTime = (time) => {
     this.newSchedule = {
-      time: moment(time)
-        .utc()
-        .format(HOUR_FORMAT),
+      time: moment(time).utc().format(HOUR_FORMAT),
     };
   };
 
-  setInterval = newSeconds => {
+  setInterval = (newSeconds) => {
     const { newSchedule } = this.state;
     const { interval: newInterval } = secondsToInterval(newSeconds);
 
@@ -123,11 +121,7 @@ class ScheduleDialog extends React.Component {
       (newInterval === IntervalEnum.DAYS || newInterval === IntervalEnum.WEEKS) &&
       (!this.state.minute || !this.state.hour)
     ) {
-      newSchedule.time = moment()
-        .hour("00")
-        .minute("15")
-        .utc()
-        .format(HOUR_FORMAT);
+      newSchedule.time = moment().hour("00").minute("15").utc().format(HOUR_FORMAT);
     }
     if (newInterval === IntervalEnum.WEEKS && !this.state.dayOfWeek) {
       newSchedule.day_of_week = WEEKDAYS_FULL[0];
@@ -152,7 +146,7 @@ class ScheduleDialog extends React.Component {
     this.newSchedule = { until: date };
   };
 
-  setWeekday = e => {
+  setWeekday = (e) => {
     const dayOfWeek = e.target.value;
     this.setState({ dayOfWeek });
     this.newSchedule = {
@@ -160,7 +154,7 @@ class ScheduleDialog extends React.Component {
     };
   };
 
-  setUntilToggle = e => {
+  setUntilToggle = (e) => {
     const date = e.target.value ? moment().format(DATE_FORMAT) : null;
     this.setScheduleUntil(null, date);
   };
@@ -204,8 +198,8 @@ class ScheduleDialog extends React.Component {
                 Never
               </Option>
               {Object.keys(this.intervals)
-                .filter(int => !isEmpty(this.intervals[int]))
-                .map(int => (
+                .filter((int) => !isEmpty(this.intervals[int]))
+                .map((int) => (
                   <OptGroup label={capitalize(pluralize(int))} key={int}>
                     {this.intervals[int].map(([cnt, secs]) => (
                       <Option value={secs} key={`${int}-${cnt}`}>
@@ -221,16 +215,7 @@ class ScheduleDialog extends React.Component {
           <div className="schedule-component">
             <h5>On time</h5>
             <div data-testid="time">
-              <TimeEditor
-                defaultValue={
-                  hour
-                    ? moment()
-                        .hour(hour)
-                        .minute(minute)
-                    : null
-                }
-                onChange={this.setTime}
-              />
+              <TimeEditor defaultValue={hour ? moment().hour(hour).minute(minute) : null} onChange={this.setTime} />
             </div>
           </div>
         ) : null}
@@ -239,7 +224,7 @@ class ScheduleDialog extends React.Component {
             <h5>On day</h5>
             <div data-testid="weekday">
               <Radio.Group size="medium" defaultValue={this.state.dayOfWeek} onChange={this.setWeekday}>
-                {WEEKDAYS_SHORT.map(day => (
+                {WEEKDAYS_SHORT.map((day) => (
                   <Radio.Button value={day} key={day} className="input">
                     {day[0]}
                   </Radio.Button>

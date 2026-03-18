@@ -71,7 +71,8 @@ export default function ColumnEditor({
           <Checkbox
             data-test={`${dataTestPrefix}.UseForSearch`}
             defaultChecked={column.allowSearch}
-            onChange={event => handleChange({ allowSearch: event.target.checked })}>
+            onChange={(event) => handleChange({ allowSearch: event.target.checked })}
+          >
             Use for search
           </Checkbox>
         </Section>
@@ -87,13 +88,14 @@ export default function ColumnEditor({
         <Select
           label="Display as:"
           defaultValue={column.displayAs}
-          onChange={(displayAs: any) => handleChange({ displayAs })}>
+          onChange={(displayAs: any) => handleChange({ displayAs })}
+        >
           {map(ColumnTypes, ({ friendlyName }, key) => (
             // @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message
-            (<Select.Option key={key} data-test={`${dataTestPrefix}.DisplayAs.${key}`}>
+            <Select.Option key={key} data-test={`${dataTestPrefix}.DisplayAs.${key}`}>
               {friendlyName}
               {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
-            </Select.Option>)
+            </Select.Option>
           ))}
         </Select>
       </Section>

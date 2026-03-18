@@ -38,7 +38,8 @@ export class TagsControl extends React.Component {
       <PlainButton
         className="label label-tag hidden-xs"
         onClick={() => this.editTags(tags, this.props.getAvailableTags)}
-        data-test="EditTagsButton">
+        data-test="EditTagsButton"
+      >
         {tags.length === 0 && (
           <React.Fragment>
             <i className="zmdi zmdi-plus m-r-5" aria-hidden="true" />

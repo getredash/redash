@@ -14,7 +14,9 @@ function elementExists(testId: string) {
 
 function mount(options: any, data: any) {
   options = getOptions(options);
-  const { container } = render(<Editor visualizationName="Test" data={data} options={options} onOptionsChange={() => {}} />);
+  const { container } = render(
+    <Editor visualizationName="Test" data={data} options={options} onOptionsChange={() => {}} />
+  );
   return container;
 }
 

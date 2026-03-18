@@ -8,7 +8,10 @@ import { Moment } from "@/components/proptypes";
 const { RangePicker } = DatePicker;
 
 const DateTimeRangeInput = React.forwardRef(
-  ({ defaultValue = null, value = undefined, withSeconds = false, onSelect = () => {}, className = "", ...props }, ref) => {
+  (
+    { defaultValue = null, value = undefined, withSeconds = false, onSelect = () => {}, className = "", ...props },
+    ref
+  ) => {
     const format = (clientConfig.dateFormat || "YYYY-MM-DD") + (withSeconds ? " HH:mm:ss" : " HH:mm");
     const additionalAttributes = {};
     if (isArray(defaultValue) && defaultValue[0].isValid() && defaultValue[1].isValid()) {

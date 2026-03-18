@@ -46,7 +46,7 @@ class DynamicDatePicker extends React.Component {
     this.dateComponentRef = React.createRef();
   }
 
-  onDynamicValueSelect = dynamicValue => {
+  onDynamicValueSelect = (dynamicValue) => {
     const { onSelect, parameter } = this.props;
     if (dynamicValue === "static") {
       const parameterValue = parameter.getExecutionValue();

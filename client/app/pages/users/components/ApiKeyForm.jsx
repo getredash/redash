@@ -13,7 +13,7 @@ import { useUniqueId } from "@/lib/hooks/useUniqueId";
 export default function ApiKeyForm(props) {
   props = {
     onChange: () => {},
-    ...props
+    ...props,
   };
 
   const { user, onChange } = props;
@@ -26,7 +26,7 @@ export default function ApiKeyForm(props) {
     const doRegenerate = () => {
       setLoading(true);
       User.regenerateApiKey(user)
-        .then(apiKey => {
+        .then((apiKey) => {
           if (apiKey) {
             handleChange({ ...user, apiKey });
           }

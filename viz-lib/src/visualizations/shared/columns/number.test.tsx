@@ -17,7 +17,7 @@ function mount(column: any, done: any) {
       // @ts-expect-error ts-migrate(2322) FIXME: Type '{ visualizationName: string; column: any; on... Remove this comment to see the full error message
       visualizationName="Test"
       column={column}
-      onChange={changedColumn => {
+      onChange={(changedColumn) => {
         expect(changedColumn).toMatchSnapshot();
         done();
       }}
@@ -28,7 +28,7 @@ function mount(column: any, done: any) {
 
 describe("Visualizations -> Table -> Columns -> Number", () => {
   describe("Editor", () => {
-    test("Changes format", done => {
+    test("Changes format", (done) => {
       const el = mount(
         {
           name: "a",
@@ -37,7 +37,9 @@ describe("Visualizations -> Table -> Columns -> Number", () => {
         done
       );
 
-      fireEvent.change(getInput(findByTestID("Table.ColumnEditor.Number.Format").pop()!), { target: { value: "0.00%" } });
+      fireEvent.change(getInput(findByTestID("Table.ColumnEditor.Number.Format").pop()!), {
+        target: { value: "0.00%" },
+      });
     });
   });
 });

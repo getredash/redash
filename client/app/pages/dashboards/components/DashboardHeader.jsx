@@ -140,38 +140,51 @@ function DashboardMoreOptionsButton({ dashboardConfiguration }) {
     };
 
     return compact([
-    !gridDisabled && {
-      key: "edit",
-      label: "Edit",
-      onClick: () => setEditingLayout(true),
-    },
-    !isDuplicating && dashboard.canEdit() && {
-      key: "fork",
-      label: (
-        <span>
-          Fork <i className="fa fa-external-link m-l-5" aria-hidden="true" />
-          <span className="sr-only">(opens in a new tab)</span>
-        </span>
-      ),
-      onClick: duplicateDashboard,
-    },
-    clientConfig.showPermissionsControl && isDashboardOwnerOrAdmin && {
-      key: "permissions",
-      label: "Manage Permissions",
-      onClick: managePermissions,
-    },
-    !clientConfig.disablePublish && !dashboard.is_draft && {
-      key: "unpublish",
-      label: "Unpublish",
-      onClick: togglePublished,
-    },
-    {
-      key: "archive",
-      label: "Archive",
-      onClick: archive,
-    },
+      !gridDisabled && {
+        key: "edit",
+        label: "Edit",
+        onClick: () => setEditingLayout(true),
+      },
+      !isDuplicating &&
+        dashboard.canEdit() && {
+          key: "fork",
+          label: (
+            <span>
+              Fork <i className="fa fa-external-link m-l-5" aria-hidden="true" />
+              <span className="sr-only">(opens in a new tab)</span>
+            </span>
+          ),
+          onClick: duplicateDashboard,
+        },
+      clientConfig.showPermissionsControl &&
+        isDashboardOwnerOrAdmin && {
+          key: "permissions",
+          label: "Manage Permissions",
+          onClick: managePermissions,
+        },
+      !clientConfig.disablePublish &&
+        !dashboard.is_draft && {
+          key: "unpublish",
+          label: "Unpublish",
+          onClick: togglePublished,
+        },
+      {
+        key: "archive",
+        label: "Archive",
+        onClick: archive,
+      },
+    ]);
+  }, [
+    gridDisabled,
+    setEditingLayout,
+    isDuplicating,
+    dashboard,
+    duplicateDashboard,
+    isDashboardOwnerOrAdmin,
+    managePermissions,
+    togglePublished,
+    archiveDashboard,
   ]);
-  }, [gridDisabled, setEditingLayout, isDuplicating, dashboard, duplicateDashboard, isDashboardOwnerOrAdmin, managePermissions, togglePublished, archiveDashboard]);
 
   return (
     <Dropdown

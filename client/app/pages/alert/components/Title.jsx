@@ -16,13 +16,13 @@ export default function Title({ alert, editMode = false, name = null, onChange =
           {editMode && alert.query ? (
             // BUG: Input is not the same width as the container
             // TODO: consider adding a label (not obvious for sighted users)
-            (<Input
+            <Input
               className="f-inherit"
               placeholder={defaultName}
               value={name}
               aria-label="Alert title"
-              onChange={e => onChange(e.target.value)}
-            />)
+              onChange={(e) => onChange(e.target.value)}
+            />
           ) : (
             name || defaultName
           )}

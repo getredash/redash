@@ -84,10 +84,7 @@ function formatStageTitle(options: any, index: any) {
 function formatTimeLabel(options: any, offset: any) {
   // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
   const interval = momentInterval[options.timeInterval];
-  return options.initialDate
-    .clone()
-    .add(offset, interval)
-    .format(options.timeLabelFormat);
+  return options.initialDate.clone().add(offset, interval).format(options.timeLabelFormat);
 }
 
 function CorneliusHeader({ options, maxRowLength }: any) {
@@ -206,7 +203,7 @@ export default function Cornelius({ data: data = [], options: options = {} }: Co
   const maxRowLength = useMemo(
     () =>
       min([
-        max(map(data, d => d.length)) || 0,
+        max(map(data, (d) => d.length)) || 0,
         // @ts-expect-error ts-migrate(2532) FIXME: Object is possibly 'undefined'.
         options.maxColumns + 1, // each row includes totals, but `maxColumns` is only for stage columns
       ]),

@@ -201,11 +201,11 @@ describe("ScheduleDialog", () => {
 
       // Check available options in the dropdown
       const options = document.body.querySelectorAll(".ant-select-item-option-content");
-      const optionTexts = Array.from(options).map(el => el.textContent);
+      const optionTexts = Array.from(options).map((el) => el.textContent);
 
       // Should contain at least the expected options
       const expected = ["Never", "1 minute", "5 minutes", "1 hour", "2 hours"];
-      expected.forEach(text => {
+      expected.forEach((text) => {
         expect(optionTexts).toContain(text);
       });
     });
@@ -230,7 +230,7 @@ describe("ScheduleDialog", () => {
         fireEvent.mouseDown(selector);
         // Select "5 minutes" option
         const options = document.body.querySelectorAll(".ant-select-item-option");
-        const fiveMinOption = Array.from(options).find(el => el.textContent.includes("5 minutes"));
+        const fiveMinOption = Array.from(options).find((el) => el.textContent.includes("5 minutes"));
         if (fiveMinOption) {
           fireEvent.click(fiveMinOption);
         }

@@ -21,7 +21,7 @@ function QueryLink({ query, visualization = null, readOnly = false }) {
     return query.getUrl(false, hash);
   };
 
-  const QueryLinkWrapper = props => (readOnly ? <span {...props} /> : <Link href={getUrl()} {...props} />);
+  const QueryLinkWrapper = (props) => (readOnly ? <span {...props} /> : <Link href={getUrl()} {...props} />);
 
   return (
     <QueryLinkWrapper className="query-link">

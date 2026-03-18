@@ -26,7 +26,7 @@ export default function ColumnsSettings({ options, onOptionsChange, variant }: C
     if (event) {
       event.stopPropagation();
     }
-    const columns = map(options.columns, c => (c.name === newColumn.name ? newColumn : c));
+    const columns = map(options.columns, (c) => (c.name === newColumn.name ? newColumn : c));
     onOptionsChange({ columns });
   }
 
@@ -51,7 +51,8 @@ export default function ColumnsSettings({ options, onOptionsChange, variant }: C
       onSortEnd={handleColumnsReorder}
       containerProps={{
         className: containerClass,
-      }}>
+      }}
+    >
       <Collapse bordered={false} defaultActiveKey={[]} expandIconPosition="right">
         {map(options.columns, (column, index) => (
           <SortableItem
@@ -76,17 +77,22 @@ export default function ColumnsSettings({ options, onOptionsChange, variant }: C
                 {column.visible ? (
                   <EyeOutlinedIcon
                     data-test={`${testPrefix}.Column.${column.name}.Visibility`}
-                    onClick={event => handleColumnChange({ ...column, visible: !column.visible }, event)}
+                    onClick={(event) => handleColumnChange({ ...column, visible: !column.visible }, event)}
                   />
                 ) : (
                   <EyeInvisibleOutlinedIcon
                     data-test={`${testPrefix}.Column.${column.name}.Visibility`}
-                    onClick={event => handleColumnChange({ ...column, visible: !column.visible }, event)}
+                    onClick={(event) => handleColumnChange({ ...column, visible: !column.visible }, event)}
                   />
                 )}
               </Tooltip>
-            }>
-            <ColumnEditor column={column} variant={variant} onChange={(changes) => handleColumnChange(changes, undefined)} />
+            }
+          >
+            <ColumnEditor
+              column={column}
+              variant={variant}
+              onChange={(changes) => handleColumnChange(changes, undefined)}
+            />
           </SortableItem>
         ))}
       </Collapse>

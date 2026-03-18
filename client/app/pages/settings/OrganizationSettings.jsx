@@ -57,6 +57,6 @@ routes.register(
   routeWithUserSession({
     path: "/settings/general",
     title: "General Settings",
-    render: pageProps => <OrganizationSettingsPage {...pageProps} />,
+    render: (pageProps) => <OrganizationSettingsPage {...pageProps} />,
   })
 );

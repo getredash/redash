@@ -10,7 +10,7 @@ import { absoluteUrl } from "@/services/utils";
 export default function PasswordLinkAlert(props) {
   props = {
     passwordLink: null,
-    ...props
+    ...props,
   };
 
   const { user, passwordLink, ...restProps } = props;

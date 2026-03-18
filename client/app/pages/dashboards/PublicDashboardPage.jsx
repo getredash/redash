@@ -20,9 +20,8 @@ import useDashboard from "./hooks/useDashboard";
 import "./PublicDashboardPage.less";
 
 function PublicDashboard({ dashboard }) {
-  const { globalParameters, filters, setFilters, refreshDashboard, loadWidget, refreshWidget } = useDashboard(
-    dashboard
-  );
+  const { globalParameters, filters, setFilters, refreshDashboard, loadWidget, refreshWidget } =
+    useDashboard(dashboard);
 
   return (
     <div className="container p-t-10 p-b-20">
@@ -73,8 +72,8 @@ class PublicDashboardPage extends React.Component {
 
   componentDidMount() {
     Dashboard.getByToken({ token: this.props.token })
-      .then(dashboard => this.setState({ dashboard, loading: false }))
-      .catch(error => this.props.onError(error));
+      .then((dashboard) => this.setState({ dashboard, loading: false }))
+      .catch((error) => this.props.onError(error));
   }
 
   render() {
@@ -105,7 +104,7 @@ routes.register(
   "Dashboards.ViewShared",
   routeWithApiKeySession({
     path: "/public/dashboards/:token",
-    render: pageProps => <PublicDashboardPage {...pageProps} />,
-    getApiKey: currentRoute => currentRoute.routeParams.token,
+    render: (pageProps) => <PublicDashboardPage {...pageProps} />,
+    getApiKey: (currentRoute) => currentRoute.routeParams.token,
   })
 );

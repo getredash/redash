@@ -12,15 +12,7 @@ import organizationStatus from "@/services/organizationStatus";
 
 import "./empty-state.less";
 
-export function Step({
-  show,
-  completed,
-  text = null,
-  url = null,
-  urlText = null,
-  onClick = null,
-  urlTarget = null
-}) {
+export function Step({ show, completed, text = null, url = null, urlText = null, onClick = null, urlTarget = null }) {
   if (!show) {
     return null;
   }

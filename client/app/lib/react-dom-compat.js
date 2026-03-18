@@ -15,13 +15,17 @@ const ReactDOM = require("react-dom-real");
 const mod = Object.assign({}, ReactDOM);
 
 Object.defineProperty(mod, "createRoot", {
-  get() { return require("react-dom/client").createRoot; },
+  get() {
+    return require("react-dom/client").createRoot;
+  },
   enumerable: true,
   configurable: true,
 });
 
 Object.defineProperty(mod, "hydrateRoot", {
-  get() { return require("react-dom/client").hydrateRoot; },
+  get() {
+    return require("react-dom/client").hydrateRoot;
+  },
   enumerable: true,
   configurable: true,
 });

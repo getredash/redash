@@ -269,7 +269,7 @@ export default function HelpTrigger(props) {
     showTooltip: true,
     renderAsLink: false,
     children: <i className="fa fa-question-circle" aria-hidden="true" />,
-    ...props
+    ...props,
   };
 
   return <DynamicComponent {...props} name="HelpTrigger" />;

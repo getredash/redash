@@ -31,7 +31,7 @@ function getTableColumns(options: any, updateSeriesOption: any, debouncedUpdateS
           data-test={`Chart.Series.${item.key}.Label`}
           placeholder={item.key}
           defaultValue={item.name}
-          onChange={event => debouncedUpdateSeriesOption(item.key, "name", event.target.value)}
+          onChange={(event) => debouncedUpdateSeriesOption(item.key, "name", event.target.value)}
         />
       ),
     },
@@ -46,7 +46,8 @@ function getTableColumns(options: any, updateSeriesOption: any, debouncedUpdateS
           <Radio.Group
             className="series-settings-y-axis"
             value={item.yAxis === 1 ? 1 : 0}
-            onChange={event => updateSeriesOption(item.key, "yAxis", event.target.value)}>
+            onChange={(event) => updateSeriesOption(item.key, "yAxis", event.target.value)}
+          >
             <Radio value={0} data-test={`Chart.Series.${item.key}.UseLeftAxis`}>
               left
             </Radio>
@@ -112,11 +113,10 @@ export default function SeriesSettings({ options, data, onOptionsChange }: any) 
   );
   const [debouncedUpdateSeriesOption] = useDebouncedCallback(updateSeriesOption, 200);
 
-  const columns = useMemo(() => getTableColumns(options, updateSeriesOption, debouncedUpdateSeriesOption), [
-    options,
-    updateSeriesOption,
-    debouncedUpdateSeriesOption,
-  ]);
+  const columns = useMemo(
+    () => getTableColumns(options, updateSeriesOption, debouncedUpdateSeriesOption),
+    [options, updateSeriesOption, debouncedUpdateSeriesOption]
+  );
 
   const items = useMemo(() => series.map((item: any) => item.key), [series]);
 
@@ -132,7 +132,8 @@ export default function SeriesSettings({ options, data, onOptionsChange }: any) 
       onSortEnd={handleSortEnd}
       containerProps={{
         className: "chart-editor-series",
-      }}>
+      }}
+    >
       <Table
         dataSource={series}
         columns={columns}

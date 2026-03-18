@@ -134,7 +134,7 @@ export function SortableContainer({
       return itemsProp;
     }
     return React.Children.toArray(children)
-      .map(child => (React.isValidElement(child) ? (child.props as any).id : null))
+      .map((child) => (React.isValidElement(child) ? (child.props as any).id : null))
       .filter(Boolean) as UniqueIdentifier[];
   }, [itemsProp, children]);
 
@@ -199,11 +199,7 @@ export function SortableContainer({
   const ContainerComponent: any = containerComponent || "div";
   const resolvedContainerProps = {
     ...containerProps,
-    className: cx(
-      "sortable-container",
-      { "sortable-container-dragging": isDragging },
-      containerProps?.className
-    ),
+    className: cx("sortable-container", { "sortable-container-dragging": isDragging }, containerProps?.className),
   };
 
   return (
@@ -213,10 +209,12 @@ export function SortableContainer({
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
         onDragCancel={handleDragCancel}
-        modifiers={modifiers}>
+        modifiers={modifiers}
+      >
         <SortableContext items={items} strategy={strategy}>
           <SortableContainerContext.Provider
-            value={{ useDragHandle: Boolean(useDragHandle), activeId, helperClass, disabled: Boolean(disabled) }}>
+            value={{ useDragHandle: Boolean(useDragHandle), activeId, helperClass, disabled: Boolean(disabled) }}
+          >
             <ContainerComponent {...resolvedContainerProps}>{children}</ContainerComponent>
           </SortableContainerContext.Provider>
         </SortableContext>

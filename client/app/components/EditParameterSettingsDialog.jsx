@@ -71,7 +71,7 @@ NameInput.propTypes = {
 function EditParameterSettingsDialog(props) {
   props = {
     existingParams: [],
-    ...props
+    ...props,
   };
 
   const [param, setParam] = useState(clone(props.parameter));

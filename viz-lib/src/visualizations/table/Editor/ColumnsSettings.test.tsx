@@ -34,7 +34,7 @@ function mount(options: any, done: any) {
       visualizationName="Test"
       data={data}
       options={options}
-      onOptionsChange={changedOptions => {
+      onOptionsChange={(changedOptions) => {
         expect(changedOptions).toMatchSnapshot();
         done();
       }}
@@ -44,20 +44,20 @@ function mount(options: any, done: any) {
 }
 
 describe("Visualizations -> Table -> Editor -> Columns Settings", () => {
-  test("Toggles column visibility", done => {
+  test("Toggles column visibility", (done) => {
     const el = mount({}, done);
 
     clickOption("Table.Column.a.Visibility");
   });
 
-  test("Changes column title", done => {
+  test("Changes column title", (done) => {
     const el = mount({}, done);
     clickOption("Table.Column.a.Name"); // expand settings
 
     fireEvent.change(findByTestID("Table.Column.a.Title").pop()!, { target: { value: "test" } });
   });
 
-  test("Changes column alignment", done => {
+  test("Changes column alignment", (done) => {
     const el = mount({}, done);
     clickOption("Table.Column.a.Name"); // expand settings
 
@@ -65,7 +65,7 @@ describe("Visualizations -> Table -> Editor -> Columns Settings", () => {
     fireEvent.click(radio);
   });
 
-  test("Enables search by column data", done => {
+  test("Enables search by column data", (done) => {
     const el = mount({}, done);
     clickOption("Table.Column.a.Name"); // expand settings
 
@@ -74,7 +74,7 @@ describe("Visualizations -> Table -> Editor -> Columns Settings", () => {
     fireEvent.click(cbInput);
   });
 
-  test("Changes column display type", done => {
+  test("Changes column display type", (done) => {
     const el = mount({}, done);
     clickOption("Table.Column.a.Name"); // expand settings
 

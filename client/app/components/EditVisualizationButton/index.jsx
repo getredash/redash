@@ -6,14 +6,15 @@ import FormOutlinedIcon from "@ant-design/icons/FormOutlined";
 export default function EditVisualizationButton(props) {
   props = {
     selectedTab: "",
-    ...props
+    ...props,
   };
 
   return (
     <Button
       data-test="EditVisualization"
       className="edit-visualization"
-      onClick={() => props.openVisualizationEditor(props.selectedTab)}>
+      onClick={() => props.openVisualizationEditor(props.selectedTab)}
+    >
       <FormOutlinedIcon />
       <span className="hidden-xs hidden-s hidden-m">Edit Visualization</span>
     </Button>

@@ -34,7 +34,7 @@ function mount(options: any, done: any) {
       visualizationName="Test"
       data={{ columns: [], rows: [] }}
       options={options}
-      onOptionsChange={changedOptions => {
+      onOptionsChange={(changedOptions) => {
         expect(changedOptions).toMatchSnapshot();
         done();
       }}
@@ -44,7 +44,7 @@ function mount(options: any, done: any) {
 }
 
 describe("Visualizations -> Chart -> Editor -> Y-Axis Settings", () => {
-  test("Changes axis type", done => {
+  test("Changes axis type", (done) => {
     const el = mount(
       {
         globalSeriesType: "column",
@@ -57,7 +57,7 @@ describe("Visualizations -> Chart -> Editor -> Y-Axis Settings", () => {
     clickOption("Chart.LeftYAxis.Type.Category");
   });
 
-  test("Changes axis name", done => {
+  test("Changes axis name", (done) => {
     const el = mount(
       {
         globalSeriesType: "column",
@@ -69,7 +69,7 @@ describe("Visualizations -> Chart -> Editor -> Y-Axis Settings", () => {
     fireEvent.change(findByTestID("Chart.LeftYAxis.Name").pop()!, { target: { value: "test" } });
   });
 
-  test("Changes axis tick format", done => {
+  test("Changes axis tick format", (done) => {
     const el = mount(
       {
         globalSeriesType: "column",
@@ -81,7 +81,7 @@ describe("Visualizations -> Chart -> Editor -> Y-Axis Settings", () => {
     fireEvent.change(findByTestID("Chart.LeftYAxis.TickFormat").pop()!, { target: { value: "s" } });
   });
 
-  test("Changes axis min value", done => {
+  test("Changes axis min value", (done) => {
     const el = mount(
       {
         globalSeriesType: "column",
@@ -93,7 +93,7 @@ describe("Visualizations -> Chart -> Editor -> Y-Axis Settings", () => {
     fireEvent.change(getInput(findByTestID("Chart.LeftYAxis.RangeMin").pop()!), { target: { value: "50" } });
   });
 
-  test("Changes axis max value", done => {
+  test("Changes axis max value", (done) => {
     const el = mount(
       {
         globalSeriesType: "column",
@@ -128,7 +128,7 @@ describe("Visualizations -> Chart -> Editor -> Y-Axis Settings", () => {
       expect(elementExists("Chart.RightYAxis.Type")).toBeFalsy();
     });
 
-    test("Sets Sort X Values option", done => {
+    test("Sets Sort X Values option", (done) => {
       const el = mount(
         {
           globalSeriesType: "heatmap",
@@ -140,7 +140,7 @@ describe("Visualizations -> Chart -> Editor -> Y-Axis Settings", () => {
       clickOption("Chart.LeftYAxis.Sort");
     });
 
-    test("Sets Reverse Y Values option", done => {
+    test("Sets Reverse Y Values option", (done) => {
       const el = mount(
         {
           globalSeriesType: "heatmap",

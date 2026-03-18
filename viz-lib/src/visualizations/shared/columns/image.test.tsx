@@ -17,7 +17,7 @@ function mount(column: any, done: any) {
       // @ts-expect-error ts-migrate(2322) FIXME: Type '{ visualizationName: string; column: any; on... Remove this comment to see the full error message
       visualizationName="Test"
       column={column}
-      onChange={changedColumn => {
+      onChange={(changedColumn) => {
         expect(changedColumn).toMatchSnapshot();
         done();
       }}
@@ -28,7 +28,7 @@ function mount(column: any, done: any) {
 
 describe("Visualizations -> Table -> Columns -> Image", () => {
   describe("Editor", () => {
-    test("Changes URL template", done => {
+    test("Changes URL template", (done) => {
       const el = mount(
         {
           name: "a",
@@ -37,10 +37,12 @@ describe("Visualizations -> Table -> Columns -> Image", () => {
         done
       );
 
-      fireEvent.change(getInput(findByTestID("Table.ColumnEditor.Image.UrlTemplate").pop()!), { target: { value: "http://{{ @ }}.jpeg" } });
+      fireEvent.change(getInput(findByTestID("Table.ColumnEditor.Image.UrlTemplate").pop()!), {
+        target: { value: "http://{{ @ }}.jpeg" },
+      });
     });
 
-    test("Changes width", done => {
+    test("Changes width", (done) => {
       const el = mount(
         {
           name: "a",
@@ -52,7 +54,7 @@ describe("Visualizations -> Table -> Columns -> Image", () => {
       fireEvent.change(getInput(findByTestID("Table.ColumnEditor.Image.Width").pop()!), { target: { value: "400" } });
     });
 
-    test("Changes height", done => {
+    test("Changes height", (done) => {
       const el = mount(
         {
           name: "a",
@@ -64,7 +66,7 @@ describe("Visualizations -> Table -> Columns -> Image", () => {
       fireEvent.change(getInput(findByTestID("Table.ColumnEditor.Image.Height").pop()!), { target: { value: "300" } });
     });
 
-    test("Changes title template", done => {
+    test("Changes title template", (done) => {
       const el = mount(
         {
           name: "a",
@@ -73,7 +75,9 @@ describe("Visualizations -> Table -> Columns -> Image", () => {
         done
       );
 
-      fireEvent.change(getInput(findByTestID("Table.ColumnEditor.Image.TitleTemplate").pop()!), { target: { value: "Image {{ @ }}" } });
+      fireEvent.change(getInput(findByTestID("Table.ColumnEditor.Image.TitleTemplate").pop()!), {
+        target: { value: "Image {{ @ }}" },
+      });
     });
   });
 });

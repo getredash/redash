@@ -39,14 +39,14 @@ export default function AxisSettings({ id, options, features: features = {}, onC
     onChange(merge({}, options, newOptions));
   }
 
-  const [handleNameChange] = useDebouncedCallback(text => {
+  const [handleNameChange] = useDebouncedCallback((text) => {
     const title = isString(text) && text !== "" ? { text } : null;
     optionsChanged({ title });
   }, 200);
 
-  const [handleMinMaxChange] = useDebouncedCallback(opts => optionsChanged(opts), 200);
+  const [handleMinMaxChange] = useDebouncedCallback((opts) => optionsChanged(opts), 200);
 
-  const [handleTickFormatChange] = useDebouncedCallback(opts => optionsChanged(opts), 200);
+  const [handleTickFormatChange] = useDebouncedCallback((opts) => optionsChanged(opts), 200);
 
   return (
     <React.Fragment>
@@ -55,12 +55,14 @@ export default function AxisSettings({ id, options, features: features = {}, onC
           label="Scale"
           data-test={`Chart.${id}.Type`}
           defaultValue={options.type}
-          onChange={(type: any) => optionsChanged({ type })}>
+          onChange={(type: any) => optionsChanged({ type })}
+        >
           {features.autoDetectType && (
             // @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message
-            (<Select.Option value="-" data-test={`Chart.${id}.Type.Auto`}>Auto Detect
-                            {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
-            </Select.Option>)
+            <Select.Option value="-" data-test={`Chart.${id}.Type.Auto`}>
+              Auto Detect
+              {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
+            </Select.Option>
           )}
           {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
           <Select.Option value="datetime" data-test={`Chart.${id}.Type.DateTime`}>
@@ -106,7 +108,7 @@ export default function AxisSettings({ id, options, features: features = {}, onC
         />
       </Section>
       {features.range && (
-        (<Section>
+        <Section>
           {/* @ts-expect-error ts-migrate(2322) FIXME: Type '{ children: Element[]; gutter: number; type:... Remove this comment to see the full error message */}
           <Grid.Row gutter={15} type="flex" align="middle">
             <Grid.Col span={12}>
@@ -128,7 +130,7 @@ export default function AxisSettings({ id, options, features: features = {}, onC
               />
             </Grid.Col>
           </Grid.Row>
-        </Section>)
+        </Section>
       )}
     </React.Fragment>
   );

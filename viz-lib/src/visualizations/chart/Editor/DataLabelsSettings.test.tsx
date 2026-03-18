@@ -19,7 +19,7 @@ function mount(options: any, done: any) {
       visualizationName="Test"
       data={{ columns: [], rows: [] }}
       options={options}
-      onOptionsChange={changedOptions => {
+      onOptionsChange={(changedOptions) => {
         expect(changedOptions).toMatchSnapshot();
         done();
       }}
@@ -29,7 +29,7 @@ function mount(options: any, done: any) {
 }
 
 describe("Visualizations -> Chart -> Editor -> Data Labels Settings", () => {
-  test("Sets Show Data Labels option", done => {
+  test("Sets Show Data Labels option", (done) => {
     const el = mount(
       {
         globalSeriesType: "column",
@@ -41,7 +41,7 @@ describe("Visualizations -> Chart -> Editor -> Data Labels Settings", () => {
     fireEvent.click(getInput(findByTestID("Chart.DataLabels.ShowDataLabels").pop()!));
   });
 
-  test("Changes number format", done => {
+  test("Changes number format", (done) => {
     const el = mount(
       {
         globalSeriesType: "column",
@@ -53,7 +53,7 @@ describe("Visualizations -> Chart -> Editor -> Data Labels Settings", () => {
     fireEvent.change(findByTestID("Chart.DataLabels.NumberFormat").pop()!, { target: { value: "0.00" } });
   });
 
-  test("Changes percent values format", done => {
+  test("Changes percent values format", (done) => {
     const el = mount(
       {
         globalSeriesType: "column",
@@ -65,7 +65,7 @@ describe("Visualizations -> Chart -> Editor -> Data Labels Settings", () => {
     fireEvent.change(findByTestID("Chart.DataLabels.PercentFormat").pop()!, { target: { value: "0.0%" } });
   });
 
-  test("Changes date/time format", done => {
+  test("Changes date/time format", (done) => {
     const el = mount(
       {
         globalSeriesType: "column",
@@ -77,7 +77,7 @@ describe("Visualizations -> Chart -> Editor -> Data Labels Settings", () => {
     fireEvent.change(findByTestID("Chart.DataLabels.DateTimeFormat").pop()!, { target: { value: "YYYY MMM DD" } });
   });
 
-  test("Changes data labels format", done => {
+  test("Changes data labels format", (done) => {
     const el = mount(
       {
         globalSeriesType: "column",
@@ -86,6 +86,8 @@ describe("Visualizations -> Chart -> Editor -> Data Labels Settings", () => {
       done
     );
 
-    fireEvent.change(getInput(findByTestID("Chart.DataLabels.TextFormat").pop()!), { target: { value: "{{ @@x }} :: {{ @@y }} / {{ @@yPercent }}" } });
+    fireEvent.change(getInput(findByTestID("Chart.DataLabels.TextFormat").pop()!), {
+      target: { value: "{{ @@x }} :: {{ @@y }} / {{ @@yPercent }}" },
+    });
   });
 });

@@ -19,7 +19,8 @@ export default function XAxisSettings({ options, onOptionsChange }: any) {
           data-test="Chart.XAxis.Sort"
           // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
           defaultChecked={options.sortX}
-          onChange={(sortX: any) => onOptionsChange({ sortX })}>
+          onChange={(sortX: any) => onOptionsChange({ sortX })}
+        >
           Sort Values
         </Switch>
       </Section>
@@ -29,7 +30,8 @@ export default function XAxisSettings({ options, onOptionsChange }: any) {
           data-test="Chart.XAxis.Reverse"
           // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
           defaultChecked={options.reverseX}
-          onChange={(reverseX: any) => onOptionsChange({ reverseX })}>
+          onChange={(reverseX: any) => onOptionsChange({ reverseX })}
+        >
           Reverse Order
         </Switch>
       </Section>
@@ -39,7 +41,8 @@ export default function XAxisSettings({ options, onOptionsChange }: any) {
           data-test="Chart.XAxis.ShowLabels"
           // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
           defaultChecked={options.xAxis.labels.enabled}
-          onChange={(enabled: any) => onOptionsChange({ xAxis: { labels: { enabled } } })}>
+          onChange={(enabled: any) => onOptionsChange({ xAxis: { labels: { enabled } } })}
+        >
           Show Labels
         </Switch>
       </Section>

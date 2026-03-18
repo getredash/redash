@@ -15,18 +15,25 @@ import "./DynamicButton.less";
 
 const { Text } = Typography;
 
-function DynamicButton({ options = [], selectedDynamicValue = null, onSelect = () => {}, enabled = false, staticValueLabel = "Back to Static Value" }) {
+function DynamicButton({
+  options = [],
+  selectedDynamicValue = null,
+  onSelect = () => {},
+  enabled = false,
+  staticValueLabel = "Back to Static Value",
+}) {
   const menu = (
     <Menu
       className="dynamic-menu"
       onClick={({ key }) => onSelect(get(options, key, "static"))}
       selectedKeys={[`${findIndex(options, { value: selectedDynamicValue })}`]}
-      data-test="DynamicButtonMenu">
+      data-test="DynamicButtonMenu"
+    >
       {options.map((option, index) => (
         // eslint-disable-next-line react/no-array-index-key
-        (<Menu.Item key={index}>
+        <Menu.Item key={index}>
           {option.name} {option.label && <em>{isFunction(option.label) ? option.label() : option.label}</em>}
-        </Menu.Item>)
+        </Menu.Item>
       ))}
       {enabled && <Menu.Divider />}
       {enabled && (
@@ -42,7 +49,7 @@ function DynamicButton({ options = [], selectedDynamicValue = null, onSelect = (
 
   return (
     <div ref={containerRef}>
-      <div role="presentation" onClick={e => e.stopPropagation()}>
+      <div role="presentation" onClick={(e) => e.stopPropagation()}>
         <Dropdown.Button
           overlay={menu}
           className="dynamic-button"

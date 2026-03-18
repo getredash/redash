@@ -26,7 +26,8 @@ export default function FormatSettings({ options, onOptionsChange }: any) {
         <Checkbox
           data-test="Map.Editor.TooltipEnabled"
           checked={options.tooltip.enabled}
-          onChange={event => onOptionsChange({ tooltip: { enabled: event.target.checked } })}>
+          onChange={(event) => onOptionsChange({ tooltip: { enabled: event.target.checked } })}
+        >
           Show tooltip
         </Checkbox>
       </Section>
@@ -46,7 +47,8 @@ export default function FormatSettings({ options, onOptionsChange }: any) {
         <Checkbox
           data-test="Map.Editor.PopupEnabled"
           checked={options.popup.enabled}
-          onChange={event => onOptionsChange({ popup: { enabled: event.target.checked } })}>
+          onChange={(event) => onOptionsChange({ popup: { enabled: event.target.checked } })}
+        >
           Show popup
         </Checkbox>
       </Section>

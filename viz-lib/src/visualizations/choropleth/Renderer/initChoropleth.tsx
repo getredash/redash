@@ -127,7 +127,7 @@ export default function initChoropleth(container: any, onBoundsChange: any) {
       _legendRoot.unmount();
       _legendRoot = null;
     }
-    _map.eachLayer(layer => _map.removeLayer(layer));
+    _map.eachLayer((layer) => _map.removeLayer(layer));
     _map.removeControl(_legend);
 
     // @ts-expect-error ts-migrate(2339) FIXME: Property 'features' does not exist on type 'object... Remove this comment to see the full error message
@@ -166,7 +166,7 @@ export default function initChoropleth(container: any, onBoundsChange: any) {
       }
       _legendRoot.render(
         <Legend
-          items={map(legend, item => ({ ...item, text: formatValue(item.limit) }))}
+          items={map(legend, (item) => ({ ...item, text: formatValue(item.limit) }))}
           alignText={options.legend.alignText}
         />
       );

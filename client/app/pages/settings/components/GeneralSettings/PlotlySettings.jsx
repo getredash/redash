@@ -18,7 +18,8 @@ export default function PlotlySettings(props) {
           <Checkbox
             name="hide_plotly_mode_bar"
             checked={values.hide_plotly_mode_bar}
-            onChange={e => onChange({ hide_plotly_mode_bar: e.target.checked })}>
+            onChange={(e) => onChange({ hide_plotly_mode_bar: e.target.checked })}
+          >
             Hide Plotly mode bar
           </Checkbox>
         )}
@@ -28,4 +29,3 @@ export default function PlotlySettings(props) {
 }
 
 PlotlySettings.propTypes = SettingsEditorPropTypes;
-

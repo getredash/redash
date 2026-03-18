@@ -48,7 +48,7 @@ function mount(options: any, done: any) {
 
 describe("Visualizations -> Chart -> Editor -> Colors Settings", () => {
   describe("for pie", () => {
-    test("Changes series color", done => {
+    test("Changes series color", (done) => {
       const el = mount(
         {
           globalSeriesType: "pie",
@@ -65,7 +65,7 @@ describe("Visualizations -> Chart -> Editor -> Colors Settings", () => {
   });
 
   describe("for heatmap", () => {
-    test("Changes color scheme", done => {
+    test("Changes color scheme", (done) => {
       const el = mount(
         {
           globalSeriesType: "heatmap",
@@ -75,10 +75,10 @@ describe("Visualizations -> Chart -> Editor -> Colors Settings", () => {
       );
 
       openSelect("Chart.Colors.Heatmap.ColorScheme");
-    clickOption("Chart.Colors.Heatmap.ColorScheme.Blues");
+      clickOption("Chart.Colors.Heatmap.ColorScheme.Blues");
     });
 
-    test("Sets custom color scheme", done => {
+    test("Sets custom color scheme", (done) => {
       const el = mount(
         {
           globalSeriesType: "heatmap",
@@ -89,7 +89,7 @@ describe("Visualizations -> Chart -> Editor -> Colors Settings", () => {
       ); // we will perform 2 actions, so call `done` after all of them completed
 
       // ColorPicker doesn't render data-test to DOM, find by MinColor/MaxColor wrapper
-      const colorPickers = document.body.querySelectorAll('.color-picker-trigger');
+      const colorPickers = document.body.querySelectorAll(".color-picker-trigger");
       // MinColor picker is first, MaxColor is second
       fireEvent.click(colorPickers[0]);
       fireEvent.change(getInput(findByTestID("ColorPicker").pop()!), { target: { value: "yellow" } });
@@ -100,7 +100,7 @@ describe("Visualizations -> Chart -> Editor -> Colors Settings", () => {
   });
 
   describe("for all except of pie and heatmap", () => {
-    test("Changes series color", done => {
+    test("Changes series color", (done) => {
       const el = mount(
         {
           globalSeriesType: "column",

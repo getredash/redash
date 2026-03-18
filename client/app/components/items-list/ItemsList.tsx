@@ -99,7 +99,7 @@ export interface ItemsListWrappedComponentProps<I, P = any> {
 export function wrap<I, P = any>(
   WrappedComponent: React.ComponentType<ItemsListWrappedComponentProps<I>>,
   createItemsSource: () => ItemsSource,
-  createStateStorage: ( { ...props }) => StateStorage
+  createStateStorage: ({ ...props }) => StateStorage
 ) {
   class ItemsListWrapper extends React.Component<ItemsListWrapperProps, ItemsListWrapperState<I, P>> {
     private _itemsSource: ItemsSource;
@@ -145,7 +145,8 @@ export function wrap<I, P = any>(
         this.props.onError!(error);
 
       const initialState = this.getState({ ...itemsSource.getState(), isLoaded: false });
-      const { updatePagination, toggleSorting, setSorting, updateSearch, updateSelectedTags, update, handleError } = itemsSource;
+      const { updatePagination, toggleSorting, setSorting, updateSearch, updateSelectedTags, update, handleError } =
+        itemsSource;
 
       let isRunningUpdateSearch = false;
       let pendingUpdateSearchParams: any[] | null = null;

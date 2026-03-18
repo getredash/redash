@@ -2,7 +2,13 @@ import React from "react";
 import PropTypes from "prop-types";
 import sanitize from "@/services/sanitize";
 
-const HtmlContent = React.memo(function HtmlContent({ children: children = "", ...props }: { children?: string; [key: string]: any }) {
+const HtmlContent = React.memo(function HtmlContent({
+  children: children = "",
+  ...props
+}: {
+  children?: string;
+  [key: string]: any;
+}) {
   return (
     <div
       {...props}

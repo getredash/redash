@@ -65,20 +65,23 @@ export default function DefaultColorsSettings({ options, data, onOptionsChange }
   return (
     <React.Fragment>
       <Section>
-          <Select
-            label="Color Scheme"
-            defaultValue={options.color_scheme}
-            data-test="ColorScheme"
-            onChange={(val : any) => onOptionsChange({ color_scheme: val })}>
-            {Object.keys(AllColorPalettes).map(option => (
-             // @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message
-              <Select.Option data-test={`ColorOption${option}`} key={option} value={option}>{option}</Select.Option>
-            ))}
-          </Select>
-        </Section>
+        <Select
+          label="Color Scheme"
+          defaultValue={options.color_scheme}
+          data-test="ColorScheme"
+          onChange={(val: any) => onOptionsChange({ color_scheme: val })}
+        >
+          {Object.keys(AllColorPalettes).map((option) => (
+            // @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message
+            <Select.Option data-test={`ColorOption${option}`} key={option} value={option}>
+              {option}
+            </Select.Option>
+          ))}
+        </Select>
+      </Section>
       <Table showHeader={false} dataSource={series} columns={columns} pagination={false} />
     </React.Fragment>
-  )
+  );
 }
 
 DefaultColorsSettings.propTypes = EditorPropTypes;

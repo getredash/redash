@@ -8,7 +8,7 @@ export default function QueryResultsLink(props) {
     fileType: "csv",
     embed: false,
     apiKey: "",
-    ...props
+    ...props,
   };
 
   let href = "";

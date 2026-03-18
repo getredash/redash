@@ -26,19 +26,17 @@ describe("Shared ColumnEditor", () => {
     test.each(["table", "details"] as const)("Changes column title - %s variant", (variant) => {
       jest.useFakeTimers();
       const onChange = jest.fn();
-      render(
-        <ColumnEditor column={mockColumn} variant={variant} onChange={onChange} />
-      );
+      render(<ColumnEditor column={mockColumn} variant={variant} onChange={onChange} />);
 
       const testPrefix = variant === "table" ? "Table" : "Details";
       const input = getInput(findByTestID(`${testPrefix}.Column.user_id.Title`).pop()!);
       fireEvent.change(input, { target: { value: "User ID" } });
-      act(() => { jest.advanceTimersByTime(200); });
+      act(() => {
+        jest.advanceTimersByTime(200);
+      });
       jest.useRealTimers();
 
-      expect(onChange).toHaveBeenCalledWith(
-        expect.objectContaining({ title: "User ID" })
-      );
+      expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ title: "User ID" }));
     });
 
     test.each(["table", "details"] as const)("Changes column alignment - %s variant", (variant) => {
@@ -54,9 +52,7 @@ describe("Shared ColumnEditor", () => {
       const radio = document.body.querySelector('[data-test="TextAlignmentSelect.Right"]') as HTMLInputElement;
       fireEvent.click(radio);
 
-      expect(onChange).toHaveBeenCalledWith(
-        expect.objectContaining({ alignContent: "right" })
-      );
+      expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ alignContent: "right" }));
     });
 
     test.each(["table", "details"] as const)("Changes column description - %s variant", (variant) => {
@@ -73,12 +69,12 @@ describe("Shared ColumnEditor", () => {
       const testPrefix = variant === "table" ? "Table" : "Details";
       const input = getInput(findByTestID(`${testPrefix}.Column.status.Description`).pop()!);
       fireEvent.change(input, { target: { value: "Current order status" } });
-      act(() => { jest.advanceTimersByTime(200); });
+      act(() => {
+        jest.advanceTimersByTime(200);
+      });
       jest.useRealTimers();
 
-      expect(onChange).toHaveBeenCalledWith(
-        expect.objectContaining({ description: "Current order status" })
-      );
+      expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ description: "Current order status" }));
     });
 
     test.each(["table", "details"] as const)("Changes display type - %s variant", (variant) => {
@@ -99,58 +95,45 @@ describe("Shared ColumnEditor", () => {
       const option = document.body.querySelector(`[data-test="${testPrefix}.Column.created_at.DisplayAs.string"]`);
       if (option) fireEvent.click(option);
 
-      expect(onChange).toHaveBeenCalledWith(
-        expect.objectContaining({ displayAs: "string" })
-      );
+      expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ displayAs: "string" }));
     });
   });
 
   describe("Table variant specific", () => {
     test("Shows search checkbox", () => {
-      render(
-        <ColumnEditor column={mockColumn} variant="table" />
-      );
+      render(<ColumnEditor column={mockColumn} variant="table" />);
 
       const searchEl = findByTestID("Table.Column.user_id.UseForSearch").pop()!;
-      const checkbox = searchEl.querySelector("input[type='checkbox']") || (searchEl.tagName === "INPUT" ? searchEl : null);
+      const checkbox =
+        searchEl.querySelector("input[type='checkbox']") || (searchEl.tagName === "INPUT" ? searchEl : null);
       expect(checkbox).not.toBeNull();
     });
 
     test("Changes search setting", () => {
       const onChange = jest.fn();
-      render(
-        <ColumnEditor column={{ ...mockColumn, allowSearch: false }} variant="table" onChange={onChange} />
-      );
+      render(<ColumnEditor column={{ ...mockColumn, allowSearch: false }} variant="table" onChange={onChange} />);
 
       const searchEl = findByTestID("Table.Column.user_id.UseForSearch").pop()!;
       const checkbox = searchEl.querySelector("input[type='checkbox']") || searchEl;
       fireEvent.click(checkbox);
 
-      expect(onChange).toHaveBeenCalledWith(
-        expect.objectContaining({ allowSearch: true })
-      );
+      expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ allowSearch: true }));
     });
 
     test("Uses correct CSS class", () => {
-      const { container } = render(
-        <ColumnEditor column={mockColumn} variant="table" />
-      );
+      const { container } = render(<ColumnEditor column={mockColumn} variant="table" />);
       expect(container.querySelector(".table-visualization-editor-column")).not.toBeNull();
     });
   });
 
   describe("Details variant specific", () => {
     test("Hides search checkbox", () => {
-      render(
-        <ColumnEditor column={mockColumn} variant="details" />
-      );
+      render(<ColumnEditor column={mockColumn} variant="details" />);
       expect(findByTestID("Details.Column.user_id.UseForSearch")).toHaveLength(0);
     });
 
     test("Uses correct CSS class", () => {
-      const { container } = render(
-        <ColumnEditor column={mockColumn} variant="details" />
-      );
+      const { container } = render(<ColumnEditor column={mockColumn} variant="details" />);
       expect(container.querySelector(".details-visualization-editor-column")).not.toBeNull();
     });
   });
@@ -174,10 +157,7 @@ describe("Shared ColumnEditor", () => {
 
     test("Details variant renders with correct structure", () => {
       const { container } = render(
-        <ColumnEditor
-          column={{ ...mockColumn, description: "Sample description" }}
-          variant="details"
-        />
+        <ColumnEditor column={{ ...mockColumn, description: "Sample description" }} variant="details" />
       );
 
       expect(container.querySelector(".details-visualization-editor-column")).not.toBeNull();
