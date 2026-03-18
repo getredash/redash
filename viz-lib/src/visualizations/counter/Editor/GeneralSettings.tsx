@@ -80,7 +80,6 @@ export default function GeneralSettings({ options, data, visualizationName, onOp
       <Section>
         <Switch
           data-test="Counter.General.CountRows"
-          // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
           defaultChecked={options.countRow}
           onChange={(countRow: any) => onOptionsChange({ countRow })}
         >

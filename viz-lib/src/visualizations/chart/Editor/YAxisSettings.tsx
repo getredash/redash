@@ -37,7 +37,6 @@ export default function YAxisSettings({ options, onOptionsChange }: any) {
             <Switch
               id="chart-editor-y-axis-align-at-zero"
               data-test="Chart.YAxis.AlignAtZero"
-              // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
               defaultChecked={options.alignYAxesAtZero}
               onChange={(alignYAxesAtZero: any) => onOptionsChange({ alignYAxesAtZero })}
             >
@@ -53,7 +52,6 @@ export default function YAxisSettings({ options, onOptionsChange }: any) {
             <Switch
               id="chart-editor-y-axis-sort"
               data-test="Chart.LeftYAxis.Sort"
-              // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
               defaultChecked={options.sortY}
               onChange={(sortY: any) => onOptionsChange({ sortY })}
             >
@@ -65,7 +63,6 @@ export default function YAxisSettings({ options, onOptionsChange }: any) {
             <Switch
               id="chart-editor-y-axis-reverse"
               data-test="Chart.LeftYAxis.Reverse"
-              // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
               defaultChecked={options.reverseY}
               onChange={(reverseY: any) => onOptionsChange({ reverseY })}
             >

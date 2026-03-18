@@ -83,7 +83,6 @@ export default function Input({
       {map(presets, (group, index) => (
         <div className="color-picker-input-swatches" key={`preset-row-${index}`}>
           {map(group, ([title, value]) => (
-            // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
             <Swatch key={value} color={value} title={title} size={30} onClick={() => validateColor(value, onChange)} />
           ))}
         </div>

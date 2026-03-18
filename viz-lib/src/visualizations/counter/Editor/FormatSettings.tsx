@@ -66,7 +66,6 @@ export default function FormatSettings({ options, data, onOptionsChange }: any) 
       <Section>
         <Switch
           data-test="Counter.Formatting.FormatTargetValue"
-          // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
           defaultChecked={options.formatTargetValue}
           onChange={(formatTargetValue: any) => onOptionsChange({ formatTargetValue })}
         >

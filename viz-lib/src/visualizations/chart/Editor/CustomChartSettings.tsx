@@ -26,7 +26,6 @@ export default function CustomChartSettings({ options, onOptionsChange }: any) {
       <Section>
         <Switch
           data-test="Chart.Custom.EnableConsoleLogs"
-          // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
           defaultChecked={options.enableConsoleLogs}
           onChange={(enableConsoleLogs: any) => onOptionsChange({ enableConsoleLogs })}
         >
@@ -38,7 +37,6 @@ export default function CustomChartSettings({ options, onOptionsChange }: any) {
         <Switch
           id="chart-editor-auto-update-custom-chart"
           data-test="Chart.Custom.AutoUpdate"
-          // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
           defaultChecked={options.autoRedraw}
           onChange={(autoRedraw: any) => onOptionsChange({ autoRedraw })}
         >

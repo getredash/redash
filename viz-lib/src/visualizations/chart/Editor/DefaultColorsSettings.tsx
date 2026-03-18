@@ -7,6 +7,8 @@ import { AllColorPalettes } from "@/visualizations/ColorPalette";
 import getChartData from "../getChartData";
 import { Section, Select } from "@/components/visualizations/editor";
 
+const SelectOption = (Select as any).Option;
+
 export default function DefaultColorsSettings({ options, data, onOptionsChange }: any) {
   const colors = useMemo(
     () => ({
@@ -72,10 +74,9 @@ export default function DefaultColorsSettings({ options, data, onOptionsChange }
           onChange={(val: any) => onOptionsChange({ color_scheme: val })}
         >
           {Object.keys(AllColorPalettes).map((option) => (
-            // @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message
-            <Select.Option data-test={`ColorOption${option}`} key={option} value={option}>
+            <SelectOption data-test={`ColorOption${option}`} key={option} value={option}>
               {option}
-            </Select.Option>
+            </SelectOption>
           ))}
         </Select>
       </Section>

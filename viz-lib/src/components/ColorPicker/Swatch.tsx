@@ -7,35 +7,19 @@ import "./swatch.less";
 
 type OwnProps = {
   className?: string;
-  style?: any;
+  style?: React.CSSProperties;
   title?: string;
-  color?: string;
+  color?: string | null;
   size?: number;
 };
 
-const swatchDefaultProps = {
-  className: null,
-  style: null,
-  title: null,
-  color: "transparent",
-  size: 12,
-};
+type Props = OwnProps & React.HTMLAttributes<HTMLSpanElement>;
 
-type Props = OwnProps;
-
-// @ts-expect-error ts-migrate(2700) FIXME: Rest types may only be created from object types.
-export default function Swatch({
-  className: className = null,
-  color: color = "transparent",
-  title: title = null,
-  size: size = 12,
-  style: style = null,
-  ...props
-}: Props) {
+export default function Swatch({ className, color = "transparent", title, size = 12, style, ...props }: Props) {
   const result = (
     <span
       className={cx("color-swatch", className)}
-      style={{ backgroundColor: color, width: size, ...style }}
+      style={{ backgroundColor: color || "transparent", width: size, ...style }}
       {...props}
     />
   );
