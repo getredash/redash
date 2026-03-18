@@ -1,4 +1,8 @@
 describe("View Alert", () => {
+  function getDestinationItem(destinationName) {
+    return cy.getByTestId("AlertDestinations").contains("li.destination-wrapper", destinationName);
+  }
+
   beforeEach(function () {
     cy.login().then(() => {
       cy.createQuery({ query: "select 1 as col_name" })
@@ -45,9 +49,6 @@ describe("View Alert", () => {
     });
 
     it("hides remove button from non-author", function () {
-      cy.server();
-      cy.route("GET", "**/api/alerts/*/subscriptions").as("Subscriptions");
-
       cy.logout()
         .then(() => cy.login()) // as admin
         .then(() => cy.addDestinationSubscription(this.alertId, "Test Email Destination"))
@@ -55,13 +56,9 @@ describe("View Alert", () => {
           cy.visit(this.alertUrl);
 
           // verify remove button appears for author
-          cy.wait(["@Subscriptions"]);
-          cy.getByTestId("AlertDestinations")
-            .contains("Test Email Destination")
-            .parent()
-            .within(() => {
-              cy.get(".remove-button").as("RemoveButton").should("exist");
-            });
+          getDestinationItem("Test Email Destination").within(() => {
+            cy.get(".remove-button").should("exist");
+          });
 
           return cy.logout().then(() => cy.login("user@redash.io", "password"));
         })
@@ -69,15 +66,13 @@ describe("View Alert", () => {
           cy.visit(this.alertUrl);
 
           // verify remove button not shown for non-author
-          cy.wait(["@Subscriptions"]);
-          cy.get("@RemoveButton").should("not.exist");
+          getDestinationItem("Test Email Destination").within(() => {
+            cy.get(".remove-button").should("not.exist");
+          });
         });
     });
 
     it("shows remove button for non-author admin", function () {
-      cy.server();
-      cy.route("GET", "**/api/alerts/*/subscriptions").as("Subscriptions");
-
       cy.logout()
         .then(() => cy.login("user@redash.io", "password"))
         .then(() => cy.addDestinationSubscription(this.alertId, "Test Email Destination"))
@@ -85,13 +80,9 @@ describe("View Alert", () => {
           cy.visit(this.alertUrl);
 
           // verify remove button appears for author
-          cy.wait(["@Subscriptions"]);
-          cy.getByTestId("AlertDestinations")
-            .contains("Test Email Destination")
-            .parent()
-            .within(() => {
-              cy.get(".remove-button").as("RemoveButton").should("exist");
-            });
+          getDestinationItem("Test Email Destination").within(() => {
+            cy.get(".remove-button").should("exist");
+          });
 
           return cy.logout().then(() => cy.login()); // as admin
         })
@@ -99,8 +90,9 @@ describe("View Alert", () => {
           cy.visit(this.alertUrl);
 
           // verify remove button also appears for admin
-          cy.wait(["@Subscriptions"]);
-          cy.get("@RemoveButton").should("exist");
+          getDestinationItem("Test Email Destination").within(() => {
+            cy.get(".remove-button").should("exist");
+          });
         });
     });
   });
