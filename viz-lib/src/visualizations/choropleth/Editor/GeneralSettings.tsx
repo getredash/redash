@@ -7,18 +7,21 @@ import { visualizationsSettings } from "@/visualizations/visualizationsSettings"
 
 import useLoadGeoJson from "../hooks/useLoadGeoJson";
 import { getGeoJsonFields } from "./utils";
+import "./editor.less";
 
 export default function GeneralSettings({ options, data, onOptionsChange }: any) {
-  const [geoJson, isLoadingGeoJson] = useLoadGeoJson(options.mapType);
+  const [geoJson, isLoadingGeoJson, loadError] = useLoadGeoJson(options.mapType);
   const geoJsonFields = useMemo(() => getGeoJsonFields(geoJson), [geoJson]);
 
   // While geoJson is loading - show last selected field in select
   const targetFields = isLoadingGeoJson ? filter([options.targetField], isString) : geoJsonFields;
 
-  const fieldNames = get(visualizationsSettings, `choroplethAvailableMaps.${options.mapType}.fieldNames`, {});
+  const registeredFieldNames = get(visualizationsSettings, `choroplethAvailableMaps.${options.mapType}.fieldNames`, {});
+  const geoJsonFieldNames = get(geoJson, "fieldNames", {});
+  const fieldNames = { ...geoJsonFieldNames, ...registeredFieldNames };
 
   const handleMapChange = useCallback(
-    mapType => {
+    (mapType) => {
       onOptionsChange({ mapType: mapType || null });
     },
     [onOptionsChange]
@@ -32,7 +35,8 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
           label="Map"
           data-test="Choropleth.Editor.MapType"
           defaultValue={options.mapType}
-          onChange={handleMapChange}>
+          onChange={handleMapChange}
+        >
           {map(visualizationsSettings.choroplethAvailableMaps, (_, mapType) => (
             // @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message
             <Select.Option key={mapType} data-test={`Choropleth.Editor.MapType.${mapType}`}>
@@ -41,6 +45,11 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
             </Select.Option>
           ))}
         </Select>
+        {loadError && (
+          <div className="choropleth-custom-map-error" data-test="Choropleth.Editor.LoadError">
+            {loadError}
+          </div>
+        )}
       </Section>
 
       {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
@@ -53,7 +62,8 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
               data-test="Choropleth.Editor.KeyColumn"
               disabled={data.columns.length === 0}
               defaultValue={options.keyColumn}
-              onChange={(keyColumn: any) => onOptionsChange({ keyColumn })}>
+              onChange={(keyColumn: any) => onOptionsChange({ keyColumn })}
+            >
               {map(data.columns, ({ name }) => (
                 // @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message
                 <Select.Option key={name} data-test={`Choropleth.Editor.KeyColumn.${name}`}>
@@ -71,8 +81,9 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
               disabled={isLoadingGeoJson || targetFields.length === 0}
               loading={isLoadingGeoJson}
               value={options.targetField}
-              onChange={(targetField: any) => onOptionsChange({ targetField })}>
-              {map(targetFields, field => (
+              onChange={(targetField: any) => onOptionsChange({ targetField })}
+            >
+              {map(targetFields, (field) => (
                 // @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message
                 <Select.Option key={field} data-test={`Choropleth.Editor.TargetField.${field}`}>
                   {fieldNames[field] || field}
@@ -91,7 +102,8 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
           data-test="Choropleth.Editor.ValueColumn"
           disabled={data.columns.length === 0}
           defaultValue={options.valueColumn}
-          onChange={(valueColumn: any) => onOptionsChange({ valueColumn })}>
+          onChange={(valueColumn: any) => onOptionsChange({ valueColumn })}
+        >
           {map(data.columns, ({ name }) => (
             // @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message
             <Select.Option key={name} data-test={`Choropleth.Editor.ValueColumn.${name}`}>
