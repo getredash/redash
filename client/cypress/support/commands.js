@@ -128,32 +128,31 @@ Cypress.Commands.add("realDragBy", { prevSubject: true }, (subject, offsetLeft =
   const steps = options.steps || 12;
   const delay = options.delay || 8;
 
-  return cy.wrap(subject).scrollIntoView().then(($element) => {
-    const rect = $element[0].getBoundingClientRect();
-    const start = {
-      x: rect.left + rect.width / 2,
-      y: rect.top + rect.height / 2,
-    };
-    const end = {
-      x: start.x + offsetLeft,
-      y: start.y + offsetTop,
-    };
-    const points = interpolateCoordinates(start, end, steps);
+  return cy
+    .wrap(subject)
+    .scrollIntoView()
+    .then(($element) => {
+      const rect = $element[0].getBoundingClientRect();
+      const start = {
+        x: rect.left + rect.width / 2,
+        y: rect.top + rect.height / 2,
+      };
+      const end = {
+        x: start.x + offsetLeft,
+        y: start.y + offsetTop,
+      };
+      const points = interpolateCoordinates(start, end, steps);
 
-    let chain = dispatchMouseEvent("mouseMoved", start.x, start.y, 0).then(() =>
-      dispatchMouseEvent("mousePressed", start.x, start.y, 1)
-    );
+      let chain = dispatchMouseEvent("mouseMoved", start.x, start.y, 0).then(() =>
+        dispatchMouseEvent("mousePressed", start.x, start.y, 1)
+      );
 
-    points.forEach(({ x, y }) => {
-      chain = chain
-        .then(() => dispatchMouseEvent("mouseMoved", x, y, 1))
-        .then(() => Cypress.Promise.delay(delay));
+      points.forEach(({ x, y }) => {
+        chain = chain.then(() => dispatchMouseEvent("mouseMoved", x, y, 1)).then(() => Cypress.Promise.delay(delay));
+      });
+
+      return chain.then(() => dispatchMouseEvent("mouseReleased", end.x, end.y, 0)).then(() => cy.wrap(subject));
     });
-
-    return chain
-      .then(() => dispatchMouseEvent("mouseReleased", end.x, end.y, 0))
-      .then(() => cy.wrap(subject));
-  });
 });
 
 Cypress.Commands.add("typeInAce", { prevSubject: "element" }, (subject, text, options = {}) => {

@@ -29,8 +29,8 @@ function prepareVisualization(query, type, name, options) {
 }
 
 function waitForDomIdle(selector, idleMs = 2000) {
-  return cy.get(selector).then($element => {
-    return new Cypress.Promise(resolve => {
+  return cy.get(selector).then(($element) => {
+    return new Cypress.Promise((resolve) => {
       const target = $element.get(0);
       let timerId = null;
 

@@ -88,12 +88,14 @@ export function dragParam(paramName, offsetLeft, offsetTop = 0) {
       x:
         targetRect.left +
         targetRect.width / 2 +
-        deltaDirection(offsetLeft || start.x - (targetRect.left + targetRect.width / 2)) * Math.min(targetRect.width / 4, 24),
+        deltaDirection(offsetLeft || start.x - (targetRect.left + targetRect.width / 2)) *
+          Math.min(targetRect.width / 4, 24),
       y:
         targetRect.top +
         targetRect.height / 2 +
         offsetTop +
-        deltaDirection(offsetTop || targetRect.top + targetRect.height / 2 - start.y) * Math.min(targetRect.height / 4, 18),
+        deltaDirection(offsetTop || targetRect.top + targetRect.height / 2 - start.y) *
+          Math.min(targetRect.height / 4, 18),
     };
 
     cy.wrap(dragHandle)
