@@ -160,7 +160,6 @@
     "setupFiles": [
       "./app/__tests__/mocks.js"
     ],
-    "setupFilesAfterFramework": [],
     "moduleNameMapper": {
       "^@/(.*)": "<rootDir>/app/$1",
       "\\.(css|less)$": "identity-obj-proxy"

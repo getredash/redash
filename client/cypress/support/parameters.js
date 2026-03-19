@@ -47,9 +47,11 @@ function dispatchPointerDrag(handle, start, end) {
   return points
     .reduce(
       (chain, point) =>
-        chain.then(() => Cypress.Promise.delay(12)).then(() => {
-          ownerDocument.dispatchEvent(createPointerEvent(EventCtor, "pointermove", point, 1));
-        }),
+        chain
+          .then(() => Cypress.Promise.delay(12))
+          .then(() => {
+            ownerDocument.dispatchEvent(createPointerEvent(EventCtor, "pointermove", point, 1));
+          }),
       cy.then(() => {
         handle.dispatchEvent(createPointerEvent(EventCtor, "pointermove", start, 0));
         handle.dispatchEvent(createPointerEvent(EventCtor, "pointerdown", start, 1));
