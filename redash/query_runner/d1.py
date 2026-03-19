@@ -1,7 +1,7 @@
 import json
 import re
 from redash.query_runner import BaseQueryRunner, register
-from redash.query_runner import TYPE_STRING, TYPE_INTEGER, TYPE_BOOLEAN, TYPE_FLOAT,
+from redash.query_runner import TYPE_STRING, TYPE_INTEGER, TYPE_BOOLEAN, TYPE_FLOAT, TYPE_DATETIME
 from redash.utils.requests_session import requests_session as session
 
 # Map Python types to Redash types
