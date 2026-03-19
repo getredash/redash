@@ -1,7 +1,7 @@
 import json
 import re
 from redash.query_runner import BaseQueryRunner, register
-from redash.query_runner import TYPE_STRING, TYPE_INTEGER, TYPE_BOOLEAN, TYPE_FLOAT, 
+from redash.query_runner import TYPE_STRING, TYPE_INTEGER, TYPE_BOOLEAN, TYPE_FLOAT,
 from redash.utils.requests_session import requests_session as session
 
 # Map Python types to Redash types
@@ -135,7 +135,7 @@ class D1QueryRunner(BaseQueryRunner):
                 table_name = table["name"]
                 # Get column information for each table
                 columns = self._query(f"PRAGMA table_info({table_name})")
-                
+
                 # Extract detailed column information including data types
                 column_info = []
                 for col in columns:
