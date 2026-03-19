@@ -30,7 +30,7 @@ function mount(options: any, done: any) {
       visualizationName="Test"
       data={{ columns: [{ name: "a", type: "string" }], rows: [{ a: "test" }] }}
       options={options}
-      onOptionsChange={(changedOptions) => {
+      onOptionsChange={(changedOptions: any) => {
         expect(changedOptions).toMatchSnapshot();
         done();
       }}
