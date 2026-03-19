@@ -1,10 +1,22 @@
 describe("Embedded Queries", () => {
+  function ensureDataSourceSelected() {
+    cy.getByTestId("SelectDataSource")
+      .should("be.visible")
+      .then(($select) => {
+        const selectedText = $select.text().trim();
+
+        if (selectedText && selectedText !== "Choose data source...") {
+          return;
+        }
+
+        cy.wrap($select).click();
+        cy.get(".ant-select-item-option").filter(":visible").first().click();
+      });
+  }
+
   function createParameterizedQueryThroughUI(query, parameterName, value, parameterTypeOption, waitForResults = true) {
     cy.visit("/queries/new");
-    cy.clickThrough(`
-      SelectDataSource
-      SelectDataSource${Cypress.env("dataSourceId")}
-    `);
+    ensureDataSourceSelected();
     cy.getByTestId("QueryEditor").typeInAce(query, { replace: true, delay: 5 });
 
     cy.getByTestId(`ParameterSettings-${parameterName}`, { timeout: 10000 }).should("exist");

@@ -28,6 +28,35 @@ function prepareVisualization(query, type, name, options) {
     });
 }
 
+function waitForDomIdle(selector, idleMs = 2000) {
+  return cy.get(selector).then($element => {
+    return new Cypress.Promise(resolve => {
+      const target = $element.get(0);
+      let timerId = null;
+
+      function finish() {
+        clearTimeout(timerId);
+        observer.disconnect();
+        resolve();
+      }
+
+      const observer = new MutationObserver(() => {
+        clearTimeout(timerId);
+        timerId = setTimeout(finish, idleMs);
+      });
+
+      observer.observe(target, {
+        attributes: true,
+        characterData: true,
+        childList: true,
+        subtree: true,
+      });
+
+      timerId = setTimeout(finish, idleMs);
+    });
+  });
+}
+
 describe("Table", () => {
   const viewportWidth = Cypress.config("viewportWidth");
 
@@ -38,11 +67,10 @@ describe("Table", () => {
   it("renders all cell types", () => {
     const { query, config } = AllCellTypes;
     prepareVisualization(query, "TABLE", "All cell types", config).then(() => {
-      // eslint-disable-next-line cypress/no-unnecessary-waiting
-      cy.wait(500); // allow the JSON cell to finish its initial async render before expanding it
+      waitForDomIdle("[data-test='TableVisualization']");
 
       // expand JSON cell
-      cy.get(".jvi-item.jvi-root .jvi-ellipsis").click();
+      cy.get(".jvi-item.jvi-root .jvi-ellipsis").should("be.visible").click();
       cy.get(".jvi-item.jvi-root .jvi-block").should("exist");
 
       cy.percySnapshot("Visualizations - Table (All cell types)", { widths: [viewportWidth] });
