@@ -61,7 +61,8 @@ describe("View Alert", () => {
         })
         .then(() => {
           cy.visit(this.alertUrl);
-          cy.contains("It seems like we encountered an error").should("exist");
+
+          cy.getByTestId("ErrorMessage").should("exist");
           cy.getByTestId("AlertDestinations").should("not.exist");
         });
     });

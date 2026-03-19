@@ -5,6 +5,10 @@ function openAndSearchAntdDropdown(testId, paramOption) {
   cy.getByTestId(testId).find(".ant-select-selection-search-input").type(paramOption, { force: true });
 }
 
+function getClientDateFormat() {
+  return cy.request("/api/session").its("body.client_config.dateFormat");
+}
+
 describe("Parameter", () => {
   const expectDirtyStateChange = (edit) => {
     cy.getByTestId("ParameterName-test-parameter")
@@ -327,6 +331,7 @@ describe("Parameter", () => {
       cy.clock(now.getTime(), ["Date"]);
       cy.intercept("POST", "**/api/queries/*/results").as("Results");
 
+      getClientDateFormat().as("dateFormat");
       cy.createQuery(queryData, false).then(({ id }) => cy.visit(`/queries/${id}`));
     });
 
@@ -340,7 +345,7 @@ describe("Parameter", () => {
       cy.getByTestId("ParameterApplyButton").click();
       cy.wait("@Results");
 
-      cy.getByTestId("TableVisualization").should("contain", dayjs(this.now).format("MM/15/YY"));
+      cy.getByTestId("TableVisualization").should("contain", dayjs(this.now).date(15).format(this.dateFormat));
     });
 
     it("allows picking a dynamic date", function () {
@@ -351,7 +356,7 @@ describe("Parameter", () => {
       cy.getByTestId("ParameterApplyButton").click();
       cy.wait("@Results");
 
-      cy.getByTestId("TableVisualization").should("contain", dayjs(this.now).format("MM/DD/YY"));
+      cy.getByTestId("TableVisualization").should("contain", dayjs(this.now).format(this.dateFormat));
     });
 
     it("sets dirty state when edited", () => {
