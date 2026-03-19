@@ -217,6 +217,4 @@ describe("Visualizations -> Chart -> Editor -> General Settings", () => {
 
     fireEvent.click(getInput(findByTestID("Chart.EnableClickEvents").pop()!));
   });
-
-
 });
