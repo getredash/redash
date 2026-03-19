@@ -19,9 +19,7 @@ const SQL = `
 function createPivotThroughUI(visualizationName, options = {}) {
   cy.getByTestId("NewVisualization").click();
   cy.getByTestId("VisualizationType").selectAntdOption("VisualizationType.PIVOT");
-  cy.getByTestId("VisualizationName")
-    .clear()
-    .type(visualizationName);
+  cy.getByTestId("VisualizationName").clear().type(visualizationName);
   if (options.hideControls) {
     cy.getByTestId("PivotEditor.HideControls").click();
     cy.getByTestId("VisualizationPreview")
@@ -29,36 +27,30 @@ function createPivotThroughUI(visualizationName, options = {}) {
       .find(".pvtAxisContainer, .pvtRenderer, .pvtVals")
       .should("be.not.visible");
   }
-  cy.getByTestId("VisualizationPreview")
-    .find("table")
-    .should("exist");
-  cy.getByTestId("EditVisualizationDialog")
-    .contains("button", "Save")
-    .click();
+  cy.getByTestId("VisualizationPreview").find("table").should("exist");
+  cy.getByTestId("EditVisualizationDialog").contains("button", "Save").click();
 }
 
 describe("Pivot", () => {
   beforeEach(() => {
     cy.login();
-    cy.createQuery({ name: "Pivot Visualization", query: SQL })
-      .its("id")
-      .as("queryId");
+    cy.createQuery({ name: "Pivot Visualization", query: SQL }).its("id").as("queryId");
   });
 
-  it("creates Pivot with controls", function() {
+  it("creates Pivot with controls", function () {
     cy.visit(`queries/${this.queryId}/source`);
+    cy.wait(1500); // eslint-disable-line cypress/no-unnecessary-waiting
     cy.getByTestId("ExecuteButton").click();
 
     const visualizationName = "Pivot";
     createPivotThroughUI(visualizationName);
 
-    cy.getByTestId("QueryPageVisualizationTabs")
-      .contains("span", visualizationName)
-      .should("exist");
+    cy.getByTestId("QueryPageVisualizationTabs").contains("span", visualizationName).should("exist");
   });
 
-  it("creates Pivot without controls", function() {
+  it("creates Pivot without controls", function () {
     cy.visit(`queries/${this.queryId}/source`);
+    cy.wait(1500); // eslint-disable-line cypress/no-unnecessary-waiting
     cy.getByTestId("ExecuteButton").click();
 
     const visualizationName = "Pivot";
@@ -76,7 +68,7 @@ describe("Pivot", () => {
       .should("be.not.visible");
   });
 
-  it("updates the visualization when results change", function() {
+  it("updates the visualization when results change", function () {
     const options = {
       aggregatorName: "Count",
       data: [], // force it to have a data object, although it shouldn't
@@ -86,8 +78,9 @@ describe("Pivot", () => {
       vals: ["value"],
     };
 
-    cy.createVisualization(this.queryId, "PIVOT", "Pivot", options).then(visualization => {
+    cy.createVisualization(this.queryId, "PIVOT", "Pivot", options).then((visualization) => {
       cy.visit(`queries/${this.queryId}/source#${visualization.id}`);
+      cy.wait(1500); // eslint-disable-line cypress/no-unnecessary-waiting
       cy.getByTestId("ExecuteButton").click();
 
       // assert number of rows is 11
@@ -104,16 +97,14 @@ describe("Pivot", () => {
       cy.wait(200);
 
       cy.getByTestId("SaveButton").click();
-      cy.getByTestId("ExecuteButton")
-        .should("be.enabled")
-        .click();
+      cy.getByTestId("ExecuteButton").should("be.enabled").click();
 
       // assert number of rows is 12
       cy.getByTestId("PivotTableVisualization").contains(".pvtGrandTotal", "12");
     });
   });
 
-  it("takes a snapshot with different configured Pivots", function() {
+  it("takes a snapshot with different configured Pivots", function () {
     const options = {
       aggregatorName: "Sum",
       controls: { enabled: true },
@@ -142,19 +133,20 @@ describe("Pivot", () => {
     ];
 
     cy.createDashboard("Pivot Visualization")
-      .then(dashboard => {
+      .then((dashboard) => {
         this.dashboardUrl = `/dashboards/${dashboard.id}`;
         return cy.all(
-          pivotTables.map(pivot => () =>
-            cy
-              .createVisualization(this.queryId, "PIVOT", pivot.name, pivot.options)
-              .then(visualization => cy.addWidget(dashboard.id, visualization.id, { position: pivot.position }))
+          pivotTables.map(
+            (pivot) => () =>
+              cy
+                .createVisualization(this.queryId, "PIVOT", pivot.name, pivot.options)
+                .then((visualization) => cy.addWidget(dashboard.id, visualization.id, { position: pivot.position }))
           )
         );
       })
-      .then(widgets => {
+      .then((widgets) => {
         cy.visit(this.dashboardUrl);
-        widgets.forEach(widget => {
+        widgets.forEach((widget) => {
           cy.getByTestId(getWidgetTestId(widget)).within(() =>
             cy.getByTestId("PivotTableVisualization").should("exist")
           );

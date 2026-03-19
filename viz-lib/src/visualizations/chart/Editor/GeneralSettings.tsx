@@ -336,6 +336,38 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
         </Section>
       )}
 
+      {includes(["line", "area"], options.globalSeriesType) && (
+        // @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message
+        <Section>
+          <Select
+            label="Line Shape"
+            data-test="Chart.LineShape"
+            defaultValue={options.lineShape}
+            onChange={(val: any) => onOptionsChange({ lineShape: val })}>
+            {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
+            <Select.Option value="linear" data-test="Chart.LineShape.Linear">
+              Linear
+              {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
+            </Select.Option>
+            {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
+            <Select.Option value="spline" data-test="Chart.LineShape.Spline">
+              Spline
+              {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
+            </Select.Option>
+            {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
+            <Select.Option value="hv" data-test="Chart.LineShape.HorizontalVertical">
+              Horizontal-Vertical
+              {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
+            </Select.Option>
+            {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
+            <Select.Option value="vh" data-test="Chart.LineShape.VerticalHorizontal">
+              Vertical-Horizontal
+              {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
+            </Select.Option>
+          </Select>
+        </Section>
+      )}
+
       {!includes(["custom", "heatmap", "bubble"], options.globalSeriesType) && (
         // @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message
         <Section>

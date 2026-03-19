@@ -14,7 +14,13 @@ type OwnProps = {
       };
 };
 
-type Props = OwnProps & typeof Label.defaultProps;
+const labelDefaultProps = {
+  className: null,
+  color: "#FFFFFF",
+  presetColors: null,
+};
+
+type Props = OwnProps & typeof labelDefaultProps;
 
 // @ts-expect-error ts-migrate(2700) FIXME: Rest types may only be created from object types.
 export default function Label({ className, color, presetColors, ...props }: Props) {
@@ -27,8 +33,4 @@ export default function Label({ className, color, presetColors, ...props }: Prop
   );
 }
 
-Label.defaultProps = {
-  className: null,
-  color: "#FFFFFF",
-  presetColors: null,
-};
+Label.defaultProps = labelDefaultProps;

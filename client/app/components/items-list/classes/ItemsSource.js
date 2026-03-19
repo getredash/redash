@@ -147,7 +147,7 @@ export class ItemsSource {
       this._sorter.setField(null);
     }
     this._paginator.setPage(1);
-    this._changed({ search: true, pagination: { page: true } });
+    return this._changed({ search: true, pagination: { page: true } });
   };
 
   updateSelectedTags = (selectedTags) => {

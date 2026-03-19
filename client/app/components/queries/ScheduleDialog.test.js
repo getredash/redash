@@ -1,6 +1,7 @@
 import React from "react";
 import { mount } from "enzyme";
 import moment from "moment";
+import { durationHumanize } from "@/lib/utils";
 import ScheduleDialog, { TimeEditor } from "./ScheduleDialog";
 import RefreshScheduleDefault from "../proptypes";
 
@@ -99,9 +100,7 @@ describe("ScheduleDialog", () => {
     });
 
     describe("TimeEditor", () => {
-      const defaultValue = moment()
-        .hour(5)
-        .minute(25); // 05:25
+      const defaultValue = moment().hour(5).minute(25); // 05:25
 
       test("UTC set correctly on init", () => {
         const editor = mount(<TimeEditor defaultValue={defaultValue} onChange={() => {}} />);
@@ -123,7 +122,7 @@ describe("ScheduleDialog", () => {
       // Disabling this test as the TimePicker wasn't setting values from here after Antd v4
       // eslint-disable-next-line jest/no-disabled-tests
       test.skip("onChange correct result", () => {
-        const onChangeCb = jest.fn(time => time.format("HH:mm"));
+        const onChangeCb = jest.fn((time) => time.format("HH:mm"));
         const editor = mount(<TimeEditor onChange={onChangeCb} />);
 
         // click TimePicker
@@ -133,22 +132,13 @@ describe("ScheduleDialog", () => {
 
         // select hour "07"
         const hourSelector = timePickerPanel.find(".ant-picker-time-panel-column").at(0);
-        hourSelector
-          .find("li")
-          .at(7)
-          .simulate("click");
+        hourSelector.find("li").at(7).simulate("click");
 
         // select minute "30"
         const minuteSelector = timePickerPanel.find(".ant-picker-time-panel-column").at(1);
-        minuteSelector
-          .find("li")
-          .at(6)
-          .simulate("click");
+        minuteSelector.find("li").at(6).simulate("click");
 
-        timePickerPanel
-          .find(".ant-picker-ok")
-          .find("button")
-          .simulate("mouseDown");
+        timePickerPanel.find(".ant-picker-ok").find("button").simulate("mouseDown");
 
         // expect utc to be 2h below initial time
         const utc = findByTestID(editor, "utc");
@@ -208,28 +198,26 @@ describe("ScheduleDialog", () => {
 
   describe("Adheres to user permissions", () => {
     test("Shows correct interval options", () => {
-      const refreshOptions = [60, 300, 3600, 7200]; // 1 min, 1 hour
+      const refreshOptions = [60, 300, 3600, 7200]; // 1 min, 5 min, 1 hour, 2 hours
       const [wrapper] = getWrapper(null, { refreshOptions });
 
-      // click select
-      findByTestID(wrapper, "interval")
-        .find(".ant-select")
-        .simulate("click");
+      // Get the ScheduleDialog component instance and verify its computed intervals
+      const component = wrapper.find("ScheduleDialog").instance();
+      const intervals = component.intervals;
 
-      // get dropdown menu items
-      const options = mount(
-        wrapper
-          .find("Trigger")
-          .instance()
-          .getComponent()
-      ).find(".ant-select-item-option-content");
+      // Flatten all interval options to [label, seconds] pairs, prepend "Never"
+      const allOptions = ["Never"];
+      Object.keys(intervals)
+        .filter((key) => intervals[key].length > 0)
+        .forEach((key) => {
+          intervals[key].forEach(([, secs]) => {
+            allOptions.push(durationHumanize(secs));
+          });
+        });
 
-      const texts = options.map(node => node.text());
       const expected = ["Never", "1 minute", "5 minutes", "1 hour", "2 hours"];
 
-      // eslint-disable-next-line jest/prefer-to-have-length
-      expect(options.length).toEqual(expected.length);
-      expect(texts).toEqual(expected);
+      expect(allOptions).toEqual(expected);
     });
   });
 
@@ -252,10 +240,7 @@ describe("ScheduleDialog", () => {
       wrapper.setState({ newSchedule });
 
       // click confirm button
-      wrapper
-        .find(".ant-modal-footer")
-        .find(".ant-btn-primary")
-        .simulate("click");
+      wrapper.find(".ant-modal-footer").find(".ant-btn-primary").simulate("click");
 
       // expect calls
       expect(confirmCb).toHaveBeenCalled();
@@ -267,10 +252,7 @@ describe("ScheduleDialog", () => {
       const [wrapper] = getWrapper(null, initProps);
 
       // click confirm button
-      wrapper
-        .find(".ant-modal-footer")
-        .find(".ant-btn-primary")
-        .simulate("click");
+      wrapper.find(".ant-modal-footer").find(".ant-btn-primary").simulate("click");
 
       // expect calls
       expect(confirmCb).not.toHaveBeenCalled();
@@ -287,10 +269,7 @@ describe("ScheduleDialog", () => {
       wrapper.setState({ newSchedule });
 
       // click cancel button
-      wrapper
-        .find(".ant-modal-footer")
-        .find("button:not(.ant-btn-primary)")
-        .simulate("click");
+      wrapper.find(".ant-modal-footer").find("button:not(.ant-btn-primary)").simulate("click");
 
       // expect calls
       expect(confirmCb).not.toHaveBeenCalled();

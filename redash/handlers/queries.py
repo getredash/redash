@@ -241,6 +241,8 @@ class QueryListResource(BaseQueryListResource):
         query = models.Query.create(**query_def)
         models.db.session.add(query)
         models.db.session.commit()
+        query.update_latest_result_by_query_hash()
+        models.db.session.commit()
 
         self.record_event({"action": "create", "object_id": query.id, "object_type": "query"})
 
@@ -363,6 +365,8 @@ class QueryResource(BaseResource):
 
         try:
             self.update_model(query, query_def)
+            models.db.session.commit()
+            query.update_latest_result_by_query_hash()
             models.db.session.commit()
         except StaleDataError:
             abort(409)
