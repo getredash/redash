@@ -98,8 +98,8 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@types/sql-formatter": "^2.3.0",
-    "@typescript-eslint/eslint-plugin": "^5.62.0",
-    "@typescript-eslint/parser": "^5.62.0",
+    "@typescript-eslint/eslint-plugin": "^8.57.1",
+    "@typescript-eslint/parser": "^8.57.1",
     "assert": "^2.1.0",
     "atob": "^2.1.2",
     "babel-jest": "^30.2.0",
@@ -195,6 +195,8 @@
   ],
   "pnpm": {
     "overrides": {
+      "@typescript-eslint/eslint-plugin": "^8.57.1",
+      "@typescript-eslint/parser": "^8.57.1",
       "@types/react": "^19.0.0",
       "@types/react-dom": "^19.0.0",
       "cheerio": "1.0.0-rc.12",
