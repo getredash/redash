@@ -44,20 +44,17 @@ function dispatchPointerDrag(handle, start, end) {
     throw new Error("PointerEvent is required for parameter drag tests.");
   }
 
-  let chain = cy.then(() => {
-    handle.dispatchEvent(createPointerEvent(EventCtor, "pointermove", start, 0));
-    handle.dispatchEvent(createPointerEvent(EventCtor, "pointerdown", start, 1));
-  });
-
-  points.forEach((point) => {
-    chain = chain
-      .then(() => Cypress.Promise.delay(12))
-      .then(() => {
-        ownerDocument.dispatchEvent(createPointerEvent(EventCtor, "pointermove", point, 1));
-      });
-  });
-
-  return chain
+  return points
+    .reduce(
+      (chain, point) =>
+        chain.then(() => Cypress.Promise.delay(12)).then(() => {
+          ownerDocument.dispatchEvent(createPointerEvent(EventCtor, "pointermove", point, 1));
+        }),
+      cy.then(() => {
+        handle.dispatchEvent(createPointerEvent(EventCtor, "pointermove", start, 0));
+        handle.dispatchEvent(createPointerEvent(EventCtor, "pointerdown", start, 1));
+      })
+    )
     .then(() => Cypress.Promise.delay(12))
     .then(() => {
       ownerDocument.dispatchEvent(createPointerEvent(EventCtor, "pointerup", end, 0));
