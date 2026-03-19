@@ -77,7 +77,7 @@ class SqlServer(BaseSQLQueryRunner):
 
     def _get_tables(self, schema):
         query = """
-        SELECT table_schema, table_name, column_name
+        SELECT QUOTENAME(table_schema) AS table_schema, QUOTENAME(table_name) AS table_name, QUOTENAME(column_name) AS column_name
         FROM INFORMATION_SCHEMA.COLUMNS
         WHERE table_schema NOT IN ('guest','INFORMATION_SCHEMA','sys','db_owner','db_accessadmin'
                                   ,'db_securityadmin','db_ddladmin','db_backupoperator','db_datareader'
