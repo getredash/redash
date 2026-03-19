@@ -1,15 +1,8 @@
 import json
 import re
 from redash.query_runner import BaseQueryRunner, register
-from redash.query_runner import TYPE_STRING, TYPE_INTEGER, TYPE_BOOLEAN, TYPE_FLOAT, TYPE_DATETIME
-# from redash.utils import json_dumps, json_loads
-
-# Check for required dependencies
-try:
-    from redash.utils.requests_session import requests_session as session
-    enabled = True
-except ImportError:
-    enabled = False
+from redash.query_runner import TYPE_STRING, TYPE_INTEGER, TYPE_BOOLEAN, TYPE_FLOAT, 
+from redash.utils.requests_session import requests_session as session
 
 # Map Python types to Redash types
 TYPES_MAP = {
@@ -64,10 +57,6 @@ class D1QueryRunner(BaseQueryRunner):
     @classmethod
     def name(cls):
         return "Cloudflare D1"
-
-    @classmethod
-    def enabled(cls):
-        return enabled
 
     def _query(self, sql, params=None):
         """Helper to run a raw SQL against D1 and return parsed JSON results."""
