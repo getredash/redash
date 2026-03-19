@@ -125,8 +125,8 @@ Cypress.Commands.add("dragBy", { prevSubject: true }, (subject, offsetLeft, offs
 });
 
 Cypress.Commands.add("realDragBy", { prevSubject: true }, (subject, offsetLeft = 0, offsetTop = 0, options = {}) => {
-  const steps = options.steps || 12;
-  const delay = options.delay || 8;
+  const steps = options.steps ?? 12;
+  const delay = options.delay ?? 8;
 
   return cy
     .wrap(subject)
@@ -151,13 +151,13 @@ Cypress.Commands.add("realDragBy", { prevSubject: true }, (subject, offsetLeft =
         chain = chain.then(() => dispatchMouseEvent("mouseMoved", x, y, 1)).then(() => Cypress.Promise.delay(delay));
       });
 
-      return chain.then(() => dispatchMouseEvent("mouseReleased", end.x, end.y, 0)).then(() => cy.wrap(subject));
+      return chain.then(() => dispatchMouseEvent("mouseReleased", end.x, end.y, 0)).then(() => $element);
     });
 });
 
 Cypress.Commands.add("typeInAce", { prevSubject: "element" }, (subject, text, options = {}) => {
   const replace = options.replace || false;
-  const delay = options.delay || 10;
+  const delay = options.delay ?? 10;
   const lines = text.replace(/\r\n/g, "\n").split("\n");
   const editorInput = () => cy.wrap(subject).find(".ace_text-input").first();
 

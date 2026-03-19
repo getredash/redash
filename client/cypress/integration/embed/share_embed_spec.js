@@ -1,16 +1,18 @@
 describe("Embedded Queries", () => {
+  const DEFAULT_DATA_SOURCE_NAME = "Test PostgreSQL";
+
   function ensureDataSourceSelected() {
     cy.getByTestId("SelectDataSource")
       .should("be.visible")
       .then(($select) => {
         const selectedText = $select.text().trim();
 
-        if (selectedText && selectedText !== "Choose data source...") {
+        if (selectedText.includes(DEFAULT_DATA_SOURCE_NAME)) {
           return;
         }
 
         cy.wrap($select).click();
-        cy.get(".ant-select-item-option").filter(":visible").first().click();
+        cy.contains(".ant-select-item-option:visible", DEFAULT_DATA_SOURCE_NAME).click();
       });
   }
 

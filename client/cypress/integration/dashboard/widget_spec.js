@@ -109,6 +109,8 @@ describe("Widget", () => {
         cy.getByTestId("ParameterApplyButton").click();
         cy.wait("@FreshResults", { timeout: 10000 });
 
+        // This widget includes local parameter controls in its header, so it is taller than
+        // the plain 5-row baseline case above.
         cy.get("@widget").invoke("height").should("eq", 535);
       });
 
@@ -135,7 +137,7 @@ describe("Widget", () => {
         cy.getByTestId("ParameterApplyButton").click();
         cy.wait("@FreshResults");
 
-        // expect height to stay unchanged (would have been 435)
+        // expect height to stay unchanged instead of re-enabling auto-height growth
         cy.get("@widget").invoke("height").should("eq", 335);
       });
     });

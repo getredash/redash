@@ -1,7 +1,7 @@
 import { isArray } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
-import moment from "moment";
+import dayjs from "dayjs";
 import DatePicker from "antd/lib/date-picker";
 import { clientConfig } from "@/services/auth";
 import { Moment } from "@/components/proptypes";
@@ -26,7 +26,7 @@ const DateTimeRangeInput = React.forwardRef(
       <RangePicker
         ref={ref}
         className={className}
-        showTime={{ defaultOpenValue: [moment(), moment()] }}
+        showTime={{ defaultOpenValue: [dayjs(), dayjs()] }}
         {...additionalAttributes}
         format={format}
         onChange={(nextValue) => onSelect(toMomentRange(nextValue))}

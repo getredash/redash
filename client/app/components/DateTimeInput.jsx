@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import moment from "moment";
+import dayjs from "dayjs";
 import DatePicker from "antd/lib/date-picker";
 import { clientConfig } from "@/services/auth";
 import { Moment } from "@/components/proptypes";
@@ -23,7 +23,7 @@ const DateTimeInput = React.forwardRef(
       <DatePicker
         ref={ref}
         className={className}
-        showTime={{ defaultOpenValue: moment() }}
+        showTime={{ defaultOpenValue: dayjs() }}
         {...additionalAttributes}
         format={format}
         placeholder="Select Date and Time"

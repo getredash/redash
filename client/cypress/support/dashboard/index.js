@@ -41,53 +41,52 @@ export function resizeBy(wrapper, offsetLeft = 0, offsetTop = 0) {
     .then(($handle) => {
       const handle = $handle[0];
       const { ownerDocument } = handle;
-      const { scrollX, scrollY } = ownerDocument.defaultView;
       const MouseEventCtor = ownerDocument.defaultView.MouseEvent;
-      const rect = handle.getBoundingClientRect();
-      const startX = rect.left + rect.width / 2;
-      const startY = rect.top + rect.height / 2;
-      const endX = startX + offsetLeft;
-      const endY = startY + offsetTop;
-      const mouseOptions = (clientX, clientY, buttons) => ({
-        bubbles: true,
-        cancelable: true,
-        button: 0,
-        buttons,
-        which: 1,
-        clientX,
-        clientY,
-        pageX: clientX + scrollX,
-        pageY: clientY + scrollY,
-        screenX: clientX,
-        screenY: clientY,
-        view: ownerDocument.defaultView,
+
+      return cy.wrap(handle).scrollIntoView().then(() => {
+        const { scrollX, scrollY } = ownerDocument.defaultView;
+        const rect = handle.getBoundingClientRect();
+        const startX = rect.left + rect.width / 2;
+        const startY = rect.top + rect.height / 2;
+        const endX = startX + offsetLeft;
+        const endY = startY + offsetTop;
+        const mouseOptions = (clientX, clientY, buttons) => ({
+          bubbles: true,
+          cancelable: true,
+          button: 0,
+          buttons,
+          which: 1,
+          clientX,
+          clientY,
+          pageX: clientX + scrollX,
+          pageY: clientY + scrollY,
+          screenX: clientX,
+          screenY: clientY,
+          view: ownerDocument.defaultView,
+        });
+
+        handle.dispatchEvent(new MouseEventCtor("mouseover", mouseOptions(startX, startY, 0)));
+        handle.dispatchEvent(new MouseEventCtor("mousedown", mouseOptions(startX, startY, 1)));
+
+        return cy
+          .then(() => Cypress.Promise.delay(16))
+          .then(() => {
+            ownerDocument.dispatchEvent(new MouseEventCtor("mousemove", mouseOptions(startX + 2, startY + 2, 1)));
+          })
+          .then(() => Cypress.Promise.delay(16))
+          .then(() => {
+            ownerDocument.dispatchEvent(
+              new MouseEventCtor("mousemove", mouseOptions(startX + (endX - startX) / 2, startY + (endY - startY) / 2, 1))
+            );
+          })
+          .then(() => Cypress.Promise.delay(16))
+          .then(() => {
+            ownerDocument.dispatchEvent(new MouseEventCtor("mousemove", mouseOptions(endX, endY, 1)));
+          })
+          .then(() => Cypress.Promise.delay(16))
+          .then(() => {
+            ownerDocument.dispatchEvent(new MouseEventCtor("mouseup", mouseOptions(endX, endY, 0)));
+          });
       });
-
-      cy.wrap(handle)
-        .scrollIntoView()
-        .then(() => {
-          handle.dispatchEvent(new MouseEventCtor("mouseover", mouseOptions(startX, startY, 0)));
-          handle.dispatchEvent(new MouseEventCtor("mousedown", mouseOptions(startX, startY, 1)));
-        });
-
-      return cy
-        .then(() => Cypress.Promise.delay(16))
-        .then(() => {
-          ownerDocument.dispatchEvent(new MouseEventCtor("mousemove", mouseOptions(startX + 2, startY + 2, 1)));
-        })
-        .then(() => Cypress.Promise.delay(16))
-        .then(() => {
-          ownerDocument.dispatchEvent(
-            new MouseEventCtor("mousemove", mouseOptions(startX + (endX - startX) / 2, startY + (endY - startY) / 2, 1))
-          );
-        })
-        .then(() => Cypress.Promise.delay(16))
-        .then(() => {
-          ownerDocument.dispatchEvent(new MouseEventCtor("mousemove", mouseOptions(endX, endY, 1)));
-        })
-        .then(() => Cypress.Promise.delay(16))
-        .then(() => {
-          ownerDocument.dispatchEvent(new MouseEventCtor("mouseup", mouseOptions(endX, endY, 0)));
-        });
     });
 }
