@@ -1,13 +1,12 @@
 import json
 import re
-import requests
 from redash.query_runner import BaseQueryRunner, register
 from redash.query_runner import TYPE_STRING, TYPE_INTEGER, TYPE_BOOLEAN, TYPE_FLOAT, TYPE_DATETIME
-from redash.utils import json_dumps, json_loads
+# from redash.utils import json_dumps, json_loads
 
 # Check for required dependencies
 try:
-    import requests
+    from redash.utils.requests_session import requests_session as session
     enabled = True
 except ImportError:
     enabled = False
@@ -82,7 +81,7 @@ class D1QueryRunner(BaseQueryRunner):
         }
 
         try:
-            resp = requests.post(
+            resp = session.post(
                 self.configuration.get("cf_url"),
                 headers=headers,
                 data=json.dumps(body),
@@ -97,7 +96,7 @@ class D1QueryRunner(BaseQueryRunner):
                 return []
             return results[0].get("results", [])
 
-        except requests.exceptions.RequestException as e:
+        except session.exceptions.RequestException as e:
             raise Exception(f"Failed to connect to Cloudflare D1: {str(e)}")
         except json.JSONDecodeError as e:
             raise Exception(f"Invalid JSON response from D1: {str(e)}")
