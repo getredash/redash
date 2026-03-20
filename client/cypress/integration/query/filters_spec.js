@@ -109,4 +109,43 @@ describe("Query Filters", () => {
       expectFirstColumnToHaveMembers(["a", "a", "a", "a", "b", "b", "b", "c", "c", "c", "c"]);
     });
   });
+
+  describe("Multi Filter with unquoted alias", () => {
+    beforeEach(() => {
+      const queryData = {
+        name: "Query Filters",
+        query: `SELECT stage1 AS stage1__multiFilter, stage2, value FROM (${SQL}) q`,
+      };
+
+      cy.createQuery(queryData).then(({ id }) => cy.visit(`/queries/${id}`));
+      cy.getByTestId("ExecuteButton").click();
+    });
+
+    it("treats the lowercase SQL alias as a multi-select filter", () => {
+      cy.getByTestId("FilterName-stage1__multifilter")
+        .find(".ant-select-selection-item-content")
+        .then(($selectedOptions) => Cypress.$.map($selectedOptions, (item) => Cypress.$(item).text()))
+        .then((selectedOptions) => expect(selectedOptions).to.have.members(["a", "b", "c"]));
+
+      expectTableToHaveLength(11);
+
+      cy.getByTestId("FilterName-stage1__multifilter").find(".ant-select").click();
+      cy.getByTestId("ClearOption").click();
+      cy.getByTestId("FilterName-stage1__multifilter").click();
+
+      cy.getByTestId("TableVisualization").should("not.exist");
+
+      cy.getByTestId("FilterName-stage1__multifilter").find(".ant-select").click();
+      cy.contains(".ant-select-item-option-grouped > .ant-select-item-option-content", "b").click();
+      cy.getByTestId("FilterName-stage1__multifilter").click();
+
+      cy.getByTestId("FilterName-stage1__multifilter")
+        .find(".ant-select-selection-item-content")
+        .should("have.length", 1)
+        .and("contain.text", "b");
+
+      expectTableToHaveLength(3);
+      expectFirstColumnToHaveMembers(["b", "b", "b"]);
+    });
+  });
 });
