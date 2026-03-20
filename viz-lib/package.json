@@ -52,7 +52,6 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@types/react-pivottable": "^0.11.6",
-    "@types/react-plotly.js": "^2.6.4",
     "@types/tinycolor2": "^1.4.2",
     "babel-loader": "^10.0.0",
     "babel-plugin-istanbul": "^6.1.1",
@@ -100,7 +99,6 @@
     "numeral": "^2.0.6",
     "plotly.js": "3.3.1",
     "react-pivottable": "^0.11.0",
-    "react-plotly.js": "^2.6.0",
     "tinycolor2": "^1.4.1",
     "use-debounce": "^3.4.1",
     "use-media": "^1.4.0"

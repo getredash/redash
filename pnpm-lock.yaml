@@ -420,9 +420,6 @@ importers:
       react-pivottable:
         specifier: ^0.11.0
         version: 0.11.0(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-      react-plotly.js:
-        specifier: ^2.6.0
-        version: 2.6.0(plotly.js@3.3.1(mapbox-gl@1.13.3))(react@19.2.4)
       tinycolor2:
         specifier: ^1.4.1
         version: 1.6.0
@@ -493,9 +490,6 @@ importers:
       '@types/react-pivottable':
         specifier: ^0.11.6
         version: 0.11.6
-      '@types/react-plotly.js':
-        specifier: ^2.6.4
-        version: 2.6.4
       '@types/tinycolor2':
         specifier: ^1.4.2
         version: 1.4.6
@@ -7198,12 +7192,6 @@ packages:
     peerDependencies:
       react: '>=15.0.0'
       react-dom: '>=15.0.0'
-
-  react-plotly.js@2.6.0:
-    resolution: {integrity: sha512-g93xcyhAVCSt9kV1svqG1clAEdL6k3U+jjuSzfTV7owaSU9Go6Ph8bl25J+jKfKvIGAEYpe4qj++WHJuc9IaeA==}
-    peerDependencies:
-      plotly.js: '>1.34.0'
-      react: '>0.13.0'
 
   react-refresh@0.18.0:
     resolution: {integrity: sha512-QgT5//D3jfjJb6Gsjxv0Slpj23ip+HtOpnNgnb2S5zU3CB26G/IDPGoy4RJB42wzFE46DRsstbW6tKHoKbhAxw==}
@@ -17122,12 +17110,6 @@ snapshots:
       react-draggable: 3.3.2(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       react-sortablejs: 1.5.1(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(sortablejs@1.15.7)
       sortablejs: 1.15.7
-
-  react-plotly.js@2.6.0(plotly.js@3.3.1(mapbox-gl@1.13.3))(react@19.2.4):
-    dependencies:
-      plotly.js: 3.3.1(mapbox-gl@1.13.3)
-      prop-types: 15.8.1
-      react: 19.2.4
 
   react-refresh@0.18.0: {}
 
