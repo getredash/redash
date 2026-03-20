@@ -1,7 +1,14 @@
 import json
 import re
-from redash.query_runner import BaseQueryRunner, register
-from redash.query_runner import TYPE_STRING, TYPE_INTEGER, TYPE_BOOLEAN, TYPE_FLOAT, TYPE_DATETIME
+from redash.query_runner import (
+    TYPE_BOOLEAN,
+    TYPE_DATETIME,
+    TYPE_FLOAT,
+    TYPE_INTEGER,
+    TYPE_STRING,
+    BaseQueryRunner,
+    register,
+)
 from redash.utils.requests_session import requests_session as session
 
 # Map Python types to Redash types
@@ -150,7 +157,7 @@ class D1QueryRunner(BaseQueryRunner):
                 })
 
         except Exception as e:
-            pass
+            raise Exception(f"Failed to get schema: {str(e)}")
 
         return schema
 
