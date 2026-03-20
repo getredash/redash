@@ -5,6 +5,7 @@ module.exports = defineConfig({
     baseUrl: 'http://localhost:5001',
     defaultCommandTimeout: 20000,
     downloadsFolder: 'client/cypress/downloads',
+    experimentalSessionAndOrigin: true,
     fixturesFolder: 'client/cypress/fixtures',
     requestTimeout: 15000,
     screenshotsFolder: 'client/cypress/screenshots',

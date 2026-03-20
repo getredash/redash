@@ -6,6 +6,37 @@ export function assertPlotPreview(should = "exist") {
   cy.getByTestId("VisualizationPreview").find("g.overplot").should("exist").find("g.points").should(should);
 }
 
+function escapeRegExp(text) {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+export function ensureChartColumnMapping(fieldTestId, optionTestId, label) {
+  cy.getByTestId(fieldTestId).then(($field) => {
+    if (!$field.text().includes(label)) {
+      cy.wrap($field).selectAntdOption(optionTestId);
+    }
+  });
+}
+
+export function ensureChartMultiColumnMapping(fieldTestId, labels) {
+  cy.getByTestId(fieldTestId).then(($field) => {
+    const missingLabels = labels.filter((label) => !$field.text().includes(label));
+
+    if (missingLabels.length === 0) {
+      return;
+    }
+
+    missingLabels.forEach((label) => {
+      cy.wrap($field).click({ force: true });
+      cy.wrap($field).find(".ant-select-input").should("exist").type(label, { force: true });
+      cy.contains(".ant-select-dropdown:not(.ant-select-dropdown-hidden):visible .ant-select-item-option", new RegExp(`^${escapeRegExp(label)}$`, "i"))
+        .scrollIntoView()
+        .click({ force: true });
+      cy.getByTestId(fieldTestId).should("contain.text", label);
+    });
+  });
+}
+
 export function createChartThroughUI(chartName, chartSpecificAssertionFn = () => {}) {
   cy.getByTestId("NewVisualization").click();
   cy.getByTestId("VisualizationType").selectAntdOption("VisualizationType.CHART");

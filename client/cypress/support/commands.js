@@ -6,35 +6,58 @@ import "@testing-library/cypress/add-commands";
 
 const { each } = Cypress._;
 
+function escapeRegExp(text) {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function getAntdOptionLabel(testId) {
+  if (testId.startsWith("ColorOption")) {
+    return testId.slice("ColorOption".length);
+  }
+
+  const parts = testId.split(".");
+  const label = parts[parts.length - 1];
+  const specialLabels = {
+    CHOROPLETH: "Map (Choropleth)",
+  };
+
+  if (specialLabels[label]) {
+    return specialLabels[label];
+  }
+
+  if (label.includes("_")) {
+    return label
+      .toLowerCase()
+      .split("_")
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(" ");
+  }
+
+  return label;
+}
+
 Cypress.Commands.add("login", (email = "admin@redash.io", password = "password") => {
-  let csrf;
-  cy.visit("/login");
-  cy.getCookie("csrf_token")
-    .then((cookie) => {
-      if (cookie) {
-        csrf = cookie.value;
-      } else {
-        cy.visit("/login").then(() => {
-          cy.get('input[name="csrf_token"]')
-            .invoke("val")
-            .then((csrf_token) => {
-              csrf = csrf_token;
-            });
+  cy.session(
+    [email, password],
+    () => {
+      cy.visit("/login");
+      cy.getByTestId("Email").clear().type(email);
+      cy.getByTestId("Password").clear().type(`${password}{enter}`);
+      cy.location("pathname", { timeout: 20000 }).should("not.equal", "/login");
+      cy.request("/api/session").its("body.user.id").should("exist");
+    },
+    {
+      cacheAcrossSpecs: true,
+      validate: () => {
+        cy.request({ url: "/api/session", failOnStatusCode: false }).then(({ status, body }) => {
+          expect(status).to.equal(200);
+          expect(body.user.id).to.exist;
         });
-      }
-    })
-    .then(() => {
-      cy.request({
-        url: "/login",
-        method: "POST",
-        form: true,
-        body: {
-          email,
-          password,
-          csrf_token: csrf,
-        },
-      });
-    });
+      },
+    }
+  );
+
+  return cy.request("/api/session");
 });
 
 Cypress.Commands.add("logout", () => cy.visit("/logout"));
@@ -72,7 +95,21 @@ Cypress.Commands.add("clickThrough", (...args) => {
  */
 Cypress.Commands.add("selectAntdOption", { prevSubject: "element" }, (subject, testId) => {
   cy.wrap(subject).click({ force: true });
-  return cy.getByTestId(testId).filter(":visible").first().click({ force: true });
+
+  return cy.get("body").then(($body) => {
+    const popupSelector = ".ant-select-dropdown:not(.ant-select-dropdown-hidden):visible";
+    const dataTestSelector = `${popupSelector} [data-test="${testId}"]`;
+    const visibleOption = $body.find(dataTestSelector).last();
+
+    if (visibleOption.length > 0) {
+      return cy.wrap(visibleOption).scrollIntoView().click({ force: true });
+    }
+
+    const optionLabel = getAntdOptionLabel(testId);
+    const exactLabel = new RegExp(`^${escapeRegExp(optionLabel)}$`, "i");
+
+    return cy.contains(`${popupSelector} .ant-select-item-option`, exactLabel).scrollIntoView().click({ force: true });
+  });
 });
 
 Cypress.Commands.add("fillInputs", (elements, { wait = 0 } = {}) => {
