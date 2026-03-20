@@ -18,13 +18,29 @@ export const FilterType = PropTypes.shape({
 
 export const FiltersType = PropTypes.arrayOf(FilterType);
 
+function getSelectedOptionValue(option) {
+  return get(option, "value", get(option, "key"));
+}
+
+function toSelectValue(filter, value) {
+  return {
+    value: `${indexOf(filter.values, value)}`,
+    key: `${indexOf(filter.values, value)}`,
+    label: formatColumnValue(value, get(filter, "column.type")),
+  };
+}
+
 function createFilterChangeHandler(filters, onChange) {
   return (filter, values) => {
     if (isArray(values)) {
-      values = map(values, (value) => filter.values[toNumber(value.key)] || value.key);
+      values = map(values, (value) => {
+        const selectedValue = getSelectedOptionValue(value);
+        return filter.values[toNumber(selectedValue)] ?? selectedValue;
+      });
     } else {
-      const _values = filter.values[toNumber(values.key)];
-      values = _values !== undefined ? _values : values.key;
+      const selectedValue = getSelectedOptionValue(values);
+      const resolvedValue = filter.values[toNumber(selectedValue)];
+      values = resolvedValue !== undefined ? resolvedValue : selectedValue;
     }
 
     if (filter.multiple && includes(values, ALL_VALUES)) {
@@ -97,11 +113,8 @@ function Filters({ filters, onChange = () => {} }) {
                     mode={filter.multiple ? "multiple" : "default"}
                     value={
                       isArray(filter.current)
-                        ? map(filter.current, (value) => ({
-                            key: `${indexOf(filter.values, value)}`,
-                            label: formatColumnValue(value),
-                          }))
-                        : { key: `${indexOf(filter.values, filter.current)}`, label: formatColumnValue(filter.current) }
+                        ? map(filter.current, (value) => toSelectValue(filter, value))
+                        : toSelectValue(filter, filter.current)
                     }
                     allowClear={filter.multiple}
                     optionFilterProp="children"

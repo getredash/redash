@@ -66,7 +66,7 @@ function getComponent(schedule = {}, options = {}) {
   const props = getProps(schedule, options);
   const component = new ScheduleDialog.Component(props);
 
-  component.setState = updater => {
+  component.setState = (updater) => {
     const nextState = typeof updater === "function" ? updater(component.state, component.props) : updater;
     component.state = { ...component.state, ...nextState };
   };
@@ -208,7 +208,7 @@ describe("ScheduleDialog", () => {
       const [component] = getComponent(null, { refreshOptions });
       const optionTexts = ["Never"];
 
-      Object.values(component.intervals).forEach(options => {
+      Object.values(component.intervals).forEach((options) => {
         options.forEach(([, seconds]) => {
           optionTexts.push(durationHumanize(seconds));
         });

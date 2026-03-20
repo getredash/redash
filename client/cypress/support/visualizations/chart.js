@@ -46,12 +46,12 @@ export function assertTabbedEditor(chartSpecificTabbedEditorAssertionFn = () => 
 
 export function assertAxesAndAddLabels(xaxisLabel, yaxisLabel) {
   cy.getByTestId("VisualizationEditor.Tabs.XAxis").click();
-  cy.getByTestId("Chart.XAxis.Type").contains(".ant-select-selection-item", "Auto Detect").should("exist");
+  cy.getByTestId("Chart.XAxis.Type").should("contain.text", "Auto Detect");
 
   cy.getByTestId("Chart.XAxis.Name").clear().type(xaxisLabel);
 
   cy.getByTestId("VisualizationEditor.Tabs.YAxis").click();
-  cy.getByTestId("Chart.LeftYAxis.Type").contains(".ant-select-selection-item", "Linear").should("exist");
+  cy.getByTestId("Chart.LeftYAxis.Type").should("contain.text", "Linear");
 
   cy.getByTestId("Chart.LeftYAxis.Name").clear().type(yaxisLabel);
 

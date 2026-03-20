@@ -2,7 +2,8 @@ import { dragParam } from "../../support/parameters";
 import dayjs from "dayjs";
 
 function openAndSearchAntdDropdown(testId, paramOption) {
-  cy.getByTestId(testId).find(".ant-select-selection-search-input").type(paramOption, { force: true });
+  cy.getByTestId(testId).find(".ant-select").click();
+  cy.getByTestId(testId).find(".ant-select-input").type(paramOption, { force: true });
 }
 
 function getClientDateFormat() {
@@ -127,13 +128,13 @@ describe("Parameter", () => {
     });
 
     it("updates the results after clicking Apply", () => {
-      cy.getByTestId("ParameterName-test-parameter").find("input").type("{selectall}42");
+      cy.getByTestId("ParameterName-test-parameter").find("input").type("{selectall}42", { force: true });
 
       cy.getByTestId("ParameterApplyButton").click();
 
       cy.getByTestId("TableVisualization").should("contain", 42);
 
-      cy.getByTestId("ParameterName-test-parameter").find("input").type("{selectall}31415");
+      cy.getByTestId("ParameterName-test-parameter").find("input").type("{selectall}31415", { force: true });
 
       cy.getByTestId("ParameterApplyButton").click();
 
@@ -184,13 +185,12 @@ describe("Parameter", () => {
         SaveParameterSettings
       `);
 
-      cy.getByTestId("ParameterName-test-parameter").find(".ant-select-selection-search").click();
-
-      // select all unselected options
-      cy.get(".ant-select-item-option").each(($option) => {
-        if (!$option.hasClass("ant-select-item-option-selected")) {
-          cy.wrap($option).click();
-        }
+      // Enum parameters keep the first option selected by default after enabling multi-select.
+      ["value2", "value3"].forEach((value) => {
+        cy.getByTestId("ParameterName-test-parameter").find(".ant-select-input").click({ force: true });
+        cy.get(".ant-select-dropdown:not(.ant-select-dropdown-hidden)")
+          .contains(".ant-select-item-option", value)
+          .click();
       });
 
       cy.getByTestId("QueryEditor").click(); // just to close the select menu
@@ -232,9 +232,7 @@ describe("Parameter", () => {
       });
 
       it("should show a 'No options available' message when you click", () => {
-        cy.getByTestId("ParameterName-test-parameter")
-          .find(".ant-select:not(.ant-select-disabled) .ant-select-selector")
-          .click();
+        cy.getByTestId("ParameterName-test-parameter").find(".ant-select:not(.ant-select-disabled)").click();
 
         cy.contains(".ant-select-item-empty", "No options available");
       });
@@ -296,7 +294,7 @@ describe("Parameter", () => {
 
         // make sure all options are unselected and select all
         cy.get(".ant-select-item-option").each(($option) => {
-          expect($option).not.to.have.class("ant-select-dropdown-menu-item-selected");
+          expect($option).not.to.have.class("ant-select-item-option-selected");
           cy.wrap($option).click();
         });
 

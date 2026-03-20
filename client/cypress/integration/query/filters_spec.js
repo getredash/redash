@@ -31,7 +31,7 @@ describe("Query Filters", () => {
     });
 
     it("filters rows in a Table Visualization", () => {
-      cy.getByTestId("FilterName-stage1::filter").find(".ant-select-selection-item").should("have.text", "a");
+      cy.getByTestId("FilterName-stage1::filter").find(".ant-select").should("contain.text", "a");
 
       expectTableToHaveLength(4);
       expectFirstColumnToHaveMembers(["a", "a", "a", "a"]);
@@ -72,7 +72,7 @@ describe("Query Filters", () => {
 
       // Clear Option
 
-      cy.getByTestId("FilterName-stage1::multi-filter").find(".ant-select-selector").click();
+      cy.getByTestId("FilterName-stage1::multi-filter").find(".ant-select").click();
       cy.getByTestId("ClearOption").click();
       cy.getByTestId("FilterName-stage1::multi-filter").click(); // close dropdown
 
@@ -80,7 +80,7 @@ describe("Query Filters", () => {
 
       // Single Option selected
 
-      cy.getByTestId("FilterName-stage1::multi-filter").find(".ant-select-selector").click();
+      cy.getByTestId("FilterName-stage1::multi-filter").find(".ant-select").click();
       cy.contains(".ant-select-item-option-grouped > .ant-select-item-option-content", "a").click();
       cy.getByTestId("FilterName-stage1::multi-filter").click(); // close dropdown
 
@@ -90,7 +90,7 @@ describe("Query Filters", () => {
 
       // Two Options selected
 
-      cy.getByTestId("FilterName-stage1::multi-filter").find(".ant-select-selector").click();
+      cy.getByTestId("FilterName-stage1::multi-filter").find(".ant-select").click();
       cy.contains(".ant-select-item-option-content", "b").click();
       cy.getByTestId("FilterName-stage1::multi-filter").click(); // close dropdown
 
@@ -100,7 +100,7 @@ describe("Query Filters", () => {
 
       // Select All Option
 
-      cy.getByTestId("FilterName-stage1::multi-filter").find(".ant-select-selector").click();
+      cy.getByTestId("FilterName-stage1::multi-filter").find(".ant-select").click();
       cy.getByTestId("SelectAllOption").click();
       cy.getByTestId("FilterName-stage1::multi-filter").click(); // close dropdown
 

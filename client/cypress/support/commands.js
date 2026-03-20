@@ -71,8 +71,8 @@ Cypress.Commands.add("clickThrough", (...args) => {
  * Selects ANTD selector option
  */
 Cypress.Commands.add("selectAntdOption", { prevSubject: "element" }, (subject, testId) => {
-  cy.wrap(subject).click();
-  return cy.getByTestId(testId).click({ force: true });
+  cy.wrap(subject).click({ force: true });
+  return cy.getByTestId(testId).filter(":visible").first().click({ force: true });
 });
 
 Cypress.Commands.add("fillInputs", (elements, { wait = 0 } = {}) => {
