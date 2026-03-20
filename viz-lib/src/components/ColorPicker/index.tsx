@@ -16,7 +16,7 @@ import { validateColor } from "./utils";
 
 import "./index.less";
 
-type OwnProps = {
+type ColorPickerProps = {
   color?: string;
   placement?:
     | "top"
@@ -48,7 +48,7 @@ type OwnProps = {
 
 const colorPickerDefaultProps = {
   color: "#FFFFFF",
-  placement: "top",
+  placement: "top" as const,
   presetColors: null,
   presetColumns: 8,
   interactive: false,
@@ -59,20 +59,18 @@ const colorPickerDefaultProps = {
   onChange: () => {},
 };
 
-type Props = OwnProps;
-
 export default function ColorPicker({
-  color: color = "#FFFFFF",
-  placement: placement = "top",
-  presetColors: presetColors = null,
-  presetColumns: presetColumns = 8,
-  interactive: interactive = false,
-  children: children = null,
-  onChange: onChange = () => {},
-  triggerProps: triggerProps = {} as Record<string, any>,
-  addonBefore: addonBefore = null,
-  addonAfter: addonAfter = null,
-}: Props) {
+  color = colorPickerDefaultProps.color,
+  placement = colorPickerDefaultProps.placement,
+  presetColors = colorPickerDefaultProps.presetColors,
+  presetColumns = colorPickerDefaultProps.presetColumns,
+  interactive = colorPickerDefaultProps.interactive,
+  children = colorPickerDefaultProps.children,
+  onChange = colorPickerDefaultProps.onChange,
+  triggerProps = colorPickerDefaultProps.triggerProps,
+  addonBefore = colorPickerDefaultProps.addonBefore,
+  addonAfter = colorPickerDefaultProps.addonAfter,
+}: ColorPickerProps) {
   const [visible, setVisible] = useState(false);
   const validatedColor = useMemo(() => validateColor(color), [color]);
   const [currentColor, setCurrentColor] = useState("");
@@ -120,20 +118,25 @@ export default function ColorPicker({
     <span className="color-picker-wrapper">
       {addonBefore}
       <Popover
-        arrowPointAtCenter
-        overlayClassName={`color-picker ${interactive ? "color-picker-interactive" : "color-picker-with-actions"}`}
-        // @ts-expect-error ts-migrate(2322) FIXME: Type '{ "--color-picker-selected-color": string; }... Remove this comment to see the full error message
-        overlayStyle={{ "--color-picker-selected-color": currentColor }}
+        arrow={{ pointAtCenter: true }}
+        classNames={{ root: `color-picker ${interactive ? "color-picker-interactive" : "color-picker-with-actions"}` }}
+        styles={{
+          root: {
+            ["--color-picker-selected-color" as const]: currentColor,
+          } as React.CSSProperties,
+        }}
         content={
           <Card
             data-test="ColorPicker"
             className="color-picker-panel"
-            bordered={false}
+            variant="borderless"
             title={toString(currentColor).toUpperCase()}
-            headStyle={{
-              backgroundColor: currentColor,
-              // @ts-expect-error ts-migrate(2322) FIXME: Type 'string | null | undefined' is not assignable... Remove this comment to see the full error message
-              color: chooseTextColorForBackground(currentColor),
+            styles={{
+              header: {
+                backgroundColor: currentColor,
+                // @ts-expect-error ts-migrate(2322) FIXME: Type 'string | null | undefined' is not assignable... Remove this comment to see the full error message
+                color: chooseTextColorForBackground(currentColor),
+              },
             }}
             actions={actions}
           >
@@ -148,8 +151,8 @@ export default function ColorPicker({
         }
         trigger="click"
         placement={placement}
-        visible={visible}
-        onVisibleChange={setVisible}
+        open={visible}
+        onOpenChange={setVisible}
       >
         {
           (children || (

@@ -89,14 +89,14 @@ export default function DatabricksSchemaBrowser({
           onChange={(event) => handleFilterChange(event.target.value)}
           addonBefore={
             <Select
-              dropdownClassName="databricks-schema-browser-db-dropdown"
+              classNames={{ popup: { root: "databricks-schema-browser-db-dropdown" } }}
               loading={loadingDatabases}
               disabled={loadingDatabases}
               onChange={handleDatabaseSelection}
               value={currentDatabaseName}
               showSearch
               onSearch={handleDatabaseFilterChange}
-              onDropdownVisibleChange={setIsDatabaseSelectOpen}
+              onOpenChange={setIsDatabaseSelectOpen}
               placeholder={
                 <>
                   <i className="fa fa-database m-r-5" aria-hidden="true" /> Database

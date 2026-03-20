@@ -26,8 +26,8 @@
   "author": "Redash",
   "license": "BSD-2-Clause",
   "peerDependencies": {
-    "@ant-design/icons": ">=5.0.0",
-    "antd": ">=5.0.0",
+    "@ant-design/icons": ">=6.0.0",
+    "antd": ">=6.0.0",
     "react": ">=19.0.0",
     "react-dom": ">=19.0.0"
   },

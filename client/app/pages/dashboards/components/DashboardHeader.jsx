@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 import { map, includes, compact } from "lodash";
 import Button from "antd/lib/button";
 import Dropdown from "antd/lib/dropdown";
+import Space from "antd/lib/space";
 import EllipsisOutlinedIcon from "@ant-design/icons/EllipsisOutlined";
 import Modal from "antd/lib/modal";
 import Tooltip from "@/components/Tooltip";
@@ -88,7 +89,7 @@ function RefreshButton({ dashboardConfiguration }) {
   }, [refreshRateOptions, allowedIntervals, refreshRate]);
 
   return (
-    <Button.Group>
+    <Space.Compact>
       <Tooltip title={refreshRate ? `Auto Refreshing every ${durationHumanize(refreshRate)}` : null}>
         <Button type={buttonType(refreshRate)} onClick={() => refreshDashboard()}>
           <i className={cx("zmdi zmdi-refresh m-r-5", { "zmdi-hc-spin": refreshing })} aria-hidden="true" />
@@ -105,7 +106,7 @@ function RefreshButton({ dashboardConfiguration }) {
           <span className="sr-only">Split button!</span>
         </Button>
       </Dropdown>
-    </Button.Group>
+    </Space.Compact>
   );
 }
 

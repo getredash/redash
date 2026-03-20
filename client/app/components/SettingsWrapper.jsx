@@ -10,20 +10,21 @@ function wrapSettingsTab(id, options, WrappedComponent) {
 
   return function SettingsTab(props) {
     const activeItem = settingsMenu.getActiveItem(location.path);
+    const items = settingsMenu.getAvailableItems().map((item) => ({
+      key: item.title,
+      label: (
+        <Link href={item.path} data-test="SettingsScreenItem">
+          {item.title}
+        </Link>
+      ),
+    }));
+
     return (
       <div className="settings-screen">
         <div className="container">
           <PageHeader title="Settings" />
           <div className="bg-white tiled">
-            <Menu selectedKeys={[activeItem && activeItem.title]} selectable={false} mode="horizontal">
-              {settingsMenu.getAvailableItems().map((item) => (
-                <Menu.Item key={item.title}>
-                  <Link href={item.path} data-test="SettingsScreenItem">
-                    {item.title}
-                  </Link>
-                </Menu.Item>
-              ))}
-            </Menu>
+            <Menu selectedKeys={[activeItem && activeItem.title]} selectable={false} mode="horizontal" items={items} />
             <div className="p-15">
               <div>
                 <WrappedComponent {...props} />

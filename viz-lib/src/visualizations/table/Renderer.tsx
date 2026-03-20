@@ -42,7 +42,7 @@ function getSearchColumns(columns: any, { limit = Infinity, renderColumn = (col:
 function SearchInputInfoIcon({ searchColumns }: any) {
   return (
     <Popover
-      arrowPointAtCenter
+      arrow={{ pointAtCenter: true }}
       placement="topRight"
       content={
         <div className="table-visualization-search-info-content">

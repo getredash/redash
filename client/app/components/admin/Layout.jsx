@@ -7,22 +7,27 @@ import Link from "@/components/Link";
 import "./layout.less";
 
 export default function Layout({ activeTab = "system_status", children = null }) {
+  const items = [
+    {
+      key: "system_status",
+      label: <Link href="admin/status">System Status</Link>,
+    },
+    {
+      key: "jobs",
+      label: <Link href="admin/queries/jobs">RQ Status</Link>,
+    },
+    {
+      key: "outdated_queries",
+      label: <Link href="admin/queries/outdated">Outdated Queries</Link>,
+    },
+  ];
+
   return (
     <div className="admin-page-layout">
       <div className="container">
         <PageHeader title="Admin" />
         <div className="bg-white tiled">
-          <Menu selectedKeys={[activeTab]} selectable={false} mode="horizontal">
-            <Menu.Item key="system_status">
-              <Link href="admin/status">System Status</Link>
-            </Menu.Item>
-            <Menu.Item key="jobs">
-              <Link href="admin/queries/jobs">RQ Status</Link>
-            </Menu.Item>
-            <Menu.Item key="outdated_queries">
-              <Link href="admin/queries/outdated">Outdated Queries</Link>
-            </Menu.Item>
-          </Menu>
+          <Menu selectedKeys={[activeTab]} selectable={false} mode="horizontal" items={items} />
           {children}
         </div>
       </div>

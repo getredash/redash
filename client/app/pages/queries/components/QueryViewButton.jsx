@@ -43,7 +43,7 @@ export default function QueryViewButton({
   }, [shortcut, onClick]);
 
   return (
-    <ButtonTooltip title={title} shortcut={shortcut} visible={tooltipVisible}>
+    <ButtonTooltip title={title} shortcut={shortcut} open={tooltipVisible}>
       <span {...eventHandlers}>
         <Button
           data-test="ExecuteButton"

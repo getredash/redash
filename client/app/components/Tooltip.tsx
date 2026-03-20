@@ -1,14 +1,38 @@
 import React from "react";
-import AntTooltip, { TooltipProps } from "antd/lib/tooltip";
-import { getRenderPropValue } from "antd/lib/_util/getRenderPropValue";
+import AntTooltip from "antd/lib/tooltip";
+import type { TooltipProps } from "antd/lib/tooltip";
 import { isNil } from "lodash";
 
-export default function Tooltip({ title, ...restProps }: TooltipProps) {
+type LegacyTooltipProps = TooltipProps & {
+  arrowPointAtCenter?: boolean;
+  visible?: TooltipProps["open"];
+  onVisibleChange?: TooltipProps["onOpenChange"];
+};
+
+export default function Tooltip({
+  title,
+  arrow,
+  arrowPointAtCenter = false,
+  visible,
+  onVisibleChange,
+  open = visible,
+  onOpenChange = onVisibleChange,
+  ...restProps
+}: LegacyTooltipProps) {
   const liveTitle = !isNil(title) ? (
     <span role="status" aria-live="assertive" aria-relevant="additions">
-      {getRenderPropValue(title)}
+      {typeof title === "function" ? title() : title}
     </span>
   ) : null;
 
-  return <AntTooltip trigger={["hover", "focus"]} title={liveTitle} {...restProps} />;
+  return (
+    <AntTooltip
+      trigger={["hover", "focus"]}
+      title={liveTitle}
+      arrow={arrowPointAtCenter ? { pointAtCenter: true } : arrow}
+      open={open}
+      onOpenChange={onOpenChange}
+      {...restProps}
+    />
+  );
 }

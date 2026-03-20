@@ -53,7 +53,7 @@ export default function ColumnsSettings({ options, onOptionsChange, variant }: C
         className: containerClass,
       }}
     >
-      <Collapse bordered={false} defaultActiveKey={[]} expandIconPosition="right">
+      <Collapse bordered={false} defaultActiveKey={[]} expandIconPlacement="end">
         {map(options.columns, (column, index) => (
           <SortableItem
             key={column.name}

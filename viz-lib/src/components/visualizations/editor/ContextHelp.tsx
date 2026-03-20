@@ -1,26 +1,32 @@
 import React from "react";
-import Popover from "antd/lib/popover";
+import { Popover } from "antd";
+import type { PopoverProps } from "antd";
 import QuestionCircleFilledIcon from "@ant-design/icons/QuestionCircleFilled";
 import { visualizationsSettings } from "@/visualizations/visualizationsSettings";
 
 import "./context-help.less";
 
-type OwnContextHelpProps = {
+type ContextHelpProps = PopoverProps & {
   icon?: React.ReactNode;
   children?: React.ReactNode;
-  [key: string]: any;
+  arrowPointAtCenter?: boolean;
 };
 
 const contextHelpDefaultProps = {
   icon: null,
   children: null,
+  arrowPointAtCenter: false,
 };
 
-type ContextHelpProps = OwnContextHelpProps;
-
-export default function ContextHelp({ icon: icon = null, children: children = null, ...props }: ContextHelpProps) {
+export default function ContextHelp({
+  icon = contextHelpDefaultProps.icon,
+  children = contextHelpDefaultProps.children,
+  arrow,
+  arrowPointAtCenter = contextHelpDefaultProps.arrowPointAtCenter,
+  ...props
+}: ContextHelpProps) {
   return (
-    <Popover {...props} content={children}>
+    <Popover {...props} arrow={arrowPointAtCenter ? { pointAtCenter: true } : arrow} content={children}>
       {(icon || ContextHelp.defaultIcon) as React.ReactElement}
     </Popover>
   );

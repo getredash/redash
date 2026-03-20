@@ -42,10 +42,10 @@
   },
   "homepage": "https://redash.io/",
   "dependencies": {
-    "@ant-design/icons": "^5.6.1",
+    "@ant-design/icons": "^6.1.0",
     "@redash/viz": "workspace:*",
     "ace-builds": "^1.43.3",
-    "antd": "^5.24.7",
+    "antd": "^6.3.3",
     "axios": "0.27.2",
     "axios-auth-refresh": "3.3.6",
     "bootstrap": "^3.4.1",

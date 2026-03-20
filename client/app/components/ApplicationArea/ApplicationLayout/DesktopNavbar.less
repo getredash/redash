@@ -77,6 +77,24 @@
       display: none;
     }
 
+    .ant-menu-item > .ant-menu-item-icon,
+    .ant-menu-submenu-title > .ant-menu-item-icon {
+      align-self: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 0;
+    }
+
+    .ant-menu-item > .ant-menu-title-content,
+    .ant-menu-submenu-title > .ant-menu-title-content {
+      margin-inline-start: 0;
+    }
+
+    .ant-menu-submenu-title > :not(.ant-menu-item-icon):not(.ant-menu-submenu-arrow) {
+      margin-inline-start: 0;
+    }
+
     .ant-menu-item,
     .ant-menu-submenu {
       padding: 0;

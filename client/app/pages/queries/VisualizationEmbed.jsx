@@ -6,7 +6,6 @@ import { markdown } from "markdown";
 
 import Button from "antd/lib/button";
 import Dropdown from "antd/lib/dropdown";
-import Menu from "antd/lib/menu";
 import Tooltip from "@/components/Tooltip";
 import Link from "@/components/Link";
 import routeWithApiKeySession from "@/components/ApplicationArea/routeWithApiKeySession";
@@ -63,9 +62,10 @@ function VisualizationEmbedFooter({
   hideTimestamp = false,
   apiKey = null,
 }) {
-  const downloadMenu = (
-    <Menu>
-      <Menu.Item>
+  const downloadMenuItems = [
+    {
+      key: "download-csv",
+      label: (
         <QueryResultsLink
           fileType="csv"
           query={query}
@@ -76,8 +76,11 @@ function VisualizationEmbedFooter({
         >
           <FileOutlinedIcon /> Download as CSV File
         </QueryResultsLink>
-      </Menu.Item>
-      <Menu.Item>
+      ),
+    },
+    {
+      key: "download-tsv",
+      label: (
         <QueryResultsLink
           fileType="tsv"
           query={query}
@@ -88,8 +91,11 @@ function VisualizationEmbedFooter({
         >
           <FileOutlinedIcon /> Download as TSV File
         </QueryResultsLink>
-      </Menu.Item>
-      <Menu.Item>
+      ),
+    },
+    {
+      key: "download-xlsx",
+      label: (
         <QueryResultsLink
           fileType="xlsx"
           query={query}
@@ -100,9 +106,9 @@ function VisualizationEmbedFooter({
         >
           <FileExcelOutlinedIcon /> Download as Excel File
         </QueryResultsLink>
-      </Menu.Item>
-    </Menu>
-  );
+      ),
+    },
+  ];
 
   return (
     <div className="tile__bottom-control">
@@ -126,7 +132,12 @@ function VisualizationEmbedFooter({
             </Link.Button>
           </Tooltip>
           {!query.hasParameters() && (
-            <Dropdown overlay={downloadMenu} disabled={!queryResults} trigger={["click"]} placement="topLeft">
+            <Dropdown
+              menu={{ items: downloadMenuItems }}
+              disabled={!queryResults}
+              trigger={["click"]}
+              placement="topLeft"
+            >
               <Button loading={!queryResults && !!refreshStartedAt} className="m-l-5">
                 Download Dataset
                 <i className="fa fa-caret-up m-l-5" aria-hidden="true" />

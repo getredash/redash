@@ -1,7 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
 import Dropdown from "antd/lib/dropdown";
-import Menu from "antd/lib/menu";
 import Button from "antd/lib/button";
 import PlainButton from "@/components/PlainButton";
 import { clientConfig } from "@/services/auth";
@@ -23,26 +22,31 @@ export default function QueryControlDropdown(props) {
     ...props,
   };
 
-  const menu = (
-    <Menu>
-      {!props.query.isNew() && (!props.query.is_draft || !props.query.is_archived) && (
-        <Menu.Item>
+  const menuItems = [
+    !props.query.isNew() &&
+      (!props.query.is_draft || !props.query.is_archived) && {
+        key: "add-to-dashboard",
+        label: (
           <PlainButton onClick={() => props.openAddToDashboardForm(props.selectedTab)}>
             <PlusCircleFilledIcon /> Add to Dashboard
           </PlainButton>
-        </Menu.Item>
-      )}
-      {!clientConfig.disablePublicUrls && !props.query.isNew() && (
-        <Menu.Item>
+        ),
+      },
+    !clientConfig.disablePublicUrls &&
+      !props.query.isNew() && {
+        key: "embed",
+        label: (
           <PlainButton
             onClick={() => props.showEmbedDialog(props.query, props.selectedTab)}
             data-test="ShowEmbedDialogButton"
           >
             <ShareAltOutlinedIcon /> Embed Elsewhere
           </PlainButton>
-        </Menu.Item>
-      )}
-      <Menu.Item>
+        ),
+      },
+    {
+      key: "download-csv",
+      label: (
         <QueryResultsLink
           fileType="csv"
           disabled={props.queryExecuting || !props.queryResult.getData || !props.queryResult.getData()}
@@ -53,8 +57,11 @@ export default function QueryControlDropdown(props) {
         >
           <FileOutlinedIcon /> Download as CSV File
         </QueryResultsLink>
-      </Menu.Item>
-      <Menu.Item>
+      ),
+    },
+    {
+      key: "download-tsv",
+      label: (
         <QueryResultsLink
           fileType="tsv"
           disabled={props.queryExecuting || !props.queryResult.getData || !props.queryResult.getData()}
@@ -65,8 +72,11 @@ export default function QueryControlDropdown(props) {
         >
           <FileOutlinedIcon /> Download as TSV File
         </QueryResultsLink>
-      </Menu.Item>
-      <Menu.Item>
+      ),
+    },
+    {
+      key: "download-xlsx",
+      label: (
         <QueryResultsLink
           fileType="xlsx"
           disabled={props.queryExecuting || !props.queryResult.getData || !props.queryResult.getData()}
@@ -77,12 +87,12 @@ export default function QueryControlDropdown(props) {
         >
           <FileExcelOutlinedIcon /> Download as Excel File
         </QueryResultsLink>
-      </Menu.Item>
-    </Menu>
-  );
+      ),
+    },
+  ].filter(Boolean);
 
   return (
-    <Dropdown trigger={["click"]} overlay={menu} overlayClassName="query-control-dropdown-overlay">
+    <Dropdown trigger={["click"]} menu={{ items: menuItems }} classNames={{ root: "query-control-dropdown-overlay" }}>
       <Button data-test="QueryControlDropdownButton">
         <EllipsisOutlinedIcon rotate={90} />
       </Button>

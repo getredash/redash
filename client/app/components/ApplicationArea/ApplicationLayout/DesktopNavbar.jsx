@@ -20,12 +20,8 @@ import VersionInfo from "./VersionInfo";
 
 import "./DesktopNavbar.less";
 
-function NavbarSection({ children, ...props }) {
-  return (
-    <Menu selectable={false} mode="vertical" theme="dark" {...props}>
-      {children}
-    </Menu>
-  );
+function NavbarSection({ items = [], ...props }) {
+  return <Menu selectable={false} mode="vertical" theme="dark" items={items} {...props} />;
 }
 
 function useNavbarActiveState() {
@@ -70,131 +66,155 @@ export default function DesktopNavbar() {
   const canCreateQuery = currentUser.hasPermission("create_query");
   const canCreateDashboard = currentUser.hasPermission("create_dashboard");
   const canCreateAlert = currentUser.hasPermission("list_alerts");
-
-  return (
-    <nav className="desktop-navbar">
-      <NavbarSection className="desktop-navbar-logo">
-        <div role="menuitem">
-          <Link href="./">
-            <img src={logoUrl} alt="Redash" />
-          </Link>
-        </div>
-      </NavbarSection>
-
-      <NavbarSection>
-        {currentUser.hasPermission("list_dashboards") && (
-          <Menu.Item key="dashboards" className={activeState.dashboards ? "navbar-active-item" : null}>
-            <Link href="dashboards">
-              <DesktopOutlinedIcon aria-label="Dashboard navigation button" />
-              <span className="desktop-navbar-label">Dashboards</span>
-            </Link>
-          </Menu.Item>
-        )}
-        {currentUser.hasPermission("view_query") && (
-          <Menu.Item key="queries" className={activeState.queries ? "navbar-active-item" : null}>
-            <Link href="queries">
-              <CodeOutlinedIcon aria-label="Queries navigation button" />
-              <span className="desktop-navbar-label">Queries</span>
-            </Link>
-          </Menu.Item>
-        )}
-        {currentUser.hasPermission("list_alerts") && (
-          <Menu.Item key="alerts" className={activeState.alerts ? "navbar-active-item" : null}>
-            <Link href="alerts">
-              <AlertOutlinedIcon aria-label="Alerts navigation button" />
-              <span className="desktop-navbar-label">Alerts</span>
-            </Link>
-          </Menu.Item>
-        )}
-      </NavbarSection>
-
-      <NavbarSection className="desktop-navbar-spacer">
-        {(canCreateQuery || canCreateDashboard || canCreateAlert) && (
-          <Menu.SubMenu
-            key="create"
-            popupClassName="desktop-navbar-submenu"
-            data-test="CreateButton"
-            tabIndex={0}
-            title={
-              <React.Fragment>
-                <PlusOutlinedIcon />
+  const logoItems = [
+    {
+      key: "home",
+      label: (
+        <Link href="./">
+          <img src={logoUrl} alt="Redash" />
+        </Link>
+      ),
+    },
+  ];
+  const navigationItems = [
+    currentUser.hasPermission("list_dashboards") && {
+      key: "dashboards",
+      className: activeState.dashboards ? "navbar-active-item" : null,
+      icon: <DesktopOutlinedIcon aria-label="Dashboard navigation button" />,
+      label: (
+        <Link href="dashboards">
+          <span className="desktop-navbar-label">Dashboards</span>
+        </Link>
+      ),
+    },
+    currentUser.hasPermission("view_query") && {
+      key: "queries",
+      className: activeState.queries ? "navbar-active-item" : null,
+      icon: <CodeOutlinedIcon aria-label="Queries navigation button" />,
+      label: (
+        <Link href="queries">
+          <span className="desktop-navbar-label">Queries</span>
+        </Link>
+      ),
+    },
+    currentUser.hasPermission("list_alerts") && {
+      key: "alerts",
+      className: activeState.alerts ? "navbar-active-item" : null,
+      icon: <AlertOutlinedIcon aria-label="Alerts navigation button" />,
+      label: (
+        <Link href="alerts">
+          <span className="desktop-navbar-label">Alerts</span>
+        </Link>
+      ),
+    },
+  ].filter(Boolean);
+  const createItems =
+    canCreateQuery || canCreateDashboard || canCreateAlert
+      ? [
+          {
+            key: "create",
+            popupClassName: "desktop-navbar-submenu",
+            icon: <PlusOutlinedIcon />,
+            label: (
+              <span data-test="CreateButton">
                 <span className="desktop-navbar-label">Create</span>
-              </React.Fragment>
-            }
-          >
-            {canCreateQuery && (
-              <Menu.Item key="new-query">
-                <Link href="queries/new" data-test="CreateQueryMenuItem">
-                  New Query
-                </Link>
-              </Menu.Item>
-            )}
-            {canCreateDashboard && (
-              <Menu.Item key="new-dashboard">
-                <PlainButton data-test="CreateDashboardMenuItem" onClick={() => CreateDashboardDialog.showModal()}>
-                  New Dashboard
-                </PlainButton>
-              </Menu.Item>
-            )}
-            {canCreateAlert && (
-              <Menu.Item key="new-alert">
-                <Link data-test="CreateAlertMenuItem" href="alerts/new">
-                  New Alert
-                </Link>
-              </Menu.Item>
-            )}
-          </Menu.SubMenu>
-        )}
-      </NavbarSection>
-
-      <NavbarSection>
-        <Menu.Item key="help">
-          <HelpTrigger showTooltip={false} type="HOME" tabIndex={0}>
-            <QuestionCircleOutlinedIcon />
-            <span className="desktop-navbar-label">Help</span>
-          </HelpTrigger>
-        </Menu.Item>
-        {firstSettingsTab && (
-          <Menu.Item key="settings" className={activeState.dataSources ? "navbar-active-item" : null}>
-            <Link href={firstSettingsTab.path} data-test="SettingsLink">
-              <SettingOutlinedIcon />
-              <span className="desktop-navbar-label">Settings</span>
-            </Link>
-          </Menu.Item>
-        )}
-      </NavbarSection>
-
-      <NavbarSection className="desktop-navbar-profile-menu">
-        <Menu.SubMenu
-          key="profile"
-          popupClassName="desktop-navbar-submenu"
-          tabIndex={0}
-          title={
-            <span data-test="ProfileDropdown" className="desktop-navbar-profile-menu-title">
-              <img className="profile__image_thumb" src={currentUser.profile_image_url} alt={currentUser.name} />
-            </span>
-          }
-        >
-          <Menu.Item key="profile">
-            <Link href="users/me">Profile</Link>
-          </Menu.Item>
-          {currentUser.hasPermission("super_admin") && (
-            <Menu.Item key="status">
-              <Link href="admin/status">System Status</Link>
-            </Menu.Item>
-          )}
-          <Menu.Divider />
-          <Menu.Item key="logout">
+              </span>
+            ),
+            children: [
+              canCreateQuery && {
+                key: "new-query",
+                label: (
+                  <Link href="queries/new" data-test="CreateQueryMenuItem">
+                    New Query
+                  </Link>
+                ),
+              },
+              canCreateDashboard && {
+                key: "new-dashboard",
+                label: (
+                  <PlainButton data-test="CreateDashboardMenuItem" onClick={() => CreateDashboardDialog.showModal()}>
+                    New Dashboard
+                  </PlainButton>
+                ),
+              },
+              canCreateAlert && {
+                key: "new-alert",
+                label: (
+                  <Link data-test="CreateAlertMenuItem" href="alerts/new">
+                    New Alert
+                  </Link>
+                ),
+              },
+            ].filter(Boolean),
+          },
+        ]
+      : [];
+  const utilityItems = [
+    {
+      key: "help",
+      label: (
+        <HelpTrigger showTooltip={false} type="HOME" tabIndex={0}>
+          <QuestionCircleOutlinedIcon />
+          <span className="desktop-navbar-label">Help</span>
+        </HelpTrigger>
+      ),
+    },
+    firstSettingsTab && {
+      key: "settings",
+      className: activeState.dataSources ? "navbar-active-item" : null,
+      label: (
+        <Link href={firstSettingsTab.path} data-test="SettingsLink">
+          <SettingOutlinedIcon />
+          <span className="desktop-navbar-label">Settings</span>
+        </Link>
+      ),
+    },
+  ].filter(Boolean);
+  const profileItems = [
+    {
+      key: "profile-menu",
+      popupClassName: "desktop-navbar-submenu",
+      label: (
+        <span data-test="ProfileDropdown" className="desktop-navbar-profile-menu-title">
+          <img className="profile__image_thumb" src={currentUser.profile_image_url} alt={currentUser.name} />
+        </span>
+      ),
+      children: [
+        {
+          key: "profile",
+          label: <Link href="users/me">Profile</Link>,
+        },
+        currentUser.hasPermission("super_admin") && {
+          key: "status",
+          label: <Link href="admin/status">System Status</Link>,
+        },
+        { type: "divider" },
+        {
+          key: "logout",
+          label: (
             <PlainButton data-test="LogOutButton" onClick={() => Auth.logout()}>
               Log out
             </PlainButton>
-          </Menu.Item>
-          <Menu.Divider />
-          <Menu.Item key="version" role="presentation" disabled className="version-info">
-            <VersionInfo />
-          </Menu.Item>
-        </Menu.SubMenu>
-      </NavbarSection>
+          ),
+        },
+        { type: "divider" },
+        {
+          key: "version",
+          disabled: true,
+          className: "version-info",
+          label: <VersionInfo />,
+        },
+      ].filter(Boolean),
+    },
+  ];
+
+  return (
+    <nav className="desktop-navbar">
+      <NavbarSection className="desktop-navbar-logo" items={logoItems} />
+      <NavbarSection items={navigationItems} />
+      <NavbarSection className="desktop-navbar-spacer" items={createItems} />
+      <NavbarSection items={utilityItems} />
+      <NavbarSection className="desktop-navbar-profile-menu" items={profileItems} />
     </nav>
   );
 }
