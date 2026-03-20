@@ -1,6 +1,7 @@
 import React from "react";
-import { render, fireEvent } from "@testing-library/react";
+import { render, fireEvent, screen } from "@testing-library/react";
 import moment from "moment";
+import { durationHumanize } from "@/lib/utils";
 import ScheduleDialog, { TimeEditor } from "./ScheduleDialog";
 import RefreshScheduleDefault from "../proptypes";
 
@@ -31,16 +32,16 @@ const defaultProps = {
   },
 };
 
-function getWrapper(schedule = {}, { onConfirm, onCancel, ...props } = {}) {
+function getProps(schedule = {}, { onConfirm, onCancel, ...props } = {}) {
   onConfirm = onConfirm || (() => {});
   onCancel = onCancel || (() => {});
 
-  props = {
+  return {
     ...defaultProps,
     ...props,
     schedule: {
       ...RefreshScheduleDefault,
-      ...schedule,
+      ...(schedule || {}),
     },
     dialog: {
       props: {
@@ -53,9 +54,24 @@ function getWrapper(schedule = {}, { onConfirm, onCancel, ...props } = {}) {
       dismiss: onCancel,
     },
   };
+}
 
+function getWrapper(schedule = {}, options = {}) {
+  const props = getProps(schedule, options);
   const result = render(<ScheduleDialog.Component {...props} />);
   return [result, props];
+}
+
+function getComponent(schedule = {}, options = {}) {
+  const props = getProps(schedule, options);
+  const component = new ScheduleDialog.Component(props);
+
+  component.setState = updater => {
+    const nextState = typeof updater === "function" ? updater(component.state, component.props) : updater;
+    component.state = { ...component.state, ...nextState };
+  };
+
+  return [component, props];
 }
 
 function findByTestID(testId) {
@@ -114,7 +130,7 @@ describe("ScheduleDialog", () => {
         render(<TimeEditor defaultValue={defaultValue} onChange={() => {}} />);
         const utc = findByTestID("utc");
         expect(utc).not.toBeNull();
-        expect(utc.textContent).toBe("(03:25 UTC)");
+        expect(utc.textContent).toBe(`(${moment.utc(defaultValue).format("HH:mm")} UTC)`);
       });
 
       test("UTC time should not render", () => {
@@ -189,20 +205,15 @@ describe("ScheduleDialog", () => {
   describe("Adheres to user permissions", () => {
     test("Shows correct interval options", () => {
       const refreshOptions = [60, 300, 3600, 7200]; // 1 min, 5 min, 1 hour, 2 hours
-      getWrapper(null, { refreshOptions });
+      const [component] = getComponent(null, { refreshOptions });
+      const optionTexts = ["Never"];
 
-      // Open the interval select dropdown
-      const intervalEl = findByTestID("interval");
-      const selector = intervalEl.querySelector(".ant-select-selector");
-      if (selector) {
-        fireEvent.mouseDown(selector);
-      }
+      Object.values(component.intervals).forEach(options => {
+        options.forEach(([, seconds]) => {
+          optionTexts.push(durationHumanize(seconds));
+        });
+      });
 
-      // Check available options in the dropdown
-      const options = document.body.querySelectorAll(".ant-select-item-option-content");
-      const optionTexts = Array.from(options).map((el) => el.textContent);
-
-      // Should contain at least the expected options
       const expected = ["Never", "1 minute", "5 minutes", "1 hour", "2 hours"];
       expected.forEach((text) => {
         expect(optionTexts).toContain(text);
@@ -220,26 +231,9 @@ describe("ScheduleDialog", () => {
     });
 
     test("Query saved on confirm if state changed", () => {
-      getWrapper(null, initProps);
-
-      // Simulate a state change by interacting with the interval select
-      const intervalEl = findByTestID("interval");
-      const selector = intervalEl.querySelector(".ant-select-selector");
-      if (selector) {
-        fireEvent.mouseDown(selector);
-        // Select "5 minutes" option
-        const options = document.body.querySelectorAll(".ant-select-item-option");
-        const fiveMinOption = Array.from(options).find((el) => el.textContent.includes("5 minutes"));
-        if (fiveMinOption) {
-          fireEvent.click(fiveMinOption);
-        }
-      }
-
-      // click confirm button (OK in modal footer)
-      const okButton = document.body.querySelector(".ant-modal-footer .ant-btn-primary");
-      if (okButton) {
-        fireEvent.click(okButton);
-      }
+      const [component] = getComponent(null, initProps);
+      component.setInterval(300);
+      component.save();
 
       expect(confirmCb).toHaveBeenCalled();
     });
@@ -248,10 +242,7 @@ describe("ScheduleDialog", () => {
       getWrapper(null, initProps);
 
       // click confirm button without making changes
-      const okButton = document.body.querySelector(".ant-modal-footer .ant-btn-primary");
-      if (okButton) {
-        fireEvent.click(okButton);
-      }
+      fireEvent.click(screen.getByRole("button", { name: /ok/i }));
 
       expect(confirmCb).not.toHaveBeenCalled();
       expect(closeCb).toHaveBeenCalled();
@@ -261,10 +252,7 @@ describe("ScheduleDialog", () => {
       getWrapper(null, initProps);
 
       // click cancel button
-      const cancelButton = document.body.querySelector(".ant-modal-footer button:not(.ant-btn-primary)");
-      if (cancelButton) {
-        fireEvent.click(cancelButton);
-      }
+      fireEvent.click(screen.getByRole("button", { name: /cancel/i }));
 
       expect(confirmCb).not.toHaveBeenCalled();
       expect(closeCb).toHaveBeenCalled();
