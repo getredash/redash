@@ -8,6 +8,8 @@ import ChartTypeSelect from "./ChartTypeSelect";
 import ColumnMappingSelect from "./ColumnMappingSelect";
 import { useDebouncedCallback } from "use-debounce/lib";
 
+const DISABLED_STACKING_VALUE = "__disabled__";
+
 function getAvailableColumnMappingTypes(options: any) {
   const result = ["x", "y"];
 
@@ -300,12 +302,14 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
           <Select
             label="Stacking"
             data-test="Chart.Stacking"
-            defaultValue={options.series.stacking}
+            defaultValue={options.series.stacking ?? DISABLED_STACKING_VALUE}
             disabled={!includes(["line", "area", "column"], options.globalSeriesType)}
-            onChange={(stacking: any) => onOptionsChange({ series: { stacking } })}
+            onChange={(stacking: any) =>
+              onOptionsChange({ series: { stacking: stacking === DISABLED_STACKING_VALUE ? null : stacking } })
+            }
           >
             {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
-            <Select.Option value={null} data-test="Chart.Stacking.Disabled">
+            <Select.Option value={DISABLED_STACKING_VALUE} data-test="Chart.Stacking.Disabled">
               Disabled
               {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
             </Select.Option>

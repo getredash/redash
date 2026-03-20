@@ -94,7 +94,7 @@ describe("Shared ColumnEditor", () => {
       );
 
       // Open the Select (only one in ColumnEditor)
-      const selector = document.body.querySelector(".ant-select-selector")!;
+      const selector = document.body.querySelector(".ant-select")!;
       fireEvent.mouseDown(selector);
 
       const testPrefix = variant === "table" ? "Table" : "Details";

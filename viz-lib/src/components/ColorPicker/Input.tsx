@@ -90,7 +90,7 @@ export default function Input({
       <div className="color-picker-input">
         <TextInput
           data-test="ColorPicker.CustomColor"
-          addonBefore={<Typography.Text type="secondary">#</Typography.Text>}
+          prefix={<Typography.Text type="secondary">#</Typography.Text>}
           value={inputValue}
           onChange={(e) => handleInputChange(e.target.value)}
           onFocus={() => setIsInputFocused(true)}

@@ -14,7 +14,7 @@ function getInput(el: HTMLElement): HTMLInputElement {
 
 function openSelect(testId: string) {
   const el = findByTestID(testId).pop()!;
-  const selector = el.querySelector(".ant-select-selector") || el;
+  const selector = (el.matches(".ant-select") ? el : el.querySelector(".ant-select")) || el;
   fireEvent.mouseDown(selector);
 }
 
@@ -79,7 +79,7 @@ describe("Visualizations -> Table -> Editor -> Columns Settings", () => {
     clickOption("Table.Column.a.Name"); // expand settings
 
     // Select doesn't have data-test on wrapper, find the ant-select in the expanded settings
-    const selectSelector = document.body.querySelector(".ant-select-selector")!;
+    const selectSelector = document.body.querySelector(".ant-select")!;
     fireEvent.mouseDown(selectSelector);
     clickOption("Table.Column.a.DisplayAs.number");
   });

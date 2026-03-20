@@ -13,7 +13,7 @@ import ColumnEditor from "./ColumnEditor";
 
 const { Text } = Typography;
 
-const SortableItem = (props: any) => <SortableElement as={Collapse.Panel} {...props} />;
+const SortableItem = (props: any) => <SortableElement {...props} />;
 
 type ColumnsSettingsProps = {
   options: any;
@@ -53,49 +53,55 @@ export default function ColumnsSettings({ options, onOptionsChange, variant }: C
         className: containerClass,
       }}
     >
-      <Collapse bordered={false} defaultActiveKey={[]} expandIconPlacement="end">
-        {map(options.columns, (column, index) => (
-          <SortableItem
-            key={column.name}
-            id={column.name}
-            index={index}
-            header={
-              <React.Fragment>
-                <DragHandle />
-                <span data-test={`${testPrefix}.Column.${column.name}.Name`}>
-                  {column.name}
-                  {column.title !== "" && column.title !== column.name && (
-                    <Text type="secondary" style={{ marginLeft: 5 }}>
-                      <i>({column.title})</i>
-                    </Text>
-                  )}
-                </span>
-              </React.Fragment>
-            }
-            extra={
-              <Tooltip title="Toggle visibility" mouseEnterDelay={0} mouseLeaveDelay={0}>
-                {column.visible ? (
-                  <EyeOutlinedIcon
-                    data-test={`${testPrefix}.Column.${column.name}.Visibility`}
-                    onClick={(event) => handleColumnChange({ ...column, visible: !column.visible }, event)}
+      {map(options.columns, (column, index) => (
+        <SortableItem key={column.name} id={column.name} index={index}>
+          <Collapse
+            bordered={false}
+            defaultActiveKey={[]}
+            expandIconPlacement="end"
+            items={[
+              {
+                key: column.name,
+                label: (
+                  <React.Fragment>
+                    <DragHandle />
+                    <span data-test={`${testPrefix}.Column.${column.name}.Name`}>
+                      {column.name}
+                      {column.title !== "" && column.title !== column.name && (
+                        <Text type="secondary" style={{ marginLeft: 5 }}>
+                          <i>({column.title})</i>
+                        </Text>
+                      )}
+                    </span>
+                  </React.Fragment>
+                ),
+                extra: (
+                  <Tooltip title="Toggle visibility" mouseEnterDelay={0} mouseLeaveDelay={0}>
+                    {column.visible ? (
+                      <EyeOutlinedIcon
+                        data-test={`${testPrefix}.Column.${column.name}.Visibility`}
+                        onClick={(event) => handleColumnChange({ ...column, visible: !column.visible }, event)}
+                      />
+                    ) : (
+                      <EyeInvisibleOutlinedIcon
+                        data-test={`${testPrefix}.Column.${column.name}.Visibility`}
+                        onClick={(event) => handleColumnChange({ ...column, visible: !column.visible }, event)}
+                      />
+                    )}
+                  </Tooltip>
+                ),
+                children: (
+                  <ColumnEditor
+                    column={column}
+                    variant={variant}
+                    onChange={(changes) => handleColumnChange(changes, undefined)}
                   />
-                ) : (
-                  <EyeInvisibleOutlinedIcon
-                    data-test={`${testPrefix}.Column.${column.name}.Visibility`}
-                    onClick={(event) => handleColumnChange({ ...column, visible: !column.visible }, event)}
-                  />
-                )}
-              </Tooltip>
-            }
-          >
-            <ColumnEditor
-              column={column}
-              variant={variant}
-              onChange={(changes) => handleColumnChange(changes, undefined)}
-            />
-          </SortableItem>
-        ))}
-      </Collapse>
+                ),
+              },
+            ]}
+          />
+        </SortableItem>
+      ))}
     </SortableContainer>
   );
 }

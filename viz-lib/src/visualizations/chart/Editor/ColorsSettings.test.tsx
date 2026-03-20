@@ -15,7 +15,7 @@ function getInput(el: HTMLElement): HTMLInputElement {
 
 function openSelect(testId: string) {
   const el = findByTestID(testId).pop()!;
-  const selector = el.querySelector(".ant-select-selector") || el;
+  const selector = (el.matches(".ant-select") ? el : el.querySelector(".ant-select")) || el;
   fireEvent.mouseDown(selector);
 }
 
