@@ -1,14 +1,19 @@
 import { isArray } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
+import dayjs from "dayjs";
 import DatePicker from "antd/lib/date-picker";
 import { clientConfig } from "@/services/auth";
 import { Moment } from "@/components/proptypes";
+import { toMomentRange } from "@/lib/dateTimeUtils";
 
 const { RangePicker } = DatePicker;
 
 const DateTimeRangeInput = React.forwardRef(
-  ({ defaultValue, value, withSeconds, onSelect, className, ...props }, ref) => {
+  (
+    { defaultValue = null, value = undefined, withSeconds = false, onSelect = () => {}, className = "", ...props },
+    ref
+  ) => {
     const format = (clientConfig.dateFormat || "YYYY-MM-DD") + (withSeconds ? " HH:mm:ss" : " HH:mm");
     const additionalAttributes = {};
     if (isArray(defaultValue) && defaultValue[0].isValid() && defaultValue[1].isValid()) {
@@ -21,10 +26,10 @@ const DateTimeRangeInput = React.forwardRef(
       <RangePicker
         ref={ref}
         className={className}
-        showTime
+        showTime={{ defaultOpenValue: [dayjs(), dayjs()] }}
         {...additionalAttributes}
         format={format}
-        onChange={onSelect}
+        onChange={(nextValue) => onSelect(toMomentRange(nextValue))}
         {...props}
       />
     );
@@ -37,14 +42,6 @@ DateTimeRangeInput.propTypes = {
   withSeconds: PropTypes.bool,
   onSelect: PropTypes.func,
   className: PropTypes.string,
-};
-
-DateTimeRangeInput.defaultProps = {
-  defaultValue: null,
-  value: undefined,
-  withSeconds: false,
-  onSelect: () => {},
-  className: "",
 };
 
 export default DateTimeRangeInput;

@@ -14,7 +14,7 @@ import useOrganizationSettings from "./hooks/useOrganizationSettings";
 import GeneralSettings from "./components/GeneralSettings";
 import AuthSettings from "./components/AuthSettings";
 
-function OrganizationSettings({ onError }) {
+function OrganizationSettings({ onError = () => {} }) {
   const { settings, currentValues, isLoading, isSaving, handleSubmit, handleChange } = useOrganizationSettings(onError);
   return (
     <div className="row" data-test="OrganizationSettings">
@@ -41,10 +41,6 @@ OrganizationSettings.propTypes = {
   onError: PropTypes.func,
 };
 
-OrganizationSettings.defaultProps = {
-  onError: () => {},
-};
-
 const OrganizationSettingsPage = wrapSettingsTab(
   "Settings.Organization",
   {
@@ -61,6 +57,6 @@ routes.register(
   routeWithUserSession({
     path: "/settings/general",
     title: "General Settings",
-    render: pageProps => <OrganizationSettingsPage {...pageProps} />,
+    render: (pageProps) => <OrganizationSettingsPage {...pageProps} />,
   })
 );

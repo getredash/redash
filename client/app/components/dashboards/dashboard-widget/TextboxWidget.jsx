@@ -1,30 +1,31 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { markdown } from "markdown";
-import Menu from "antd/lib/menu";
+
 import HtmlContent from "@redash/viz/lib/components/HtmlContent";
 import TextboxDialog from "@/components/dashboards/TextboxDialog";
 import Widget from "./Widget";
 
 function TextboxWidget(props) {
+  props = {
+    canEdit: false,
+    ...props,
+  };
+
   const { widget, canEdit } = props;
   const [text, setText] = useState(widget.text);
 
   const editTextBox = () => {
     TextboxDialog.showModal({
       text: widget.text,
-    }).onClose(newText => {
+    }).onClose((newText) => {
       widget.text = newText;
       setText(newText);
       return widget.save();
     });
   };
 
-  const TextboxMenuOptions = [
-    <Menu.Item key="edit" onClick={editTextBox}>
-      Edit
-    </Menu.Item>,
-  ];
+  const TextboxMenuOptions = [{ key: "edit", label: "Edit", onClick: editTextBox }];
 
   if (!widget.width) {
     return null;
@@ -40,10 +41,6 @@ function TextboxWidget(props) {
 TextboxWidget.propTypes = {
   widget: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
   canEdit: PropTypes.bool,
-};
-
-TextboxWidget.defaultProps = {
-  canEdit: false,
 };
 
 export default TextboxWidget;

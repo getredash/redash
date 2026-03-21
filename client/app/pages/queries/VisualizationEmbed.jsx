@@ -6,7 +6,6 @@ import { markdown } from "markdown";
 
 import Button from "antd/lib/button";
 import Dropdown from "antd/lib/dropdown";
-import Menu from "antd/lib/menu";
 import Tooltip from "@/components/Tooltip";
 import Link from "@/components/Link";
 import routeWithApiKeySession from "@/components/ApplicationArea/routeWithApiKeySession";
@@ -32,7 +31,7 @@ import routes from "@/services/routes";
 
 import logoUrl from "@/assets/images/redash_icon_small.png";
 
-function VisualizationEmbedHeader({ queryName, queryDescription, visualization }) {
+function VisualizationEmbedHeader({ queryName, queryDescription = "", visualization }) {
   return (
     <div className="embed-heading p-b-10 p-r-15 p-l-15">
       <h3>
@@ -54,54 +53,62 @@ VisualizationEmbedHeader.propTypes = {
   visualization: VisualizationType.isRequired,
 };
 
-VisualizationEmbedHeader.defaultProps = { queryDescription: "" };
-
 function VisualizationEmbedFooter({
   query,
-  queryResults,
-  updatedAt,
-  refreshStartedAt,
-  queryUrl,
-  hideTimestamp,
-  apiKey,
+  queryResults = null,
+  updatedAt = null,
+  refreshStartedAt = null,
+  queryUrl = null,
+  hideTimestamp = false,
+  apiKey = null,
 }) {
-  const downloadMenu = (
-    <Menu>
-      <Menu.Item>
+  const downloadMenuItems = [
+    {
+      key: "download-csv",
+      label: (
         <QueryResultsLink
           fileType="csv"
           query={query}
           queryResult={queryResults}
           apiKey={apiKey}
           disabled={!queryResults || !queryResults.getData || !queryResults.getData()}
-          embed>
+          embed
+        >
           <FileOutlinedIcon /> Download as CSV File
         </QueryResultsLink>
-      </Menu.Item>
-      <Menu.Item>
+      ),
+    },
+    {
+      key: "download-tsv",
+      label: (
         <QueryResultsLink
           fileType="tsv"
           query={query}
           queryResult={queryResults}
           apiKey={apiKey}
           disabled={!queryResults || !queryResults.getData || !queryResults.getData()}
-          embed>
+          embed
+        >
           <FileOutlinedIcon /> Download as TSV File
         </QueryResultsLink>
-      </Menu.Item>
-      <Menu.Item>
+      ),
+    },
+    {
+      key: "download-xlsx",
+      label: (
         <QueryResultsLink
           fileType="xlsx"
           query={query}
           queryResult={queryResults}
           apiKey={apiKey}
           disabled={!queryResults || !queryResults.getData || !queryResults.getData()}
-          embed>
+          embed
+        >
           <FileExcelOutlinedIcon /> Download as Excel File
         </QueryResultsLink>
-      </Menu.Item>
-    </Menu>
-  );
+      ),
+    },
+  ];
 
   return (
     <div className="tile__bottom-control">
@@ -125,7 +132,12 @@ function VisualizationEmbedFooter({
             </Link.Button>
           </Tooltip>
           {!query.hasParameters() && (
-            <Dropdown overlay={downloadMenu} disabled={!queryResults} trigger={["click"]} placement="topLeft">
+            <Dropdown
+              menu={{ items: downloadMenuItems }}
+              disabled={!queryResults}
+              trigger={["click"]}
+              placement="topLeft"
+            >
               <Button loading={!queryResults && !!refreshStartedAt} className="m-l-5">
                 Download Dataset
                 <i className="fa fa-caret-up m-l-5" aria-hidden="true" />
@@ -148,16 +160,7 @@ VisualizationEmbedFooter.propTypes = {
   apiKey: PropTypes.string,
 };
 
-VisualizationEmbedFooter.defaultProps = {
-  queryResults: null,
-  updatedAt: null,
-  refreshStartedAt: null,
-  queryUrl: null,
-  hideTimestamp: false,
-  apiKey: null,
-};
-
-function VisualizationEmbed({ queryId, visualizationId, apiKey, onError }) {
+function VisualizationEmbed({ queryId, visualizationId, apiKey, onError = () => {} }) {
   const [query, setQuery] = useState(null);
   const [error, setError] = useState(null);
   const [refreshStartedAt, setRefreshStartedAt] = useState(null);
@@ -168,7 +171,7 @@ function VisualizationEmbed({ queryId, visualizationId, apiKey, onError }) {
   useEffect(() => {
     let isCancelled = false;
     Query.get({ id: queryId })
-      .then(result => {
+      .then((result) => {
         if (!isCancelled) {
           setQuery(result);
         }
@@ -186,10 +189,10 @@ function VisualizationEmbed({ queryId, visualizationId, apiKey, onError }) {
       setRefreshStartedAt(moment());
       query
         .getQueryResultPromise()
-        .then(result => {
+        .then((result) => {
           setQueryResults(result);
         })
-        .catch(err => {
+        .catch((err) => {
           setError(err.getError());
         })
         .finally(() => setRefreshStartedAt(null));
@@ -212,7 +215,7 @@ function VisualizationEmbed({ queryId, visualizationId, apiKey, onError }) {
 
   const showQueryDescription = has(location.search, "showDescription");
   visualizationId = parseInt(visualizationId, 10);
-  const visualization = find(query.visualizations, vis => vis.id === visualizationId);
+  const visualization = find(query.visualizations, (vis) => vis.id === visualizationId);
 
   if (!visualization) {
     // call error handler async, otherwise it will destroy the component on render phase
@@ -270,15 +273,11 @@ VisualizationEmbed.propTypes = {
   onError: PropTypes.func,
 };
 
-VisualizationEmbed.defaultProps = {
-  onError: () => {},
-};
-
 routes.register(
   "Visualizations.ViewShared",
   routeWithApiKeySession({
     path: "/embed/query/:queryId/visualization/:visualizationId",
-    render: pageProps => <VisualizationEmbed {...pageProps} />,
+    render: (pageProps) => <VisualizationEmbed {...pageProps} />,
     getApiKey: () => location.search.api_key,
   })
 );

@@ -5,7 +5,7 @@ import { Query } from "@/services/query";
 import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 
 export default function wrapQueryPage(WrappedComponent) {
-  function QueryPageWrapper({ queryId, onError, ...props }) {
+  function QueryPageWrapper({ queryId = null, onError, ...props }) {
     const [query, setQuery] = useState(null);
 
     const handleError = useImmutableCallback(onError);
@@ -14,7 +14,7 @@ export default function wrapQueryPage(WrappedComponent) {
       let isCancelled = false;
       const promise = queryId ? Query.get({ id: queryId }) : Promise.resolve(Query.newQuery());
       promise
-        .then(result => {
+        .then((result) => {
           if (!isCancelled) {
             setQuery(result);
           }
@@ -35,10 +35,6 @@ export default function wrapQueryPage(WrappedComponent) {
 
   QueryPageWrapper.propTypes = {
     queryId: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-  };
-
-  QueryPageWrapper.defaultProps = {
-    queryId: null,
   };
 
   return QueryPageWrapper;

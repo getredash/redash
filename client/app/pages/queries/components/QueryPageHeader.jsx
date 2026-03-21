@@ -3,7 +3,6 @@ import React, { useMemo } from "react";
 import PropTypes from "prop-types";
 import Button from "antd/lib/button";
 import Dropdown from "antd/lib/dropdown";
-import Menu from "antd/lib/menu";
 import EllipsisOutlinedIcon from "@ant-design/icons/EllipsisOutlined";
 import useMedia from "use-media";
 import Link from "@/components/Link";
@@ -25,51 +24,43 @@ import usePermissionsEditorDialog from "../hooks/usePermissionsEditorDialog";
 import "./QueryPageHeader.less";
 
 function getQueryTags() {
-  return getTags("api/queries/tags").then(tags => map(tags, t => t.name));
+  return getTags("api/queries/tags").then((tags) => map(tags, (t) => t.name));
 }
 
 function createMenu(menu) {
   const handlers = {};
 
-  const groups = map(menu, group =>
+  const groups = map(menu, (group) =>
     filter(
       map(group, (props, key) => {
         props = extend({ isAvailable: true, isEnabled: true, onClick: () => {} }, props);
         if (props.isAvailable) {
           handlers[key] = props.onClick;
-          return (
-            <Menu.Item key={key} disabled={!props.isEnabled}>
-              {props.title}
-            </Menu.Item>
-          );
+          return { key, disabled: !props.isEnabled, label: props.title };
         }
         return null;
       })
     )
   );
 
-  return (
-    <Menu onClick={({ key }) => handlers[key]()}>
-      {reduce(
-        filter(groups, group => group.length > 0),
-        (result, items, key) => {
-          const divider = result.length > 0 ? <Menu.Divider key={`divider${key}`} /> : null;
-          return [...result, divider, ...items];
-        },
-        []
-      )}
-    </Menu>
-  );
+  return {
+    items: reduce(
+      filter(groups, (group) => group.length > 0),
+      (result, items) => [...result, ...(result.length > 0 ? [{ type: "divider" }] : []), ...items],
+      []
+    ),
+    onClick: ({ key }) => handlers[key]?.(),
+  };
 }
 
 export default function QueryPageHeader({
   query,
-  dataSource,
-  sourceMode,
-  selectedVisualization,
-  headerExtra,
-  tagsExtra,
-  onChange,
+  dataSource = null,
+  sourceMode = false,
+  selectedVisualization = null,
+  headerExtra = null,
+  tagsExtra = null,
+  onChange = () => {},
 }) {
   const isDesktop = useMedia({ minWidth: 768 });
   const queryFlags = useQueryFlags(query, dataSource);
@@ -189,7 +180,8 @@ export default function QueryPageHeader({
               <Link.Button
                 className="m-r-5"
                 href={query.getUrl(false, selectedVisualization)}
-                data-test="QueryPageShowResultOnly">
+                data-test="QueryPageShowResultOnly"
+              >
                 <i className="fa fa-table" aria-hidden="true" />
                 <span className="m-l-5">Show Results Only</span>
               </Link.Button>
@@ -198,7 +190,7 @@ export default function QueryPageHeader({
         )}
 
         {!queryFlags.isNew && (
-          <Dropdown overlay={moreActionsMenu} trigger={["click"]}>
+          <Dropdown menu={moreActionsMenu} trigger={["click"]}>
             <Button data-test="QueryPageHeaderMoreButton" aria-label="More actions">
               <EllipsisOutlinedIcon rotate={90} aria-hidden="true" />
             </Button>
@@ -221,13 +213,4 @@ QueryPageHeader.propTypes = {
   headerExtra: PropTypes.node,
   tagsExtra: PropTypes.node,
   onChange: PropTypes.func,
-};
-
-QueryPageHeader.defaultProps = {
-  dataSource: null,
-  sourceMode: false,
-  selectedVisualization: null,
-  headerExtra: null,
-  tagsExtra: null,
-  onChange: () => {},
 };

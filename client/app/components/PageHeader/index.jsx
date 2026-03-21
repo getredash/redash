@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 
 import "./index.less";
 
-export default function PageHeader({ title, actions }) {
+export default function PageHeader({ title = "", actions = null }) {
   return (
     <div className="page-header-wrapper">
       <h3>{title}</h3>
@@ -15,9 +15,4 @@ export default function PageHeader({ title, actions }) {
 PageHeader.propTypes = {
   title: PropTypes.string,
   actions: PropTypes.node,
-};
-
-PageHeader.defaultProps = {
-  title: "",
-  actions: null,
 };

@@ -1,5 +1,6 @@
 import { debounce, find, has, isMatch, map, pickBy } from "lodash";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 import location from "@/services/location";
 import notification from "@/services/notification";
 
@@ -34,8 +35,8 @@ export default function useEditModeHandler(canEditDashboard, widgets) {
     }
   }, [doneBtnClickedWhileSaving, dashboardStatus]);
 
-  const saveDashboardLayout = useCallback(
-    positions => {
+  const persistDashboardLayout = useCallback(
+    (positions, { skipPendingState = false } = {}) => {
       if (!canEditDashboard) {
         setDashboardStatus(DashboardStatusEnum.SAVED);
         return;
@@ -43,8 +44,11 @@ export default function useEditModeHandler(canEditDashboard, widgets) {
 
       const changedPositions = getChangedPositions(widgets, positions);
 
-      setDashboardStatus(DashboardStatusEnum.SAVING);
-      setRecentPositions(positions);
+      if (!skipPendingState) {
+        setDashboardStatus(DashboardStatusEnum.SAVING);
+        setRecentPositions(positions);
+      }
+
       const saveChangedWidgets = map(changedPositions, (position, id) => {
         // find widget
         const widget = find(widgets, { id: Number(id) });
@@ -67,34 +71,48 @@ export default function useEditModeHandler(canEditDashboard, widgets) {
     [canEditDashboard, widgets]
   );
 
-  const saveDashboardLayoutDebounced = useCallback(
-    (...args) => {
-      setDashboardStatus(DashboardStatusEnum.SAVING);
-      return debounce(() => saveDashboardLayout(...args), 2000)();
-    },
-    [saveDashboardLayout]
+  const persistDashboardLayoutLatest = useImmutableCallback(persistDashboardLayout);
+
+  const saveDashboardLayoutDebounced = useMemo(
+    () =>
+      debounce((positions) => {
+        persistDashboardLayoutLatest(positions, { skipPendingState: true });
+      }, 2000),
+    [persistDashboardLayoutLatest]
   );
 
-  const retrySaveDashboardLayout = useCallback(() => saveDashboardLayout(recentPositions), [
-    recentPositions,
-    saveDashboardLayout,
-  ]);
+  useEffect(() => () => saveDashboardLayoutDebounced.cancel(), [saveDashboardLayoutDebounced]);
+
+  const scheduleDashboardLayoutSave = useCallback(
+    (positions) => {
+      setDashboardStatus(DashboardStatusEnum.SAVING);
+      setRecentPositions(positions);
+      saveDashboardLayoutDebounced(positions);
+    },
+    [saveDashboardLayoutDebounced]
+  );
+
+  const retrySaveDashboardLayout = useCallback(
+    () => persistDashboardLayout(recentPositions),
+    [recentPositions, persistDashboardLayout]
+  );
 
   const setEditing = useCallback(
-    editing => {
+    (editing) => {
       if (!editing && dashboardStatus !== DashboardStatusEnum.SAVED) {
         setDoneBtnClickedWhileSaving(true);
+        saveDashboardLayoutDebounced.flush();
         return;
       }
       setEditingLayout(canEditDashboard && editing);
     },
-    [dashboardStatus, canEditDashboard]
+    [dashboardStatus, canEditDashboard, saveDashboardLayoutDebounced]
   );
 
   return {
     editingLayout: canEditDashboard && editingLayout,
     setEditingLayout: setEditing,
-    saveDashboardLayout: editingLayout ? saveDashboardLayoutDebounced : saveDashboardLayout,
+    saveDashboardLayout: editingLayout ? scheduleDashboardLayoutSave : persistDashboardLayout,
     retrySaveDashboardLayout,
     doneBtnClickedWhileSaving,
     dashboardStatus,

@@ -32,31 +32,31 @@ const axisSettingsDefaultProps = {
   onChange: () => {},
 };
 
-type Props = OwnProps & typeof axisSettingsDefaultProps;
+type Props = OwnProps;
 
-export default function AxisSettings({ id, options, features, onChange }: Props) {
+export default function AxisSettings({ id, options, features: features = {}, onChange: onChange = () => {} }: Props) {
   function optionsChanged(newOptions: any) {
     onChange(merge({}, options, newOptions));
   }
 
-  const [handleNameChange] = useDebouncedCallback(text => {
+  const [handleNameChange] = useDebouncedCallback((text) => {
     const title = isString(text) && text !== "" ? { text } : null;
     optionsChanged({ title });
   }, 200);
 
-  const [handleMinMaxChange] = useDebouncedCallback(opts => optionsChanged(opts), 200);
+  const [handleMinMaxChange] = useDebouncedCallback((opts) => optionsChanged(opts), 200);
 
-  const [handleTickFormatChange] = useDebouncedCallback(opts => optionsChanged(opts), 200);
+  const [handleTickFormatChange] = useDebouncedCallback((opts) => optionsChanged(opts), 200);
 
   return (
     <React.Fragment>
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Select
           label="Scale"
           data-test={`Chart.${id}.Type`}
           defaultValue={options.type}
-          onChange={(type: any) => optionsChanged({ type })}>
+          onChange={(type: any) => optionsChanged({ type })}
+        >
           {features.autoDetectType && (
             // @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message
             <Select.Option value="-" data-test={`Chart.${id}.Type.Auto`}>
@@ -86,8 +86,6 @@ export default function AxisSettings({ id, options, features, onChange }: Props)
           </Select.Option>
         </Select>
       </Section>
-
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Input
           label="Name"
@@ -96,8 +94,6 @@ export default function AxisSettings({ id, options, features, onChange }: Props)
           onChange={(event: any) => handleNameChange(event.target.value)}
         />
       </Section>
-
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Input
           label={
@@ -111,9 +107,7 @@ export default function AxisSettings({ id, options, features, onChange }: Props)
           onChange={(event: any) => handleTickFormatChange({ tickFormat: event.target.value })}
         />
       </Section>
-
       {features.range && (
-        // @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message
         <Section>
           {/* @ts-expect-error ts-migrate(2322) FIXME: Type '{ children: Element[]; gutter: number; type:... Remove this comment to see the full error message */}
           <Grid.Row gutter={15} type="flex" align="middle">
@@ -141,5 +135,3 @@ export default function AxisSettings({ id, options, features, onChange }: Props)
     </React.Fragment>
   );
 }
-
-AxisSettings.defaultProps = axisSettingsDefaultProps;

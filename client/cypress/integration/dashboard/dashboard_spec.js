@@ -10,12 +10,11 @@ describe("Dashboard", () => {
   });
 
   it("creates new dashboard", () => {
+    cy.intercept("POST", "**/api/dashboards").as("NewDashboard");
+
     cy.visit("/dashboards");
     cy.getByTestId("CreateButton").click();
     cy.getByTestId("CreateDashboardMenuItem").click();
-
-    cy.server();
-    cy.route("POST", "**/api/dashboards").as("NewDashboard");
 
     cy.getByTestId("CreateDashboardDialog").within(() => {
       cy.getByTestId("DashboardSaveButton").should("be.disabled");
@@ -23,8 +22,8 @@ describe("Dashboard", () => {
       cy.getByTestId("DashboardSaveButton").click();
     });
 
-    cy.wait("@NewDashboard").then((xhr) => {
-      const id = Cypress._.get(xhr, "response.body.id");
+    cy.wait("@NewDashboard").then(({ response }) => {
+      const id = Cypress._.get(response, "body.id");
       assert.isDefined(id, "Dashboard api call returns id");
 
       cy.visit("/dashboards");
@@ -53,12 +52,11 @@ describe("Dashboard", () => {
   });
 
   it("is accessible through multiple urls", () => {
-    cy.server();
-    cy.route("GET", "**/api/dashboards/*").as("LoadDashboard");
-    cy.createDashboard("Dashboard multiple urls").then(({ id, slug }) => {
-      [`/dashboards/${id}`, `/dashboards/${id}-anything-here`, `/dashboard/${slug}`].forEach((url) => {
+    const dashboardName = `Dashboard multiple urls ${Cypress._.random(1_000_000)}`;
+
+    cy.createDashboard(dashboardName).then(({ id, slug }) => {
+      cy.wrap([`/dashboards/${id}`, `/dashboards/${id}-anything-here`, `/dashboard/${slug}`]).each((url) => {
         cy.visit(url);
-        cy.wait("@LoadDashboard");
         cy.getByTestId(`DashboardId${id}Container`).should("exist");
 
         // assert it always use the "/dashboards/{id}" path
@@ -99,13 +97,15 @@ describe("Dashboard", () => {
       });
     });
 
-    it("hides edit option", () => {
+    it("hides edit option", function () {
       cy.getByTestId("DashboardMoreButton").click().should("be.visible");
 
-      cy.getByTestId("DashboardMoreButtonMenu").contains("Edit").as("editButton").should("not.be.visible");
+      cy.getByTestId("DashboardMoreButtonMenu").should("not.contain", "Edit");
 
       cy.viewport(801 + menuWidth, 800);
-      cy.get("@editButton").should("be.visible");
+      cy.visit(this.dashboardUrl);
+      cy.getByTestId("DashboardMoreButton").click().should("be.visible");
+      cy.getByTestId("DashboardMoreButtonMenu").contains("Edit").should("be.visible");
     });
 
     it("disables edit mode", function () {

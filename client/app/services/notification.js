@@ -6,11 +6,15 @@ notification.config({
 });
 
 const simpleNotification = {};
+const notificationActionAliases = {
+  warn: "warning",
+};
 
-["success", "error", "info", "warning", "warn"].forEach(action => {
+["success", "error", "info", "warning", "warn"].forEach((action) => {
   // eslint-disable-next-line arrow-body-style
   simpleNotification[action] = (message, description = null, props = null) => {
-    return notification[action]({ ...props, message, description });
+    const handler = notification[notificationActionAliases[action] || action];
+    return handler({ ...props, message, description });
   };
 });
 

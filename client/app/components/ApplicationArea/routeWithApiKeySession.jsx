@@ -10,7 +10,7 @@ import { Auth, clientConfig } from "@/services/auth";
 // - `onError` field which is a `handleError` method of nearest error boundary
 // - `apiKey` field
 
-function ApiKeySessionWrapper({ apiKey, currentRoute, renderChildren }) {
+function ApiKeySessionWrapper({ apiKey, currentRoute, renderChildren = () => null }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const { handleError } = useContext(ErrorBoundaryContext);
 
@@ -49,14 +49,10 @@ ApiKeySessionWrapper.propTypes = {
   renderChildren: PropTypes.func,
 };
 
-ApiKeySessionWrapper.defaultProps = {
-  renderChildren: () => null,
-};
-
 export default function routeWithApiKeySession({ render, getApiKey, ...rest }) {
   return {
     ...rest,
-    render: currentRoute => (
+    render: (currentRoute) => (
       <ApiKeySessionWrapper apiKey={getApiKey(currentRoute)} currentRoute={currentRoute} renderChildren={render} />
     ),
   };

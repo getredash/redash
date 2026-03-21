@@ -11,7 +11,7 @@ function toMoment(value) {
   return value && value.isValid() ? value : null;
 }
 
-export default function TimeAgo({ date, placeholder, autoUpdate, variation }) {
+export default function TimeAgo({ date = null, placeholder = "", autoUpdate = true, variation }) {
   const startDate = toMoment(date);
   const [value, setValue] = useState(null);
   const title = useMemo(() => (startDate ? startDate.format(clientConfig.dateTimeFormat) : null), [startDate]);
@@ -47,10 +47,4 @@ TimeAgo.propTypes = {
   placeholder: PropTypes.string,
   autoUpdate: PropTypes.bool,
   variation: PropTypes.oneOf(["timeAgoInTooltip"]),
-};
-
-TimeAgo.defaultProps = {
-  date: null,
-  placeholder: "",
-  autoUpdate: true,
 };

@@ -41,7 +41,6 @@ export interface StepProps {
   show: boolean;
   completed: boolean;
   url?: string;
-  urlTarget?: string;
   urlText?: React.ReactNode;
   text?: React.ReactNode;
   onClick?: () => void;

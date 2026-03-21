@@ -3,7 +3,7 @@ import moment from "moment";
 import PropTypes from "prop-types";
 import { Moment } from "@/components/proptypes";
 
-export default function Timer({ from }) {
+export default function Timer({ from = null }) {
   const startTime = useMemo(() => moment(from).valueOf(), [from]);
   const [value, setValue] = useState(null);
 
@@ -24,8 +24,4 @@ export default function Timer({ from }) {
 
 Timer.propTypes = {
   from: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.instanceOf(Date), Moment]),
-};
-
-Timer.defaultProps = {
-  from: null,
 };

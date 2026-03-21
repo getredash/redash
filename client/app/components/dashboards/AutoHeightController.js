@@ -25,19 +25,19 @@ export default class AutoHeightController {
 
   update(widgets) {
     const newWidgetIds = widgets
-      .filter(widget => widget.options.position.autoHeight)
-      .map(widget => widget.id.toString());
+      .filter((widget) => widget.options.position.autoHeight)
+      .map((widget) => widget.id.toString());
 
     // added
-    newWidgetIds.filter(id => !includes(Object.keys(this.widgets), id)).forEach(this.add);
+    newWidgetIds.filter((id) => !includes(Object.keys(this.widgets), id)).forEach(this.add);
 
     // removed
     Object.keys(this.widgets)
-      .filter(id => !includes(newWidgetIds, id))
+      .filter((id) => !includes(newWidgetIds, id))
       .forEach(this.remove);
   }
 
-  add = id => {
+  add = (id) => {
     if (this.isEmpty()) {
       this.start();
     }
@@ -66,7 +66,7 @@ export default class AutoHeightController {
     ];
   };
 
-  remove = id => {
+  remove = (id) => {
     // ignore if not an active autoHeight widget
     if (!this.exists(id)) {
       return;
@@ -80,14 +80,14 @@ export default class AutoHeightController {
     }
   };
 
-  exists = id => !!this.widgets[id.toString()];
+  exists = (id) => !!this.widgets[id.toString()];
 
   isEmpty = () => !some(this.widgets);
 
   checkHeightChanges = () => {
     Object.keys(this.widgets)
       .filter(this.exists) // reject already removed items
-      .forEach(id => {
+      .forEach((id) => {
         const [getHeight, prevHeight] = this.widgets[id];
         const height = getHeight();
         if (height && height !== prevHeight) {

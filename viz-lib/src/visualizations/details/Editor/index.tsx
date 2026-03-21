@@ -4,6 +4,4 @@ import ColumnsSettings from "./ColumnsSettings";
 
 import "./editor.less";
 
-export default createTabbedEditor([
-  { key: "Columns", title: "Columns", component: ColumnsSettings },
-]);
+export default createTabbedEditor([{ key: "Columns", title: "Columns", component: ColumnsSettings }]);

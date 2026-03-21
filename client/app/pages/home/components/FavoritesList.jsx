@@ -8,7 +8,7 @@ import LoadingOutlinedIcon from "@ant-design/icons/LoadingOutlined";
 import { Dashboard } from "@/services/dashboard";
 import { Query } from "@/services/query";
 
-export function FavoriteList({ title, resource, itemUrl, emptyState }) {
+export function FavoriteList({ title, resource, itemUrl, emptyState = null }) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -50,7 +50,6 @@ FavoriteList.propTypes = {
   itemUrl: PropTypes.func.isRequired,
   emptyState: PropTypes.node,
 };
-FavoriteList.defaultProps = { emptyState: null };
 
 export function DashboardAndQueryFavoritesList() {
   return (

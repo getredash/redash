@@ -102,9 +102,21 @@ const DYNAMIC_DATETIME_OPTIONS = [
   ...DYNAMIC_DATE_OPTIONS,
 ];
 
-function DateRangeParameter(props) {
-  const options = includes(props.type, "datetime-range") ? DYNAMIC_DATETIME_OPTIONS : DYNAMIC_DATE_OPTIONS;
-  return <DynamicDateRangePicker {...props} dynamicButtonOptions={{ options }} />;
+const NOOP = () => {};
+
+function DateRangeParameter({ type = "", className = "", value = null, parameter = null, onSelect = NOOP, ...props }) {
+  const options = includes(type, "datetime-range") ? DYNAMIC_DATETIME_OPTIONS : DYNAMIC_DATE_OPTIONS;
+  return (
+    <DynamicDateRangePicker
+      type={type}
+      className={className}
+      value={value}
+      parameter={parameter}
+      onSelect={onSelect}
+      {...props}
+      dynamicButtonOptions={{ options }}
+    />
+  );
 }
 
 DateRangeParameter.propTypes = {
@@ -113,14 +125,6 @@ DateRangeParameter.propTypes = {
   value: PropTypes.any, // eslint-disable-line react/forbid-prop-types
   parameter: PropTypes.any, // eslint-disable-line react/forbid-prop-types
   onSelect: PropTypes.func,
-};
-
-DateRangeParameter.defaultProps = {
-  type: "",
-  className: "",
-  value: null,
-  parameter: null,
-  onSelect: () => {},
 };
 
 export default DateRangeParameter;

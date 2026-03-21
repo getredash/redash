@@ -6,6 +6,61 @@ export function assertPlotPreview(should = "exist") {
   cy.getByTestId("VisualizationPreview").find("g.overplot").should("exist").find("g.points").should(should);
 }
 
+function escapeRegExp(text) {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function getSelectedChartLabels($field) {
+  const labels = Array.from(
+    new Set(
+      Cypress.$($field)
+        .find(".ant-select-selection-item, .ant-select-selection-item-content")
+        .map((_, element) => element.getAttribute("title") || element.textContent || "")
+        .get()
+        .map((text) => text.trim())
+        .filter(Boolean)
+    )
+  );
+
+  if (labels.length > 0) {
+    return labels;
+  }
+
+  const fallbackText = $field.text().trim();
+  return fallbackText ? [fallbackText] : [];
+}
+
+export function ensureChartColumnMapping(fieldTestId, optionTestId, label) {
+  cy.getByTestId(fieldTestId).then(($field) => {
+    if (!getSelectedChartLabels($field).includes(label)) {
+      cy.wrap($field).selectAntdOption(optionTestId);
+    }
+  });
+}
+
+export function ensureChartMultiColumnMapping(fieldTestId, labels) {
+  cy.getByTestId(fieldTestId).then(($field) => {
+    const selectedLabels = getSelectedChartLabels($field);
+    const missingLabels = labels.filter((label) => !selectedLabels.includes(label));
+
+    if (missingLabels.length === 0) {
+      return;
+    }
+
+    missingLabels.forEach((label) => {
+      cy.wrap($field).click({ force: true });
+      cy.wrap($field).find(".ant-select-input").should("exist").type(label, { force: true });
+      cy.contains(
+        ".ant-select-dropdown:not(.ant-select-dropdown-hidden):visible .ant-select-item-option",
+        new RegExp(`^${escapeRegExp(label)}$`, "i")
+      )
+        .scrollIntoView()
+        .click({ force: true });
+      cy.getByTestId(fieldTestId).should("contain.text", label);
+    });
+  });
+}
+
 export function createChartThroughUI(chartName, chartSpecificAssertionFn = () => {}) {
   cy.getByTestId("NewVisualization").click();
   cy.getByTestId("VisualizationType").selectAntdOption("VisualizationType.CHART");
@@ -13,17 +68,16 @@ export function createChartThroughUI(chartName, chartSpecificAssertionFn = () =>
 
   chartSpecificAssertionFn();
 
-  cy.server();
-  cy.route("POST", "**/api/visualizations").as("SaveVisualization");
+  cy.intercept("POST", "**/api/visualizations").as("SaveVisualization");
 
   cy.getByTestId("EditVisualizationDialog").contains("button", "Save").click();
 
   cy.getByTestId("QueryPageVisualizationTabs").contains("span", chartName).should("exist");
 
-  cy.wait("@SaveVisualization").should("have.property", "status", 200);
+  cy.wait("@SaveVisualization").its("response.statusCode").should("eq", 200);
 
-  return cy.get("@SaveVisualization").then((xhr) => {
-    const { id, name, options } = xhr.response.body;
+  return cy.get("@SaveVisualization").then(({ response }) => {
+    const { id, name, options } = response.body;
     return cy.wrap({ id, name, options });
   });
 }
@@ -47,12 +101,12 @@ export function assertTabbedEditor(chartSpecificTabbedEditorAssertionFn = () => 
 
 export function assertAxesAndAddLabels(xaxisLabel, yaxisLabel) {
   cy.getByTestId("VisualizationEditor.Tabs.XAxis").click();
-  cy.getByTestId("Chart.XAxis.Type").contains(".ant-select-selection-item", "Auto Detect").should("exist");
+  cy.getByTestId("Chart.XAxis.Type").should("contain.text", "Auto Detect");
 
   cy.getByTestId("Chart.XAxis.Name").clear().type(xaxisLabel);
 
   cy.getByTestId("VisualizationEditor.Tabs.YAxis").click();
-  cy.getByTestId("Chart.LeftYAxis.Type").contains(".ant-select-selection-item", "Linear").should("exist");
+  cy.getByTestId("Chart.LeftYAxis.Type").should("contain.text", "Linear");
 
   cy.getByTestId("Chart.LeftYAxis.Name").clear().type(yaxisLabel);
 

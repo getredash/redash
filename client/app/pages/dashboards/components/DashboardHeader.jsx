@@ -1,16 +1,15 @@
-import React from "react";
+import React, { useMemo } from "react";
 import cx from "classnames";
 import PropTypes from "prop-types";
-import { map, includes } from "lodash";
+import { map, includes, compact } from "lodash";
 import Button from "antd/lib/button";
 import Dropdown from "antd/lib/dropdown";
-import Menu from "antd/lib/menu";
+import Space from "antd/lib/space";
 import EllipsisOutlinedIcon from "@ant-design/icons/EllipsisOutlined";
 import Modal from "antd/lib/modal";
 import Tooltip from "@/components/Tooltip";
 import FavoritesControl from "@/components/FavoritesControl";
 import EditInPlace from "@/components/EditInPlace";
-import PlainButton from "@/components/PlainButton";
 import { DashboardTagsControl } from "@/components/tags-control/TagsControl";
 import getTags from "@/services/getTags";
 import { clientConfig } from "@/services/auth";
@@ -76,8 +75,21 @@ function RefreshButton({ dashboardConfiguration }) {
       disableRefreshRate();
     }
   };
+
+  const menuItems = useMemo(() => {
+    const items = refreshRateOptions.map((option) => ({
+      key: `${option}`,
+      label: durationHumanize(option),
+      disabled: !includes(allowedIntervals, option),
+    }));
+    if (refreshRate) {
+      items.push({ key: "disable", label: "Disable auto refresh" });
+    }
+    return items;
+  }, [refreshRateOptions, allowedIntervals, refreshRate]);
+
   return (
-    <Button.Group>
+    <Space.Compact>
       <Tooltip title={refreshRate ? `Auto Refreshing every ${durationHumanize(refreshRate)}` : null}>
         <Button type={buttonType(refreshRate)} onClick={() => refreshDashboard()}>
           <i className={cx("zmdi zmdi-refresh m-r-5", { "zmdi-hc-spin": refreshing })} aria-hidden="true" />
@@ -87,23 +99,14 @@ function RefreshButton({ dashboardConfiguration }) {
       <Dropdown
         trigger={["click"]}
         placement="bottomRight"
-        overlay={
-          <Menu onClick={onRefreshRateSelected} selectedKeys={[`${refreshRate}`]}>
-            {refreshRateOptions.map((option) => (
-              <Menu.Item key={`${option}`} disabled={!includes(allowedIntervals, option)}>
-                {durationHumanize(option)}
-              </Menu.Item>
-            ))}
-            {refreshRate && <Menu.Item key={null}>Disable auto refresh</Menu.Item>}
-          </Menu>
-        }
+        menu={{ items: menuItems, selectedKeys: [`${refreshRate}`], onClick: onRefreshRateSelected }}
       >
         <Button className="icon-button hidden-xs" type={buttonType(refreshRate)}>
           <i className="fa fa-angle-down" aria-hidden="true" />
           <span className="sr-only">Split button!</span>
         </Button>
       </Dropdown>
-    </Button.Group>
+    </Space.Compact>
   );
 }
 
@@ -124,50 +127,71 @@ function DashboardMoreOptionsButton({ dashboardConfiguration }) {
     duplicateDashboard,
   } = dashboardConfiguration;
 
-  const archive = () => {
-    Modal.confirm({
-      title: "Archive Dashboard",
-      content: `Are you sure you want to archive the "${dashboard.name}" dashboard?`,
-      okText: "Archive",
-      okType: "danger",
-      onOk: archiveDashboard,
-      maskClosable: true,
-      autoFocusButton: null,
-    });
-  };
+  const menuItems = useMemo(() => {
+    const archive = () => {
+      Modal.confirm({
+        title: "Archive Dashboard",
+        content: `Are you sure you want to archive the "${dashboard.name}" dashboard?`,
+        okText: "Archive",
+        okType: "danger",
+        onOk: archiveDashboard,
+        maskClosable: true,
+        autoFocusButton: null,
+      });
+    };
+
+    return compact([
+      !gridDisabled && {
+        key: "edit",
+        label: "Edit",
+        onClick: () => setEditingLayout(true),
+      },
+      !isDuplicating &&
+        dashboard.canEdit() && {
+          key: "fork",
+          label: (
+            <span>
+              Fork <i className="fa fa-external-link m-l-5" aria-hidden="true" />
+              <span className="sr-only">(opens in a new tab)</span>
+            </span>
+          ),
+          onClick: duplicateDashboard,
+        },
+      clientConfig.showPermissionsControl &&
+        isDashboardOwnerOrAdmin && {
+          key: "permissions",
+          label: "Manage Permissions",
+          onClick: managePermissions,
+        },
+      !clientConfig.disablePublish &&
+        !dashboard.is_draft && {
+          key: "unpublish",
+          label: "Unpublish",
+          onClick: togglePublished,
+        },
+      {
+        key: "archive",
+        label: "Archive",
+        onClick: archive,
+      },
+    ]);
+  }, [
+    gridDisabled,
+    setEditingLayout,
+    isDuplicating,
+    dashboard,
+    duplicateDashboard,
+    isDashboardOwnerOrAdmin,
+    managePermissions,
+    togglePublished,
+    archiveDashboard,
+  ]);
 
   return (
     <Dropdown
       trigger={["click"]}
       placement="bottomRight"
-      overlay={
-        <Menu data-test="DashboardMoreButtonMenu">
-          <Menu.Item className={cx({ hidden: gridDisabled })}>
-            <PlainButton onClick={() => setEditingLayout(true)}>Edit</PlainButton>
-          </Menu.Item>
-          {!isDuplicating && dashboard.canEdit() && (
-            <Menu.Item>
-              <PlainButton onClick={duplicateDashboard}>
-                Fork <i className="fa fa-external-link m-l-5" aria-hidden="true" />
-                <span className="sr-only">(opens in a new tab)</span>
-              </PlainButton>
-            </Menu.Item>
-          )}
-          {clientConfig.showPermissionsControl && isDashboardOwnerOrAdmin && (
-            <Menu.Item>
-              <PlainButton onClick={managePermissions}>Manage Permissions</PlainButton>
-            </Menu.Item>
-          )}
-          {!clientConfig.disablePublish && !dashboard.is_draft && (
-            <Menu.Item>
-              <PlainButton onClick={togglePublished}>Unpublish</PlainButton>
-            </Menu.Item>
-          )}
-          <Menu.Item>
-            <PlainButton onClick={archive}>Archive</PlainButton>
-          </Menu.Item>
-        </Menu>
-      }
+      menu={{ items: menuItems, "data-test": "DashboardMoreButtonMenu" }}
     >
       <Button className="icon-button m-l-5" data-test="DashboardMoreButton" aria-label="More actions">
         <EllipsisOutlinedIcon rotate={90} aria-hidden="true" />

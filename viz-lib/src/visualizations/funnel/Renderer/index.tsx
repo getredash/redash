@@ -40,7 +40,7 @@ export default function Renderer({ data, options }: any) {
     }
 
     // @ts-expect-error ts-migrate(2532) FIXME: Object is possibly 'undefined'.
-    const maxToPrevious = maxBy(funnelData, d => (isFinite(d.pctPrevious) ? d.pctPrevious : 0)).pctPrevious;
+    const maxToPrevious = maxBy(funnelData, (d) => (isFinite(d.pctPrevious) ? d.pctPrevious : 0)).pctPrevious;
     return [
       {
         title: options.stepCol.displayAs,
@@ -59,7 +59,6 @@ export default function Renderer({ data, options }: any) {
         width: "45%",
         align: "center",
         render: (value: any, item: any) => (
-          // @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message
           <FunnelBar align="center" color={ColorPalette.Cyan} value={item.pctMax}>
             {formatValue(value)}
           </FunnelBar>
@@ -78,7 +77,6 @@ export default function Renderer({ data, options }: any) {
         width: "15%",
         align: "center",
         render: (value: any) => (
-          // @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message
           <FunnelBar className="funnel-percent-column" value={(value / maxToPrevious) * 100.0}>
             {formatPercentValue(value)}
           </FunnelBar>

@@ -6,7 +6,11 @@ import { Auth } from "@/services/auth";
 import { isString, uniqBy, each, isNumber, includes, extend, forOwn, get } from "lodash";
 
 const logger = debug("redash:services:QueryResult");
-const filterTypes = ["filter", "multi-filter", "multiFilter"];
+const filterTypes = ["filter", "multi-filter", "multifilter"];
+
+function normalizeFilterType(type) {
+  return isString(type) ? type.toLowerCase() : "";
+}
 
 function defer() {
   const result = { onStatusChange: (status) => {} };
@@ -32,7 +36,7 @@ function getColumnNameWithoutType(column) {
     return parts[1];
   }
 
-  if (!includes(filterTypes, parts[1])) {
+  if (!includes(filterTypes, normalizeFilterType(parts[1]))) {
     return column;
   }
 
@@ -289,14 +293,15 @@ class QueryResult {
     this.getColumns().forEach((col) => {
       const name = col.name;
       const type = name.split("::")[1] || name.split("__")[1];
-      if (includes(filterTypes, type)) {
+      const normalizedType = normalizeFilterType(type);
+      if (includes(filterTypes, normalizedType)) {
         // filter found
         const filter = {
           name,
           friendlyName: getColumnFriendlyName(name),
           column: col,
           values: [],
-          multiple: type === "multiFilter" || type === "multi-filter",
+          multiple: normalizedType === "multifilter" || normalizedType === "multi-filter",
         };
         filters.push(filter);
       }

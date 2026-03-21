@@ -19,13 +19,11 @@ export default function PlotlyChart({ options, data }: PlotlyChartProps) {
   const [chart, setChart] = useState(null);
 
   const errorHandler = useContext(ErrorBoundaryContext);
-  const errorHandlerRef = useRef();
-  // @ts-expect-error ts-migrate(2322) FIXME: Type '{ handleError: (error: any) => void; reset: ... Remove this comment to see the full error message
+  const errorHandlerRef = useRef<any>(undefined);
   errorHandlerRef.current = errorHandler;
 
   const isMobile = useMedia({ maxWidth: 768 });
-  const isMobileRef = useRef();
-  // @ts-expect-error ts-migrate(2322) FIXME: Type 'boolean' is not assignable to type 'undefine... Remove this comment to see the full error message
+  const isMobileRef = useRef<any>(undefined);
   isMobileRef.current = isMobile;
 
   useEffect(() => {
@@ -34,7 +32,6 @@ export default function PlotlyChart({ options, data }: PlotlyChartProps) {
 
       const chartData = getChartData(data.rows, options);
       const _chart = initChart(container, options, chartData, visualizationsSettings, (error: any) => {
-        // @ts-expect-error ts-migrate(2532) FIXME: Object is possibly 'undefined'.
         errorHandlerRef.current.handleError(error);
       });
       _chart.initialized.then(() => {

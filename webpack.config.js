@@ -83,7 +83,11 @@ const config = {
     extensions: [".js", ".jsx", ".ts", ".tsx"],
     alias: {
       "@": appPath,
-      extensions: extensionPath
+      extensions: extensionPath,
+      // React 19 compat: rc-util (antd dep) expects createRoot on react-dom,
+      // but React 19 only exports it from react-dom/client. Shim re-exports both.
+      "react-dom-real$": require.resolve("react-dom"),
+      "react-dom$": path.resolve(__dirname, "client/app/lib/react-dom-compat.js"),
     },
     fallback: {
       fs: false,

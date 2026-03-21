@@ -123,7 +123,7 @@ export default function prepareLayout(element: any, options: any, data: any) {
   };
 
   if (["line", "area", "column"].includes(options.globalSeriesType)) {
-    layout.hovermode = options.swappedAxes ? 'y' : 'x';
+    layout.hovermode = options.swappedAxes ? "y" : "x";
   }
 
   switch (options.globalSeriesType) {

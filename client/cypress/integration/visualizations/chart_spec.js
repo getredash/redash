@@ -7,6 +7,8 @@ import {
   assertTabbedEditor,
   createChartThroughUI,
   createDashboardWithCharts,
+  ensureChartColumnMapping,
+  ensureChartMultiColumnMapping,
 } from "../../support/visualizations/chart";
 
 const SQL = `
@@ -41,15 +43,14 @@ describe("Chart", () => {
         assertTabbedEditor();
 
         // standard chart should be bar
-        cy.getByTestId("Chart.GlobalSeriesType").contains(".ant-select-selection-item", "Bar");
+        cy.getByTestId("Chart.GlobalSeriesType").should("contain.text", "Bar");
 
         // checks the plot canvas exists and is empty
         assertPlotPreview("not.exist");
 
         // creates a chart and checks it is plotted
-        cy.getByTestId("Chart.ColumnMapping.x").selectAntdOption("Chart.ColumnMapping.x.stage");
-        cy.getByTestId("Chart.ColumnMapping.y").selectAntdOption("Chart.ColumnMapping.y.value1");
-        cy.getByTestId("Chart.ColumnMapping.y").selectAntdOption("Chart.ColumnMapping.y.value2");
+        ensureChartColumnMapping("Chart.ColumnMapping.x", "Chart.ColumnMapping.x.stage", "stage");
+        ensureChartMultiColumnMapping("Chart.ColumnMapping.y", ["value1", "value2"]);
         assertPlotPreview("exist");
 
         specificBarChartAssertionFn();
@@ -113,31 +114,24 @@ describe("Chart", () => {
     cy.wait(1500); // eslint-disable-line cypress/no-unnecessary-waiting
     cy.getByTestId("ExecuteButton").click();
     cy.getByTestId("NewVisualization").click();
-    cy.getByTestId("Chart.ColumnMapping.x").selectAntdOption("Chart.ColumnMapping.x.stage");
-    cy.getByTestId("Chart.ColumnMapping.y").selectAntdOption("Chart.ColumnMapping.y.value1");
+    ensureChartColumnMapping("Chart.ColumnMapping.x", "Chart.ColumnMapping.x.stage", "stage");
+    ensureChartColumnMapping("Chart.ColumnMapping.y", "Chart.ColumnMapping.y.value1", "value1");
     cy.getByTestId("VisualizationEditor.Tabs.Colors").click();
-    cy.getByTestId("ColorScheme").click();
-    cy.getByTestId("ColorOptionViridis").click();
-    cy.getByTestId("ColorScheme").click();
-    cy.getByTestId("ColorOptionTableau 10").click();
-    cy.getByTestId("ColorScheme").click();
-    cy.getByTestId("ColorOptionD3 Category 10").click();
+    cy.getByTestId("ColorScheme").selectAntdOption("ColorOptionViridis");
+    cy.getByTestId("ColorScheme").selectAntdOption("ColorOptionTableau 10");
+    cy.getByTestId("ColorScheme").selectAntdOption("ColorOptionD3 Category 10");
   });
   it("colors Pie charts", function () {
     cy.visit(`queries/${this.queryId}/source`);
     cy.wait(1500); // eslint-disable-line cypress/no-unnecessary-waiting
     cy.getByTestId("ExecuteButton").click();
     cy.getByTestId("NewVisualization").click();
-    cy.getByTestId("Chart.GlobalSeriesType").click();
-    cy.getByTestId("Chart.ChartType.pie").click();
-    cy.getByTestId("Chart.ColumnMapping.x").selectAntdOption("Chart.ColumnMapping.x.stage");
-    cy.getByTestId("Chart.ColumnMapping.y").selectAntdOption("Chart.ColumnMapping.y.value1");
+    cy.getByTestId("Chart.GlobalSeriesType").selectAntdOption("Chart.ChartType.pie");
+    ensureChartColumnMapping("Chart.ColumnMapping.x", "Chart.ColumnMapping.x.stage", "stage");
+    ensureChartColumnMapping("Chart.ColumnMapping.y", "Chart.ColumnMapping.y.value1", "value1");
     cy.getByTestId("VisualizationEditor.Tabs.Colors").click();
-    cy.getByTestId("ColorScheme").click();
-    cy.getByTestId("ColorOptionViridis").click();
-    cy.getByTestId("ColorScheme").click();
-    cy.getByTestId("ColorOptionTableau 10").click();
-    cy.getByTestId("ColorScheme").click();
-    cy.getByTestId("ColorOptionD3 Category 10").click();
+    cy.getByTestId("ColorScheme").selectAntdOption("ColorOptionViridis");
+    cy.getByTestId("ColorScheme").selectAntdOption("ColorOptionTableau 10");
+    cy.getByTestId("ColorScheme").selectAntdOption("ColorOptionD3 Category 10");
   });
 });

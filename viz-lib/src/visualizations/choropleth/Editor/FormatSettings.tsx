@@ -24,11 +24,10 @@ const templateFormatHintDefaultProps = {
   geoJsonProperties: [],
 };
 
-type TemplateFormatHintProps = OwnTemplateFormatHintProps & typeof templateFormatHintDefaultProps;
+type TemplateFormatHintProps = OwnTemplateFormatHintProps;
 
-function TemplateFormatHint({ geoJsonProperties }: TemplateFormatHintProps) {
+function TemplateFormatHint({ geoJsonProperties: geoJsonProperties = [] }: TemplateFormatHintProps) {
   return (
-    // @ts-expect-error ts-migrate(2746) FIXME: This JSX tag's 'children' prop expects a single ch... Remove this comment to see the full error message
     <ContextHelp placement="topLeft" arrowPointAtCenter>
       <div style={{ paddingBottom: 5 }}>
         <div>
@@ -42,7 +41,7 @@ function TemplateFormatHint({ geoJsonProperties }: TemplateFormatHintProps) {
         <React.Fragment>
           <div className="p-b-5">GeoJSON properties could be accessed by these names:</div>
           <div style={{ maxHeight: 300, overflow: "auto" }}>
-            {map(geoJsonProperties, property => (
+            {map(geoJsonProperties, (property) => (
               <div key={property}>
                 <code>{`{{ @@${property}}}`}</code>
               </div>
@@ -54,8 +53,6 @@ function TemplateFormatHint({ geoJsonProperties }: TemplateFormatHintProps) {
   );
 }
 
-TemplateFormatHint.defaultProps = templateFormatHintDefaultProps;
-
 export default function GeneralSettings({ options, onOptionsChange }: any) {
   const [onOptionsChangeDebounced] = useDebouncedCallback(onOptionsChange, 200);
   const [geoJson] = useLoadGeoJson(options.mapType);
@@ -65,7 +62,6 @@ export default function GeneralSettings({ options, onOptionsChange }: any) {
 
   return (
     <div className="choropleth-visualization-editor-format-settings">
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Grid.Row gutter={15}>
           <Grid.Col span={12}>
@@ -92,17 +88,16 @@ export default function GeneralSettings({ options, onOptionsChange }: any) {
         </Grid.Row>
       </Section>
 
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Checkbox
           data-test="Choropleth.Editor.LegendVisibility"
           checked={options.legend.visible}
-          onChange={event => onOptionsChange({ legend: { visible: event.target.checked } })}>
+          onChange={(event) => onOptionsChange({ legend: { visible: event.target.checked } })}
+        >
           Show Legend
         </Checkbox>
       </Section>
 
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Grid.Row gutter={15}>
           <Grid.Col span={12}>
@@ -111,7 +106,8 @@ export default function GeneralSettings({ options, onOptionsChange }: any) {
               data-test="Choropleth.Editor.LegendPosition"
               disabled={!options.legend.visible}
               defaultValue={options.legend.position}
-              onChange={(position: any) => onOptionsChange({ legend: { position } })}>
+              onChange={(position: any) => onOptionsChange({ legend: { position } })}
+            >
               {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
               <Select.Option value="top-left" data-test="Choropleth.Editor.LegendPosition.TopLeft">
                 top / left
@@ -146,17 +142,16 @@ export default function GeneralSettings({ options, onOptionsChange }: any) {
         </Grid.Row>
       </Section>
 
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Checkbox
           data-test="Choropleth.Editor.TooltipEnabled"
           checked={options.tooltip.enabled}
-          onChange={event => onOptionsChange({ tooltip: { enabled: event.target.checked } })}>
+          onChange={(event) => onOptionsChange({ tooltip: { enabled: event.target.checked } })}
+        >
           Show Tooltip
         </Checkbox>
       </Section>
 
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Input
           label={<React.Fragment>Tooltip Template {templateFormatHint}</React.Fragment>}
@@ -167,17 +162,16 @@ export default function GeneralSettings({ options, onOptionsChange }: any) {
         />
       </Section>
 
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Checkbox
           data-test="Choropleth.Editor.PopupEnabled"
           checked={options.popup.enabled}
-          onChange={event => onOptionsChange({ popup: { enabled: event.target.checked } })}>
+          onChange={(event) => onOptionsChange({ popup: { enabled: event.target.checked } })}
+        >
           Show Popup
         </Checkbox>
       </Section>
 
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <TextArea
           label={<React.Fragment>Popup Template {templateFormatHint}</React.Fragment>}

@@ -47,7 +47,7 @@ function BeaconConsent() {
               <HelpTrigger type="USAGE_DATA_SHARING" />
             </>
           }
-          bordered={false}
+          variant="borderless"
         >
           <Text>Help Redash improve by automatically sending anonymous usage data:</Text>
           <div className="m-t-5">

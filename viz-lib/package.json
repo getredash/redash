@@ -26,9 +26,10 @@
   "author": "Redash",
   "license": "BSD-2-Clause",
   "peerDependencies": {
-    "@ant-design/icons": ">=4.0.0",
-    "antd": ">=4.0.0",
-    "react-dom": ">=16.14.0"
+    "@ant-design/icons": ">=6.0.0",
+    "antd": ">=6.0.0",
+    "react": ">=19.0.0",
+    "react-dom": ">=19.0.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.28.6",
@@ -42,24 +43,22 @@
     "@types/d3-cloud": "^1.2.3",
     "@types/debug": "^4.1.5",
     "@types/dompurify": "^2.0.4",
-    "@types/enzyme": "^3.10.8",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/jest-dom": "^6.6.3",
     "@types/jest": "^26.0.18",
     "@types/leaflet": "^1.5.19",
     "@types/numeral": "0.0.28",
     "@types/plotly.js": "^3.0.10",
-    "@types/react": "^17.0.0",
-    "@types/react-dom": "^17.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
     "@types/react-pivottable": "^0.11.6",
-    "@types/react-plotly.js": "^2.6.4",
     "@types/tinycolor2": "^1.4.2",
     "babel-loader": "^10.0.0",
     "babel-plugin-istanbul": "^6.1.1",
     "babel-plugin-module-resolver": "^5.0.0",
     "css-loader": "^7.1.4",
     "babel-jest": "^30.2.0",
-    "enzyme": "^3.8.0",
-    "enzyme-adapter-react-16": "^1.15.7",
-    "enzyme-to-json": "^3.3.5",
+    "jest-environment-jsdom": "^30.2.0",
     "jest": "^30.2.0",
     "less": "^4.5.1",
     "less-loader": "^12.3.1",
@@ -78,6 +77,10 @@
     "lib"
   ],
   "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/modifiers": "^9.0.0",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
     "axios": "0.28.0",
     "axios-auth-refresh": "3.3.6",
     "beautifymarker": "^1.0.7",
@@ -96,8 +99,6 @@
     "numeral": "^2.0.6",
     "plotly.js": "3.3.1",
     "react-pivottable": "^0.11.0",
-    "react-plotly.js": "^2.6.0",
-    "react-sortable-hoc": "^1.10.1",
     "tinycolor2": "^1.4.1",
     "use-debounce": "^3.4.1",
     "use-media": "^1.4.0"
@@ -109,11 +110,7 @@
       "\\.[jt]sx?$": "babel-jest"
     },
     "setupFiles": [
-      "../__tests__/enzyme_setup.js",
       "../__tests__/mocks.js"
-    ],
-    "snapshotSerializers": [
-      "enzyme-to-json/serializer"
     ],
     "moduleNameMapper": {
       "^@/(.*)": "<rootDir>/$1",

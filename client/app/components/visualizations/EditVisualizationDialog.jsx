@@ -67,7 +67,7 @@ function confirmDialogClose(isDirty) {
   });
 }
 
-function EditVisualizationDialog({ dialog, visualization, query, queryResult }) {
+function EditVisualizationDialog({ dialog, visualization = null, query, queryResult }) {
   const errorHandlerRef = useRef();
 
   const isNew = !visualization;
@@ -241,10 +241,6 @@ EditVisualizationDialog.propTypes = {
   query: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
   visualization: VisualizationType,
   queryResult: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
-};
-
-EditVisualizationDialog.defaultProps = {
-  visualization: null,
 };
 
 export default wrapDialog(EditVisualizationDialog);

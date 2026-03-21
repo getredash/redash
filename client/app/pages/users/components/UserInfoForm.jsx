@@ -13,6 +13,11 @@ import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 import useUserGroups from "../hooks/useUserGroups";
 
 export default function UserInfoForm(props) {
+  props = {
+    onChange: () => {},
+    ...props,
+  };
+
   const { user, onChange } = props;
 
   const { groups, allGroups, isLoading: isLoadingGroups } = useUserGroups(user);
@@ -27,11 +32,11 @@ export default function UserInfoForm(props) {
       };
 
       User.save(data)
-        .then(user => {
+        .then((user) => {
           successCallback("Saved.");
           handleChange(User.convertUserInfo(user));
         })
-        .catch(error => {
+        .catch((error) => {
           errorCallback(get(error, "response.data.message", "Failed saving."));
         });
     },
@@ -60,7 +65,7 @@ export default function UserInfoForm(props) {
                 title: "Groups",
                 type: "select",
                 mode: "multiple",
-                options: map(allGroups, group => ({ name: group.name, value: group.id })),
+                options: map(allGroups, (group) => ({ name: group.name, value: group.id })),
                 initialValue: user.groupIds,
                 loading: isLoadingGroups,
                 placeholder: isLoadingGroups ? "Loading..." : "",
@@ -73,7 +78,7 @@ export default function UserInfoForm(props) {
                 content: isLoadingGroups ? "Loading..." : <UserGroups data-test="Groups" groups={groups} />,
               },
         ],
-        field => ({ readOnly: user.isDisabled, required: true, ...field })
+        (field) => ({ readOnly: user.isDisabled, required: true, ...field })
       ),
     [user, groups, allGroups, isLoadingGroups]
   );
@@ -88,8 +93,4 @@ export default function UserInfoForm(props) {
 UserInfoForm.propTypes = {
   user: UserProfile.isRequired,
   onChange: PropTypes.func,
-};
-
-UserInfoForm.defaultProps = {
-  onChange: () => {},
 };
