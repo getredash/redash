@@ -1,6 +1,19 @@
 import { dragParam } from "../../support/parameters";
 import dayjs from "dayjs";
 
+function escapeRegExp(text) {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function getAntdSelectedValues($container) {
+  return Cypress.$($container)
+    .find(".ant-select-selection-item, .ant-select-selection-item-content")
+    .map((_, element) => element.getAttribute("title") || element.textContent || "")
+    .get()
+    .map((text) => text.trim())
+    .filter(Boolean);
+}
+
 function openAndSearchAntdDropdown(testId, paramOption) {
   cy.getByTestId(testId).find(".ant-select").click();
   cy.getByTestId(testId).find(".ant-select-input").type(paramOption, { force: true });
@@ -19,14 +32,16 @@ function ensureAntdStaticMultiSelectValue(testId, value) {
     .get(".ant-select-dropdown:not(.ant-select-dropdown-hidden)")
     .filter(":visible")
     .last()
-    .contains(".ant-select-item-option", value)
+    .contains(".ant-select-item-option", new RegExp(`^${escapeRegExp(value)}$`, "i"))
     .then(($option) => {
       if (!$option.hasClass("ant-select-item-option-selected")) {
         cy.wrap($option).scrollIntoView().click({ force: true });
       }
     })
     .then(() => {
-      cy.getByTestId(testId).should("contain", value);
+      cy.getByTestId(testId).should(($container) => {
+        expect(getAntdSelectedValues($container)).to.include(value);
+      });
     });
 }
 
@@ -39,14 +54,16 @@ function ensureAntdSearchMultiSelectValue(testId, value) {
     .get(".ant-select-dropdown:not(.ant-select-dropdown-hidden)")
     .filter(":visible")
     .last()
-    .contains(".ant-select-item-option", value)
+    .contains(".ant-select-item-option", new RegExp(`^${escapeRegExp(value)}$`, "i"))
     .then(($option) => {
       if (!$option.hasClass("ant-select-item-option-selected")) {
         cy.wrap($option).scrollIntoView().click({ force: true });
       }
     })
     .then(() => {
-      cy.getByTestId(testId).should("contain", value);
+      cy.getByTestId(testId).should(($container) => {
+        expect(getAntdSelectedValues($container)).to.include(value);
+      });
     });
 }
 

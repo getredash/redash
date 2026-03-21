@@ -18,6 +18,11 @@ const SQL = `
 const UPDATED_SQL = `${SQL}
 UNION ALL
 SELECT 'c' AS stage1, 'c5' AS stage2, 55 AS value`;
+const ADDED_ROW_SQL = "SELECT 'c' AS stage1, 'c5' AS stage2, 55 AS value";
+
+function normalizeQueryText(text) {
+  return text.replace(/\r\n/g, "\n").replace(/\s+/g, " ").trim();
+}
 
 function createPivotThroughUI(visualizationName, options = {}) {
   cy.getByTestId("NewVisualization").click();
@@ -81,7 +86,7 @@ describe("Pivot", () => {
     };
 
     cy.intercept("POST", "**/api/queries/*/results").as("QueryResults");
-    cy.intercept("POST", "**/api/queries/*").as("SaveQuery");
+    cy.intercept("POST", `**/api/queries/${this.queryId}`).as("SaveQuery");
 
     cy.createVisualization(this.queryId, "PIVOT", "Pivot", options).then((visualization) => {
       cy.visit(`queries/${this.queryId}/source#${visualization.id}`);
@@ -92,12 +97,16 @@ describe("Pivot", () => {
       // assert number of rows is 11
       cy.getByTestId("PivotTableVisualization").contains(".pvtGrandTotal", "11");
 
-      cy.getByTestId("QueryEditor").pasteInAce(UPDATED_SQL, { replace: true });
+      cy.getByTestId("QueryEditor").typeInAce(UPDATED_SQL, { replace: true, delay: 5 }).type("{esc}", { force: true });
 
-      // Wait for the query text change to propagate before saving.
-      cy.wait(200); // eslint-disable-line cypress/no-unnecessary-waiting
+      // QuerySource updates the saved query text through a 100ms debounced callback.
+      cy.wait(150); // eslint-disable-line cypress/no-unnecessary-waiting
       cy.getByTestId("SaveButton").should("not.be.disabled").click();
-      cy.wait("@SaveQuery");
+      cy.wait("@SaveQuery")
+        .its("request.body.query")
+        .should((savedQuery) => {
+          expect(normalizeQueryText(savedQuery)).to.contain(normalizeQueryText(ADDED_ROW_SQL));
+        });
       cy.visit(`queries/${this.queryId}/source#${visualization.id}`);
       cy.wait(1500); // eslint-disable-line cypress/no-unnecessary-waiting
       cy.getByTestId("ExecuteButton").should("be.enabled").click();

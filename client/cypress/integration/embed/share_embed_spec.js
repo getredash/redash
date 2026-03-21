@@ -11,8 +11,8 @@ describe("Embedded Queries", () => {
           return;
         }
 
-        cy.wrap($select).click();
-        cy.contains(".ant-select-item-option:visible", DEFAULT_DATA_SOURCE_NAME).click();
+        cy.wrap($select).selectAntdOption(`SelectDataSource${Cypress.env("dataSourceId")}`);
+        cy.getByTestId("SelectDataSource").should("contain.text", DEFAULT_DATA_SOURCE_NAME);
       });
   }
 
