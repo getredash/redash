@@ -29,7 +29,10 @@ export function ensureChartMultiColumnMapping(fieldTestId, labels) {
     missingLabels.forEach((label) => {
       cy.wrap($field).click({ force: true });
       cy.wrap($field).find(".ant-select-input").should("exist").type(label, { force: true });
-      cy.contains(".ant-select-dropdown:not(.ant-select-dropdown-hidden):visible .ant-select-item-option", new RegExp(`^${escapeRegExp(label)}$`, "i"))
+      cy.contains(
+        ".ant-select-dropdown:not(.ant-select-dropdown-hidden):visible .ant-select-item-option",
+        new RegExp(`^${escapeRegExp(label)}$`, "i")
+      )
         .scrollIntoView()
         .click({ force: true });
       cy.getByTestId(fieldTestId).should("contain.text", label);

@@ -80,9 +80,9 @@ export default function DesktopNavbar() {
     currentUser.hasPermission("list_dashboards") && {
       key: "dashboards",
       className: activeState.dashboards ? "navbar-active-item" : null,
-      icon: <DesktopOutlinedIcon aria-label="Dashboard navigation button" />,
       label: (
         <Link href="dashboards">
+          <DesktopOutlinedIcon aria-label="Dashboard navigation button" />
           <span className="desktop-navbar-label">Dashboards</span>
         </Link>
       ),
@@ -90,9 +90,9 @@ export default function DesktopNavbar() {
     currentUser.hasPermission("view_query") && {
       key: "queries",
       className: activeState.queries ? "navbar-active-item" : null,
-      icon: <CodeOutlinedIcon aria-label="Queries navigation button" />,
       label: (
         <Link href="queries">
+          <CodeOutlinedIcon aria-label="Queries navigation button" />
           <span className="desktop-navbar-label">Queries</span>
         </Link>
       ),
@@ -100,9 +100,9 @@ export default function DesktopNavbar() {
     currentUser.hasPermission("list_alerts") && {
       key: "alerts",
       className: activeState.alerts ? "navbar-active-item" : null,
-      icon: <AlertOutlinedIcon aria-label="Alerts navigation button" />,
       label: (
         <Link href="alerts">
+          <AlertOutlinedIcon aria-label="Alerts navigation button" />
           <span className="desktop-navbar-label">Alerts</span>
         </Link>
       ),

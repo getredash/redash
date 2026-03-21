@@ -1,26 +1,29 @@
 describe("View Alert", () => {
+  function visitAlertWithErrorCapture(url) {
+    cy.visit(url, {
+      onBeforeLoad(win) {
+        win.__capturedErrors = [];
+        win.handleException = (error) => {
+          win.__capturedErrors.push({
+            message: error?.message,
+            stack: error?.stack,
+          });
+        };
+      },
+    });
+  }
+
   function getDestinationItem(destinationName) {
     return cy.getByTestId("AlertDestinations").contains("li.destination-wrapper", destinationName);
   }
 
   function expectNonAuthorCannotRemoveDestination(destinationName) {
-    cy.get("body").should(($body) => {
-      const hasError = $body.find('[data-test="ErrorMessage"]').length > 0;
-      const hasDestination = $body.find('[data-test="AlertDestinations"]').text().includes(destinationName);
-
-      expect(hasError || hasDestination).to.eq(true);
-    });
-
-    cy.get("body").then(($body) => {
-      if ($body.find('[data-test="ErrorMessage"]').length > 0) {
-        cy.getByTestId("ErrorMessage").should("exist");
-        cy.getByTestId("AlertDestinations").should("not.exist");
-        return;
-      }
-
-      getDestinationItem(destinationName).within(() => {
-        cy.get(".remove-button").should("not.exist");
-      });
+    cy.window().its("__capturedErrors").should("deep.equal", []);
+    cy.getByTestId("ErrorMessage").should("not.exist");
+    cy.getByTestId("Criteria").should("exist");
+    cy.getByTestId("AlertDestinations").should("contain", destinationName);
+    getDestinationItem(destinationName).within(() => {
+      cy.get(".remove-button").should("not.exist");
     });
   }
 
@@ -81,7 +84,7 @@ describe("View Alert", () => {
           return cy.logout().then(() => cy.login("user@redash.io", "password"));
         })
         .then(() => {
-          cy.visit(this.alertUrl);
+          visitAlertWithErrorCapture(this.alertUrl);
           expectNonAuthorCannotRemoveDestination("Test Email Destination");
         });
     });

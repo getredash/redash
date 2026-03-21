@@ -73,13 +73,17 @@ export default class AlertView extends React.Component {
               {menuButton}
             </>
           ) : (
-            <Tooltip title="You do not have sufficient permissions to edit this alert">
-              <Button type="default" onClick={canEdit ? onEdit : null} className={cx({ disabled: !canEdit })}>
-                <i className="fa fa-edit m-r-5" aria-hidden="true" />
-                Edit
-              </Button>
+            <>
+              <Tooltip title="You do not have sufficient permissions to edit this alert">
+                <span>
+                  <Button type="default" onClick={canEdit ? onEdit : null} className={cx({ disabled: !canEdit })}>
+                    <i className="fa fa-edit m-r-5" aria-hidden="true" />
+                    Edit
+                  </Button>
+                </span>
+              </Tooltip>
               {menuButton}
-            </Tooltip>
+            </>
           )}
         </Title>
         <div className="bg-white tiled p-20">

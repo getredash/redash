@@ -19,6 +19,7 @@ function getAntdOptionLabel(testId) {
   const label = parts[parts.length - 1];
   const specialLabels = {
     CHOROPLETH: "Map (Choropleth)",
+    PIVOT: "Pivot Table",
   };
 
   if (specialLabels[label]) {

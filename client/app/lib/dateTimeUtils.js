@@ -12,7 +12,7 @@ export function toMoment(value) {
   }
 
   if (moment.isMoment(value)) {
-    return value;
+    return value.isValid() ? value : null;
   }
 
   if (isDateLikeObject(value)) {
