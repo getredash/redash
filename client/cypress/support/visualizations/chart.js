@@ -10,9 +10,29 @@ function escapeRegExp(text) {
   return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+function getSelectedChartLabels($field) {
+  const labels = Array.from(
+    new Set(
+      Cypress.$($field)
+        .find(".ant-select-selection-item, .ant-select-selection-item-content")
+        .map((_, element) => element.getAttribute("title") || element.textContent || "")
+        .get()
+        .map((text) => text.trim())
+        .filter(Boolean)
+    )
+  );
+
+  if (labels.length > 0) {
+    return labels;
+  }
+
+  const fallbackText = $field.text().trim();
+  return fallbackText ? [fallbackText] : [];
+}
+
 export function ensureChartColumnMapping(fieldTestId, optionTestId, label) {
   cy.getByTestId(fieldTestId).then(($field) => {
-    if (!$field.text().includes(label)) {
+    if (!getSelectedChartLabels($field).includes(label)) {
       cy.wrap($field).selectAntdOption(optionTestId);
     }
   });
@@ -20,7 +40,8 @@ export function ensureChartColumnMapping(fieldTestId, optionTestId, label) {
 
 export function ensureChartMultiColumnMapping(fieldTestId, labels) {
   cy.getByTestId(fieldTestId).then(($field) => {
-    const missingLabels = labels.filter((label) => !$field.text().includes(label));
+    const selectedLabels = getSelectedChartLabels($field);
+    const missingLabels = labels.filter((label) => !selectedLabels.includes(label));
 
     if (missingLabels.length === 0) {
       return;

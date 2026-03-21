@@ -97,19 +97,23 @@ Cypress.Commands.add("clickThrough", (...args) => {
 Cypress.Commands.add("selectAntdOption", { prevSubject: "element" }, (subject, testId) => {
   cy.wrap(subject).click({ force: true });
 
-  return cy.get("body").then(($body) => {
-    const popupSelector = ".ant-select-dropdown:not(.ant-select-dropdown-hidden):visible";
-    const dataTestSelector = `${popupSelector} [data-test="${testId}"]`;
-    const visibleOption = $body.find(dataTestSelector).last();
+  const popupSelector = ".ant-select-dropdown:not(.ant-select-dropdown-hidden):visible";
+  const optionSelector = `${popupSelector} .ant-select-item-option`;
+
+  return cy.get(optionSelector, { timeout: 10000 }).then(($options) => {
+    const visibleOption = Cypress.$($options).filter((_, option) => {
+      const $option = Cypress.$(option);
+      return $option.is(`[data-test="${testId}"]`) || $option.find(`[data-test="${testId}"]`).length > 0;
+    });
 
     if (visibleOption.length > 0) {
-      return cy.wrap(visibleOption).scrollIntoView().click({ force: true });
+      return cy.wrap(visibleOption.last()).scrollIntoView().click({ force: true });
     }
 
     const optionLabel = getAntdOptionLabel(testId);
     const exactLabel = new RegExp(`^${escapeRegExp(optionLabel)}$`, "i");
 
-    return cy.contains(`${popupSelector} .ant-select-item-option`, exactLabel).scrollIntoView().click({ force: true });
+    return cy.contains(optionSelector, exactLabel).scrollIntoView().click({ force: true });
   });
 });
 

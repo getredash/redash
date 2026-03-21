@@ -1,6 +1,6 @@
 const MockDate = require("mockdate");
 
-const DEFAULT_TEST_DATE = new Date("2000-01-01T02:00:00.000");
+const DEFAULT_TEST_DATE = new Date("2000-01-01T02:00:00.000Z");
 const GET_COMPUTED_STYLE_PATCH_MARKER = "__redashPatchedGetComputedStyleForPseudoElements";
 const MATCH_MEDIA_PATCH_MARKER = "__redashPatchedMatchMedia";
 
