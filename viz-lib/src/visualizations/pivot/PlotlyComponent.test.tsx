@@ -94,4 +94,24 @@ describe("Visualizations -> Pivot -> PlotlyComponent", () => {
     expect(onPurge).toHaveBeenCalledTimes(1);
     expect(Plotly.purge).toHaveBeenCalledWith(element);
   });
+
+  test("removes the window resize listener on unmount when resize handling is enabled", async () => {
+    const addEventListenerSpy = jest.spyOn(window, "addEventListener");
+    const removeEventListenerSpy = jest.spyOn(window, "removeEventListener");
+
+    const { unmount } = render(<PlotlyComponent useResizeHandler data={[]} layout={{}} />);
+
+    await waitFor(() => expect(Plotly.react).toHaveBeenCalledTimes(1));
+    expect(addEventListenerSpy).toHaveBeenCalledWith("resize", expect.any(Function));
+
+    const resizeHandler = addEventListenerSpy.mock.calls.find(([eventName]) => eventName === "resize")?.[1];
+    expect(resizeHandler).toEqual(expect.any(Function));
+
+    unmount();
+
+    expect(removeEventListenerSpy).toHaveBeenCalledWith("resize", resizeHandler);
+
+    addEventListenerSpy.mockRestore();
+    removeEventListenerSpy.mockRestore();
+  });
 });

@@ -101,12 +101,21 @@ export default class PlotlyComponent extends React.PureComponent<Props> {
       this.figureCallback(this.props.onPurge);
     }
 
-    this.syncWindowResize(false);
+    this.detachWindowResize();
     this.removeUpdateEvents();
 
     if (this.element) {
       Plotly.purge(this.element);
     }
+  }
+
+  private detachWindowResize() {
+    if (typeof window === "undefined" || !this.resizeHandler) {
+      return;
+    }
+
+    window.removeEventListener("resize", this.resizeHandler);
+    this.resizeHandler = null;
   }
 
   private setRef = (element: HTMLDivElement | null) => {
@@ -189,8 +198,7 @@ export default class PlotlyComponent extends React.PureComponent<Props> {
     }
 
     if (!this.props.useResizeHandler && this.resizeHandler) {
-      window.removeEventListener("resize", this.resizeHandler);
-      this.resizeHandler = null;
+      this.detachWindowResize();
     }
   }
 
