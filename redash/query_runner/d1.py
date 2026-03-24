@@ -1,5 +1,6 @@
 import json
 import re
+
 from redash.query_runner import (
     TYPE_BOOLEAN,
     TYPE_DATETIME,
