@@ -54,6 +54,7 @@ export default function useOrganizationSettings({ onError }) {
             dateFormat: currentValues.date_format,
             timeFormat: currentValues.time_format,
             dateTimeFormat: `${currentValues.date_format} ${currentValues.time_format}`,
+            nonAdminRefreshCooldown: currentValues.non_admin_refresh_cooldown,
           });
         })
         .catch(handleError)

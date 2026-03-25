@@ -289,6 +289,7 @@ def client_config():
         "ldapLoginEnabled": settings.LDAP_LOGIN_ENABLED,
         "pageSize": settings.PAGE_SIZE,
         "pageSizeOptions": settings.PAGE_SIZE_OPTIONS,
+        "nonAdminRefreshCooldown": current_org.get_setting("non_admin_refresh_cooldown"),
         "tableCellMaxJSONSize": settings.TABLE_CELL_MAX_JSON_SIZE,
     }
 

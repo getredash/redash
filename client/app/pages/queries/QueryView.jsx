@@ -37,6 +37,7 @@ import useEditScheduleDialog from "./hooks/useEditScheduleDialog";
 import useEditVisualizationDialog from "./hooks/useEditVisualizationDialog";
 import useDeleteVisualization from "./hooks/useDeleteVisualization";
 import useFullscreenHandler from "../../lib/hooks/useFullscreenHandler";
+import useRefreshCooldown from "@/lib/hooks/useRefreshCooldown";
 
 import "./QueryView.less";
 
@@ -64,6 +65,9 @@ function QueryView(props) {
   } = useQueryExecute(query);
 
   const queryResultData = useQueryResultData(queryResult);
+  const { isCooldownActive, remainingTime, notifyCooldown } = useRefreshCooldown(
+    queryResult ? queryResult.getUpdatedAt() : null
+  );
 
   const updateQueryDescription = useUpdateQueryDescription(query, setQuery);
   const editSchedule = useEditScheduleDialog(query, setQuery);
@@ -79,9 +83,13 @@ function QueryView(props) {
       if (!queryFlags.canExecute || (!skipParametersDirtyFlag && (areParametersDirty || isExecuting))) {
         return;
       }
+      if (isCooldownActive) {
+        notifyCooldown();
+        return;
+      }
       executeQuery();
     },
-    [areParametersDirty, executeQuery, isExecuting, queryFlags.canExecute]
+    [areParametersDirty, executeQuery, isExecuting, queryFlags.canExecute, isCooldownActive, notifyCooldown]
   );
 
   useEffect(() => {
@@ -113,7 +121,7 @@ function QueryView(props) {
                   shortcut="mod+enter, alt+enter, ctrl+enter"
                   disabled={!queryFlags.canExecute || isExecuting || areParametersDirty}
                   onClick={doExecuteQuery}>
-                  Refresh
+                  {isCooldownActive ? `Refresh (${remainingTime}s)` : "Refresh"}
                 </QueryViewButton>
               )}
             </DynamicComponent>
@@ -179,7 +187,7 @@ function QueryView(props) {
                     loading={isExecuting}
                     onClick={doExecuteQuery}>
                     {!isExecuting && <i className="zmdi zmdi-refresh m-r-5" aria-hidden="true" />}
-                    Refresh Now
+                    {isCooldownActive ? `Refresh Now (${remainingTime}s)` : "Refresh Now"}
                   </Button>
                 )
               }
