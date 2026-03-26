@@ -233,7 +233,10 @@ class PostgreSQL(BaseSQLQueryRunner):
         AND a.attnum > 0
         AND NOT a.attisdropped
         WHERE c.relkind = 'm'
-        AND has_table_privilege(quote_ident(s.nspname) || '.' || quote_ident(c.relname), 'select')
+        AND (
+            has_table_privilege(quote_ident(s.nspname) || '.' || quote_ident(c.relname), 'select')
+            OR has_column_privilege(quote_ident(s.nspname) || '.' || quote_ident(c.relname) , a.attname, 'select')
+        )
         AND has_schema_privilege(s.nspname, 'usage')
 
         UNION
@@ -244,7 +247,10 @@ class PostgreSQL(BaseSQLQueryRunner):
                data_type
         FROM information_schema.columns
         WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
-        AND has_table_privilege(quote_ident(table_schema) || '.' || quote_ident(table_name), 'select')
+        AND (
+            has_table_privilege(quote_ident(table_schema) || '.' || quote_ident(table_name), 'select')
+            OR has_column_privilege(quote_ident(table_schema) || '.' || quote_ident(table_name), column_name, 'select')
+        )
         AND has_schema_privilege(table_schema, 'usage')
         """
 
