@@ -18,8 +18,9 @@ TYPES_MAP = {
     "int": TYPE_INTEGER,
     "float": TYPE_FLOAT,
     "bool": TYPE_BOOLEAN,
-    "NoneType": TYPE_STRING
+    "NoneType": TYPE_STRING,
 }
+
 
 def detect_datetime_string(value):
     """Detect if a string value looks like a datetime."""
@@ -28,10 +29,10 @@ def detect_datetime_string(value):
 
     # Common datetime patterns
     datetime_patterns = [
-        r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$',  # 2024-05-03 21:16:13
-        r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}',   # 2024-05-03T21:16:13
-        r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d+$',  # 2024-05-03 21:16:13.123
-        r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+',   # 2024-05-03T21:16:13.123
+        r"^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$",  # 2024-05-03 21:16:13
+        r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}",  # 2024-05-03T21:16:13
+        r"^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d+$",  # 2024-05-03 21:16:13.123
+        r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+",  # 2024-05-03T21:16:13.123
     ]
 
     for pattern in datetime_patterns:
@@ -39,23 +40,18 @@ def detect_datetime_string(value):
             return True
     return False
 
+
 class D1QueryRunner(BaseQueryRunner):
     @classmethod
     def configuration_schema(cls):
         return {
             "type": "object",
             "properties": {
-                "cf_url": {
-                    "type": "string",
-                    "title": "Cloudflare D1 API URL"
-                },
-                "cf_token": {
-                    "type": "string",
-                    "title": "Cloudflare API Token"
-                }
+                "cf_url": {"type": "string", "title": "Cloudflare D1 API URL"},
+                "cf_token": {"type": "string", "title": "Cloudflare API Token"},
             },
             "required": ["cf_url", "cf_token"],
-            "secret": ["cf_token"]
+            "secret": ["cf_token"],
         }
 
     @classmethod
@@ -72,18 +68,10 @@ class D1QueryRunner(BaseQueryRunner):
             "Authorization": f"Bearer {self.configuration.get('cf_token')}",
             "Content-Type": "application/json",
         }
-        body = {
-            "sql": sql,
-            "params": params or []
-        }
+        body = {"sql": sql, "params": params or []}
 
         try:
-            resp = session.post(
-                self.configuration.get("cf_url"),
-                headers=headers,
-                data=json.dumps(body),
-                timeout=30
-            )
+            resp = session.post(self.configuration.get("cf_url"), headers=headers, data=json.dumps(body), timeout=30)
             resp.raise_for_status()
             data = resp.json()
 
@@ -118,11 +106,7 @@ class D1QueryRunner(BaseQueryRunner):
                 if python_type == "str" and detect_datetime_string(v):
                     redash_type = TYPE_DATETIME
 
-                columns.append({
-                    "name": k,
-                    "friendly_name": k,
-                    "type": redash_type
-                })
+                columns.append({"name": k, "friendly_name": k, "type": redash_type})
 
             result = {"columns": columns, "rows": rows}
             # Debug: Log the result structure
@@ -137,7 +121,9 @@ class D1QueryRunner(BaseQueryRunner):
         schema = []
         try:
             # Get all tables from sqlite_master
-            tables = self._query("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '_cf_KV'")
+            tables = self._query(
+                "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '_cf_KV'"
+            )
 
             for table in tables:
                 table_name = table["name"]
@@ -147,15 +133,9 @@ class D1QueryRunner(BaseQueryRunner):
                 # Extract detailed column information including data types
                 column_info = []
                 for col in columns:
-                    column_info.append({
-                        "name": col["name"],
-                        "type": col["type"]
-                    })
+                    column_info.append({"name": col["name"], "type": col["type"]})
 
-                schema.append({
-                    "name": table_name,
-                    "columns": column_info
-                })
+                schema.append({"name": table_name, "columns": column_info})
 
         except Exception as e:
             raise Exception(f"Failed to get schema: {str(e)}")
@@ -167,5 +147,6 @@ class D1QueryRunner(BaseQueryRunner):
         _, error = self.run_query(query, None)
         if error:
             raise Exception(error)
+
 
 register(D1QueryRunner)
