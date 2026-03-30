@@ -133,7 +133,8 @@ class Trino(BaseQueryRunner):
                 WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
             """
             if schema_filter:
-                query += f" AND table_schema = '{schema_filter}'"
+                safe_schema_filter = schema_filter.replace("'", "''")
+                query += f" AND table_schema = '{safe_schema_filter}'"
 
             results, error = self.run_query(query, None)
 
