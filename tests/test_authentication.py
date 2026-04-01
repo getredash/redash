@@ -271,7 +271,7 @@ class TestCreateAndLoginUserOIDC(BaseTestCase):
             oidc.create_and_login_user(self.factory.org, user.name, user.email)
             login_user_mock.assert_called_once_with(user, remember=True)
 
-    def test_creates_vaild_new_user(self):
+    def test_creates_valid_new_user(self):
         email = "test@example.com"
         name = "Test User"
 
@@ -298,7 +298,7 @@ class TestCreateAndLoginUser(BaseTestCase):
             create_and_login_user(self.factory.org, user.name, user.email)
             login_user_mock.assert_called_once_with(user, remember=True)
 
-    def test_creates_vaild_new_user(self):
+    def test_creates_valid_new_user(self):
         email = "test@example.com"
         name = "Test User"
 
