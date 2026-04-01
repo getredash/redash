@@ -75,7 +75,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
               {map(targetFields, field => (
                 // @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message
                 <Select.Option key={field} data-test={`Choropleth.Editor.TargetField.${field}`}>
-                  {fieldNames[field] || field}
+                  {(fieldNames as any)[field] || field}
                   {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
                 </Select.Option>
               ))}

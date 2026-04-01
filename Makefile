@@ -54,19 +54,19 @@ backend-unit-tests: up test_db
 	docker compose run --rm --name tests server tests
 
 frontend-unit-tests:
-	CYPRESS_INSTALL_BINARY=0 PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 yarn --frozen-lockfile
-	yarn test
+	CYPRESS_INSTALL_BINARY=0 PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 pnpm install --frozen-lockfile
+	pnpm test
 
 test: backend-unit-tests frontend-unit-tests lint
 
 build:
-	yarn build
+	pnpm run build
 
 watch:
-	yarn watch
+	pnpm run watch
 
 start:
-	yarn start
+	pnpm start
 
 redis-cli:
 	docker compose run --rm redis redis-cli -h redis
