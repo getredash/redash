@@ -58,7 +58,11 @@ type OwnSearchInputProps = {
   onChange?: (...args: any[]) => any;
 };
 
-type SearchInputProps = OwnSearchInputProps & typeof SearchInput.defaultProps;
+const searchInputDefaultProps = {
+  onChange: () => {},
+};
+
+type SearchInputProps = OwnSearchInputProps & typeof searchInputDefaultProps;
 
 // @ts-expect-error ts-migrate(2339) FIXME: Property 'searchColumns' does not exist on type 'S... Remove this comment to see the full error message
 function SearchInput({ searchColumns, ...props }: SearchInputProps) {
@@ -76,9 +80,7 @@ function SearchInput({ searchColumns, ...props }: SearchInputProps) {
   );
 }
 
-SearchInput.defaultProps = {
-  onChange: () => {},
-};
+SearchInput.defaultProps = searchInputDefaultProps;
 
 export default function Renderer({ options, data }: any) {
   const [searchTerm, setSearchTerm] = useState("");

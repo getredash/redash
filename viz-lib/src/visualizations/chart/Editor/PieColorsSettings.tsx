@@ -61,7 +61,6 @@ export default function PieColorsSettings({ options, data, onOptionsChange }: an
       width: "1%",
       render: (unused: any, item: any) => (
         <ColorPicker
-          // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
           data-test={`Chart.Series.${item.key}.Color`}
           // @ts-expect-error ts-migrate(2322) FIXME: Type 'boolean' is not assignable to type 'never'.
           interactive
