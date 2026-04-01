@@ -123,6 +123,8 @@ class Trino(BaseQueryRunner):
         else:
             catalogs = self._get_catalogs()
 
+        schema_filter = self.configuration.get("schema")
+
         schema = {}
         for catalog in catalogs:
             query = f"""
@@ -130,6 +132,10 @@ class Trino(BaseQueryRunner):
                 FROM {catalog}.information_schema.columns
                 WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
             """
+            if schema_filter:
+                safe_schema_filter = schema_filter.replace("'", "''")
+                query += f" AND table_schema = '{safe_schema_filter}'"
+
             results, error = self.run_query(query, None)
 
             if error is not None:
