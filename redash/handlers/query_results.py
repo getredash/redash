@@ -249,6 +249,9 @@ class QueryResultResource(BaseResource):
                                 any cached result, or executes if not available. Set to zero to
                                 always execute.
         """
+        if self.current_user.is_api_user() and self.current_org.get_setting("disable_public_urls"):
+            abort(400, message="Public URLs are disabled.")
+
         params = request.get_json(force=True, silent=True) or {}
         parameter_values = params.get("parameters", {})
 
@@ -301,6 +304,9 @@ class QueryResultResource(BaseResource):
         :<json number runtime: Length of execution time in seconds
         :<json string retrieved_at: Query retrieval date/time, in ISO format
         """
+        if self.current_user.is_api_user() and self.current_org.get_setting("disable_public_urls"):
+            abort(400, message="Public URLs are disabled.")
+
         # TODO:
         # This method handles two cases: retrieving result by id & retrieving result by query id.
         # They need to be split, as they have different logic (for example, retrieving by query id
