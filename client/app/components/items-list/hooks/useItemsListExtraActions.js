@@ -29,9 +29,9 @@ export default function useItemsListExtraActions(controller, listColumns, ExtraA
   }, [areAllItemsSelected, controller.pageItems]);
 
   const toggleItem = useCallback(
-    item => {
+    (item) => {
       if (includes(selectedItems, item)) {
-        setSelectedItems(filter(selectedItems, s => s !== item));
+        setSelectedItems(filter(selectedItems, (s) => s !== item));
       } else {
         setSelectedItems([...selectedItems, item]);
       }

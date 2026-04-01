@@ -62,6 +62,7 @@
 
       .desktop-navbar-label {
         margin-top: 4px;
+        margin-inline-start: 0;
         font-size: 11px;
       }
 
@@ -76,24 +77,49 @@
       display: none;
     }
 
+    .ant-menu-item > .ant-menu-item-icon,
+    .ant-menu-submenu-title > .ant-menu-item-icon {
+      align-self: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 0;
+    }
+
+    .ant-menu-item > .ant-menu-title-content,
+    .ant-menu-submenu-title > .ant-menu-title-content {
+      margin-inline-start: 0;
+    }
+
+    .ant-menu-submenu-title > :not(.ant-menu-item-icon):not(.ant-menu-submenu-arrow) {
+      margin-inline-start: 0;
+    }
+
     .ant-menu-item,
     .ant-menu-submenu {
       padding: 0;
       height: 60px;
       display: flex;
-      align-items: center;
+      align-items: stretch;
       flex-direction: column;
       justify-content: center;
     }
 
+    .ant-menu-item {
+      margin-inline: 0;
+      width: 100%;
+    }
+
     .ant-menu-submenu-title {
       width: 100%;
+      margin-inline: 0;
       padding: 0;
     }
 
     a,
     &.ant-menu-vertical > .ant-menu-submenu > .ant-menu-submenu-title,
-    .ant-menu-submenu-title {
+    .ant-menu-submenu-title,
+    .ant-menu-title-content {
       display: flex;
       flex-direction: column;
       align-items: center;

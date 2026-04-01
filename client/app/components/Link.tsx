@@ -16,7 +16,7 @@ function Link({ children, ...props }: LinkProps) {
 
 interface LinkWithIconProps extends LinkProps {
   children: string;
-  icon: JSX.Element;
+  icon: React.JSX.Element;
   alt: string;
   target?: "_self" | "_blank" | "_parent" | "_top";
 }

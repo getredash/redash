@@ -32,7 +32,8 @@ export default function useRefreshRateHandler(refreshDashboard) {
     }
   }, [refreshRate, doRefreshDashboard]);
 
-  return useMemo(() => [refreshRate, rate => setRefreshRate(getLimitedRefreshRate(rate)), () => setRefreshRate(null)], [
-    refreshRate,
-  ]);
+  return useMemo(
+    () => [refreshRate, (rate) => setRefreshRate(getLimitedRefreshRate(rate)), () => setRefreshRate(null)],
+    [refreshRate]
+  );
 }

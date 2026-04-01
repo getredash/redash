@@ -4,17 +4,15 @@ import cx from "classnames";
 
 import Modal from "antd/lib/modal";
 import Dropdown from "antd/lib/dropdown";
-import Menu from "antd/lib/menu";
 import Button from "antd/lib/button";
 
 import LoadingOutlinedIcon from "@ant-design/icons/LoadingOutlined";
 import EllipsisOutlinedIcon from "@ant-design/icons/EllipsisOutlined";
-import PlainButton from "@/components/PlainButton";
 
-export default function MenuButton({ doDelete, canEdit, mute, unmute, evaluate, muted }) {
+export default function MenuButton({ doDelete, canEdit, mute, unmute, evaluate, muted = false }) {
   const [loading, setLoading] = useState(false);
 
-  const execute = useCallback(action => {
+  const execute = useCallback((action) => {
     setLoading(true);
     action().finally(() => {
       setLoading(false);
@@ -38,28 +36,32 @@ export default function MenuButton({ doDelete, canEdit, mute, unmute, evaluate, 
     });
   }, [doDelete]);
 
+  const menuItems = [
+    {
+      key: "mute-toggle",
+      label: muted ? "Unmute Notifications" : "Mute Notifications",
+      onClick: () => execute(muted ? unmute : mute),
+    },
+    {
+      key: "delete",
+      label: "Delete",
+      onClick: confirmDelete,
+    },
+    {
+      key: "evaluate",
+      label: "Evaluate",
+      onClick: () => execute(evaluate),
+    },
+  ];
+
   return (
     <Dropdown
       className={cx("m-l-5", { disabled: !canEdit })}
-      trigger={[canEdit ? "click" : undefined]}
+      disabled={!canEdit}
+      trigger={["click"]}
       placement="bottomRight"
-      overlay={
-        <Menu>
-          <Menu.Item>
-            {muted ? (
-              <PlainButton onClick={() => execute(unmute)}>Unmute Notifications</PlainButton>
-            ) : (
-              <PlainButton onClick={() => execute(mute)}>Mute Notifications</PlainButton>
-            )}
-          </Menu.Item>
-          <Menu.Item>
-            <PlainButton onClick={confirmDelete}>Delete</PlainButton>
-          </Menu.Item>
-          <Menu.Item>
-            <PlainButton onClick={() => execute(evaluate)}>Evaluate</PlainButton>
-          </Menu.Item>
-        </Menu>
-      }>
+      menu={{ items: menuItems }}
+    >
       <Button aria-label="More actions">
         {loading ? <LoadingOutlinedIcon /> : <EllipsisOutlinedIcon rotate={90} aria-hidden="true" />}
       </Button>
@@ -74,8 +76,4 @@ MenuButton.propTypes = {
   unmute: PropTypes.func.isRequired,
   evaluate: PropTypes.func.isRequired,
   muted: PropTypes.bool,
-};
-
-MenuButton.defaultProps = {
-  muted: false,
 };

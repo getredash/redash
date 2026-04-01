@@ -6,10 +6,10 @@ import Link from "@/components/Link";
 
 import "./UserGroups.less";
 
-export default function UserGroups({ groups, linkGroups, ...props }) {
+export default function UserGroups({ groups = [], linkGroups = true, ...props }) {
   return (
     <div className="user-groups" {...props}>
-      {map(groups, group => (
+      {map(groups, (group) => (
         <Tag key={group.id}>{linkGroups ? <Link href={`groups/${group.id}`}>{group.name}</Link> : group.name}</Tag>
       ))}
     </div>
@@ -24,9 +24,4 @@ UserGroups.propTypes = {
     })
   ),
   linkGroups: PropTypes.bool,
-};
-
-UserGroups.defaultProps = {
-  groups: [],
-  linkGroups: true,
 };

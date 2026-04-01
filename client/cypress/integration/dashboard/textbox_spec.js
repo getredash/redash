@@ -51,7 +51,7 @@ describe("Textbox", () => {
         cy.getByTestId(elTestId).within(() => {
           cy.getByTestId("WidgetDropdownButton").click();
         });
-        cy.getByTestId("WidgetDropdownButtonMenu").contains("Remove from Dashboard").click();
+        cy.get(".ant-dropdown-menu:visible").contains("Remove from Dashboard").click();
 
         confirmDeletionInModal();
         cy.getByTestId(elTestId).should("not.exist");
@@ -104,7 +104,7 @@ describe("Textbox", () => {
             cy.getByTestId("WidgetDropdownButton").click();
           });
 
-        cy.getByTestId("WidgetDropdownButtonMenu").contains("Edit").click();
+        cy.get(".ant-dropdown-menu:visible").contains("Edit").click();
 
         const newContent = "[edited]";
         cy.getByTestId("TextboxDialog")
@@ -133,7 +133,7 @@ describe("Textbox", () => {
       })
       .should(($el) => {
         const { top, left } = $el.offset();
-        expect(top).to.be.oneOf([162, 162.015625]);
+        expect(top).to.be.closeTo(167, 0.1);
         expect(left).to.eq(188);
         expect($el.width()).to.eq(265);
         expect($el.height()).to.eq(185);

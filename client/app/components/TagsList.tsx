@@ -19,14 +19,14 @@ type TagsListProps = {
   onUpdate?: (selectedTags: string[]) => void;
 };
 
-function TagsList({ tagsUrl, showUnselectAll = false, onUpdate }: TagsListProps): JSX.Element | null {
+function TagsList({ tagsUrl, showUnselectAll = false, onUpdate }: TagsListProps): React.JSX.Element | null {
   const [allTags, setAllTags] = useState<Tag[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
   useEffect(() => {
     let isCancelled = false;
 
-    getTags(tagsUrl).then(tags => {
+    getTags(tagsUrl).then((tags) => {
       if (!isCancelled) {
         setAllTags(tags);
       }
@@ -38,7 +38,7 @@ function TagsList({ tagsUrl, showUnselectAll = false, onUpdate }: TagsListProps)
   }, [tagsUrl]);
 
   const toggleTag = useCallback(
-    (event, tag) => {
+    (event: any, tag: any) => {
       let newSelectedTags;
       if (event.shiftKey) {
         // toggle tag
@@ -75,6 +75,20 @@ function TagsList({ tagsUrl, showUnselectAll = false, onUpdate }: TagsListProps)
     return null;
   }
 
+  const items = map(allTags, (tag) => ({
+    key: tag.name,
+    className: "m-0",
+    label: (
+      <PlainButton
+        className="d-flex align-items-center justify-content-between"
+        onClick={(event) => toggleTag(event, tag.name)}
+      >
+        <span className="max-character col-xs-11">{tag.name}</span>
+        <Badge count={tag.count} />
+      </PlainButton>
+    ),
+  }));
+
   return (
     <div className="tags-list">
       <div className="tags-list-title">
@@ -88,18 +102,7 @@ function TagsList({ tagsUrl, showUnselectAll = false, onUpdate }: TagsListProps)
       </div>
 
       <div className="tiled">
-        <Menu className="invert-stripe-position" mode="inline" selectedKeys={selectedTags}>
-          {map(allTags, tag => (
-            <Menu.Item key={tag.name} className="m-0">
-              <PlainButton
-                className="d-flex align-items-center justify-content-between"
-                onClick={event => toggleTag(event, tag.name)}>
-                <span className="max-character col-xs-11">{tag.name}</span>
-                <Badge count={tag.count} />
-              </PlainButton>
-            </Menu.Item>
-          ))}
-        </Menu>
+        <Menu className="invert-stripe-position" mode="inline" selectedKeys={selectedTags} items={items} />
       </div>
     </div>
   );

@@ -25,7 +25,7 @@ export default function useEditScheduleDialog(query, onChange) {
     ScheduleDialog.showModal({
       schedule: query.schedule,
       refreshOptions,
-    }).onClose(schedule => {
+    }).onClose((schedule) => {
       recordEvent("edit_schedule", "query", query.id);
       updateQuery({ schedule });
     });

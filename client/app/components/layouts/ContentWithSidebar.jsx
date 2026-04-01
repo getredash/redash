@@ -9,14 +9,9 @@ const propTypes = {
   children: PropTypes.node,
 };
 
-const defaultProps = {
-  className: null,
-  children: null,
-};
-
 // Sidebar
 
-function Sidebar({ className, children, ...props }) {
+function Sidebar({ className = null, children = null, ...props }) {
   return (
     <div className={classNames("layout-sidebar", className)} {...props}>
       <div>{children}</div>
@@ -25,11 +20,10 @@ function Sidebar({ className, children, ...props }) {
 }
 
 Sidebar.propTypes = propTypes;
-Sidebar.defaultProps = defaultProps;
 
 // Content
 
-function Content({ className, children, ...props }) {
+function Content({ className = null, children = null, ...props }) {
   return (
     <div className={classNames("layout-content", className)} {...props}>
       <div>{children}</div>
@@ -38,11 +32,10 @@ function Content({ className, children, ...props }) {
 }
 
 Content.propTypes = propTypes;
-Content.defaultProps = defaultProps;
 
 // Layout
 
-export default function Layout({ children, className = undefined, ...props }) {
+export default function Layout({ children = null, className = undefined, ...props }) {
   return (
     <div className={classNames("layout-with-sidebar", className)} {...props}>
       {children}
@@ -51,7 +44,6 @@ export default function Layout({ children, className = undefined, ...props }) {
 }
 
 Layout.propTypes = propTypes;
-Layout.defaultProps = defaultProps;
 
 Layout.Sidebar = Sidebar;
 Layout.Content = Content;

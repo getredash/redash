@@ -8,7 +8,7 @@ import Swatch from "./Swatch";
 import "./input.less";
 
 function preparePresets(presetColors: any, presetColumns: any) {
-  presetColors = isArray(presetColors) ? map(presetColors, v => [null, v]) : toPairs(presetColors);
+  presetColors = isArray(presetColors) ? map(presetColors, (v) => [null, v]) : toPairs(presetColors);
   presetColors = map(presetColors, ([title, value]) => {
     if (isNil(value)) {
       return [title, null];
@@ -38,7 +38,8 @@ type OwnProps = {
     | string[]
     | {
         [key: string]: string;
-      };
+      }
+    | null;
   presetColumns?: number;
   onChange?: (...args: any[]) => any;
   onPressEnter?: (...args: any[]) => any;
@@ -52,9 +53,15 @@ const inputDefaultProps = {
   onPressEnter: () => {},
 };
 
-type Props = OwnProps & typeof inputDefaultProps;
+type Props = OwnProps;
 
-export default function Input({ color, presetColors, presetColumns, onChange, onPressEnter }: Props) {
+export default function Input({
+  color: color = "#FFFFFF",
+  presetColors: presetColors = null,
+  presetColumns: presetColumns = 8,
+  onChange: onChange = () => {},
+  onPressEnter: onPressEnter = () => {},
+}: Props) {
   const [inputValue, setInputValue] = useState("");
   const [isInputFocused, setIsInputFocused] = useState(false);
 
@@ -76,7 +83,6 @@ export default function Input({ color, presetColors, presetColumns, onChange, on
       {map(presets, (group, index) => (
         <div className="color-picker-input-swatches" key={`preset-row-${index}`}>
           {map(group, ([title, value]) => (
-            // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
             <Swatch key={value} color={value} title={title} size={30} onClick={() => validateColor(value, onChange)} />
           ))}
         </div>
@@ -84,9 +90,9 @@ export default function Input({ color, presetColors, presetColumns, onChange, on
       <div className="color-picker-input">
         <TextInput
           data-test="ColorPicker.CustomColor"
-          addonBefore={<Typography.Text type="secondary">#</Typography.Text>}
+          prefix={<Typography.Text type="secondary">#</Typography.Text>}
           value={inputValue}
-          onChange={e => handleInputChange(e.target.value)}
+          onChange={(e) => handleInputChange(e.target.value)}
           onFocus={() => setIsInputFocused(true)}
           onBlur={() => setIsInputFocused(false)}
           onPressEnter={onPressEnter}
@@ -95,5 +101,3 @@ export default function Input({ color, presetColors, presetColumns, onChange, on
     </React.Fragment>
   );
 }
-
-Input.defaultProps = inputDefaultProps;

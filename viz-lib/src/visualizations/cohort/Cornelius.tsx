@@ -84,10 +84,7 @@ function formatStageTitle(options: any, index: any) {
 function formatTimeLabel(options: any, offset: any) {
   // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
   const interval = momentInterval[options.timeInterval];
-  return options.initialDate
-    .clone()
-    .add(offset, interval)
-    .format(options.timeLabelFormat);
+  return options.initialDate.clone().add(offset, interval).format(options.timeLabelFormat);
 }
 
 function CorneliusHeader({ options, maxRowLength }: any) {
@@ -171,7 +168,7 @@ function CorneliusRow({ options, data, index, maxRowLength }: any) {
 type OwnCorneliusProps = {
   data?: number[][];
   options?: {
-    initialDate: any; // TODO: PropTypes.instanceOf(Date)
+    initialDate?: any; // TODO: PropTypes.instanceOf(Date)
     timeInterval?: "daily" | "weekly" | "monthly" | "yearly";
     noValuePlaceholder?: string;
     rawNumberOnHover?: boolean;
@@ -198,16 +195,15 @@ const corneliusDefaultProps = {
   options: {},
 };
 
-type CorneliusProps = OwnCorneliusProps & typeof corneliusDefaultProps;
+type CorneliusProps = OwnCorneliusProps;
 
-export default function Cornelius({ data, options }: CorneliusProps) {
+export default function Cornelius({ data: data = [], options: options = {} }: CorneliusProps) {
   options = useMemo(() => prepareOptions(options), [options]);
 
   const maxRowLength = useMemo(
     () =>
       min([
-        // @ts-expect-error ts-migrate(2339) FIXME: Property 'length' does not exist on type 'number'.
-        max(map(data, d => d.length)) || 0,
+        max(map(data, (d) => d.length)) || 0,
         // @ts-expect-error ts-migrate(2532) FIXME: Object is possibly 'undefined'.
         options.maxColumns + 1, // each row includes totals, but `maxColumns` is only for stage columns
       ]),
@@ -235,5 +231,3 @@ export default function Cornelius({ data, options }: CorneliusProps) {
     </div>
   );
 }
-
-Cornelius.defaultProps = corneliusDefaultProps;

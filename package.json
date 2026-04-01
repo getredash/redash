@@ -42,10 +42,10 @@
   },
   "homepage": "https://redash.io/",
   "dependencies": {
-    "@ant-design/icons": "^4.2.1",
+    "@ant-design/icons": "^6.1.0",
     "@redash/viz": "workspace:*",
     "ace-builds": "^1.43.3",
-    "antd": "4.4.3",
+    "antd": "^6.3.3",
     "axios": "0.27.2",
     "axios-auth-refresh": "3.3.6",
     "bootstrap": "^3.4.1",
@@ -65,11 +65,11 @@
     "path-to-regexp": "^3.3.0",
     "prop-types": "^15.6.1",
     "query-string": "^6.9.0",
-    "react": "16.14.0",
+    "react": "^19.2.4",
     "react-ace": "^14.0.1",
-    "react-dom": "^16.14.0",
-    "react-grid-layout": "^0.18.2",
-    "react-resizable": "^1.10.1",
+    "react-dom": "^19.2.4",
+    "react-grid-layout": "^2.2.2",
+    "react-resizable": "^3.1.3",
     "react-virtualized": "^9.21.2",
     "sql-formatter": "git+https://github.com/getredash/sql-formatter.git",
     "universal-router": "^8.3.0",
@@ -89,15 +89,17 @@
     "@percy/cypress": "^3.1.2",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.6.2",
     "@testing-library/cypress": "^8.0.7",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
     "@types/classnames": "^2.2.10",
     "@types/hoist-non-react-statics": "^3.3.1",
     "@types/lodash": "^4.14.157",
     "@types/prop-types": "^15.7.3",
-    "@types/react": "^17.0.0",
-    "@types/react-dom": "^17.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
     "@types/sql-formatter": "^2.3.0",
-    "@typescript-eslint/eslint-plugin": "^5.62.0",
-    "@typescript-eslint/parser": "^5.62.0",
+    "@typescript-eslint/eslint-plugin": "^8.57.1",
+    "@typescript-eslint/parser": "^8.57.1",
     "assert": "^2.1.0",
     "atob": "^2.1.2",
     "babel-jest": "^30.2.0",
@@ -108,9 +110,6 @@
     "css-loader": "^7.1.4",
     "cypress": "^11.2.0",
     "dayjs": "^1.11.9",
-    "enzyme": "^3.8.0",
-    "enzyme-adapter-react-16": "^1.7.1",
-    "enzyme-to-json": "^3.3.5",
     "eslint": "^8.57.1",
     "eslint-config-prettier": "^8.10.0",
     "eslint-config-react-app": "^7.0.1",
@@ -123,7 +122,7 @@
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-no-only-tests": "^3.3.0",
     "eslint-plugin-react": "^7.37.5",
-    "eslint-plugin-react-hooks": "^4.6.2",
+    "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-webpack-plugin": "^4.2.0",
     "html-webpack-plugin": "^5.6.6",
     "identity-obj-proxy": "^3.0.0",
@@ -138,8 +137,7 @@
     "npm-run-all": "^4.1.5",
     "prettier": "3.3.2",
     "process": "^0.11.10",
-    "react-refresh": "^0.14.0",
-    "react-test-renderer": "^16.14.0",
+    "react-refresh": "^0.18.0",
     "request-cookies": "^1.1.0",
     "source-map-loader": "^5.0.0",
     "stream-browserify": "^3.0.0",
@@ -160,11 +158,7 @@
     "testEnvironment": "jsdom",
     "rootDir": "./client",
     "setupFiles": [
-      "./app/__tests__/enzyme_setup.js",
       "./app/__tests__/mocks.js"
-    ],
-    "snapshotSerializers": [
-      "enzyme-to-json/serializer"
     ],
     "moduleNameMapper": {
       "^@/(.*)": "<rootDir>/app/$1",
@@ -201,9 +195,12 @@
   ],
   "pnpm": {
     "overrides": {
-      "@types/react": "^17.0.0",
-      "@types/react-dom": "^17.0.0",
-      "cheerio": "1.0.0-rc.12"
+      "@typescript-eslint/eslint-plugin": "^8.57.1",
+      "@typescript-eslint/parser": "^8.57.1",
+      "@types/react": "^19.0.0",
+      "@types/react-dom": "^19.0.0",
+      "cheerio": "1.0.0-rc.12",
+      "@testing-library/dom": "^10.4.0"
     }
   }
 }

@@ -8,6 +8,11 @@ import { UserProfile } from "@/components/proptypes";
 import { absoluteUrl } from "@/services/utils";
 
 export default function PasswordLinkAlert(props) {
+  props = {
+    passwordLink: null,
+    ...props,
+  };
+
   const { user, passwordLink, ...restProps } = props;
 
   if (!isString(passwordLink)) {
@@ -38,8 +43,4 @@ export default function PasswordLinkAlert(props) {
 PasswordLinkAlert.propTypes = {
   user: UserProfile.isRequired,
   passwordLink: PropTypes.string,
-};
-
-PasswordLinkAlert.defaultProps = {
-  passwordLink: null,
 };

@@ -20,7 +20,6 @@ function Editor({ column, onChange }: Props) {
 
   return (
     <React.Fragment>
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Input
           label="URL template"
@@ -30,7 +29,6 @@ function Editor({ column, onChange }: Props) {
         />
       </Section>
 
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Input
           label="Text template"
@@ -40,7 +38,6 @@ function Editor({ column, onChange }: Props) {
         />
       </Section>
 
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Input
           label="Title template"
@@ -50,24 +47,22 @@ function Editor({ column, onChange }: Props) {
         />
       </Section>
 
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Checkbox
           data-test="Table.ColumnEditor.Link.OpenInNewTab"
           checked={column.linkOpenInNewTab}
-          onChange={event => onChange({ linkOpenInNewTab: event.target.checked })}>
+          onChange={(event) => onChange({ linkOpenInNewTab: event.target.checked })}
+        >
           Open in new tab
         </Checkbox>
       </Section>
 
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
-        {/* @ts-expect-error ts-migrate(2746) FIXME: This JSX tag's 'children' prop expects a single ch... Remove this comment to see the full error message */}
         <ContextHelp
           placement="topLeft"
           arrowPointAtCenter
-          // @ts-expect-error ts-migrate(2322) FIXME: Type 'Element' is not assignable to type 'null | u... Remove this comment to see the full error message
-          icon={<span style={{ cursor: "default" }}>Format specs {ContextHelp.defaultIcon}</span>}>
+          icon={<span style={{ cursor: "default" }}>Format specs {ContextHelp.defaultIcon}</span>}
+        >
           <div>
             All columns can be referenced using <code>{"{{ column_name }}"}</code> syntax.
           </div>

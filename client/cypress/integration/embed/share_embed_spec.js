@@ -1,4 +1,44 @@
 describe("Embedded Queries", () => {
+  const DEFAULT_DATA_SOURCE_NAME = "Test PostgreSQL";
+
+  function ensureDataSourceSelected() {
+    cy.getByTestId("SelectDataSource")
+      .should("be.visible")
+      .then(($select) => {
+        const selectedText = $select.text().trim();
+
+        if (selectedText.includes(DEFAULT_DATA_SOURCE_NAME)) {
+          return;
+        }
+
+        cy.wrap($select).selectAntdOption(`SelectDataSource${Cypress.env("dataSourceId")}`);
+        cy.getByTestId("SelectDataSource").should("contain.text", DEFAULT_DATA_SOURCE_NAME);
+      });
+  }
+
+  function createParameterizedQueryThroughUI(query, parameterName, value, parameterTypeOption, waitForResults = true) {
+    cy.visit("/queries/new");
+    ensureDataSourceSelected();
+    cy.getByTestId("QueryEditor").typeInAce(query, { replace: true, delay: 5 });
+
+    cy.getByTestId(`ParameterSettings-${parameterName}`, { timeout: 10000 }).should("exist");
+    cy.getByTestId(`ParameterSettings-${parameterName}`).click();
+    cy.getByTestId("ParameterTypeSelect").click();
+    cy.getByTestId(parameterTypeOption).filter(":visible").click({ force: true });
+    cy.getByTestId("SaveParameterSettings").click();
+
+    cy.getByTestId(`ParameterName-${parameterName}`).find("input").clear().type(value);
+    cy.getByTestId("ParameterApplyButton").click();
+
+    if (waitForResults) {
+      cy.getByTestId("ExecuteButton").should("be.enabled").click();
+      cy.getByTestId("TableVisualization", { timeout: 10000 }).should("exist");
+    }
+
+    cy.getByTestId("SaveButton").should("not.be.disabled").click();
+    cy.location("pathname", { timeout: 10000 }).should("match", /^\/queries\/\d+\/source$/);
+  }
+
   beforeEach(() => {
     cy.login();
     cy.updateOrgSettings({ disable_public_urls: false });
@@ -64,23 +104,12 @@ describe("Embedded Queries", () => {
   });
 
   it("can be shared with safe parameters", () => {
-    cy.visit("/queries/new");
-    cy.getByTestId("QueryEditor")
-      .get(".ace_text-input")
-      .type("SELECT name, slug FROM organizations WHERE id='{{}{{}id}}'{esc}", { force: true });
-
-    cy.getByTestId("TextParamInput").type("1");
-    cy.getByTestId("ParameterApplyButton").click();
-    cy.clickThrough(`
-      ParameterSettings-id
-      ParameterTypeSelect
-      NumberParameterTypeOption
-      SaveParameterSettings
-      SaveButton
-    `);
-
-    // Add a little waiting - page is not updated fast enough
-    cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
+    createParameterizedQueryThroughUI(
+      "SELECT name, slug FROM organizations WHERE id={{id}}",
+      "id",
+      "1",
+      "NumberParameterTypeOption"
+    );
 
     cy.location("search").should("eq", "?p_id=1");
     cy.clickThrough(`
@@ -101,23 +130,13 @@ describe("Embedded Queries", () => {
   });
 
   it("cannot be shared with unsafe parameters", () => {
-    cy.visit("/queries/new");
-    cy.getByTestId("QueryEditor")
-      .get(".ace_text-input")
-      .type("SELECT name, slug FROM organizations WHERE name='{{}{{}name}}'{esc}", { force: true });
-
-    cy.getByTestId("TextParamInput").type("Redash");
-    cy.getByTestId("ParameterApplyButton").click();
-    cy.clickThrough(`
-      ParameterSettings-name
-      ParameterTypeSelect
-      TextParameterTypeOption
-      SaveParameterSettings
-      SaveButton
-    `);
-
-    // Add a little waiting - page is not updated fast enough
-    cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
+    createParameterizedQueryThroughUI(
+      "SELECT name, slug FROM organizations WHERE name='{{name}}'",
+      "name",
+      "Redash",
+      "TextParameterTypeOption",
+      false
+    );
 
     cy.location("search").should("eq", "?p_name=Redash");
     cy.clickThrough(`

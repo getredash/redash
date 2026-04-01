@@ -1,17 +1,28 @@
 import React from "react";
-import enzyme from "enzyme";
+import { render, fireEvent } from "@testing-library/react";
 
 import getOptions from "../getOptions";
 import GridSettings from "./GridSettings";
 
-function findByTestID(wrapper: any, testId: any) {
-  return wrapper.find(`[data-test="${testId}"]`);
+function findByTestID(testId: string): HTMLElement[] {
+  return Array.from(document.body.querySelectorAll(`[data-test="${testId}"]`));
+}
+
+function openSelect(testId: string) {
+  const el = findByTestID(testId).pop()!;
+  const selector = (el.matches(".ant-select") ? el : el.querySelector(".ant-select")) || el;
+  fireEvent.mouseDown(selector);
+}
+
+function clickOption(testId: string) {
+  const el = findByTestID(testId).pop();
+  if (el) fireEvent.click(el);
 }
 
 function mount(options: any, done: any) {
   const data = { columns: [], rows: [] };
   options = getOptions(options, data);
-  return enzyme.mount(
+  const { container } = render(
     <GridSettings
       visualizationName="Test"
       data={data}
@@ -22,10 +33,11 @@ function mount(options: any, done: any) {
       }}
     />
   );
+  return container;
 }
 
 describe("Visualizations -> Table -> Editor -> Grid Settings", () => {
-  test("Changes items per page", done => {
+  test("Changes items per page", (done) => {
     const el = mount(
       {
         itemsPerPage: 25,
@@ -33,11 +45,7 @@ describe("Visualizations -> Table -> Editor -> Grid Settings", () => {
       done
     );
 
-    findByTestID(el, "Table.ItemsPerPage")
-      .last()
-      .simulate("mouseDown");
-    findByTestID(el, "Table.ItemsPerPage.100")
-      .last()
-      .simulate("click");
+    openSelect("Table.ItemsPerPage");
+    clickOption("Table.ItemsPerPage.100");
   });
 });

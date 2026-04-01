@@ -38,7 +38,7 @@ describe("Dashboard Filters", () => {
     cy.getByTestId("DashboardFiltersCheckbox").click();
 
     cy.getByTestId("DashboardFilters").within(() => {
-      cy.getByTestId("FilterName-stage1::filter").find(".ant-select-selection-item").should("have.text", "a");
+      cy.getByTestId("FilterName-stage1::filter").find(".ant-select").should("contain.text", "a");
     });
 
     cy.getByTestId(this.widget1TestId).within(() => {

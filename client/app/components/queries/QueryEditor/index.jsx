@@ -11,9 +11,20 @@ import QueryEditorControls from "./QueryEditorControls";
 import "./index.less";
 
 const editorProps = { $blockScrolling: Infinity };
+const EMPTY_SCHEMA = [];
+const NOOP = () => {};
 
-const QueryEditor = React.forwardRef(function(
-  { className, syntax, value, autocompleteEnabled, schema, onChange, onSelectionChange, ...props },
+const QueryEditor = React.forwardRef(function (
+  {
+    className = null,
+    syntax = null,
+    value = null,
+    autocompleteEnabled = true,
+    schema = EMPTY_SCHEMA,
+    onChange = NOOP,
+    onSelectionChange = NOOP,
+    ...props
+  },
   ref
 ) {
   const [container, setContainer] = useState(null);
@@ -27,7 +38,7 @@ const QueryEditor = React.forwardRef(function(
   }, [value]);
 
   const handleChange = useCallback(
-    str => {
+    (str) => {
       setCurrentValue(str);
       onChange(str);
     },
@@ -70,7 +81,7 @@ const QueryEditor = React.forwardRef(function(
   }, [container, editorRef]);
 
   const handleSelectionChange = useCallback(
-    selection => {
+    (selection) => {
       const rawSelectedQueryText = editorRef.editor.session.doc.getTextRange(selection.getRange());
       const selectedQueryText = rawSelectedQueryText.length > 1 ? rawSelectedQueryText : null;
       onSelectionChange(selectedQueryText);
@@ -78,7 +89,7 @@ const QueryEditor = React.forwardRef(function(
     [editorRef, onSelectionChange]
   );
 
-  const initEditor = useCallback(editor => {
+  const initEditor = useCallback((editor) => {
     // Release Cmd/Ctrl+L to the browser
     editor.commands.bindKey({ win: "Ctrl+L", mac: "Cmd+L" }, null);
 
@@ -110,19 +121,19 @@ const QueryEditor = React.forwardRef(function(
     });
 
     // Reset Completer in case dot is pressed
-    editor.commands.on("afterExec", e => {
+    editor.commands.on("afterExec", (e) => {
       if (e.command.name === "insertstring" && e.args === "." && editor.completer) {
         editor.completer.showPopup(editor);
       }
     });
 
-    QuerySnippet.query().then(snippets => {
+    QuerySnippet.query().then((snippets) => {
       const snippetManager = snippetsModule.snippetManager;
       const m = {
         snippetText: "",
       };
       m.snippets = snippetManager.parseSnippetFile(m.snippetText);
-      snippets.forEach(snippet => {
+      snippets.forEach((snippet) => {
         m.snippets.push(snippet.getSnippet());
       });
       snippetManager.register(m.snippets || [], m.scope);
@@ -134,7 +145,7 @@ const QueryEditor = React.forwardRef(function(
   useImperativeHandle(
     ref,
     () => ({
-      paste: text => {
+      paste: (text) => {
         if (editorRef) {
           const { editor } = editorRef;
           editor.session.doc.replace(editor.selection.getRange(), text);
@@ -181,16 +192,6 @@ QueryEditor.propTypes = {
   schema: PropTypes.arrayOf(SchemaItemType),
   onChange: PropTypes.func,
   onSelectionChange: PropTypes.func,
-};
-
-QueryEditor.defaultProps = {
-  className: null,
-  syntax: null,
-  value: null,
-  autocompleteEnabled: true,
-  schema: [],
-  onChange: () => {},
-  onSelectionChange: () => {},
 };
 
 QueryEditor.Controls = QueryEditorControls;

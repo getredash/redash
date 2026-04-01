@@ -6,7 +6,7 @@ import VisualizationName from "@/components/visualizations/VisualizationName";
 
 import "./QueryLink.less";
 
-function QueryLink({ query, visualization, readOnly }) {
+function QueryLink({ query, visualization = null, readOnly = false }) {
   const getUrl = () => {
     let hash = null;
     if (visualization) {
@@ -21,7 +21,7 @@ function QueryLink({ query, visualization, readOnly }) {
     return query.getUrl(false, hash);
   };
 
-  const QueryLinkWrapper = props => (readOnly ? <span {...props} /> : <Link href={getUrl()} {...props} />);
+  const QueryLinkWrapper = (props) => (readOnly ? <span {...props} /> : <Link href={getUrl()} {...props} />);
 
   return (
     <QueryLinkWrapper className="query-link">
@@ -34,11 +34,6 @@ QueryLink.propTypes = {
   query: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
   visualization: VisualizationType,
   readOnly: PropTypes.bool,
-};
-
-QueryLink.defaultProps = {
-  visualization: null,
-  readOnly: false,
 };
 
 export default QueryLink;
