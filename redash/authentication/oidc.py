@@ -89,7 +89,8 @@ def create_oidc_blueprint(app):
 
     @blueprint.route("/oidc", endpoint="authorize")
     def login():
-        redirect_uri = url_for(".callback", _external=True)
+        scheme = settings.OIDC_SCHEME_OVERRIDE or None
+        redirect_uri = url_for(".callback", _external=True, _scheme=scheme)
 
         next_path = request.args.get("next", url_for("redash.index", org_slug=session.get("org_slug")))
         logger.debug("Callback url: %s", redirect_uri)
@@ -108,43 +109,49 @@ def create_oidc_blueprint(app):
         except AuthlibBaseError as e:
             logger.warning("Failed to exchange authorization code: %s", e)
             flash("Validation error. Please retry.")
-            return redirect(url_for("redash.login"))
+            return redirect(url_for("redash.login", org_slug=session.get("org_slug")))
 
         try:
             user_info = oauth.oidc.parse_id_token(token)
         except AuthlibBaseError as e:
             logger.warning("Failed to parse/validate ID token: %s", e)
             flash("Validation error. Please retry.")
-            return redirect(url_for("redash.login"))
+            return redirect(url_for("redash.login", org_slug=session.get("org_slug")))
 
         if not user_info:
             logger.warning("Unable to get userinfo from returned token")
             flash("Validation error. Please retry.")
-            return redirect(url_for("redash.login"))
+            return redirect(url_for("redash.login", org_slug=session.get("org_slug")))
 
         if "org_slug" in session:
             org = models.Organization.get_by_slug(session.pop("org_slug"))
         else:
             org = current_org
 
-        if not verify_account(org, user_info["email"]):
-            logger.warning(
-                "User tried to login with unauthorized domain name: %s (org: %s)",
-                user_info["email"],
-                org,
-            )
-            flash("Your account ({}) isn't allowed.".format(user_info["email"]))
+        email = user_info.get("email")
+        if not email:
+            logger.warning("OIDC provider did not return an email claim")
+            flash("Email claim missing from OIDC provider response.")
             return redirect(url_for("redash.login", org_slug=org.slug))
 
-        # see if email is verified
-        email_verified = user_info.get("email_verified", False)
-        if not email_verified:
+        if not verify_account(org, email):
+            logger.warning(
+                "User tried to login with unauthorized domain name: %s (org: %s)",
+                email,
+                org,
+            )
+            flash("Your account ({}) isn't allowed.".format(email))
+            return redirect(url_for("redash.login", org_slug=org.slug))
+
+        # see if email is verified; treat missing claim as verified
+        email_verified = user_info.get("email_verified")
+        if email_verified is False:
             flash("Email not verified.")
-            return redirect(url_for("redash.login"))
+            return redirect(url_for("redash.login", org_slug=org.slug))
 
         user_name = get_name_from_user_info(user_info)
 
-        user = create_and_login_user(org, user_name, user_info["email"])
+        user = create_and_login_user(org, user_name, email)
         if user is None:
             return logout_and_redirect_to_index()
 
