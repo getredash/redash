@@ -1,0 +1,640 @@
+#!/usr/bin/env python3
+"""
+Redash Release Script
+
+Versioning: CalVer YY.M.PATCH (e.g., 26.3.0, 26.12.1)
+
+Major Release (bin/release major)
+=================================
+Run from the master branch. Steps:
+
+  1. Validate state (on master, clean worktree, branch/tag don't exist yet)
+  2. Create release branch (e.g., v26.3) from master
+  3. Generate changelog from merged PRs since last release, open $EDITOR
+     for review, and write to CHANGELOG.md
+  4. Update version in package.json, redash/__init__.py, pyproject.toml
+  5. Commit and push the release branch
+  6. Create GitHub release with auto-generated notes
+  7. Trigger Docker image build (preview-image.yml with dockerRepository=redash)
+  8. Create a PR (changelog/v26.3.0 -> master) with just the CHANGELOG.md
+     update, avoiding version file conflicts
+
+Patch Release (bin/release patch)
+=================================
+Run from an existing release branch (e.g., v26.3) after cherry-picking fixes.
+
+  1. Validate state (on release branch, has new commits since last tag)
+  2. Generate changelog from commits since last tag, open $EDITOR for
+     review, and write to CHANGELOG.md
+  3. Bump patch version (e.g., 26.3.0 -> 26.3.1)
+  4. Commit and push
+  5. Create GitHub release with auto-generated notes
+  6. Trigger Docker image build
+  7. Create a PR (changelog/v26.3.1 -> master) with just the CHANGELOG.md
+     update
+
+Subcommands (for testing individual steps)
+==========================================
+  bin/release check-major                   Validate state for a major release
+  bin/release check-patch                   Validate state for a patch release
+  bin/release changelog <version> [--since-tag TAG]   Generate changelog entries
+  bin/release update-version <version>      Update version in all files
+  bin/release update-changelog <version>    Generate changelog and open in editor
+  bin/release create-release <tag> --target <branch> [--prev-tag TAG]
+  bin/release build-image --ref <ref>       Trigger Docker image build
+  bin/release changelog-pr <version> --release-branch <branch>
+"""
+
+import argparse
+import json
+import os
+import re
+import subprocess
+import sys
+import tempfile
+
+REPO = "getredash/redash"
+VERSION_FILES = ["package.json", "redash/__init__.py", "pyproject.toml"]
+CHANGELOG = "CHANGELOG.md"
+
+
+# ---------------------------------------------------------------------------
+# Utilities
+# ---------------------------------------------------------------------------
+
+
+def run(cmd, check=True, dry_run=False):
+    """Run a shell command, return stdout stripped."""
+    if dry_run:
+        print(f"  [dry-run] {cmd}")
+        return ""
+    print(f"  $ {cmd}")
+    result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+    if check and result.returncode != 0:
+        print(f"  ERROR: {result.stderr.strip()}")
+        sys.exit(1)
+    return result.stdout.strip()
+
+
+def confirm(message):
+    response = input(f"\n{message} [y/N] ")
+    return response.lower() in ("y", "yes")
+
+
+# ---------------------------------------------------------------------------
+# Version helpers
+# ---------------------------------------------------------------------------
+
+
+def read_version():
+    """Read version from package.json."""
+    with open("package.json") as f:
+        return json.load(f)["version"]
+
+
+def normalize_version(version):
+    """Strip -dev suffix and leading zeros from month. '26.03.0-dev' -> '26.3.0'"""
+    version = re.sub(r"-dev$", "", version)
+    parts = version.split(".")
+    if len(parts) != 3:
+        print(f"Error: unexpected version format: {version}")
+        sys.exit(1)
+    return f"{int(parts[0])}.{int(parts[1])}.{int(parts[2])}"
+
+
+def bump_patch(version):
+    """'26.3.0' -> '26.3.1'"""
+    parts = version.split(".")
+    parts[2] = str(int(parts[2]) + 1)
+    return ".".join(parts)
+
+
+def branch_name(version):
+    """'26.3.0' -> 'v26.3'"""
+    parts = version.split(".")
+    return f"v{parts[0]}.{parts[1]}"
+
+
+def tag_name(version):
+    """'26.3.0' -> 'v26.3.0'"""
+    return f"v{version}"
+
+
+# ---------------------------------------------------------------------------
+# Subcommands (individually testable steps)
+# ---------------------------------------------------------------------------
+
+
+def cmd_check_major():
+    """Validate the repo state for a major release. Prints the release plan."""
+    status = run("git diff --stat HEAD")
+    if status:
+        print("FAIL: uncommitted changes to tracked files.")
+        return False
+
+    run("git fetch origin")
+    branch = run("git symbolic-ref --short HEAD 2>/dev/null", check=False)
+    head = run("git rev-parse HEAD")
+    origin_master = run("git rev-parse origin/master")
+
+    if branch != "master" and head != origin_master:
+        print(f"FAIL: not on master (on '{branch or 'detached HEAD'}')")
+        return False
+
+    if head != origin_master:
+        print("FAIL: local master is behind origin/master.")
+        return False
+
+    dev_version = read_version()
+    if not dev_version.endswith("-dev"):
+        print(f"FAIL: version '{dev_version}' doesn't end with '-dev'")
+        return False
+
+    version = normalize_version(dev_version)
+    branch_ref = branch_name(version)
+    tag = tag_name(version)
+    prev_tag = get_previous_release_tag()
+
+    if run(f"git ls-remote --heads origin {branch_ref}", check=False):
+        print(f"FAIL: branch '{branch_ref}' already exists on origin.")
+        return False
+
+    if run(f"git ls-remote --tags origin refs/tags/{tag}", check=False):
+        print(f"FAIL: tag '{tag}' already exists on origin.")
+        return False
+
+    print(f"OK: ready for major release")
+    print(f"  {dev_version} -> {version}")
+    print(f"  Branch: {branch_ref}")
+    print(f"  Tag:    {tag}")
+    if prev_tag:
+        print(f"  Previous release: {prev_tag}")
+    return True
+
+
+def cmd_check_patch():
+    """Validate the repo state for a patch release. Prints the release plan."""
+    status = run("git diff --stat HEAD")
+    if status:
+        print("FAIL: uncommitted changes to tracked files.")
+        return False
+
+    run("git fetch origin")
+    branch = run("git symbolic-ref --short HEAD 2>/dev/null", check=False)
+
+    if not re.match(r"^v\d+\.\d+$", branch):
+        print(f"FAIL: not on a release branch (on '{branch}').")
+        return False
+
+    current = normalize_version(read_version())
+    new_version = bump_patch(current)
+    tag = tag_name(new_version)
+    prev_tag = tag_name(current)
+
+    if run(f"git ls-remote --tags origin refs/tags/{tag}", check=False):
+        print(f"FAIL: tag '{tag}' already exists on origin.")
+        return False
+
+    commits = run(f"git log {prev_tag}..HEAD --oneline", check=False)
+    if not commits:
+        print(f"FAIL: no new commits since {prev_tag}.")
+        return False
+
+    print(f"OK: ready for patch release")
+    print(f"  {current} -> {new_version}")
+    print(f"  Branch: {branch}")
+    print(f"  Tag:    {tag}")
+    print(f"\n  Changes since {prev_tag}:")
+    for line in commits.split("\n"):
+        print(f"    {line}")
+    return True
+
+
+def cmd_update_version(version):
+    """Update version in all three files."""
+    print(f"Updating version to '{version}'...")
+
+    # package.json
+    with open("package.json") as f:
+        pkg = json.load(f)
+    pkg["version"] = version
+    with open("package.json", "w") as f:
+        json.dump(pkg, f, indent=2)
+        f.write("\n")
+
+    # redash/__init__.py
+    with open("redash/__init__.py") as f:
+        content = f.read()
+    content = re.sub(r'__version__ = ".*?"', f'__version__ = "{version}"', content)
+    with open("redash/__init__.py", "w") as f:
+        f.write(content)
+
+    # pyproject.toml
+    with open("pyproject.toml") as f:
+        content = f.read()
+    content = re.sub(r'^version = ".*?"', f'version = "{version}"', content, flags=re.MULTILINE)
+    with open("pyproject.toml", "w") as f:
+        f.write(content)
+
+    print(f"  Updated {', '.join(VERSION_FILES)}")
+
+
+def get_previous_release_tag():
+    """Get the most recent release tag (not pre-release)."""
+    result = run(
+        f"gh release list --repo {REPO} --exclude-drafts --exclude-pre-releases "
+        f"--limit 1 --json tagName --jq '.[0].tagName'",
+        check=False,
+    )
+    return result if result else None
+
+
+def get_release_date(tag):
+    """Get the publish date of a release tag (YYYY-MM-DD)."""
+    result = run(
+        f"gh release view {tag} --repo {REPO} --json publishedAt --jq '.publishedAt'",
+        check=False,
+    )
+    return result[:10] if result else None
+
+
+def cmd_changelog(version, since_tag=None, from_commits=False, prev_tag=None):
+    """Generate and print changelog entries.
+
+    Two modes:
+      - from merged PRs since a tag's release date (major releases)
+      - from commits since a tag (patch releases, --from-commits)
+    """
+    if from_commits and prev_tag:
+        return _changelog_from_commits(prev_tag)
+    else:
+        return _changelog_from_prs(since_tag)
+
+
+def _changelog_from_prs(since_tag):
+    """Generate changelog entries from merged PRs since a tag's release date."""
+    since_date = get_release_date(since_tag) if since_tag else None
+    if not since_date:
+        if since_tag:
+            since_date = run(f"git log -1 --format=%cs {since_tag}", check=False)
+    if not since_date:
+        print("Warning: could not determine date for previous release.")
+        return []
+
+    jq_expr = '.[] | "* \\(.title) ([#\\(.number)](https://github.com/getredash/redash/pull/\\(.number)))"'
+    result = run(
+        f"gh pr list --repo {REPO} --state merged "
+        f'--search "merged:>={since_date}" '
+        f"--json number,title --limit 500 "
+        f"--jq '{jq_expr}'",
+        check=False,
+    )
+    entries = result.split("\n") if result else []
+    for e in entries:
+        print(e)
+    return entries
+
+
+def _changelog_from_commits(prev_tag):
+    """Generate changelog entries from commits since a tag (for patch releases)."""
+    log = run(f"git log {prev_tag}..HEAD --pretty=format:%s", check=False)
+    if not log:
+        return []
+
+    entries = []
+    for subject in log.split("\n"):
+        match = re.search(r"\(#(\d+)\)", subject)
+        if match:
+            pr_num = match.group(1)
+            title = re.sub(r"\s*\(#\d+\)$", "", subject)
+            entries.append(f"* {title} ([#{pr_num}](https://github.com/{REPO}/pull/{pr_num}))")
+        else:
+            entries.append(f"* {subject}")
+
+    for e in entries:
+        print(e)
+    return entries
+
+
+def cmd_update_changelog(version, entries):
+    """Write changelog entries into CHANGELOG.md, opening $EDITOR for review first."""
+    if not entries:
+        print("No changelog entries to add.")
+        return
+
+    # Write draft to temp file for editing
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".md", prefix="changelog-", delete=False) as f:
+        f.write(f"# Edit changelog entries for {version}\n")
+        f.write(f"# Lines starting with # will be removed.\n")
+        f.write(f"# Save and close the editor to continue. Empty file aborts.\n\n")
+        f.write("\n".join(entries) + "\n")
+        tmpfile = f.name
+
+    editor = os.environ.get("EDITOR", os.environ.get("VISUAL", "vi"))
+    print(f"  Opening {editor} to review changelog entries...")
+    subprocess.run([editor, tmpfile])
+
+    with open(tmpfile) as f:
+        edited = f.read()
+    os.unlink(tmpfile)
+
+    # Strip comment lines
+    lines = [l for l in edited.split("\n") if not l.startswith("#")]
+    edited = "\n".join(lines).strip()
+
+    if not edited:
+        print("  Changelog edit was empty, skipping CHANGELOG.md update.")
+        return
+
+    # Prepend to CHANGELOG.md
+    with open(CHANGELOG) as f:
+        existing = f.read()
+
+    header_end = existing.index("\n") + 1
+    updated = existing[:header_end] + f"\n## {version}\n\n{edited}\n\n" + existing[header_end:].lstrip("\n")
+
+    with open(CHANGELOG, "w") as f:
+        f.write(updated)
+
+    print(f"  Updated {CHANGELOG}")
+
+
+def cmd_create_release(tag, target, prev_tag=None, dry_run=False):
+    """Create a GitHub release."""
+    gh_notes_args = f"--generate-notes --notes-start-tag {prev_tag}" if prev_tag else '--notes ""'
+    run(
+        f"gh release create {tag} --target {target} --title {tag} {gh_notes_args}",
+        dry_run=dry_run,
+    )
+    print(f"  Created release {tag}")
+
+
+def cmd_build_image(ref, dry_run=False):
+    """Trigger the Docker image build workflow."""
+    run(
+        f"gh workflow run preview-image.yml --ref {ref} -f dockerRepository=redash",
+        dry_run=dry_run,
+    )
+    print(f"  Triggered build for ref '{ref}'")
+
+
+def cmd_changelog_pr(version, release_branch, dry_run=False):
+    """Create a PR to bring the changelog update back to master.
+
+    Creates a temporary branch from master with just the CHANGELOG.md
+    change from the release branch, avoiding version file conflicts.
+    """
+    pr_branch = f"changelog/{tag_name(version)}"
+    tag = tag_name(version)
+
+    run("git checkout master", dry_run=dry_run)
+    run("git pull origin master", dry_run=dry_run)
+    run(f"git checkout -b {pr_branch}", dry_run=dry_run)
+    run(f"git checkout {release_branch} -- {CHANGELOG}", dry_run=dry_run)
+    run(f"git add {CHANGELOG}", dry_run=dry_run)
+    run(f'git commit -m "Update CHANGELOG.md for {tag}"', dry_run=dry_run)
+    run(f"git push --set-upstream origin {pr_branch}", dry_run=dry_run)
+
+    run(
+        f'gh pr create --title "Update CHANGELOG.md for {tag}" '
+        f'--body "Brings the changelog entries from the {tag} release back to master." '
+        f"--base master --head {pr_branch}",
+        dry_run=dry_run,
+    )
+    print(f"  Created PR to merge changelog into master")
+
+    # Return to the release branch
+    run(f"git checkout {release_branch}", dry_run=dry_run)
+
+
+# ---------------------------------------------------------------------------
+# Full release flows (compose subcommands)
+# ---------------------------------------------------------------------------
+
+
+def do_major(dry_run=False):
+    if not cmd_check_major():
+        sys.exit(1)
+
+    dev_version = read_version()
+    version = normalize_version(dev_version)
+    branch_ref = branch_name(version)
+    tag = tag_name(version)
+    prev_tag = get_previous_release_tag()
+
+    if not dry_run and not confirm("Proceed with major release?"):
+        print("Aborted.")
+        sys.exit(0)
+
+    # 1. Create release branch
+    print(f"\n1. Creating release branch '{branch_ref}'...")
+    run(f"git checkout -b {branch_ref}", dry_run=dry_run)
+
+    # 2. Generate and update changelog
+    print("\n2. Updating changelog...")
+    if dry_run:
+        print(f"  [dry-run] Generate changelog entries since {prev_tag}")
+        print(f"  [dry-run] Open $EDITOR for review")
+        print(f"  [dry-run] Update {CHANGELOG}")
+    else:
+        entries = _changelog_from_prs(prev_tag)
+        cmd_update_changelog(version, entries)
+
+    # 3. Update version files
+    print(f"\n3. Updating version to '{version}'...")
+    if dry_run:
+        print(f"  [dry-run] Update version in {', '.join(VERSION_FILES)}")
+    else:
+        cmd_update_version(version)
+
+    # 4. Commit and push
+    print("\n4. Committing and pushing...")
+    run(f"git add {' '.join(VERSION_FILES)} {CHANGELOG}", dry_run=dry_run)
+    run(f'git commit -m "{version} release"', dry_run=dry_run)
+    run(f"git push --set-upstream origin {branch_ref}", dry_run=dry_run)
+
+    # 5. Create GitHub release
+    print(f"\n5. Creating GitHub release '{tag}'...")
+    cmd_create_release(tag, branch_ref, prev_tag=prev_tag, dry_run=dry_run)
+
+    # 6. Trigger Docker build
+    print(f"\n6. Triggering Docker image build...")
+    cmd_build_image(branch_ref, dry_run=dry_run)
+
+    # 7. Open PR to bring changelog back to master
+    print(f"\n7. Creating PR to update changelog on master...")
+    cmd_changelog_pr(version, branch_ref, dry_run=dry_run)
+
+    print(f"\n{'[DRY RUN] ' if dry_run else ''}Release {tag} complete!")
+    print(f"\nNext steps:")
+    print(f"  - Monitor Docker build:  gh run list --workflow=preview-image.yml")
+    print(f"  - Edit release notes:    https://github.com/{REPO}/releases/tag/{tag}")
+    print(f"  - Merge the changelog PR")
+    print(f"  - Update website docs")
+    print(f"  - Post announcement in discussions")
+
+
+def do_patch(dry_run=False):
+    if not cmd_check_patch():
+        sys.exit(1)
+
+    branch = run("git symbolic-ref --short HEAD 2>/dev/null", check=False)
+    current = normalize_version(read_version())
+    new_version = bump_patch(current)
+    tag = tag_name(new_version)
+    prev_tag = tag_name(current)
+
+    if not dry_run and not confirm("Proceed with patch release?"):
+        print("Aborted.")
+        sys.exit(0)
+
+    # 1. Generate and update changelog
+    print("\n1. Updating changelog...")
+    if dry_run:
+        print(f"  [dry-run] Generate changelog entries from commits since {prev_tag}")
+        print(f"  [dry-run] Open $EDITOR for review")
+        print(f"  [dry-run] Update {CHANGELOG}")
+    else:
+        entries = _changelog_from_commits(prev_tag)
+        cmd_update_changelog(new_version, entries)
+
+    # 2. Update version files
+    print(f"\n2. Updating version to '{new_version}'...")
+    if dry_run:
+        print(f"  [dry-run] Update version in {', '.join(VERSION_FILES)}")
+    else:
+        cmd_update_version(new_version)
+
+    # 3. Commit and push
+    print("\n3. Committing and pushing...")
+    run(f"git add {' '.join(VERSION_FILES)} {CHANGELOG}", dry_run=dry_run)
+    run(f'git commit -m "{new_version} release"', dry_run=dry_run)
+    run(f"git push origin {branch}", dry_run=dry_run)
+
+    # 4. Create GitHub release
+    print(f"\n4. Creating GitHub release '{tag}'...")
+    cmd_create_release(tag, branch, prev_tag=prev_tag, dry_run=dry_run)
+
+    # 5. Trigger Docker build
+    print(f"\n5. Triggering Docker image build...")
+    cmd_build_image(branch, dry_run=dry_run)
+
+    # 6. Open PR to bring changelog back to master
+    print(f"\n6. Creating PR to update changelog on master...")
+    cmd_changelog_pr(new_version, branch, dry_run=dry_run)
+
+    print(f"\n{'[DRY RUN] ' if dry_run else ''}Patch release {tag} complete!")
+    print(f"\nNext steps:")
+    print(f"  - Monitor Docker build:  gh run list --workflow=preview-image.yml")
+    print(f"  - Edit release notes:    https://github.com/{REPO}/releases/tag/{tag}")
+    print(f"  - Merge the changelog PR")
+    print(f"  - Update website docs if needed")
+    print(f"  - Post announcement in discussions")
+
+
+# ---------------------------------------------------------------------------
+# CLI
+# ---------------------------------------------------------------------------
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Redash Release Script",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=__doc__,
+    )
+    sub = parser.add_subparsers(dest="command")
+
+    # Full release flows
+    p_major = sub.add_parser("major", help="Full major release from master")
+    p_major.add_argument("--dry-run", action="store_true")
+
+    p_patch = sub.add_parser("patch", help="Full patch release on release branch")
+    p_patch.add_argument("--dry-run", action="store_true")
+
+    # Individual steps
+    sub.add_parser("check-major", help="Validate state for a major release")
+    sub.add_parser("check-patch", help="Validate state for a patch release")
+
+    p_ver = sub.add_parser("update-version", help="Update version in all files")
+    p_ver.add_argument("version", help="Version string (e.g., 26.3.0)")
+
+    p_cl = sub.add_parser("changelog", help="Generate changelog entries (prints to stdout)")
+    p_cl.add_argument("version", help="Version string")
+    p_cl.add_argument("--since-tag", help="Previous release tag to find PRs since")
+    p_cl.add_argument("--from-commits", action="store_true", help="Generate from commits instead of PRs")
+    p_cl.add_argument("--prev-tag", help="Previous tag for commit-based changelog")
+
+    p_ucl = sub.add_parser("update-changelog", help="Generate changelog and write to CHANGELOG.md")
+    p_ucl.add_argument("version", help="Version string")
+    p_ucl.add_argument("--since-tag", help="Previous release tag (for major)")
+    p_ucl.add_argument("--from-commits", action="store_true", help="Generate from commits (for patch)")
+    p_ucl.add_argument("--prev-tag", help="Previous tag for commit-based changelog")
+
+    p_rel = sub.add_parser("create-release", help="Create a GitHub release")
+    p_rel.add_argument("tag", help="Tag name (e.g., v26.3.0)")
+    p_rel.add_argument("--target", required=True, help="Target branch")
+    p_rel.add_argument("--prev-tag", help="Previous tag for auto-generated notes")
+    p_rel.add_argument("--dry-run", action="store_true")
+
+    p_build = sub.add_parser("build-image", help="Trigger Docker image build")
+    p_build.add_argument("--ref", required=True, help="Git ref to build from")
+    p_build.add_argument("--dry-run", action="store_true")
+
+    p_clpr = sub.add_parser("changelog-pr", help="Create PR to bring changelog back to master")
+    p_clpr.add_argument("version", help="Version string (e.g., 26.3.0)")
+    p_clpr.add_argument("--release-branch", required=True, help="Release branch name (e.g., v26.3)")
+    p_clpr.add_argument("--dry-run", action="store_true")
+
+    args = parser.parse_args()
+
+    if not args.command:
+        parser.print_help()
+        sys.exit(1)
+
+    if not os.path.exists("package.json"):
+        print("Error: run from the Redash repository root.")
+        sys.exit(1)
+
+    if args.command in (
+        "major",
+        "patch",
+        "check-major",
+        "check-patch",
+        "changelog",
+        "create-release",
+        "build-image",
+        "changelog-pr",
+    ):
+        run("gh --version")
+
+    if args.command == "major":
+        do_major(dry_run=args.dry_run)
+    elif args.command == "patch":
+        do_patch(dry_run=args.dry_run)
+    elif args.command == "check-major":
+        if not cmd_check_major():
+            sys.exit(1)
+    elif args.command == "check-patch":
+        if not cmd_check_patch():
+            sys.exit(1)
+    elif args.command == "update-version":
+        cmd_update_version(args.version)
+    elif args.command == "changelog":
+        cmd_changelog(args.version, since_tag=args.since_tag, from_commits=args.from_commits, prev_tag=args.prev_tag)
+    elif args.command == "update-changelog":
+        if args.from_commits and args.prev_tag:
+            entries = _changelog_from_commits(args.prev_tag)
+        else:
+            entries = _changelog_from_prs(args.since_tag)
+        cmd_update_changelog(args.version, entries)
+    elif args.command == "create-release":
+        cmd_create_release(args.tag, args.target, prev_tag=args.prev_tag, dry_run=args.dry_run)
+    elif args.command == "build-image":
+        cmd_build_image(args.ref, dry_run=args.dry_run)
+    elif args.command == "changelog-pr":
+        cmd_changelog_pr(args.version, args.release_branch, dry_run=args.dry_run)
+
+
+if __name__ == "__main__":
+    main()
