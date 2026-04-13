@@ -62,6 +62,31 @@ CHANGELOG = "CHANGELOG.md"
 # Utilities
 # ---------------------------------------------------------------------------
 
+# Resolved once at startup by detect_remote()
+REMOTE = None
+
+
+def detect_remote():
+    """Find the git remote pointing to getredash/redash."""
+    global REMOTE
+    result = subprocess.run("git remote -v", shell=True, capture_output=True, text=True, check=True)
+    for line in result.stdout.strip().split("\n"):
+        parts = line.split()
+        if len(parts) >= 2 and "getredash/redash" in parts[1]:
+            REMOTE = parts[0]
+            return
+    print("Error: no git remote found for getredash/redash.")
+    print("Remotes:")
+    print(result.stdout)
+    sys.exit(1)
+
+
+def remote():
+    """Return the cached remote name."""
+    if REMOTE is None:
+        detect_remote()
+    return REMOTE
+
 
 def run(cmd, check=True, dry_run=False):
     """Run a shell command, return stdout stripped."""
@@ -132,17 +157,17 @@ def cmd_check_major():
         print("FAIL: uncommitted changes to tracked files.")
         return False
 
-    run("git fetch origin")
+    run(f"git fetch {remote()}")
     branch = run("git symbolic-ref --short HEAD 2>/dev/null", check=False)
     head = run("git rev-parse HEAD")
-    origin_master = run("git rev-parse origin/master")
+    remote_master = run(f"git rev-parse {remote()}/master")
 
-    if branch != "master" and head != origin_master:
+    if branch != "master" and head != remote_master:
         print(f"FAIL: not on master (on '{branch or 'detached HEAD'}')")
         return False
 
-    if head != origin_master:
-        print("FAIL: local master is behind origin/master.")
+    if head != remote_master:
+        print(f"FAIL: local master is behind {remote()}/master.")
         return False
 
     dev_version = read_version()
@@ -155,12 +180,12 @@ def cmd_check_major():
     tag = tag_name(version)
     prev_tag = get_previous_release_tag()
 
-    if run(f"git ls-remote --heads origin {branch_ref}", check=False):
-        print(f"FAIL: branch '{branch_ref}' already exists on origin.")
+    if run(f"git ls-remote --heads {remote()} {branch_ref}", check=False):
+        print(f"FAIL: branch '{branch_ref}' already exists on {remote()}.")
         return False
 
-    if run(f"git ls-remote --tags origin refs/tags/{tag}", check=False):
-        print(f"FAIL: tag '{tag}' already exists on origin.")
+    if run(f"git ls-remote --tags {remote()} refs/tags/{tag}", check=False):
+        print(f"FAIL: tag '{tag}' already exists on {remote()}.")
         return False
 
     print(f"OK: ready for major release")
@@ -179,7 +204,7 @@ def cmd_check_patch():
         print("FAIL: uncommitted changes to tracked files.")
         return False
 
-    run("git fetch origin")
+    run(f"git fetch {remote()}")
     branch = run("git symbolic-ref --short HEAD 2>/dev/null", check=False)
 
     if not re.match(r"^v\d+\.\d+$", branch):
@@ -191,8 +216,8 @@ def cmd_check_patch():
     tag = tag_name(new_version)
     prev_tag = tag_name(current)
 
-    if run(f"git ls-remote --tags origin refs/tags/{tag}", check=False):
-        print(f"FAIL: tag '{tag}' already exists on origin.")
+    if run(f"git ls-remote --tags {remote()} refs/tags/{tag}", check=False):
+        print(f"FAIL: tag '{tag}' already exists on {remote()}.")
         return False
 
     commits = run(f"git log {prev_tag}..HEAD --oneline", check=False)
@@ -388,12 +413,12 @@ def cmd_changelog_pr(version, release_branch, dry_run=False):
     tag = tag_name(version)
 
     run("git checkout master", dry_run=dry_run)
-    run("git pull origin master", dry_run=dry_run)
+    run(f"git pull {remote()} master", dry_run=dry_run)
     run(f"git checkout -b {pr_branch}", dry_run=dry_run)
     run(f"git checkout {release_branch} -- {CHANGELOG}", dry_run=dry_run)
     run(f"git add {CHANGELOG}", dry_run=dry_run)
     run(f'git commit -m "Update CHANGELOG.md for {tag}"', dry_run=dry_run)
-    run(f"git push --set-upstream origin {pr_branch}", dry_run=dry_run)
+    run(f"git push --set-upstream {remote()} {pr_branch}", dry_run=dry_run)
 
     run(
         f'gh pr create --title "Update CHANGELOG.md for {tag}" '
@@ -451,7 +476,7 @@ def do_major(dry_run=False):
     print("\n4. Committing and pushing...")
     run(f"git add {' '.join(VERSION_FILES)} {CHANGELOG}", dry_run=dry_run)
     run(f'git commit -m "{version} release"', dry_run=dry_run)
-    run(f"git push --set-upstream origin {branch_ref}", dry_run=dry_run)
+    run(f"git push --set-upstream {remote()} {branch_ref}", dry_run=dry_run)
 
     # 5. Create GitHub release
     print(f"\n5. Creating GitHub release '{tag}'...")
@@ -509,7 +534,7 @@ def do_patch(dry_run=False):
     print("\n3. Committing and pushing...")
     run(f"git add {' '.join(VERSION_FILES)} {CHANGELOG}", dry_run=dry_run)
     run(f'git commit -m "{new_version} release"', dry_run=dry_run)
-    run(f"git push origin {branch}", dry_run=dry_run)
+    run(f"git push {remote()} {branch}", dry_run=dry_run)
 
     # 4. Create GitHub release
     print(f"\n4. Creating GitHub release '{tag}'...")
@@ -595,6 +620,9 @@ def main():
     if not os.path.exists("package.json"):
         print("Error: run from the Redash repository root.")
         sys.exit(1)
+
+    detect_remote()
+    print(f"  Using remote '{remote()}' for getredash/redash")
 
     if args.command in (
         "major",
