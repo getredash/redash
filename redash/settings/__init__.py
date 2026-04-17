@@ -38,6 +38,10 @@ SQLALCHEMY_ENABLE_POOL_PRE_PING = parse_boolean(os.environ.get("SQLALCHEMY_ENABL
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 SQLALCHEMY_ECHO = False
 
+# IAM database authentication for AWS RDS
+# See https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/UsingWithRDS.IAMDBAuth.html
+REDASH_DATABASE_AWS_IAM_AUTH = parse_boolean(os.environ.get("REDASH_DATABASE_AWS_IAM_AUTH", "false"))
+
 RQ_REDIS_URL = os.environ.get("RQ_REDIS_URL", _REDIS_URL)
 
 # The following enables periodic job (every 5 minutes) of removing unused query results.
