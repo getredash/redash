@@ -43,6 +43,28 @@ Subcommands (for testing individual steps)
   bin/release create-release <tag> --target <branch> [--prev-tag TAG]
   bin/release build-image --ref <ref>       Trigger Docker image build
   bin/release changelog-pr <version> --release-branch <branch>
+
+Examples
+========
+  # Dry-run a major release (no changes made):
+  bin/release major --dry-run
+
+  # Perform a major release from master:
+  bin/release major
+
+  # Dry-run a patch release on an existing release branch:
+  git checkout v26.3
+  bin/release patch --dry-run
+
+  # Test individual steps:
+  bin/release check-major
+  bin/release changelog 26.4.0 --since-tag v26.3.0
+  bin/release update-version 26.4.0
+  bin/release build-image --ref v26.4 --dry-run
+  bin/release changelog-pr 26.4.0 --release-branch v26.4 --dry-run
+
+Note: this script requires push access to the getredash/redash repository.
+The git remote is auto-detected (works with both "origin" and "upstream").
 """
 
 import argparse
