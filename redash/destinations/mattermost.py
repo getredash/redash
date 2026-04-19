@@ -1,9 +1,8 @@
 import logging
 
-from redash.utils.requests_session import requests_or_advocate as requests
-
 from redash.destinations import BaseDestination, register
 from redash.utils import json_dumps
+from redash.utils.requests_session import requests_or_advocate as requests
 
 
 class Mattermost(BaseDestination):

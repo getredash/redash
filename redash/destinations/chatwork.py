@@ -1,8 +1,7 @@
 import logging
 
-from redash.utils.requests_session import requests_or_advocate as requests
-
 from redash.destinations import BaseDestination, register
+from redash.utils.requests_session import requests_or_advocate as requests
 
 
 class ChatWork(BaseDestination):

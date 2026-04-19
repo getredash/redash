@@ -3,10 +3,9 @@ import json
 import logging
 from copy import deepcopy
 
-from redash.utils.requests_session import requests_or_advocate as requests
-
 from redash.destinations import BaseDestination, register
 from redash.models import Alert
+from redash.utils.requests_session import requests_or_advocate as requests
 
 
 class Webex(BaseDestination):

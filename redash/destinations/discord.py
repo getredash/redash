@@ -1,10 +1,9 @@
 import logging
 
-from redash.utils.requests_session import requests_or_advocate as requests
-
 from redash.destinations import BaseDestination, register
 from redash.models import Alert
 from redash.utils import json_dumps
+from redash.utils.requests_session import requests_or_advocate as requests
 
 colors = {
     # Colors are in a Decimal format as Discord requires them to be Decimals for embeds
