@@ -47,8 +47,9 @@ jobs:
         run: |
           set -x
           docker compose build --build-arg install_groups="main,all_ds,dev" --build-arg skip_frontend_build=true
-          docker compose up -d
-          sleep 10
+          docker compose up -d --wait postgres redis
+      - name: Smoke Test Redash Image
+        run: docker compose -p redash run --rm redash manage version
       - name: Create Test Database
         run: docker compose -p redash run --rm postgres psql -h postgres -U postgres -c "create database tests;"
       - name: List Enabled Query Runners
