@@ -56,6 +56,9 @@ jobs:
         run: docker compose -p redash run --rm redash manage ds list_types
       - name: Run Tests
         run: docker compose -p redash run --name tests redash tests --junitxml=junit.xml --cov-report=xml --cov=redash --cov-config=.coveragerc tests/
+      - name: "Failure: output container logs"
+        if: failure()
+        run: docker compose logs
       - name: Copy Test Results
         run: |
           mkdir -p /tmp/test-results/unit-tests
