@@ -21,15 +21,15 @@ export default function OIDCLoginSettings(props) {
         <Select
           mode="tags"
           value={values.auth_oidc_domains}
-          onChange={value => onChange({ auth_oidc_domains: value })}
+          onChange={(value) => onChange({ auth_oidc_domains: value })}
         />
         {!isEmpty(values.auth_oidc_domains) && (
           <Alert
             message={
               <p>
-                Any user registered with a <strong>{join(values.auth_oidc_domains, ", ")}</strong>{" "}
-                domain will be able to login. If they don't have an existing user, a new user will be created and join
-                the <strong>Default</strong> group.
+                Any user registered with a <strong>{join(values.auth_oidc_domains, ", ")}</strong> domain will be able
+                to login. If they don't have an existing user, a new user will be created and join the{" "}
+                <strong>Default</strong> group.
               </p>
             }
             className="m-t-15"

@@ -12,10 +12,13 @@ import SAMLSettings from "./SAMLSettings";
 export default function AuthSettings(props) {
   const { values, onChange } = props;
   const handleChange = useCallback(
-    changes => {
+    (changes) => {
       const allSettings = { ...values, ...changes };
       const allAuthMethodsDisabled =
-        !clientConfig.oidcLoginEnabled && !clientConfig.googleLoginEnabled && !clientConfig.ldapLoginEnabled && !allSettings.auth_saml_enabled;
+        !clientConfig.oidcLoginEnabled &&
+        !clientConfig.googleLoginEnabled &&
+        !clientConfig.ldapLoginEnabled &&
+        !allSettings.auth_saml_enabled;
       if (allAuthMethodsDisabled) {
         changes = { ...changes, auth_password_login_enabled: true };
       }
