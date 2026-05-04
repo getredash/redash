@@ -13,6 +13,8 @@ from redash.query_runner import BaseQueryRunner
 from . import register
 
 try:
+    from cmem.cmempy.api import request as cmem_request
+    from cmem.cmempy.config import get_dp_api_endpoint
     from cmem.cmempy.dp.proxy.graph import get_graphs_list
     from cmem.cmempy.queries import (  # noqa: F401
         QUERY_STRING,
@@ -150,8 +152,7 @@ class CorporateMemoryQueryRunner(BaseQueryRunner):
         """send a sparql query to corporate memory"""
         query_text = query
         logger.info("about to execute query (user='{}'): {}".format(user, query_text))
-        query = SparqlQuery(query_text)
-        query_type = query.get_query_type()
+        query_type = SparqlQuery(query_text).get_query_type()
         # type of None means, there is an error in the query
         # so execution is at least tried on endpoint
         if query_type not in ["SELECT", None]:
@@ -159,7 +160,17 @@ class CorporateMemoryQueryRunner(BaseQueryRunner):
 
         self._setup_environment()
         try:
-            data = self._transform_sparql_results(query.get_results())
+            endpoint = get_dp_api_endpoint() + "/proxy/default/sparql"
+            response = cmem_request(
+                endpoint,
+                method="POST",
+                data=query_text,
+                headers={
+                    "Content-Type": "application/sparql-query",
+                    "Accept": "application/sparql-results+json",
+                },
+            )
+            data = self._transform_sparql_results(response.json())
         except Exception as error:
             logger.info("Error: {}".format(error))
             try:
