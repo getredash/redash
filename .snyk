@@ -1,0 +1,57 @@
+# Snyk (https://snyk.io) policy file
+version: v1.25.0
+ignore:
+  SNYK-PYTHON-WERKZEUG-6808933:
+    - '*':
+        reason: >
+          Fix requires Werkzeug >=3.0.3, which requires Flask >=3.0.
+          Flask is pinned to 2.3.x. Vulnerability affects only the interactive
+          debugger console, which is disabled in production (FLASK_DEBUG=0).
+        expires: 2027-01-01T00:00:00.000Z
+  SNYK-PYTHON-URLLIB3-14192442:
+    - '*':
+        reason: >
+          Fix requires urllib3 >=2.6.3. Upgrade is blocked by advocate==1.0.0,
+          which requires urllib3 <2.0. advocate provides SSRF protection and
+          has no newer release supporting urllib3 2.x.
+        expires: 2027-01-01T00:00:00.000Z
+  SNYK-PYTHON-URLLIB3-14192443:
+    - '*':
+        reason: >
+          Fix requires urllib3 >=2.6.3. Upgrade is blocked by advocate==1.0.0,
+          which requires urllib3 <2.0. advocate provides SSRF protection and
+          has no newer release supporting urllib3 2.x.
+        expires: 2027-01-01T00:00:00.000Z
+  SNYK-PYTHON-URLLIB3-14896210:
+    - '*':
+        reason: >
+          Fix requires urllib3 >=2.6.3. Upgrade is blocked by advocate==1.0.0,
+          which requires urllib3 <2.0. advocate provides SSRF protection and
+          has no newer release supporting urllib3 2.x.
+        expires: 2027-01-01T00:00:00.000Z
+  SNYK-PYTHON-PYOPENSSL-15674459:
+    - '*':
+        reason: >
+          Fix requires pyOpenSSL >=26.0.0. Upgrade is blocked by
+          snowflake-connector-python==3.12.3, which requires pyOpenSSL <25.0.0.
+          Upgrade snowflake-connector-python when a compatible version is available.
+        expires: 2027-01-01T00:00:00.000Z
+  SNYK-PYTHON-CRYPTOGRAPHY-15263096:
+    - '*':
+        reason: >
+          Fix requires cryptography >=46.0.5 (depends on cffi >=2.0.0).
+          Upgrade is blocked by snowflake-connector-python==3.12.3,
+          which requires cffi <2.0.0. Upgrade snowflake-connector-python
+          when a compatible version is available.
+        expires: 2027-01-01T00:00:00.000Z
+  SNYK-JS-FOLLOWREDIRECTS-16032162:
+    - '*':
+        reason: >
+          Fix requires follow-redirects >=1.16.0. Remaining vulnerable path
+          is via retry-axios@1.0.2 which pins axios@0.21.4. Cannot upgrade
+          without a newer retry-axios release.
+        expires: 2027-01-01T00:00:00.000Z
+exclude:
+  global:
+    - ".claude/worktrees/**"
+    - ".terraform/modules/**"

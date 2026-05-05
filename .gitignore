@@ -28,3 +28,8 @@ npm-debug.log
 
 client/cypress/screenshots
 client/cypress/videos
+
+# Peach Finance fork-specific
+.claude/settings.local.json
+.claude/worktrees/
+.terraform/modules/

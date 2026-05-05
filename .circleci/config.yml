@@ -1,0 +1,146 @@
+version: 2.1
+
+build-docker-image-job: &build-docker-image-job
+  docker:
+    - image: cimg/node:24.0
+  steps:
+    - setup_remote_docker:
+        version: default
+    - checkout
+    - run: sudo apt update && sudo apt install -y jq
+    - run: .circleci/update_version
+    - run: .circleci/docker_build
+
+jobs:
+  backend-lint:
+    docker:
+      - image: cimg/python:3.13
+    steps:
+      - checkout
+      - run:
+          name: Install linters
+          command: pip install ruff==0.0.289 black==23.1.0
+      - run:
+          name: ruff
+          command: ruff check .
+      - run:
+          name: black
+          command: black --check .
+
+  backend-unit-tests:
+    environment:
+      COMPOSE_FILE: .ci/compose.ci.yaml
+      COMPOSE_PROJECT_NAME: redash
+      COMPOSE_DOCKER_CLI_BUILD: 1
+      DOCKER_BUILDKIT: 1
+    docker:
+      - image: cimg/base:current
+    steps:
+      - setup_remote_docker:
+          version: default
+      - checkout
+      - run:
+          name: Build Docker Images
+          command: |
+            set -x
+            docker compose build --build-arg install_groups="main,all_ds,dev" --build-arg skip_frontend_build=true
+            docker compose up -d
+            sleep 10
+      - run:
+          name: Create Test Database
+          command: docker compose -p redash run --rm postgres psql -h postgres -U postgres -c "create database tests;"
+      - run:
+          name: List Enabled Query Runners
+          command: docker compose -p redash run --rm redash manage ds list_types
+      - run:
+          name: Run Tests
+          command: docker compose -p redash run --name tests redash tests --junitxml=junit.xml --cov-report xml --cov=redash --cov-config .coveragerc tests/
+      - run:
+          name: Copy Test Results
+          command: |
+            mkdir -p /tmp/test-results/unit-tests
+            docker cp tests:/app/coverage.xml ./coverage.xml
+            docker cp tests:/app/junit.xml /tmp/test-results/unit-tests/results.xml
+          when: always
+      - store_test_results:
+          path: /tmp/test-results
+      - store_artifacts:
+          path: coverage.xml
+
+  frontend-lint:
+    environment:
+      CYPRESS_INSTALL_BINARY: 0
+      PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 1
+    docker:
+      - image: cimg/node:24.0
+    steps:
+      - checkout
+      - run:
+          name: Install pnpm
+          command: corepack enable && corepack prepare pnpm@10.30.3 --activate
+      - run:
+          name: Install dependencies
+          command: pnpm install --frozen-lockfile --ignore-scripts
+      - run:
+          name: Lint
+          command: pnpm lint:ci
+      - store_test_results:
+          path: /tmp/test-results
+
+  frontend-unit-tests:
+    environment:
+      CYPRESS_INSTALL_BINARY: 0
+      PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 1
+    docker:
+      - image: cimg/node:24.0
+    steps:
+      - checkout
+      - run:
+          name: Install pnpm
+          command: corepack enable && corepack prepare pnpm@10.30.3 --activate
+      - run:
+          name: Install dependencies
+          command: pnpm install --frozen-lockfile --ignore-scripts
+      - run:
+          name: Run App Tests
+          command: pnpm test
+      - run:
+          name: Run Visualization Tests
+          command: cd viz-lib && pnpm test
+
+  build-docker-image: *build-docker-image-job
+  build-preview-docker-image: *build-docker-image-job
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - backend-lint
+      - backend-unit-tests:
+          requires:
+            - backend-lint
+      - frontend-lint
+      - frontend-unit-tests:
+          requires:
+            - backend-lint
+            - frontend-lint
+      - build-preview-docker-image:
+          requires:
+            - backend-unit-tests
+            - frontend-unit-tests
+          filters:
+            branches:
+              only:
+                - master
+      - hold:
+          type: approval
+          requires:
+            - backend-unit-tests
+            - frontend-unit-tests
+          filters:
+            branches:
+              only:
+                - /release\/.*/
+      - build-docker-image:
+          requires:
+            - hold
