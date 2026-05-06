@@ -20,7 +20,7 @@ function getAxisScaleType(axis: any) {
 function prepareXAxis(axisOptions: any, additionalOptions: any) {
   const titleText = getAxisTitleText(axisOptions);
   const axis: any = {
-    title: titleText ? { text: titleText } : undefined,
+    title: titleText ? { text: titleText } : null,
     type: getAxisScaleType(axisOptions),
     automargin: true,
     tickformat: axisOptions.tickFormat ?? null,
@@ -44,7 +44,7 @@ function prepareXAxis(axisOptions: any, additionalOptions: any) {
 function prepareYAxis(axisOptions: any) {
   const titleText = getAxisTitleText(axisOptions);
   return {
-    title: titleText ? { text: titleText } : undefined,
+    title: titleText ? { text: titleText } : null,
     type: getAxisScaleType(axisOptions),
     automargin: true,
     autorange: true,
