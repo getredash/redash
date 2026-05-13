@@ -184,6 +184,11 @@
     "fs": false,
     "path": false
   },
+  "resolutions": {
+    "execa": "^5.1.1",
+    "form-data": "^4.0.5",
+    "basic-ftp": "^5.2.0"
+  },
   "//": "browserslist set to 'Async functions' compatibility",
   "browserslist": [
     "Edge >= 15",

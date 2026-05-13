@@ -12,14 +12,8 @@
     "@babel/preset-typescript"
   ],
   "plugins": [
-    "@babel/plugin-transform-class-properties",
-    "@babel/plugin-transform-object-assign",
-    [
-      "babel-plugin-transform-builtin-extend",
-      {
-        "globals": ["Error"]
-      }
-    ]
+    "@babel/plugin-proposal-class-properties",
+    "@babel/plugin-transform-object-assign"
   ],
   "env": {
     "test": {
