@@ -1,5 +1,7 @@
 client/.tmp/
 node_modules/
+.yarn-cache/
+.yarn/
 viz-lib/node_modules/
 .tmp/
 .venv/
