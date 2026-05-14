@@ -176,14 +176,9 @@ const config = {
                 isHotReloadingEnabled && require.resolve("react-refresh/babel")
               ].filter(Boolean)
             }
-<<<<<<< HEAD
-          }
-        ]
-=======
           },
           isDevelopment && require.resolve("eslint-loader")
         ].filter(Boolean)
->>>>>>> 110c5ab86 (Frontend build fixes)
       },
       {
         test: /\.html$/,
