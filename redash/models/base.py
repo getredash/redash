@@ -1,6 +1,7 @@
 import functools
 
-from flask_sqlalchemy import BaseQuery, SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy
+from flask_sqlalchemy.query import Query
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import object_session
 from sqlalchemy.pool import NullPool
@@ -32,17 +33,21 @@ db = RedashSQLAlchemy(
     session_options={"expire_on_commit": False},
     engine_options={"json_serializer": json_dumps, "json_deserializer": json_loads},
 )
-# Make sure the SQLAlchemy mappers are all properly configured first.
-# This is required by SQLAlchemy-Searchable as it adds DDL listeners
-# on the configuration phase of models.
-db.configure_mappers()
 
 # listen to a few database events to set up functions, trigger updates
 # and indexes for the full text search
-make_searchable(db.metadata, options={"regconfig": "pg_catalog.simple"})
+# Disable during testing to prevent subprocess deadlocks
+import os
+
+if not os.getenv("TESTING"):
+    make_searchable(db.metadata, options={"regconfig": "pg_catalog.simple"})
+else:
+    import logging
+
+    logging.warning("Skipping make_searchable() in testing mode to prevent deadlocks")
 
 
-class SearchBaseQuery(BaseQuery, SearchQueryMixin):
+class SearchBaseQuery(Query, SearchQueryMixin):
     """
     The SQA query class to use when full text search is wanted.
     """

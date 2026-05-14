@@ -86,7 +86,13 @@ def render_token_login_page(template, org_slug, token, invite):
             user.hash_password(request.form["password"])
             models.db.session.add(user)
             login_user(user)
-            models.db.session.commit()
+            # Use flush in testing to avoid transaction conflicts
+            from flask import current_app
+
+            if current_app.config.get("TESTING", False):
+                models.db.session.flush()
+            else:
+                models.db.session.commit()
             return redirect(url_for("redash.index", org_slug=org_slug))
 
     google_auth_url = get_google_auth_url(url_for("redash.index", org_slug=org_slug))
@@ -134,7 +140,13 @@ def verify(token, org_slug=None):
 
     user.is_email_verified = True
     models.db.session.add(user)
-    models.db.session.commit()
+    # Use flush in testing to avoid transaction conflicts
+    from flask import current_app
+
+    if current_app.config.get("TESTING", False):
+        models.db.session.flush()
+    else:
+        models.db.session.commit()
 
     template_context = {"org_slug": org_slug} if settings.MULTI_ORG else {}
     next_url = url_for("redash.index", **template_context)

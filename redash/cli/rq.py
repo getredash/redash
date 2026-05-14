@@ -7,8 +7,18 @@ from flask.cli import AppGroup
 from rq import Connection
 from rq.worker import WorkerStatus
 from sqlalchemy.orm import configure_mappers
-from supervisor_checks import check_runner
-from supervisor_checks.check_modules import base
+
+# Optional import for supervisor_checks - may not be compatible with all Python versions
+try:
+    from supervisor_checks import check_runner
+    from supervisor_checks.check_modules import base
+
+    SUPERVISOR_CHECKS_AVAILABLE = True
+except ImportError as e:
+    print(f"Warning: supervisor_checks not available: {e}")
+    check_runner = None
+    base = None
+    SUPERVISOR_CHECKS_AVAILABLE = False
 
 from redash import rq_redis_connection
 from redash.tasks import (
@@ -90,4 +100,7 @@ class WorkerHealthcheck(base.BaseCheck):
 
 @manager.command()
 def healthcheck():
+    if not SUPERVISOR_CHECKS_AVAILABLE:
+        print("Error: supervisor_checks not available. Cannot perform healthcheck.")
+        return 1
     return check_runner.CheckRunner("worker_healthcheck", "worker", None, [(WorkerHealthcheck, {})]).run()

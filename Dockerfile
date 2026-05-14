@@ -41,9 +41,9 @@ ENV BABEL_ENV=${code_coverage:+test}
 # EOF
 
 # Avoid issues caused by lags in disk and network I/O speeds when working on top of QEMU emulation for multi-platform image building.
-RUN yarn config set network-timeout 300000
+RUN pnpm config set network-timeout 300000
 
-RUN if [ -z "${SKIP_FRONTEND_BUILD:-}" ] ; then yarn --frozen-lockfile --network-concurrency 1; fi
+RUN if [ -z "${SKIP_FRONTEND_BUILD:-}" ] ; then pnpm install --frozen-lockfile; fi
 
 COPY --chown=redash client /frontend/client
 COPY --chown=redash webpack.config.js /frontend/
@@ -55,8 +55,8 @@ RUN if [ -n "${SKIP_FRONTEND_BUILD:-}" ]; then \
       && touch /frontend/client/dist/index.html; \
     else \
       set -ex; \
-      yarn clean; \
-      yarn build:viz; \
+      pnpm run clean; \
+      pnpm run build:viz; \
       NODE_OPTIONS=--openssl-legacy-provider NODE_ENV=production \
         ./node_modules/.bin/webpack build --config ./webpack.config.js; \
     fi \
@@ -134,13 +134,8 @@ RUN /etc/poetry/bin/poetry cache clear pypi --all
 
 COPY pyproject.toml poetry.lock ./
 
-ARG POETRY_OPTIONS="--no-root --no-interaction --no-ansi"
-# for LDAP authentication, install with `ldap3` group
-# disabled by default due to GPL license conflict
-# Default omits `dev` so production images exclude pytest/virtualenv/etc. (smaller SBOM, fewer CVEs).
-# Local compose and CI pass: --build-arg install_groups=main,all_ds,dev
-ARG install_groups="main,all_ds"
-RUN /etc/poetry/bin/poetry install --only $install_groups $POETRY_OPTIONS
+# Install ALL dependencies including dev and data source dependencies for testing
+RUN /etc/poetry/bin/poetry install --with dev --with all_ds --no-root --no-interaction --no-ansi
 
 COPY --chown=redash . /app
 COPY --from=frontend-builder --chown=redash /frontend/client/dist /app/client/dist

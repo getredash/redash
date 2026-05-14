@@ -63,10 +63,12 @@ class ChangeTrackingMixin:
     def __setattr__(self, key, value):
         if self._clean_values is None:
             self.prep_cleanvalues()
-        for attr in inspect(self.__class__).column_attrs:
-            (col,) = attr.columns
-            previous = getattr(self, attr.key, None)
-            self._clean_values[col.name] = previous
+        # Only track changes if the instance is properly instrumented
+        if hasattr(self, "_sa_instance_state"):
+            for attr in inspect(self.__class__).column_attrs:
+                (col,) = attr.columns
+                previous = getattr(self, attr.key, None)
+                self._clean_values[col.name] = previous
 
         super(ChangeTrackingMixin, self).__setattr__(key, value)
 

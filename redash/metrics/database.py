@@ -13,15 +13,37 @@ metrics_logger = logging.getLogger("metrics")
 
 
 def _table_name_from_select_element(elt):
-    t = elt.froms[0]
+    # SQLAlchemy 1.4+ compatibility: use get_final_froms() instead of .froms
+    if hasattr(elt, "get_final_froms"):
+        froms = elt.get_final_froms()
+        if not froms:
+            return "unknown"
+        t = froms[0]
+    elif hasattr(elt, "froms"):
+        if not elt.froms:
+            return "unknown"
+        t = elt.froms[0]
+    else:
+        return "unknown"
 
     if isinstance(t, Alias):
-        t = t.original.froms[0]
+        # Handle Alias objects
+        if hasattr(t, "original"):
+            if hasattr(t.original, "get_final_froms"):
+                froms = t.original.get_final_froms()
+                if froms:
+                    t = froms[0]
+            elif hasattr(t.original, "froms") and t.original.froms:
+                t = t.original.froms[0]
+            else:
+                return getattr(t, "name", "unknown")
+        else:
+            return getattr(t, "name", "unknown")
 
     while isinstance(t, _ORMJoin) or isinstance(t, Join):
         t = t.left
 
-    return t.name
+    return getattr(t, "name", "unknown")
 
 
 @listens_for(Engine, "before_execute")

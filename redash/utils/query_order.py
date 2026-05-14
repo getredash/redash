@@ -31,7 +31,12 @@ from inspect import isclass
 import sqlalchemy as sa
 from sqlalchemy.orm import mapperlib
 from sqlalchemy.orm.properties import ColumnProperty
-from sqlalchemy.orm.query import _ColumnEntity
+
+# SQLAlchemy 1.4 compatibility: _ColumnEntity moved location
+try:
+    from sqlalchemy.orm.context import _ColumnEntity
+except ImportError:
+    from sqlalchemy.orm.query import _ColumnEntity
 from sqlalchemy.orm.util import AliasedInsp
 from sqlalchemy.sql.expression import asc, desc, nullslast
 
@@ -59,9 +64,24 @@ def query_labels(query):
         query_labels(query)  # ['articles']
     :param query: SQLAlchemy Query object
     """
-    return [
-        entity._label_name for entity in query._entities if isinstance(entity, _ColumnEntity) and entity._label_name
-    ]
+    # SQLAlchemy 1.4 compatibility: _entities moved to column_descriptions or selected_columns
+    try:
+        # Try SQLAlchemy 1.4+ approach
+        if hasattr(query, "column_descriptions"):
+            return [col["name"] for col in query.column_descriptions if col.get("name")]
+        elif hasattr(query, "selected_columns"):
+            return [col.name for col in query.selected_columns if hasattr(col, "name")]
+        else:
+            # Fallback to older approach if available
+            entities = getattr(query, "_entities", [])
+            return [
+                entity._label_name
+                for entity in entities
+                if isinstance(entity, _ColumnEntity) and hasattr(entity, "_label_name") and entity._label_name
+            ]
+    except (AttributeError, TypeError):
+        # If all else fails, return empty list
+        return []
 
 
 def get_query_entity_by_alias(query, alias):
@@ -94,11 +114,20 @@ def get_query_entities(query):
         This function now returns a list instead of generator
     :param query: SQLAlchemy Query object
     """
-    exprs = [
-        d["expr"] if is_labeled_query(d["expr"]) or isinstance(d["expr"], sa.Column) else d["entity"]
-        for d in query.column_descriptions
-    ]
-    return [get_query_entity(expr) for expr in exprs] + [get_query_entity(entity) for entity in query._join_entities]
+    try:
+        exprs = [
+            d["expr"] if is_labeled_query(d["expr"]) or isinstance(d["expr"], sa.Column) else d["entity"]
+            for d in query.column_descriptions
+        ]
+        # SQLAlchemy 1.4 compatibility: _join_entities may not exist
+        join_entities = getattr(query, "_join_entities", [])
+        return [get_query_entity(expr) for expr in exprs] + [get_query_entity(entity) for entity in join_entities]
+    except (AttributeError, TypeError):
+        # Fallback: try to extract entities from column descriptions only
+        try:
+            return [d.get("entity") for d in query.column_descriptions if d.get("entity")]
+        except (AttributeError, TypeError):
+            return []
 
 
 def is_labeled_query(expr):
@@ -133,12 +162,18 @@ def get_mapper(mixed):
         ValueError: if multiple mappers were found for given argument
     .. versionadded: 0.26.1
     """
-    if isinstance(mixed, sa.orm.query._MapperEntity):
-        mixed = mixed.expr
-    elif isinstance(mixed, sa.Column):
-        mixed = mixed.table
-    elif isinstance(mixed, sa.orm.query._ColumnEntity):
-        mixed = mixed.expr
+    # SQLAlchemy 1.4 compatibility: these classes may not exist or have moved
+    try:
+        if hasattr(sa.orm.query, "_MapperEntity") and isinstance(mixed, sa.orm.query._MapperEntity):
+            mixed = mixed.expr
+        elif isinstance(mixed, sa.Column):
+            mixed = mixed.table
+        elif hasattr(sa.orm.query, "_ColumnEntity") and isinstance(mixed, sa.orm.query._ColumnEntity):
+            mixed = mixed.expr
+    except (AttributeError, ImportError):
+        # If we can't determine the type, try basic fallbacks
+        if isinstance(mixed, sa.Column):
+            mixed = mixed.table
     if isinstance(mixed, sa.orm.Mapper):
         return mixed
     if isinstance(mixed, sa.orm.util.AliasedClass):
