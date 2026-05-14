@@ -1,4 +1,5 @@
 import functools
+import os
 
 from flask import request, session
 from flask_login import current_user
@@ -8,7 +9,6 @@ from flask_wtf.csrf import CSRFProtect, generate_csrf
 from redash import settings
 
 # Disable Flask-Talisman during testing due to compatibility issues
-import os
 
 if not os.getenv("TESTING"):
     talisman = talisman.Talisman()
@@ -29,11 +29,19 @@ csrf = CSRFProtect()
 def csp_allows_embeding(fn):
     @functools.wraps(fn)
     def decorated(*args, **kwargs):
-        return fn(*args, **kwargs)
+        from flask import g, make_response
 
-    # Note: This decorator is currently disabled due to Flask-Talisman API changes
-    # embedable_csp = talisman.content_security_policy + "frame-ancestors *;"
-    # return talisman(content_security_policy=embedable_csp, frame_options=None)(decorated)
+        # Mark that this view allows embedding
+        g._embedding_headers_requested = True
+        response = fn(*args, **kwargs)
+        # Ensure response is properly wrapped (convert tuples, strings, etc. to Response object)
+        response = make_response(response)
+        # Override CSP headers to allow embedding
+        response.headers["Content-Security-Policy"] = "frame-ancestors *"
+        # Remove X-Frame-Options header if present (tests expect it to be absent)
+        response.headers.pop("X-Frame-Options", None)
+        return response
+
     return decorated
 
 
@@ -47,6 +55,18 @@ def init_app(app):
     @app.after_request
     def inject_csrf_token(response):
         response.set_cookie("csrf_token", generate_csrf())
+        return response
+
+    @app.after_request
+    def set_default_security_headers(response):
+        from flask import g
+
+        # Set default CSP headers if not already set and not an embedding view
+        if not getattr(g, "_embedding_headers_requested", False):
+            if "Content-Security-Policy" not in response.headers:
+                response.headers["Content-Security-Policy"] = "frame-ancestors 'none'"
+            if "X-Frame-Options" not in response.headers:
+                response.headers["X-Frame-Options"] = "deny"
         return response
 
     if settings.ENFORCE_CSRF:

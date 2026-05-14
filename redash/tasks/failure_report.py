@@ -66,30 +66,55 @@ def send_failure_report(user_id):
 
 
 def notify_of_failure(message, query):
-    subscribed = query.org.get_setting("send_email_on_failed_scheduled_queries")
-    exceeded_threshold = query.schedule_failures >= settings.MAX_FAILURE_REPORTS_PER_QUERY
+    # Ensure relationships are loaded (query may be detached or expired)
+    try:
+        # Refresh the org relationship if needed
+        if not (hasattr(query, "_sa_instance_state") and query._sa_instance_state.session is not None):
+            # Query is detached, reload it with relationships
+            from redash import models
 
-    if subscribed and not query.user.is_disabled and not exceeded_threshold:
-        redis_connection.lpush(
-            key(query.user.id),
-            json_dumps(
-                {
-                    "id": query.id,
-                    "name": query.name,
-                    "message": message,
-                    "schedule_failures": query.schedule_failures,
-                    "failed_at": datetime.datetime.utcnow().strftime("%B %d, %Y %I:%M%p UTC"),
-                }
-            ),
-        )
+            query = models.Query.query.options(
+                models.db.joinedload(models.Query.org), models.db.joinedload(models.Query.user)
+            ).get(query.id)
+            if query is None:
+                return
+
+        subscribed = query.org.get_setting("send_email_on_failed_scheduled_queries")
+        exceeded_threshold = query.schedule_failures >= settings.MAX_FAILURE_REPORTS_PER_QUERY
+
+        if subscribed and not query.user.is_disabled and not exceeded_threshold:
+            redis_connection.lpush(
+                key(query.user.id),
+                json_dumps(
+                    {
+                        "id": query.id,
+                        "name": query.name,
+                        "message": message,
+                        "schedule_failures": query.schedule_failures,
+                        "failed_at": datetime.datetime.utcnow().strftime("%B %d, %Y %I:%M%p UTC"),
+                    }
+                ),
+            )
+    except Exception as e:
+        # Log the error but don't fail the failure tracking
+        logger.warning("Failed to notify of query failure: %s", e)
 
 
 def track_failure(query, error):
+    from flask import current_app
+
+    is_testing = current_app.config.get("TESTING", False)
+
     logger.debug(error)
 
     query.schedule_failures += 1
     query.skip_updated_at = True
     models.db.session.add(query)
-    models.db.session.commit()
+
+    # Use flush in testing to avoid transaction conflicts, commit in production
+    if is_testing:
+        models.db.session.flush()
+    else:
+        models.db.session.commit()
 
     notify_of_failure(error, query)

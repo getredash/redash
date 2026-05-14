@@ -134,15 +134,13 @@ def order_results(results, default_order, allowed_orders, fallback=True):
     # and if it matches a long-form for related fields, falling
     # back to the default order
     selected_order = allowed_orders.get(requested_order, None)
-    if selected_order is None and fallback:
-        selected_order = default_order
+    if selected_order is None:
+        if fallback:
+            selected_order = default_order
+        else:
+            # No valid order requested and no fallback, return unsorted
+            return results
+
     # The query may already have an ORDER BY statement attached
     # so we clear it here and apply the selected order
-    try:
-        return sort_query(results.order_by(None), selected_order)
-    except (AttributeError, TypeError) as e:
-        # Fallback for SQLAlchemy compatibility issues: return unsorted results
-        import logging
-
-        logging.warning(f"Query ordering failed due to SQLAlchemy compatibility: {e}")
-        return results
+    return sort_query(results.order_by(None), selected_order)

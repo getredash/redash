@@ -82,13 +82,13 @@ class TestDestinationResource(BaseTestCase):
             "options": {"url": "https://www.slack.com/updated"},
         }
 
-        with self.app.app_context():
-            rv = self.make_request(
-                "post",
-                "/api/destinations/{}".format(d.id),
-                user=self.factory.create_admin(),
-                data=data,
-            )
+        # No need for app_context() - already in one from setUp
+        rv = self.make_request(
+            "post",
+            "/api/destinations/{}".format(d.id),
+            user=self.factory.create_admin(),
+            data=data,
+        )
 
         self.assertEqual(rv.status_code, 200)
 
