@@ -339,8 +339,8 @@ importers:
         specifier: ^5.2.3
         version: 5.2.3(debug@3.2.7)(tslib@2.8.1)(webpack-cli@6.0.1)(webpack@5.105.3)
       webpack-manifest-plugin:
-        specifier: ^6.0.1
-        version: 6.0.1(webpack@5.105.3)
+        specifier: ^5.0.1
+        version: 5.0.1(webpack@5.105.3)
     optionalDependencies:
       fsevents:
         specifier: ^2.3.2
@@ -7636,6 +7636,9 @@ packages:
   sortablejs@1.15.7:
     resolution: {integrity: sha512-Kk8wLQPlS+yi1ZEf48a4+fzHa4yxjC30M/Sr2AnQu+f/MPwvvX9XjZ6OWejiz8crBsLwSq8GHqaxaET7u6ux0A==}
 
+  source-list-map@2.0.1:
+    resolution: {integrity: sha512-qnQ7gVMxGNxsiL4lEuJwe/To8UnK7fAnmbGEEH8RpLouuKbeEm0lhbQVFIrNSuB+G7tVrAlVsZgETT5nljf+Iw==}
+
   source-map-js@1.2.1:
     resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
     engines: {node: '>=0.10.0'}
@@ -8435,15 +8438,19 @@ packages:
       webpack-cli:
         optional: true
 
-  webpack-manifest-plugin@6.0.1:
-    resolution: {integrity: sha512-R0p/8/IJVY5hIhQtkeWUQugalVpIwojc09eb14zGq+oiZOCmN5paAz2NBJfd+6v9eBbxAS3YMjc2ov8UMlCDLQ==}
-    engines: {node: '>=20.19.0'}
+  webpack-manifest-plugin@5.0.1:
+    resolution: {integrity: sha512-xTlX7dC3hrASixA2inuWFMz6qHsNi6MT3Uiqw621sJjRTShtpMjbDYhPPZBwWUKdIYKIjSq9em6+uzWayf38aQ==}
+    engines: {node: '>=14'}
     peerDependencies:
       webpack: ^5.75.0
 
   webpack-merge@6.0.1:
     resolution: {integrity: sha512-hXXvrjtx2PLYx4qruKl+kyRSLc52V+cCvMxRjmKwoA+CBbbF5GfIBtR6kCvl0fYGqTUPKB+1ktVmTHqMOzgCBg==}
     engines: {node: '>=18.0.0'}
+
+  webpack-sources@2.3.1:
+    resolution: {integrity: sha512-y9EI9AO42JjEcrTJFOYmVywVZdKVUfOvDUPsJea5GIr1JOEGFVqwlY2K098fFoIjOkDzHn2AjRvM8dsBZu+gCA==}
+    engines: {node: '>=10.13.0'}
 
   webpack-sources@3.3.4:
     resolution: {integrity: sha512-7tP1PdV4vF+lYPnkMR0jMY5/la2ub5Fc/8VQrrU+lXkiM6C4TjVfGw7iKfyhnTQOsD+6Q/iKw0eFciziRgD58Q==}
@@ -17756,6 +17763,8 @@ snapshots:
 
   sortablejs@1.15.7: {}
 
+  source-list-map@2.0.1: {}
+
   source-map-js@1.2.1: {}
 
   source-map-loader@5.0.0(webpack@5.105.3):
@@ -18688,17 +18697,22 @@ snapshots:
       - tslib
       - utf-8-validate
 
-  webpack-manifest-plugin@6.0.1(webpack@5.105.3):
+  webpack-manifest-plugin@5.0.1(webpack@5.105.3):
     dependencies:
       tapable: 2.3.0
       webpack: 5.105.3(webpack-cli@6.0.1)
-      webpack-sources: 3.3.4
+      webpack-sources: 2.3.1
 
   webpack-merge@6.0.1:
     dependencies:
       clone-deep: 4.0.1
       flat: 5.0.2
       wildcard: 2.0.1
+
+  webpack-sources@2.3.1:
+    dependencies:
+      source-list-map: 2.0.1
+      source-map: 0.6.1
 
   webpack-sources@3.3.4: {}
 
