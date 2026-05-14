@@ -1,4 +1,6 @@
 client/.tmp/
+# Avoid copying an empty or stale host bundle into the image; assets come from frontend-builder.
+client/dist/
 node_modules/
 .yarn-cache/
 .yarn/

@@ -7,6 +7,7 @@ x-redash-service: &redash-service
       skip_frontend_build: "true"  # set to empty string to build
   volumes:
     - .:/app
+    # - /app/client/dist
   env_file:
     - .env
 x-redash-environment: &redash-environment
@@ -29,7 +30,7 @@ services:
       - postgres
       - redis
     ports:
-      - "5001:5000"
+      - "5000:5000"
       - "5678:5678"
     environment:
       <<: *redash-environment

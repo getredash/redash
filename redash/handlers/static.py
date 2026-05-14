@@ -1,4 +1,7 @@
-from flask import render_template, send_file
+import logging
+import os
+
+from flask import abort, render_template, send_file
 from flask_login import login_required
 from werkzeug.utils import safe_join
 
@@ -8,12 +11,22 @@ from redash.handlers.authentication import base_href
 from redash.handlers.base import org_scoped_rule
 from redash.security import csp_allows_embeding
 
+logger = logging.getLogger(__name__)
+
 
 def render_index():
     if settings.MULTI_ORG:
         response = render_template("multi_org.html", base_href=base_href())
     else:
         full_path = safe_join(settings.STATIC_ASSETS_PATH, "index.html")
+        if not os.path.isfile(full_path):
+            logger.error(
+                "Missing client UI bundle at %s. Run `yarn build` from the repository root, "
+                "or set REDASH_STATIC_ASSETS_PATH. If you use Docker Compose with `.:/app`, "
+                "add an anonymous volume on `/app/client/dist` so bind mounts do not hide built assets.",
+                full_path,
+            )
+            abort(503)
         response = send_file(full_path, **dict(max_age=0, conditional=True))
 
     return response
