@@ -278,6 +278,7 @@ class TestQueryResultAPI(BaseTestCase):
             "post",
             "/api/queries/{}/results?api_key={}".format(query.id, query.api_key),
             data=data,
+            user=False,
         )
         self.assertEqual(rv.status_code, 403)
         self.assertDictEqual(rv.json, error_messages["unsafe_when_shared"][0])
