@@ -120,10 +120,14 @@ EOF
 
 WORKDIR /app
 
-ENV POETRY_VERSION=2.1.4
+# Keep aligned with Docker Scout / CVE fixes (path traversal etc. in older installers).
+ENV POETRY_VERSION=2.4.1
 ENV POETRY_HOME=/etc/poetry
 ENV POETRY_VIRTUALENVS_CREATE=false
-RUN curl -sSL --retry 3 --retry-delay 5 https://install.python-poetry.org | python3 -
+
+#RUN curl -sSL --retry 3 --retry-delay 5 https://install.python-poetry.org | python3 -
+RUN python3 -m pip install --no-cache-dir --upgrade "pip>=26.1" "setuptools>=78.1.1" "wheel>=0.46.2" \
+  && curl -sSL https://install.python-poetry.org | python3 -
 
 # Avoid crashes, including corrupted cache artifacts, when building multi-platform images with GitHub Actions.
 RUN /etc/poetry/bin/poetry cache clear pypi --all
@@ -133,7 +137,9 @@ COPY pyproject.toml poetry.lock ./
 ARG POETRY_OPTIONS="--no-root --no-interaction --no-ansi"
 # for LDAP authentication, install with `ldap3` group
 # disabled by default due to GPL license conflict
-ARG install_groups="main,all_ds,dev"
+# Default omits `dev` so production images exclude pytest/virtualenv/etc. (smaller SBOM, fewer CVEs).
+# Local compose and CI pass: --build-arg install_groups=main,all_ds,dev
+ARG install_groups="main,all_ds"
 RUN /etc/poetry/bin/poetry install --only $install_groups $POETRY_OPTIONS
 
 COPY --chown=redash . /app
