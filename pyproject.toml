@@ -23,17 +23,16 @@ force-exclude = '''
 
 [tool.poetry.dependencies]
 python = ">=3.13,<3.14"
-advocate = "1.0.0"
 aniso8601 = "8.0.0"
 authlib = "1.7.2"
 backoff = "2.2.1"
-blinker = "1.6.2"
+blinker = "1.9.0"
 click = "8.1.3"
 cryptography = "48.0.0"
 disposable-email-domains = ">=0.0.52"
 
-# Upgrading to Flask 3.0.x with SQLAlchemy 1.4+ and Flask-SQLAlchemy 3.x
-flask = "3.0.3"
+# Flask 3.1.x with SQLAlchemy 1.4+ and Flask-SQLAlchemy 3.x
+flask = "3.1.3"
 
 flask-limiter = "3.3.1"
 flask-login = "0.6.3"
@@ -83,7 +82,7 @@ statsd = "3.3.0"
 supervisor = "4.3.0"
 supervisor-checks = "0.8.1"
 ua-parser = "0.18.0"
-urllib3 = "1.26.20"
+urllib3 = "2.7.0"
 user-agents = "2.0"
 werkzeug = "3.1.6"
 wtforms = "2.2.1"
@@ -166,8 +165,8 @@ ldap3 = "2.9.1"
 optional = true
 
 [tool.poetry.group.dev.dependencies]
-pytest = "7.4.0"
-coverage = "7.2.7"
+pytest = "9.0.3"
+coverage = "7.14.0"
 filelock = ">=3.20.3"
 freezegun = "1.5.5"
 jwcrypto = "1.5.6"
@@ -175,7 +174,7 @@ mock = "5.0.2"
 pre-commit = "4.3.0"
 pygments = ">=2.20.0"
 ptpython = "3.0.23"
-pytest-cov = "4.1.0"
+pytest-cov = "6.0.0"
 virtualenv = ">=20.36.1"
 watchdog = "3.0.0"
 ruff = "0.0.289"
