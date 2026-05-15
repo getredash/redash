@@ -20,6 +20,7 @@ overrides:
   flatted: ^3.4.2
   follow-redirects: ^1.16.0
   lodash: ^4.18.0
+  lodash.template: 4.18.1
   qs: ^6.14.2
   cross-spawn: ^7.0.5
   braces: ^3.0.3
@@ -5790,8 +5791,8 @@ packages:
   lodash.once@4.1.1:
     resolution: {integrity: sha512-Sb487aTOCr9drQVL8pIxOzVhafOjZN9UU54hiN8PU3uAiSV7lx1yYNpbNmex2PK6dSJoNTSJUUswT651yww3Mg==}
 
-  lodash.template@4.5.0:
-    resolution: {integrity: sha512-84vYFxIkmidUiFxidA/KjjH9pAycqW+h980j7Fuz5qxRtO9pgB7MDFTdys1N7A5mcucRiDyEq4fusljItR1T/A==}
+  lodash.template@4.18.1:
+    resolution: {integrity: sha512-5urZrLnV/VD6zHK5KsVtZgt7H19v51mIzoS0aBNH8yp3I8tbswrEjOABOPY8m8uB7NuibubLrMX+Y0PXsU9X+w==}
     deprecated: This package is deprecated. Use https://socket.dev/npm/package/eta instead.
 
   lodash.templatesettings@4.2.0:
@@ -10044,7 +10045,7 @@ snapshots:
       '@oclif/command': 1.5.19(@oclif/config@1.18.17)(@oclif/plugin-help@2.2.3(@oclif/config@1.18.17))
       chalk: 2.4.2
       indent-string: 4.0.0
-      lodash.template: 4.5.0
+      lodash.template: 4.18.1
       string-width: 3.1.0
       strip-ansi: 5.2.0
       widest-line: 2.0.1
@@ -15066,7 +15067,7 @@ snapshots:
 
   lodash.once@4.1.1: {}
 
-  lodash.template@4.5.0:
+  lodash.template@4.18.1:
     dependencies:
       lodash._reinterpolate: 3.0.0
       lodash.templatesettings: 4.2.0

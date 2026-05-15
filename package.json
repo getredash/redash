@@ -233,6 +233,7 @@
       "flatted": "^3.4.2",
       "follow-redirects": "^1.16.0",
       "lodash": "^4.18.0",
+      "lodash.template": "4.18.1",
       "qs": "^6.14.2",
       "cross-spawn": "^7.0.5",
       "braces": "^3.0.3",
