@@ -21,46 +21,44 @@ COPY --chown=redash scripts /frontend/scripts
 ARG code_coverage
 ENV BABEL_ENV=${code_coverage:+test}
 
-# # Use BuildKit cache mount for pnpm store to speed rebuilds
-# RUN --mount=type=cache,id=pnpm-store,target=/frontend/.cache/pnpm,uid=1001,gid=1001 \
-#   pnpm config set store-dir /frontend/.cache/pnpm && \
-#   if [ "x$skip_frontend_build" = "x" ] ; then pnpm install --frozen-lockfile; fi
-
-# COPY --chown=redash client /frontend/client
-# COPY --chown=redash webpack.config.js /frontend/
-
-# # Use the same cache mount for the build step
-# RUN --mount=type=cache,id=pnpm-store,target=/frontend/.cache/pnpm,uid=1001,gid=1001 <<EOF
-#   if [ "x$skip_frontend_build" = "x" ]; then
-#     pnpm run build
-#   else
-#     mkdir -p /frontend/client/dist
-#     touch /frontend/client/dist/multi_org.html
-#     touch /frontend/client/dist/index.html
-#   fi
-# EOF
+# Use BuildKit cache mount for pnpm store to speed rebuilds
+RUN --mount=type=cache,id=pnpm-store,target=/frontend/.cache/pnpm,uid=1001,gid=1001 \
+  pnpm config set store-dir /frontend/.cache/pnpm && \
+  if [ "x$skip_frontend_build" = "x" ] ; then pnpm install --frozen-lockfile; fi
 
 # Avoid issues caused by lags in disk and network I/O speeds when working on top of QEMU emulation for multi-platform image building.
-RUN yarn config set network-timeout 300000
+# RUN yarn config set network-timeout 300000
 
-RUN if [ -z "${SKIP_FRONTEND_BUILD:-}" ] ; then yarn --frozen-lockfile --network-concurrency 1; fi
+# RUN if [ -z "${SKIP_FRONTEND_BUILD:-}" ] ; then yarn --frozen-lockfile --network-concurrency 1; fi
 
 COPY --chown=redash client /frontend/client
 COPY --chown=redash webpack.config.js /frontend/
-# Use explicit webpack invocation: some environments resolve `webpack` inconsistently after `yarn build:viz`.
-# `set -ex` surfaces the first failing command (clean, viz, or webpack).
-RUN if [ -n "${SKIP_FRONTEND_BUILD:-}" ]; then \
-      mkdir -p /frontend/client/dist \
-      && touch /frontend/client/dist/multi_org.html \
-      && touch /frontend/client/dist/index.html; \
-    else \
-      set -ex; \
-      yarn clean; \
-      yarn build:viz; \
-      NODE_OPTIONS=--openssl-legacy-provider NODE_ENV=production \
-        ./node_modules/.bin/webpack build --config ./webpack.config.js; \
-    fi \
-    && test -f /frontend/client/dist/index.html
+
+# Use the same cache mount for the build step
+RUN --mount=type=cache,id=pnpm-store,target=/frontend/.cache/pnpm,uid=1001,gid=1001 <<EOF
+  if [ "x$skip_frontend_build" = "x" ]; then
+    pnpm run build
+  else
+    mkdir -p /frontend/client/dist
+    touch /frontend/client/dist/multi_org.html
+    touch /frontend/client/dist/index.html
+  fi
+EOF
+
+# # Use explicit webpack invocation: some environments resolve `webpack` inconsistently after `yarn build:viz`.
+# # `set -ex` surfaces the first failing command (clean, viz, or webpack).
+# RUN if [ -n "${SKIP_FRONTEND_BUILD:-}" ]; then \
+#       mkdir -p /frontend/client/dist \
+#       && touch /frontend/client/dist/multi_org.html \
+#       && touch /frontend/client/dist/index.html; \
+#     else \
+#       set -ex; \
+#       yarn clean; \
+#       yarn build:viz; \
+#       NODE_OPTIONS=--openssl-legacy-provider NODE_ENV=production \
+#         ./node_modules/.bin/webpack build --config ./webpack.config.js; \
+#     fi \
+#     && test -f /frontend/client/dist/index.html
 
 FROM python:3.13-slim-bookworm
 
@@ -120,12 +118,10 @@ EOF
 
 WORKDIR /app
 
-# Keep aligned with Docker Scout / CVE fixes (path traversal etc. in older installers).
 ENV POETRY_VERSION=2.4.1
 ENV POETRY_HOME=/etc/poetry
 ENV POETRY_VIRTUALENVS_CREATE=false
 
-#RUN curl -sSL --retry 3 --retry-delay 5 https://install.python-poetry.org | python3 -
 RUN python3 -m pip install --no-cache-dir --upgrade "pip>=26.1" "setuptools>=78.1.1" "wheel>=0.46.2" \
   && curl -sSL https://install.python-poetry.org | python3 -
 
@@ -137,9 +133,7 @@ COPY pyproject.toml poetry.lock ./
 ARG POETRY_OPTIONS="--no-root --no-interaction --no-ansi"
 # for LDAP authentication, install with `ldap3` group
 # disabled by default due to GPL license conflict
-# Default omits `dev` so production images exclude pytest/virtualenv/etc. (smaller SBOM, fewer CVEs).
-# Local compose and CI pass: --build-arg install_groups=main,all_ds,dev
-ARG install_groups="main,all_ds"
+ARG install_groups="main,all_ds,dev"
 RUN /etc/poetry/bin/poetry install --only $install_groups $POETRY_OPTIONS
 
 COPY --chown=redash . /app
