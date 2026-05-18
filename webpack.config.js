@@ -95,8 +95,7 @@ const config = {
     }
   },
   plugins: [
-    // Desktop notifications break or stall headless builds (Docker, CI); production never needs them.
-    isDevelopment && new WebpackBuildNotifierPlugin({ title: "Redash" }),
+    new WebpackBuildNotifierPlugin({ title: "Redash" }),
     // bundle only default `moment` locale (`en`)
     new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /en/),
     new HtmlWebpackPlugin({
@@ -176,9 +175,8 @@ const config = {
                 isHotReloadingEnabled && require.resolve("react-refresh/babel")
               ].filter(Boolean)
             }
-          },
-          isDevelopment && require.resolve("eslint-loader")
-        ].filter(Boolean)
+          }
+        ]
       },
       {
         test: /\.html$/,

@@ -16,17 +16,6 @@
     "analyze:build": "pnpm run clean && NODE_ENV=production BUNDLE_ANALYZER=on webpack",
     "lint": "pnpm run lint:base --ext .js --ext .jsx --ext .ts --ext .tsx ./client",
     "lint:fix": "pnpm run lint:base  --fix --ext .js --ext .jsx --ext .ts --ext .tsx ./client",
-
-    "_clean": "node ./scripts/client-dist.js clean",
-    "_build:viz": "(cd viz-lib && yarn build:babel)",
-    "_build": "node ./scripts/client-dist.js check && yarn clean && yarn build:viz && NODE_OPTIONS=--openssl-legacy-provider NODE_ENV=production webpack build",
-    "_watch:app": "NODE_OPTIONS=--openssl-legacy-provider webpack watch --progress",
-    "_watch:viz": "(cd viz-lib && yarn watch:babel)",
-    "_analyze": "yarn clean && BUNDLE_ANALYZER=on NODE_OPTIONS=--openssl-legacy-provider webpack build",
-    "_analyze:build": "yarn clean && NODE_ENV=production BUNDLE_ANALYZER=on NODE_OPTIONS=--openssl-legacy-provider webpack build",
-    "_lint": "yarn lint:base --ext .js --ext .jsx --ext .ts --ext .tsx ./client",
-    "_lint:fix": "yarn lint:base  --fix --ext .js --ext .jsx --ext .ts --ext .tsx ./client",
-
     "lint:base": "eslint --config ./client/.eslintrc.js --ignore-path ./client/.eslintignore",
     "lint:ci": "pnpm run lint --max-warnings 0 --format junit --output-file /tmp/test-results/eslint/results.xml",
     "prettier": "prettier --write 'client/app/**/*.{js,jsx,ts,tsx}' 'client/cypress/**/*.{js,jsx,ts,tsx}'",
@@ -137,7 +126,6 @@
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-webpack-plugin": "^4.2.0",
     "html-webpack-plugin": "^5.6.6",
-
     "identity-obj-proxy": "^3.0.0",
     "jest": "^30.2.0",
     "jest-environment-jsdom": "^30.2.0",
