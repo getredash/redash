@@ -28,5 +28,3 @@ npm-debug.log
 
 client/cypress/screenshots
 client/cypress/videos
-test-*.log
-*.xml

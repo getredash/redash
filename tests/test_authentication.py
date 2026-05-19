@@ -1,14 +1,14 @@
 import importlib
 import json
 import os
-import subprocess
 import tempfile
 import time
 
 import jwcrypto.jwk
 import jwt
-import pytest
 import requests
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import rsa
 from flask import request
 from mock import Mock, patch
 from sqlalchemy.orm.exc import NoResultFound
@@ -416,7 +416,6 @@ class TestUserForgotPassword(BaseTestCase):
             send_user_disabled_email_mock.assert_called_with(user)
 
 
-@pytest.mark.skip(reason="JWT tests pass in isolation but hang after 750+ tests - test environment pollution issue")
 class TestJWTAuthentication(BaseTestCase):
     def setUp(self):
         super(TestJWTAuthentication, self).setUp()
@@ -424,39 +423,49 @@ class TestJWTAuthentication(BaseTestCase):
         self.auth_issuer = "Admin"
         self.token_name = "jwt-token"
 
-        # Use unique temporary file paths (don't pre-create files, let openssl create them)
         temp_dir = tempfile.gettempdir()
         unique_id = os.urandom(8).hex()
         self.rsa_private_key = os.path.join(temp_dir, f"jwt_test_{unique_id}.key")
         self.rsa_public_key = os.path.join(temp_dir, f"jwt_test_{unique_id}.pem")
 
-        # Generate RSA keys (use 2048 instead of 4096 for faster test execution)
-        try:
-            subprocess.check_output(
-                ["openssl", "genrsa", "-out", self.rsa_private_key, "2048"], stderr=subprocess.STDOUT, timeout=10
-            )
-            subprocess.check_output(
-                ["openssl", "rsa", "-pubout", "-in", self.rsa_private_key, "-out", self.rsa_public_key],
-                stderr=subprocess.STDOUT,
-                timeout=5,
-            )
-        except subprocess.CalledProcessError as e:
-            self.fail("Failed to generate RSA keys: {}".format(e.output))
-        except subprocess.TimeoutExpired:
-            self.fail("Timeout generating RSA keys")
+        private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+        private_pem = private_key.private_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PrivateFormat.PKCS8,
+            encryption_algorithm=serialization.NoEncryption(),
+        )
+        public_pem = private_key.public_key().public_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PublicFormat.SubjectPublicKeyInfo,
+        )
+
+        with open(self.rsa_private_key, "wb") as keyfile:
+            keyfile.write(private_pem)
+        with open(self.rsa_public_key, "wb") as keyfile:
+            keyfile.write(public_pem)
+
+        self._jwt_setting_keys = (
+            "auth_jwt_login_enabled",
+            "auth_jwt_auth_public_certs_url",
+            "auth_jwt_auth_issuer",
+            "auth_jwt_auth_audience",
+            "auth_jwt_auth_cookie_name",
+            "auth_jwt_auth_header_name",
+        )
+        self._previous_jwt_settings = {key: org_settings[key] for key in self._jwt_setting_keys}
+        self._previous_key_cache = dict(jwt_auth.get_public_keys.key_cache)
 
         org_settings["auth_jwt_login_enabled"] = True
         org_settings["auth_jwt_auth_public_certs_url"] = "file://{}".format(self.rsa_public_key)
         org_settings["auth_jwt_auth_issuer"] = self.auth_issuer
         org_settings["auth_jwt_auth_audience"] = self.auth_audience
+        org_settings["auth_jwt_auth_cookie_name"] = ""
         org_settings["auth_jwt_auth_header_name"] = self.token_name
 
     def tearDown(self):
-        org_settings["auth_jwt_login_enabled"] = False
-        org_settings["auth_jwt_auth_public_certs_url"] = ""
-        org_settings["auth_jwt_auth_issuer"] = ""
-        org_settings["auth_jwt_auth_audience"] = ""
-        org_settings["auth_jwt_auth_header_name"] = ""
+        org_settings.update(self._previous_jwt_settings)
+        jwt_auth.get_public_keys.key_cache.clear()
+        jwt_auth.get_public_keys.key_cache.update(self._previous_key_cache)
 
         # Clean up unique temporary key files
         for key_file in [self.rsa_private_key, self.rsa_public_key]:

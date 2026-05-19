@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "npm-run-all --parallel watch:viz webpack-dev-server",
-    "clean": "rm -rf ./client/dist/*",
+    "clean": "rm -rf ./client/dist/",
     "build:viz": "pnpm --filter @redash/viz build:babel",
     "build": "pnpm run clean && pnpm run build:viz && NODE_ENV=production webpack",
     "watch:app": "webpack watch --progress",
@@ -206,8 +206,8 @@
   ],
   "pnpm": {
     "overrides": {
-      "@types/react": "^16.14.60",
-      "@types/react-dom": "^16.9.24",
+      "@types/react": "^17.0.0",
+      "@types/react-dom": "^17.0.0",
       "axios": "1.15.2",
       "minimatch": "^10.2.1",
       "picomatch": "^4.0.4",

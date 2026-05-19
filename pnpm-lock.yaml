@@ -8,8 +8,8 @@ overrides:
   execa: ^5.1.1
   form-data: ^4.0.5
   basic-ftp: ^5.3.0
-  '@types/react': ^16.14.60
-  '@types/react-dom': ^16.9.24
+  '@types/react': ^17.0.0
+  '@types/react-dom': ^17.0.0
   axios: 1.15.2
   minimatch: ^10.2.1
   picomatch: ^4.0.4
@@ -181,7 +181,7 @@ importers:
         version: 2.3.4
       '@types/hoist-non-react-statics':
         specifier: ^3.3.1
-        version: 3.3.7(@types/react@16.14.69)
+        version: 3.3.7(@types/react@17.0.91)
       '@types/lodash':
         specifier: ^4.14.157
         version: 4.17.24
@@ -189,11 +189,11 @@ importers:
         specifier: ^15.7.3
         version: 15.7.15
       '@types/react':
-        specifier: ^16.14.60
-        version: 16.14.69
+        specifier: ^17.0.0
+        version: 17.0.91
       '@types/react-dom':
-        specifier: ^16.9.24
-        version: 16.9.25(@types/react@16.14.69)
+        specifier: ^17.0.0
+        version: 17.0.26(@types/react@17.0.91)
       '@types/sql-formatter':
         specifier: ^2.3.0
         version: 2.3.0
@@ -497,11 +497,11 @@ importers:
         specifier: ^3.0.10
         version: 3.0.10
       '@types/react':
-        specifier: ^16.14.60
-        version: 16.14.69
+        specifier: ^17.0.0
+        version: 17.0.91
       '@types/react-dom':
-        specifier: ^16.9.24
-        version: 16.9.25(@types/react@16.14.69)
+        specifier: ^17.0.0
+        version: 17.0.26(@types/react@17.0.91)
       '@types/react-pivottable':
         specifier: ^0.11.6
         version: 0.11.6
@@ -2192,7 +2192,7 @@ packages:
   '@types/hoist-non-react-statics@3.3.7':
     resolution: {integrity: sha512-PQTyIulDkIDro8P+IHbKCsw7U2xxBYflVzW/FgWdCAePD9xGSidgA76/GeJ6lBKoblyhf9pBY763gbrN+1dI8g==}
     peerDependencies:
-      '@types/react': ^16.14.60
+      '@types/react': ^17.0.0
 
   '@types/html-minifier-terser@6.1.0':
     resolution: {integrity: sha512-oh/6byDPnL1zeNXFrDXFLyZjkr1MsBG667IM792caf1L2UPOOMf65NFzjUH/ltyfwjAGfs1rsX1eftK0jC/KIg==}
@@ -2273,10 +2273,10 @@ packages:
   '@types/range-parser@1.2.7':
     resolution: {integrity: sha512-hKormJbkJqzQGhziax5PItDUTMAM9uE2XXQmM37dyd4hVM+5aVl7oVxMVUiVQn2oCQFN/LKCZdvSM0pFRqbSmQ==}
 
-  '@types/react-dom@16.9.25':
-    resolution: {integrity: sha512-ZK//eAPhwft9Ul2/Zj+6O11YR6L4JX0J2sVeBC9Ft7x7HFN7xk7yUV/zDxqV6rjvqgl6r8Dq7oQImxtyf/Mzcw==}
+  '@types/react-dom@17.0.26':
+    resolution: {integrity: sha512-Z+2VcYXJwOqQ79HreLU/1fyQ88eXSSFh6I3JdrEHQIfYSI0kCQpTGvOrbE6jFGGYXKsHuwY9tBa/w5Uo6KzrEg==}
     peerDependencies:
-      '@types/react': ^16.14.60
+      '@types/react': ^17.0.0
 
   '@types/react-pivottable@0.11.6':
     resolution: {integrity: sha512-dcQjLc9Sscd4A3D7rq3sUNo9NqbVTn1U1Cc284BLlgC2d66BkGkVDa8lFn8A5a+iemR7c1C+3P23ImIVxc6PQw==}
@@ -2284,8 +2284,8 @@ packages:
   '@types/react-plotly.js@2.6.4':
     resolution: {integrity: sha512-AU6w1u3qEGM0NmBA69PaOgNc0KPFA/+qkH6Uu9EBTJ45/WYOUoXi9AF5O15PRM2klpHSiHAAs4WnlI+OZAFmUA==}
 
-  '@types/react@16.14.69':
-    resolution: {integrity: sha512-NdnAamzkxLX9LBssSdt9Q0tQ3LR94hYxotI4/sRUs1vHKFXaDx9xDbK8S4wuw5bwrxiiXbTYyhKeITtFnwDvEA==}
+  '@types/react@17.0.91':
+    resolution: {integrity: sha512-xauZca6qMeCU3Moy0KxCM9jtf1vyk6qRYK39Ryf3afUqwgNUjRIGoDdS9BcGWgAMGSg1hvP4XcmlYrM66PtqeA==}
 
   '@types/retry@0.12.2':
     resolution: {integrity: sha512-XISRgDJ2Tc5q4TRqvgJtzsRkFYNJzZrhTdtMoGVBttwzzQJkPnS3WWTFc7kuDRoPtPakl+T+OfdEUjYJj7Jbow==}
@@ -10581,7 +10581,7 @@ snapshots:
   '@types/enzyme@3.10.19':
     dependencies:
       '@types/cheerio': 0.22.35
-      '@types/react': 16.14.69
+      '@types/react': 17.0.91
 
   '@types/eslint-scope@3.7.7':
     dependencies:
@@ -10625,9 +10625,9 @@ snapshots:
       '@types/minimatch': 6.0.0
       '@types/node': 25.3.3
 
-  '@types/hoist-non-react-statics@3.3.7(@types/react@16.14.69)':
+  '@types/hoist-non-react-statics@3.3.7(@types/react@17.0.91)':
     dependencies:
-      '@types/react': 16.14.69
+      '@types/react': 17.0.91
       hoist-non-react-statics: 3.3.2
 
   '@types/html-minifier-terser@6.1.0': {}
@@ -10705,21 +10705,21 @@ snapshots:
 
   '@types/range-parser@1.2.7': {}
 
-  '@types/react-dom@16.9.25(@types/react@16.14.69)':
+  '@types/react-dom@17.0.26(@types/react@17.0.91)':
     dependencies:
-      '@types/react': 16.14.69
+      '@types/react': 17.0.91
 
   '@types/react-pivottable@0.11.6':
     dependencies:
-      '@types/react': 16.14.69
+      '@types/react': 17.0.91
       '@types/react-plotly.js': 2.6.4
 
   '@types/react-plotly.js@2.6.4':
     dependencies:
       '@types/plotly.js': 3.0.10
-      '@types/react': 16.14.69
+      '@types/react': 17.0.91
 
-  '@types/react@16.14.69':
+  '@types/react@17.0.91':
     dependencies:
       '@types/prop-types': 15.7.15
       '@types/scheduler': 0.16.8
