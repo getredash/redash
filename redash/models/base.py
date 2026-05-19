@@ -50,22 +50,15 @@ class SearchBaseQuery(Query, SearchQueryMixin):
 
     @property
     def _entities(self):
-        """
-        Compatibility property for sqlalchemy-searchable with SQLAlchemy 1.4+
-        The _entities attribute was removed in SQLAlchemy 1.4, but sqlalchemy-searchable
-        still tries to access it. This property provides backwards compatibility.
-        """
-        # Try to get entities from column_descriptions
-        if hasattr(self, "column_descriptions"):
-            # Create a fake _entities list that mimics the old structure
-            class FakeEntity:
-                def __init__(self, entity_data):
-                    self.entity_zero = type(
-                        "obj", (object,), {"class_": entity_data.get("entity") or entity_data.get("type")}
-                    )()
+        """Shim for sqlalchemy-searchable 1.2.0 which accesses _entities (removed in SQLAlchemy 1.4)."""
 
-            return [FakeEntity(desc) for desc in self.column_descriptions]
-        return []
+        class FakeEntity:
+            def __init__(self, entity_data):
+                self.entity_zero = type(
+                    "obj", (object,), {"class_": entity_data.get("entity") or entity_data.get("type")}
+                )()
+
+        return [FakeEntity(desc) for desc in self.column_descriptions]
 
 
 @vectorizer(db.Integer)

@@ -30,9 +30,6 @@ from inspect import isclass
 
 import sqlalchemy as sa
 from sqlalchemy.orm import mapperlib
-
-# SQLAlchemy 1.4 compatibility: _ColumnEntity moved location
-from sqlalchemy.orm.context import _ColumnEntity
 from sqlalchemy.orm.properties import ColumnProperty
 from sqlalchemy.orm.util import AliasedInsp
 from sqlalchemy.sql.expression import asc, desc, nullslast
@@ -61,27 +58,7 @@ def query_labels(query):
         query_labels(query)  # ['articles']
     :param query: SQLAlchemy Query object
     """
-    # SQLAlchemy 1.4 compatibility: _entities moved to column_descriptions or selected_columns
-    try:
-        # Try SQLAlchemy 1.4+ approach
-        if hasattr(query, "column_descriptions"):
-            return [col["name"] for col in query.column_descriptions if col.get("name")]
-        elif hasattr(query, "selected_columns"):
-            return [col.name for col in query.selected_columns if hasattr(col, "name")]
-        # Check if this is a SearchBaseQuery that needs to access the underlying query
-        elif hasattr(query, "_query") and hasattr(query._query, "column_descriptions"):
-            return [col["name"] for col in query._query.column_descriptions if col.get("name")]
-        else:
-            # Fallback to older approach if available
-            entities = getattr(query, "_entities", [])
-            return [
-                entity._label_name
-                for entity in entities
-                if isinstance(entity, _ColumnEntity) and hasattr(entity, "_label_name") and entity._label_name
-            ]
-    except (AttributeError, TypeError):
-        # If all else fails, return empty list
-        return []
+    return [col["name"] for col in query.column_descriptions if col.get("name")]
 
 
 def get_query_entity_by_alias(query, alias):
@@ -97,7 +74,7 @@ def get_query_entity_by_alias(query, alias):
             return entity
 
 
-def get_query_entities(query):  # noqa: C901
+def get_query_entities(query):
     """
     Return a list of all entities present in given SQLAlchemy query object.
     Examples::
@@ -114,77 +91,32 @@ def get_query_entities(query):  # noqa: C901
         This function now returns a list instead of generator
     :param query: SQLAlchemy Query object
     """
-    try:
-        # Check if this is a SearchBaseQuery that wraps another query
-        if hasattr(query, "_query") and hasattr(query._query, "column_descriptions"):
-            query = query._query
+    exprs = [
+        d["expr"] if is_labeled_query(d["expr"]) or isinstance(d["expr"], sa.Column) else d["entity"]
+        for d in query.column_descriptions
+    ]
+    result = [get_query_entity(expr) for expr in exprs]
 
-        exprs = [
-            d["expr"] if is_labeled_query(d["expr"]) or isinstance(d["expr"], sa.Column) else d["entity"]
-            for d in query.column_descriptions
-        ]
+    # Collect entities from JOIN clauses via the statement's resolved FROM list.
+    for from_obj in query.statement.get_final_froms():
+        if hasattr(from_obj, "left") and hasattr(from_obj, "right"):
+            if isinstance(from_obj.right, sa.Table):
+                for registry in mapperlib._mapper_registries:
+                    for mapper in registry.mappers:
+                        if from_obj.right in mapper.tables:
+                            result.append(mapper.class_)
+                            break
+            elif hasattr(from_obj.right, "entity"):
+                result.append(from_obj.right.entity)
 
-        # Get entities from SELECT columns
-        result = [get_query_entity(expr) for expr in exprs]
-
-        # Also extract entities from JOIN clauses
-        # SQLAlchemy 1.4+: Check statement for joins
-        if hasattr(query, "statement"):
-            stmt = query.statement
-            # Use get_final_froms() if available, otherwise fall back to froms
-            try:
-                froms = stmt.get_final_froms() if hasattr(stmt, "get_final_froms") else getattr(stmt, "froms", [])
-            except AttributeError:
-                froms = []
-
-            # Get the registry from the query session
-            registry_mappers = None
-            if hasattr(query, "session") and query.session is not None:
-                # Try to access the Model registry through the session
-                try:
-                    # Get the first entity's mapper registry
-                    if result and hasattr(result[0], "__mapper__"):
-                        registry = result[0].__mapper__.registry
-                        if hasattr(registry, "mappers"):
-                            registry_mappers = list(registry.mappers)
-                except (AttributeError, TypeError):
-                    pass
-
-            for from_obj in froms:
-                # Check if this is a join object
-                if hasattr(from_obj, "left") and hasattr(from_obj, "right"):
-                    # Extract entity from the right side of the join (the joined table)
-                    # The right side is typically a Table object
-                    if isinstance(from_obj.right, sa.Table):
-                        # Find the mapped class for this table using the registry
-                        if registry_mappers:
-                            for mapper in registry_mappers:
-                                if from_obj.right in getattr(mapper, "tables", []):
-                                    result.append(mapper.class_)
-                                    break
-                    elif hasattr(from_obj.right, "entity"):
-                        # This is an ORM entity wrapper
-                        result.append(from_obj.right.entity)
-
-        # Fallback: SQLAlchemy <1.4 compatibility - try _join_entities
-        join_entities = getattr(query, "_join_entities", [])
-        result.extend([get_query_entity(entity) for entity in join_entities])
-
-        # Remove duplicates while preserving order
-        seen = set()
-        unique_result = []
-        for entity in result:
-            if entity not in seen:
-                seen.add(entity)
-                unique_result.append(entity)
-
-        return unique_result
-    except (AttributeError, TypeError):
-        # Fallback: try to extract entities from column descriptions only
-        try:
-            return [d.get("entity") for d in query.column_descriptions if d.get("entity")]
-        except (AttributeError, TypeError):
-            return []
+    # Deduplicate while preserving order.
+    seen = set()
+    unique_result = []
+    for entity in result:
+        if entity not in seen:
+            seen.add(entity)
+            unique_result.append(entity)
+    return unique_result
 
 
 def is_labeled_query(expr):
@@ -203,7 +135,7 @@ def get_query_entity(expr):
     return expr
 
 
-def get_mapper(mixed):  # noqa: C901
+def get_mapper(mixed):
     """
     Return related SQLAlchemy Mapper for given SQLAlchemy object.
     :param mixed: SQLAlchemy Table / Alias / Mapper / declarative model object
@@ -219,18 +151,8 @@ def get_mapper(mixed):  # noqa: C901
         ValueError: if multiple mappers were found for given argument
     .. versionadded: 0.26.1
     """
-    # SQLAlchemy 1.4 compatibility: these classes may not exist or have moved
-    try:
-        if hasattr(sa.orm.query, "_MapperEntity") and isinstance(mixed, sa.orm.query._MapperEntity):
-            mixed = mixed.expr
-        elif isinstance(mixed, sa.Column):
-            mixed = mixed.table
-        elif hasattr(sa.orm.query, "_ColumnEntity") and isinstance(mixed, sa.orm.query._ColumnEntity):
-            mixed = mixed.expr
-    except (AttributeError, ImportError):
-        # If we can't determine the type, try basic fallbacks
-        if isinstance(mixed, sa.Column):
-            mixed = mixed.table
+    if isinstance(mixed, sa.Column):
+        mixed = mixed.table
     if isinstance(mixed, sa.orm.Mapper):
         return mixed
     if isinstance(mixed, sa.orm.util.AliasedClass):
@@ -242,27 +164,10 @@ def get_mapper(mixed):  # noqa: C901
     if isinstance(mixed, sa.orm.attributes.InstrumentedAttribute):
         mixed = mixed.class_
     if isinstance(mixed, sa.Table):
-        # Note: For SQLAlchemy 1.4+, mapperlib._mapper_registry doesn't exist.
-        # This code path is not used by the main query sorting functionality,
-        # which now uses the query session's registry directly.
-        # Kept for backward compatibility with other callers.
-        try:
-            # Try newer SQLAlchemy API first
-            if hasattr(mapperlib, "_mapper_registries"):
-                for mapper in mapperlib._mapper_registries:
-                    if hasattr(mapper, "mappers"):
-                        for m in mapper.mappers:
-                            if mixed in getattr(m, "tables", []):
-                                return m
-            # Fallback to older API
-            elif hasattr(mapperlib, "_mapper_registry"):
-                mappers = [mapper for mapper in mapperlib._mapper_registry if mixed in mapper.tables]
-                if len(mappers) > 1:
-                    raise ValueError("Multiple mappers found for table '%s'." % mixed.name)
-                elif mappers:
-                    return mappers[0]
-        except (AttributeError, TypeError):
-            pass
+        for registry in mapperlib._mapper_registries:
+            for mapper in registry.mappers:
+                if mixed in mapper.tables:
+                    return mapper
         raise ValueError("Could not get mapper for table '%s'." % mixed.name)
     if not isclass(mixed):
         mixed = type(mixed)
