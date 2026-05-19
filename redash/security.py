@@ -26,6 +26,10 @@ else:
 csrf = CSRFProtect()
 
 
+def _embedding_content_security_policy():
+    return settings.CONTENT_SECURITY_POLICY.replace("frame-ancestors 'none'", "frame-ancestors *")
+
+
 def csp_allows_embeding(fn):
     @functools.wraps(fn)
     def decorated(*args, **kwargs):
@@ -42,7 +46,7 @@ def csp_allows_embeding(fn):
         response.headers.pop("X-Frame-Options", None)
         return response
 
-    return decorated
+    return talisman(frame_options=None, content_security_policy=_embedding_content_security_policy())(decorated)
 
 
 def init_app(app):
