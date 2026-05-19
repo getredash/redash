@@ -2,7 +2,7 @@ import importlib
 import os
 import ssl
 
-# from flask_talisman import talisman
+from flask_talisman import talisman
 from funcy import distinct, remove
 
 from redash.settings.helpers import (
@@ -105,7 +105,7 @@ FRAME_OPTIONS_ALLOW_FROM = os.environ.get("REDASH_FRAME_OPTIONS_ALLOW_FROM", "")
 # for more information.
 HSTS_ENABLED = parse_boolean(os.environ.get("REDASH_HSTS_ENABLED") or str(ENFORCE_HTTPS))
 HSTS_PRELOAD = parse_boolean(os.environ.get("REDASH_HSTS_PRELOAD", "false"))
-# HSTS_MAX_AGE = int(os.environ.get("REDASH_HSTS_MAX_AGE", talisman.ONE_YEAR_IN_SECS))
+HSTS_MAX_AGE = int(os.environ.get("REDASH_HSTS_MAX_AGE", talisman.ONE_YEAR_IN_SECS))
 HSTS_INCLUDE_SUBDOMAINS = parse_boolean(os.environ.get("REDASH_HSTS_INCLUDE_SUBDOMAINS", "false"))
 
 # Whether and how to send Content-Security-Policy response headers.
