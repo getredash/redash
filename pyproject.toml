@@ -161,6 +161,15 @@ optional = true
 [tool.poetry.group.ldap3.dependencies]
 ldap3 = "2.9.1"
 
+# Optional SSRF protection (enables REDASH_ENFORCE_PRIVATE_IP_BLOCK).
+# Install via `poetry install --with ssrf` or add `ssrf` to the install_groups
+# build arg in the Dockerfile.
+[tool.poetry.group.ssrf]
+optional = true
+
+[tool.poetry.group.ssrf.dependencies]
+champion = { git = "https://github.com/Gee19/champion.git", branch = "master" }
+
 [tool.poetry.group.dev]
 optional = true
 
