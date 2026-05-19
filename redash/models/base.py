@@ -33,6 +33,10 @@ db = RedashSQLAlchemy(
     session_options={"expire_on_commit": False},
     engine_options={"json_serializer": json_dumps, "json_deserializer": json_loads},
 )
+# Make sure the SQLAlchemy mappers are all properly configured first.
+# This is required by SQLAlchemy-Searchable as it adds DDL listeners
+# on the configuration phase of models.
+db.configure_mappers()
 
 # listen to a few database events to set up functions, trigger updates
 # and indexes for the full text search

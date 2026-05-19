@@ -25,19 +25,6 @@ class ModelFactory:
     def create(self, **override_kwargs):
         kwargs = self._get_kwargs(override_kwargs)
         obj = self.model(**kwargs)
-
-        # During testing, add to session and flush (but don't commit)
-        # This allows relationships to work while avoiding duplicate key errors
-        from flask import current_app
-
-        try:
-            if current_app.config.get("TESTING", False):
-                db.session.add(obj)
-                db.session.flush()  # Assign ID and track in session, but don't commit
-                return obj
-        except RuntimeError:
-            pass  # No app context, proceed normally
-
         db.session.add(obj)
         db.session.commit()
         return obj
@@ -197,35 +184,14 @@ class Factory:
             self._user = self.create_user()
             # Test setup creates users, they need to be in the db by the time
             # the handler's db transaction starts.
-
-            # During testing, flush but don't commit
-            from flask import current_app
-
-            try:
-                if current_app.config.get("TESTING", False):
-                    db.session.flush()  # Ensure user is tracked but don't commit
-                else:
-                    db.session.commit()
-            except RuntimeError:
-                db.session.commit()  # No app context, proceed normally
+            db.session.commit()
         return self._user
 
     @property
     def data_source(self):
         if self._data_source is None:
             self._data_source = data_source_factory.create(org=self.org)
-
-            # Always add DataSourceGroup, flush in testing to track relationships
-            ds_group = redash.models.DataSourceGroup(group=self.default_group, data_source=self._data_source)
-            db.session.add(ds_group)
-
-            from flask import current_app
-
-            try:
-                if current_app.config.get("TESTING", False):
-                    db.session.flush()  # Track but don't commit
-            except RuntimeError:
-                pass  # Will be committed with other operations
+            db.session.add(redash.models.DataSourceGroup(group=self.default_group, data_source=self._data_source))
 
         return self._data_source
 
@@ -299,17 +265,7 @@ class Factory:
         data_source = data_source_factory.create(**args)
 
         if group:
-            # Always add DataSourceGroup, flush in testing to track relationships
-            ds_group = redash.models.DataSourceGroup(group=group, data_source=data_source, view_only=view_only)
-            db.session.add(ds_group)
-
-            from flask import current_app
-
-            try:
-                if current_app.config.get("TESTING", False):
-                    db.session.flush()  # Track but don't commit
-            except RuntimeError:
-                pass  # Will be committed with other operations
+            db.session.add(redash.models.DataSourceGroup(group=group, data_source=data_source, view_only=view_only))
 
         return data_source
 
