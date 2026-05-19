@@ -173,8 +173,6 @@ def _get_size_iterative(dict_obj):
 
 class QueryExecutor:
     def __init__(self, query, data_source_id, user_id, is_api_key, metadata, is_scheduled_query):
-        from flask import current_app
-
         self.job = get_current_job()
         self.query = query
         self.data_source_id = data_source_id
@@ -189,9 +187,7 @@ class QueryExecutor:
         )  # fmt: skip
 
         # Close DB connection to prevent holding a connection for a long time while the query is executing.
-        # Don't close in testing mode because test data is only flushed, not committed
-        if not current_app.config.get("TESTING", False):
-            models.db.session.close()
+        models.db.session.close()
         self.query_hash = gen_query_hash(self.query)
         self.is_scheduled_query = is_scheduled_query
         if self.is_scheduled_query:
@@ -302,8 +298,6 @@ def execute_query(
     scheduled_query_id=None,
     is_api_key=False,
 ):
-    from flask import current_app
-
     try:
         return QueryExecutor(
             query,
@@ -314,7 +308,5 @@ def execute_query(
             scheduled_query_id is not None,
         ).run()
     except QueryExecutionError as e:
-        # Don't rollback in testing mode as it would undo flushed test data
-        if not current_app.config.get("TESTING", False):
-            models.db.session.rollback()
+        models.db.session.rollback()
         return e

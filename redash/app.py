@@ -3,52 +3,11 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 
 from redash import settings
 
-# Enable deadlock detection as early as possible
-try:
-    import logging
-    import os
-
-    # Only enable in test environment
-    if os.getenv("TESTING") or "pytest" in os.getenv("_", ""):
-        try:
-            from tests.test_utils import (
-                setup_deadlock_signal_handler,
-                setup_faulthandler,
-            )
-
-            setup_faulthandler()
-            setup_deadlock_signal_handler()
-            logging.getLogger(__name__).error("=== DEADLOCK DETECTION ENABLED IN APP.PY ===")
-        except ImportError:
-            pass
-except Exception:
-    pass
-
 
 class Redash(Flask):
     """A custom Flask app for Redash"""
 
     def __init__(self, *args, **kwargs):
-        # Enable deadlock detection during Flask init
-        try:
-            import logging
-            import os
-
-            if os.getenv("TESTING") or "pytest" in os.getenv("_", ""):
-                try:
-                    from tests.test_utils import (
-                        setup_deadlock_signal_handler,
-                        setup_faulthandler,
-                    )
-
-                    setup_faulthandler()
-                    setup_deadlock_signal_handler()
-                    logging.getLogger(__name__).error("=== DEADLOCK DETECTION ENABLED IN FLASK INIT ===")
-                except ImportError:
-                    pass
-        except Exception:
-            pass
-
         kwargs.update(
             {
                 "template_folder": settings.FLASK_TEMPLATE_PATH,

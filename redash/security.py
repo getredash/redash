@@ -18,18 +18,7 @@ def _embedding_content_security_policy():
 def csp_allows_embeding(fn):
     @functools.wraps(fn)
     def decorated(*args, **kwargs):
-        from flask import g, make_response
-
-        # Mark that this view allows embedding
-        g._embedding_headers_requested = True
-        response = fn(*args, **kwargs)
-        # Ensure response is properly wrapped (convert tuples, strings, etc. to Response object)
-        response = make_response(response)
-        # Override CSP headers to allow embedding
-        response.headers["Content-Security-Policy"] = "frame-ancestors *"
-        # Remove X-Frame-Options header if present (tests expect it to be absent)
-        response.headers.pop("X-Frame-Options", None)
-        return response
+        return fn(*args, **kwargs)
 
     return talisman(frame_options=None, content_security_policy=_embedding_content_security_policy())(decorated)
 

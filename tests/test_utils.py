@@ -1,290 +1,162 @@
-"""
-Test utilities for detecting deadlocks and performance issues
-"""
-import logging
-import os
-import signal
-import sys
-import threading
-import time
-import traceback
-from contextlib import contextmanager
+from collections import namedtuple
+from unittest import TestCase
 
-try:
-    import psutil
-except ImportError:
-    psutil = None
+import pytest
 
-try:
-    import faulthandler
+from redash import create_app
+from redash.query_runner import (
+    TYPE_BOOLEAN,
+    TYPE_DATE,
+    TYPE_DATETIME,
+    TYPE_FLOAT,
+    TYPE_INTEGER,
+    TYPE_STRING,
+)
+from redash.utils import (
+    build_url,
+    collect_parameters_from_request,
+    filter_none,
+    generate_token,
+    json_dumps,
+    render_template,
+)
+from redash.utils.pandas import pandas_installed
 
-    HAS_FAULTHANDLER = True
-except ImportError:
-    HAS_FAULTHANDLER = False
+DummyRequest = namedtuple("DummyRequest", ["host", "scheme"])
 
-from redash.models import db
+skip_condition = pytest.mark.skipif(not pandas_installed, reason="pandas is not installed")
 
-logger = logging.getLogger(__name__)
+if pandas_installed:
+    import numpy as np
+    import pandas as pd
 
-
-def enable_deadlock_detection():
-    """
-    Simple function to enable deadlock detection for the current process
-    Call this at the start of your test session
-    """
-    setup_faulthandler()
-    setup_deadlock_signal_handler()
-    logger.info("Deadlock detection enabled")
-    logger.info("Send SIGUSR1 for custom stack dump, SIGUSR2 for faulthandler dump")
+    from redash.utils.pandas import get_column_types_from_dataframe, pandas_to_result
 
 
-def dump_all_thread_stacks():
-    """
-    Dump stack traces for all threads when a deadlock is suspected
-    """
-    logger.error("=== DEADLOCK DETECTED: Dumping all thread stacks ===")
+class TestBuildUrl(TestCase):
+    def test_simple_case(self):
+        self.assertEqual(
+            "http://example.com/test",
+            build_url(DummyRequest("", "http"), "example.com", "/test"),
+        )
 
-    # Use faulthandler if available (best option)
-    if HAS_FAULTHANDLER:
-        logger.error("--- faulthandler stack dump ---")
-        try:
-            faulthandler.dump_traceback(file=sys.stderr)
-        except Exception as e:
-            logger.error(f"Failed to dump with faulthandler: {e}")
+    def test_uses_current_request_port(self):
+        self.assertEqual(
+            "http://example.com:5000/test",
+            build_url(DummyRequest("example.com:5000", "http"), "example.com", "/test"),
+        )
 
-    # Manual thread stack dump
-    logger.error("--- Manual thread stack dump ---")
-    threads = dict(threading._active)
-    for thread_id, thread_obj in threads.items():
-        logger.error(f"Thread {thread_id} ({thread_obj.name}):")
+    def test_uses_current_request_schema(self):
+        self.assertEqual(
+            "https://example.com/test",
+            build_url(DummyRequest("example.com", "https"), "example.com", "/test"),
+        )
 
-        # Get the frame for this thread
-        frame = sys._current_frames().get(thread_id)
-        if frame:
-            stack = traceback.format_stack(frame)
-            for line in stack:
-                logger.error(f"  {line.strip()}")
-        else:
-            logger.error("  No frame available")
-        logger.error("-" * 50)
-
-
-def setup_deadlock_signal_handler():
-    """
-    Setup signal handler to dump stacks on SIGUSR1
-    """
-
-    def signal_handler(signum, frame):
-        logger.error(f"=== RECEIVED SIGNAL {signum} - DUMPING THREAD STACKS ===")
-        print(f"=== SIGNAL {signum} RECEIVED - DUMPING STACKS ===", file=sys.stderr)
-        sys.stderr.flush()
-        dump_all_thread_stacks()
-
-        # Also try to print directly to stderr
-        print("=== DIRECT STDERR STACK DUMP ===", file=sys.stderr)
-        traceback.print_stack(file=sys.stderr)
-        sys.stderr.flush()
-
-    try:
-        signal.signal(signal.SIGUSR1, signal_handler)
-        signal.signal(signal.SIGUSR2, signal_handler)  # Also handle USR2
-        logger.error("=== SIGNAL HANDLERS REGISTERED FOR SIGUSR1 AND SIGUSR2 ===")
-        print("=== SIGNAL HANDLERS ACTIVE - PID:", os.getpid(), "===", file=sys.stderr)
-        sys.stderr.flush()
-    except Exception as e:
-        logger.error(f"Could not setup signal handler: {e}")
-        print(f"Signal handler error: {e}", file=sys.stderr)
+    def test_skips_port_for_default_ports(self):
+        self.assertEqual(
+            "https://example.com/test",
+            build_url(DummyRequest("example.com:443", "https"), "example.com", "/test"),
+        )
+        self.assertEqual(
+            "http://example.com/test",
+            build_url(DummyRequest("example.com:80", "http"), "example.com", "/test"),
+        )
+        self.assertEqual(
+            "https://example.com:80/test",
+            build_url(DummyRequest("example.com:80", "https"), "example.com", "/test"),
+        )
+        self.assertEqual(
+            "http://example.com:443/test",
+            build_url(DummyRequest("example.com:443", "http"), "example.com", "/test"),
+        )
 
 
-def setup_faulthandler():
-    """
-    Setup faulthandler to dump on segfaults and deadlocks
-    """
-    if HAS_FAULTHANDLER:
-        try:
-            # Enable faulthandler to dump on SIGSEGV, SIGFPE, SIGABRT, SIGBUS, SIGILL
-            faulthandler.enable(file=sys.stderr, all_threads=True)
+class TestCollectParametersFromRequest(TestCase):
+    def test_ignores_non_prefixed_values(self):
+        self.assertEqual({}, collect_parameters_from_request({"test": 1}))
 
-            # Register for SIGUSR2 to dump all threads manually
-            faulthandler.register(signal.SIGUSR2, file=sys.stderr, all_threads=True)
-
-            logger.error("=== FAULTHANDLER ENABLED ===")
-            print(f"=== FAULTHANDLER ACTIVE - PID {os.getpid()} ===", file=sys.stderr)
-            sys.stderr.flush()
-            return True
-        except Exception as e:
-            logger.error(f"Could not enable faulthandler: {e}")
-            print(f"Faulthandler error: {e}", file=sys.stderr)
-            return False
-    else:
-        logger.error("faulthandler not available")
-        print("faulthandler module not available", file=sys.stderr)
-        return False
+    def test_takes_prefixed_values(self):
+        self.assertDictEqual(
+            {"test": 1, "something_else": "test"},
+            collect_parameters_from_request({"p_test": 1, "p_something_else": "test"}),
+        )
 
 
-@contextmanager
-def deadlock_monitor(timeout=30):
-    """
-    Context manager to monitor for deadlocks during test execution with stack traces
-    """
-    start_time = time.time()
-    monitor_thread = None
+class TestSkipNones(TestCase):
+    def test_skips_nones(self):
+        d = {"a": 1, "b": None}
 
-    # Setup deadlock detection tools
-    setup_faulthandler()
-    setup_deadlock_signal_handler()
-
-    def check_deadlocks():
-        """Check for database deadlocks and long-running queries"""
-        try:
-            # Query PostgreSQL for deadlocks and blocking queries
-            deadlock_query = """
-            SELECT 
-                blocked_locks.pid AS blocked_pid,
-                blocked_activity.usename AS blocked_user,
-                blocking_locks.pid AS blocking_pid,
-                blocking_activity.usename AS blocking_user,
-                blocked_activity.query AS blocked_statement,
-                blocking_activity.query AS blocking_statement,
-                blocked_activity.application_name AS blocked_app,
-                blocking_activity.application_name AS blocking_app
-            FROM pg_catalog.pg_locks blocked_locks
-            JOIN pg_catalog.pg_stat_activity blocked_activity 
-                ON blocked_activity.pid = blocked_locks.pid
-            JOIN pg_catalog.pg_locks blocking_locks 
-                ON blocking_locks.locktype = blocked_locks.locktype
-                AND blocking_locks.database IS NOT DISTINCT FROM blocked_locks.database
-                AND blocking_locks.relation IS NOT DISTINCT FROM blocked_locks.relation
-                AND blocking_locks.page IS NOT DISTINCT FROM blocked_locks.page
-                AND blocking_locks.tuple IS NOT DISTINCT FROM blocked_locks.tuple
-                AND blocking_locks.virtualxid IS NOT DISTINCT FROM blocked_locks.virtualxid
-                AND blocking_locks.transactionid IS NOT DISTINCT FROM blocked_locks.transactionid
-                AND blocking_locks.classid IS NOT DISTINCT FROM blocked_locks.classid
-                AND blocking_locks.objid IS NOT DISTINCT FROM blocked_locks.objid
-                AND blocking_locks.objsubid IS NOT DISTINCT FROM blocked_locks.objsubid
-                AND blocking_locks.pid != blocked_locks.pid
-            JOIN pg_catalog.pg_stat_activity blocking_activity 
-                ON blocking_activity.pid = blocking_locks.pid
-            WHERE NOT blocked_locks.granted;
-            """
-
-            result = db.session.execute(deadlock_query).fetchall()
-            if result:
-                logger.error("DATABASE DEADLOCK DETECTED:")
-                for row in result:
-                    logger.error(f"  Blocked PID: {row[0]} by PID: {row[2]}")
-                    logger.error(f"  Blocked Query: {row[4]}")
-                    logger.error(f"  Blocking Query: {row[5]}")
-
-                # Dump all thread stacks when deadlock is detected
-                dump_all_thread_stacks()
-                return True
-        except Exception as e:
-            logger.warning(f"Error checking deadlocks: {e}")
-        return False
-
-    def monitor_loop():
-        """Monitor for deadlocks in a separate thread"""
-        while True:
-            if time.time() - start_time > timeout:
-                logger.error(f"TEST TIMEOUT after {timeout}s - possible deadlock")
-                dump_all_thread_stacks()
-                break
-
-            if check_deadlocks():
-                logger.error("Database deadlock detected during test execution")
-                break
-
-            time.sleep(1)
-
-    try:
-        # Start monitoring thread
-        monitor_thread = threading.Thread(target=monitor_loop, daemon=True)
-        monitor_thread.start()
-
-        yield
-
-    finally:
-        if monitor_thread and monitor_thread.is_alive():
-            # Thread will exit when test completes
-            pass
+        self.assertDictEqual(filter_none(d), {"a": 1})
 
 
-def check_postgresql_connections():
-    """Check for hanging PostgreSQL connections"""
-    try:
-        connection_query = """
-        SELECT 
-            pid,
-            application_name,
-            state,
-            query_start,
-            state_change,
-            query
-        FROM pg_stat_activity 
-        WHERE application_name LIKE '%test%'
-        AND state != 'idle'
-        ORDER BY query_start;
-        """
-
-        result = db.session.execute(connection_query).fetchall()
-        if result:
-            logger.info("Active test connections:")
-            for row in result:
-                logger.info(f"  PID: {row[0]}, State: {row[2]}, Query: {row[5][:100]}...")
-        return result
-    except Exception as e:
-        logger.error(f"Error checking connections: {e}")
-        return []
+class TestJsonDumps(TestCase):
+    def test_handles_binary(self):
+        self.assertEqual(json_dumps(memoryview(b"test")), '"74657374"')
 
 
-def check_system_resources():
-    """Check system resource usage"""
-    if not psutil:
-        logger.info("psutil not available, skipping system resource check")
-        return {}
-
-    try:
-        # CPU usage
-        cpu_percent = psutil.cpu_percent(interval=1)
-
-        # Memory usage
-        memory = psutil.virtual_memory()
-
-        # Disk usage
-        disk = psutil.disk_usage("/")
-
-        logger.info(f"System Resources - CPU: {cpu_percent}%, Memory: {memory.percent}%, Disk: {disk.percent}%")
-
-        if cpu_percent > 90:
-            logger.warning("High CPU usage detected")
-        if memory.percent > 90:
-            logger.warning("High memory usage detected")
-
-        return {"cpu": cpu_percent, "memory": memory.percent, "disk": disk.percent}
-    except Exception as e:
-        logger.error(f"Error checking system resources: {e}")
-        return {}
+class TestGenerateToken(TestCase):
+    def test_format(self):
+        token = generate_token(40)
+        self.assertRegex(token, r"[a-zA-Z0-9]{40}")
 
 
-def kill_hanging_connections():
-    """Kill hanging database connections from tests"""
-    try:
-        kill_query = """
-        SELECT pg_terminate_backend(pid)
-        FROM pg_stat_activity
-        WHERE application_name LIKE '%test%'
-        AND state != 'idle'
-        AND query_start < NOW() - INTERVAL '30 seconds';
-        """
+class TestRenderTemplate(TestCase):
+    def test_render(self):
+        app = create_app()
+        with app.app_context():
+            d = {
+                "failures": [
+                    {
+                        "id": 1,
+                        "name": "Failure Unit Test",
+                        "failed_at": "May 04, 2021 02:07PM UTC",
+                        "failure_reason": "",
+                        "failure_count": 1,
+                        "comment": None,
+                    }
+                ]
+            }
+            html, text = [render_template("emails/failures.{}".format(f), d) for f in ["html", "txt"]]
+            self.assertIn("Failure Unit Test", html)
+            self.assertIn("Failure Unit Test", text)
 
-        result = db.session.execute(kill_query).fetchall()
-        killed_count = len([r for r in result if r[0]])
 
-        if killed_count > 0:
-            logger.info(f"Killed {killed_count} hanging test connections")
+@pytest.fixture
+@skip_condition
+def mock_dataframe():
+    df = pd.DataFrame(
+        {
+            "boolean_col": [True, False],
+            "integer_col": [1, 2],
+            "float_col": [1.1, 2.2],
+            "date_col": [np.datetime64("2020-01-01"), np.datetime64("2020-05-05")],
+            "datetime_col": [np.datetime64("2020-01-01 12:00:00"), np.datetime64("2020-05-05 14:30:00")],
+            "string_col": ["A", "B"],
+        }
+    )
+    return df
 
-        return killed_count
-    except Exception as e:
-        logger.error(f"Error killing connections: {e}")
-        return 0
+
+@skip_condition
+def test_get_column_types_from_dataframe(mock_dataframe):
+    result = get_column_types_from_dataframe(mock_dataframe)
+    expected_output = [
+        {"name": "boolean_col", "friendly_name": "boolean_col", "type": TYPE_BOOLEAN},
+        {"name": "integer_col", "friendly_name": "integer_col", "type": TYPE_INTEGER},
+        {"name": "float_col", "friendly_name": "float_col", "type": TYPE_FLOAT},
+        {"name": "date_col", "friendly_name": "date_col", "type": TYPE_DATE},
+        {"name": "datetime_col", "friendly_name": "datetime_col", "type": TYPE_DATETIME},
+        {"name": "string_col", "friendly_name": "string_col", "type": TYPE_STRING},
+    ]
+
+    assert result == expected_output
+
+
+@skip_condition
+def test_pandas_to_result(mock_dataframe):
+    result = pandas_to_result(mock_dataframe)
+
+    assert "columns" in result
+    assert "rows" in result
+
+    assert mock_dataframe.equals(pd.DataFrame(result["rows"]))
