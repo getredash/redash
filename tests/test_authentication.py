@@ -1,14 +1,12 @@
 import importlib
 import json
 import os
-import tempfile
+import subprocess
 import time
 
 import jwcrypto.jwk
 import jwt
 import requests
-from cryptography.hazmat.primitives import serialization
-from cryptography.hazmat.primitives.asymmetric import rsa
 from flask import request
 from mock import Mock, patch
 from sqlalchemy.orm.exc import NoResultFound
@@ -422,59 +420,28 @@ class TestJWTAuthentication(BaseTestCase):
         self.auth_audience = "My Org"
         self.auth_issuer = "Admin"
         self.token_name = "jwt-token"
+        self.rsa_private_key = "/tmp/jwtRS256.key"
+        self.rsa_public_key = "/tmp/jwtRS256.pem"
 
-        temp_dir = tempfile.gettempdir()
-        unique_id = os.urandom(8).hex()
-        self.rsa_private_key = os.path.join(temp_dir, f"jwt_test_{unique_id}.key")
-        self.rsa_public_key = os.path.join(temp_dir, f"jwt_test_{unique_id}.pem")
-
-        private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
-        private_pem = private_key.private_bytes(
-            encoding=serialization.Encoding.PEM,
-            format=serialization.PrivateFormat.PKCS8,
-            encryption_algorithm=serialization.NoEncryption(),
-        )
-        public_pem = private_key.public_key().public_bytes(
-            encoding=serialization.Encoding.PEM,
-            format=serialization.PublicFormat.SubjectPublicKeyInfo,
-        )
-
-        with open(self.rsa_private_key, "wb") as keyfile:
-            keyfile.write(private_pem)
-        with open(self.rsa_public_key, "wb") as keyfile:
-            keyfile.write(public_pem)
-
-        self._jwt_setting_keys = (
-            "auth_jwt_login_enabled",
-            "auth_jwt_auth_public_certs_url",
-            "auth_jwt_auth_issuer",
-            "auth_jwt_auth_audience",
-            "auth_jwt_auth_cookie_name",
-            "auth_jwt_auth_header_name",
-        )
-        self._previous_jwt_settings = {key: org_settings[key] for key in self._jwt_setting_keys}
-        self._previous_key_cache = dict(jwt_auth.get_public_keys.key_cache)
+        if not (os.path.isfile(self.rsa_private_key) and os.path.isfile(self.rsa_public_key)):
+            subprocess.check_output(["openssl", "genrsa", "-out", self.rsa_private_key, "4096"])
+            subprocess.check_output(
+                ["openssl", "rsa", "-pubout", "-in", self.rsa_private_key, "-out", self.rsa_public_key]
+            )
 
         org_settings["auth_jwt_login_enabled"] = True
         org_settings["auth_jwt_auth_public_certs_url"] = "file://{}".format(self.rsa_public_key)
         org_settings["auth_jwt_auth_issuer"] = self.auth_issuer
         org_settings["auth_jwt_auth_audience"] = self.auth_audience
-        org_settings["auth_jwt_auth_cookie_name"] = ""
         org_settings["auth_jwt_auth_header_name"] = self.token_name
 
     def tearDown(self):
-        org_settings.update(self._previous_jwt_settings)
+        org_settings["auth_jwt_login_enabled"] = False
+        org_settings["auth_jwt_auth_public_certs_url"] = ""
+        org_settings["auth_jwt_auth_issuer"] = ""
+        org_settings["auth_jwt_auth_audience"] = ""
+        org_settings["auth_jwt_auth_header_name"] = ""
         jwt_auth.get_public_keys.key_cache.clear()
-        jwt_auth.get_public_keys.key_cache.update(self._previous_key_cache)
-
-        # Clean up unique temporary key files
-        for key_file in [self.rsa_private_key, self.rsa_public_key]:
-            try:
-                if os.path.exists(key_file):
-                    os.remove(key_file)
-            except OSError:
-                pass
-
         super(TestJWTAuthentication, self).tearDown()
 
     def test_jwt_no_token(self):
@@ -512,4 +479,4 @@ class TestJWTAuthentication(BaseTestCase):
         mock_get.return_value = mockresponse
 
         keys = jwt_auth.get_public_keys("http://localhost/key.jwt")
-        self.assertEqual(keys[0].key_size, 2048)
+        self.assertEqual(keys[0].key_size, 4096)
