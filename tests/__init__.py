@@ -49,21 +49,6 @@ class BaseTestCase(TestCase):
         self.db = db
         self.app.config["TESTING"] = True
 
-        # Configure aggressive connection management for tests
-        self.app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-            "pool_pre_ping": True,
-            "pool_recycle": 30,  # Recycle connections every 30 seconds
-            "pool_size": 1,  # Minimal pool size for tests
-            "max_overflow": 0,  # No overflow connections
-            "pool_timeout": 10,
-            "connect_args": {"connect_timeout": 10, "application_name": "redash_test"},
-        }
-
-        # Disable features that might cause hanging
-        self.app.config["SQLALCHEMY_RECORD_QUERIES"] = False
-        self.app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-        # Disable database metrics during testing to prevent event listener issues
-        self.app.config["REDASH_DATABASE_METRICS_ENABLED"] = False
         limiter.enabled = False
 
         self.app_ctx = self.app.app_context()

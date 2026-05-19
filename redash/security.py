@@ -1,5 +1,4 @@
 import functools
-import os
 
 from flask import request, session
 from flask_login import current_user
@@ -8,21 +7,7 @@ from flask_wtf.csrf import CSRFProtect, generate_csrf
 
 from redash import settings
 
-# Disable Flask-Talisman during testing due to compatibility issues
-
-if not os.getenv("TESTING"):
-    talisman = talisman.Talisman()
-else:
-    # Create a dummy talisman for testing
-    class DummyTalisman:
-        def __call__(self, *args, **kwargs):
-            def decorator(f):
-                return f
-
-            return decorator
-
-    talisman = DummyTalisman()
-
+talisman = talisman.Talisman()
 csrf = CSRFProtect()
 
 
@@ -59,18 +44,6 @@ def init_app(app):
     @app.after_request
     def inject_csrf_token(response):
         response.set_cookie("csrf_token", generate_csrf())
-        return response
-
-    @app.after_request
-    def set_default_security_headers(response):
-        from flask import g
-
-        # Set default CSP headers if not already set and not an embedding view
-        if not getattr(g, "_embedding_headers_requested", False):
-            if "Content-Security-Policy" not in response.headers:
-                response.headers["Content-Security-Policy"] = "frame-ancestors 'none'"
-            if "X-Frame-Options" not in response.headers:
-                response.headers["X-Frame-Options"] = "deny"
         return response
 
     if settings.ENFORCE_CSRF:
