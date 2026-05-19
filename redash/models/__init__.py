@@ -216,14 +216,15 @@ class DataSource(BelongsToOrgMixin, db.Model):
             query_runner = self.query_runner
             schema = query_runner.get_schema(get_stats=refresh)
 
-            try:
-                out_schema = self._sort_schema(schema)
-            except Exception:
-                logging.exception("Error sorting schema columns for data_source {}".format(self.id))
-                out_schema = schema
-            finally:
-                ttl = int(datetime.timedelta(minutes=settings.SCHEMAS_REFRESH_SCHEDULE, days=7).total_seconds())
-                redis_connection.set(self._schema_key, json_dumps(out_schema), ex=ttl)
+            if schema is not None:
+                try:
+                    out_schema = self._sort_schema(schema)
+                except Exception:
+                    logging.exception("Error sorting schema columns for data_source {}".format(self.id))
+                    out_schema = schema
+
+            ttl = int(datetime.timedelta(minutes=settings.SCHEMAS_REFRESH_SCHEDULE, days=7).total_seconds())
+            redis_connection.set(self._schema_key, json_dumps(out_schema), ex=ttl)
 
         return out_schema
 

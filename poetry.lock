@@ -631,7 +631,7 @@ netifaces = ["netifaces (>=0.10.5)"]
 [package.source]
 type = "git"
 url = "https://github.com/Gee19/champion.git"
-reference = "master"
+reference = "74cf301bf89a88b8a55459fd8439766a11eb16f0"
 resolved_reference = "74cf301bf89a88b8a55459fd8439766a11eb16f0"
 
 [[package]]
@@ -6503,4 +6503,4 @@ cffi = ["cffi (>=1.17,<2.0) ; platform_python_implementation != \"PyPy\" and pyt
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.13,<3.14"
-content-hash = "e119a081ed0a2a94e2e69971bf8f84fe7fadd4ad3899e7ed25df384162f37029"
+content-hash = "71760b2805f97c6b575de003874cc256eb1474f2d8aa57d964e9652616227d9c"
