@@ -1518,60 +1518,6 @@ class QuerySnippet(TimestampMixin, db.Model, BelongsToOrgMixin):
 
 
 def init_db():
-    import logging
-    import os
-
-    from flask import current_app
-
-    # Skip database operations during testing to prevent deadlocks
-    is_testing = False
-    try:
-        # Check Flask config first (preferred)
-        is_testing = current_app.config.get("TESTING", False)
-    except RuntimeError:
-        # Fall back to environment variable if no app context
-        is_testing = os.getenv("TESTING", "").lower() in ("true", "1", "yes")
-
-    if is_testing:
-        logging.debug("Skipping database commit in init_db() during testing")
-
-        # Check if default org already exists to avoid duplicates
-        try:
-            existing_org = Organization.query.filter(Organization.slug == "default").first()
-            if existing_org:
-                logging.debug("Default organization already exists, reusing it")
-                admin_group = existing_org.groups.filter(
-                    Group.name == "admin", Group.type == Group.BUILTIN_GROUP
-                ).first()
-                default_group = existing_org.groups.filter(
-                    Group.name == "default", Group.type == Group.BUILTIN_GROUP
-                ).first()
-                return existing_org, admin_group, default_group
-        except Exception as e:
-            logging.debug(f"Could not query for existing org: {e}")
-
-        default_org = Organization(name="Default", slug="default", settings={})
-        admin_group = Group(
-            name="admin",
-            permissions=Group.ADMIN_PERMISSIONS,
-            org=default_org,
-            type=Group.BUILTIN_GROUP,
-        )
-        default_group = Group(
-            name="default",
-            permissions=Group.DEFAULT_PERMISSIONS,
-            org=default_org,
-            type=Group.BUILTIN_GROUP,
-        )
-
-        # Add to session so relationships work, but don't commit to avoid duplicates
-        # The session will be rolled back in test tearDown
-        db.session.add_all([default_org, admin_group, default_group])
-        db.session.flush()  # Assign IDs but don't commit
-
-        return default_org, admin_group, default_group
-
-    # Original database operations for non-testing environments
     default_org = Organization(name="Default", slug="default", settings={})
     admin_group = Group(
         name="admin",
@@ -1590,9 +1536,3 @@ def init_db():
     # XXX remove after fixing User.group_ids
     db.session.commit()
     return default_org, admin_group, default_group
-
-
-# Make sure the SQLAlchemy mappers are all properly configured first.
-# This is required by SQLAlchemy-Searchable as it adds DDL listeners
-# on the configuration phase of models.
-db.configure_mappers()

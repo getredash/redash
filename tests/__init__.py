@@ -48,76 +48,20 @@ class BaseTestCase(TestCase):
         self.app = create_app()
         self.db = db
         self.app.config["TESTING"] = True
-
         limiter.enabled = False
-
         self.app_ctx = self.app.app_context()
         self.app_ctx.push()
-
-        # Clean up any existing sessions before starting
-        try:
-            db.session.rollback()
-            db.session.close()
-            db.session.remove()
-        except Exception:
-            pass
-
-        # Dispose engine to close all connections before truncating
-        try:
-            db.engine.dispose()
-        except Exception:
-            pass
-
-        # Use drop/create for complete test isolation
-        # TRUNCATE is unreliable due to lock contention in test environments
+        db.session.close()
         db.drop_all()
         db.create_all()
-
-        # Override commit to use flush during testing to prevent data persistence
-        # This allows tearDown's rollback() to clean up all test data
-        self._original_commit = db.session.commit
-        db.session.commit = db.session.flush
-
         self.factory = Factory()
         self.client = self.app.test_client()
 
     def tearDown(self):
-        # Restore original commit method
-        try:
-            if hasattr(self, "_original_commit"):
-                db.session.commit = self._original_commit
-        except Exception as e:
-            logging.warning(f"Error restoring commit method: {e}")
-
-        try:
-            # Rollback any uncommitted changes
-            db.session.rollback()
-        except Exception as e:
-            logging.warning(f"Error rolling back session: {e}")
-
-        try:
-            # Close and remove the session
-            db.session.close()
-            db.session.remove()
-        except Exception as e:
-            logging.warning(f"Error closing/removing session: {e}")
-
-        try:
-            # Dispose the engine to close all connections
-            db.engine.dispose()
-        except Exception as e:
-            logging.warning(f"Error disposing engine: {e}")
-
-        try:
-            # Clean Redis
-            redis_connection.flushdb()
-        except Exception as e:
-            logging.warning(f"Error flushing Redis: {e}")
-
-        try:
-            self.app_ctx.pop()
-        except Exception as e:
-            logging.warning(f"Error popping app context: {e}")
+        db.session.remove()
+        db.engine.dispose()
+        self.app_ctx.pop()
+        redis_connection.flushdb()
 
     def make_request(
         self,
