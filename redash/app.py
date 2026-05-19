@@ -11,7 +11,10 @@ try:
     # Only enable in test environment
     if os.getenv("TESTING") or "pytest" in os.getenv("_", ""):
         try:
-            from tests.test_utils import setup_faulthandler, setup_deadlock_signal_handler
+            from tests.test_utils import (
+                setup_deadlock_signal_handler,
+                setup_faulthandler,
+            )
 
             setup_faulthandler()
             setup_deadlock_signal_handler()
@@ -28,12 +31,15 @@ class Redash(Flask):
     def __init__(self, *args, **kwargs):
         # Enable deadlock detection during Flask init
         try:
-            import os
             import logging
+            import os
 
             if os.getenv("TESTING") or "pytest" in os.getenv("_", ""):
                 try:
-                    from tests.test_utils import setup_faulthandler, setup_deadlock_signal_handler
+                    from tests.test_utils import (
+                        setup_deadlock_signal_handler,
+                        setup_faulthandler,
+                    )
 
                     setup_faulthandler()
                     setup_deadlock_signal_handler()
@@ -82,22 +88,10 @@ def create_app():
     security.init_app(app)
     request_metrics.init_app(app)
     db.init_app(app)
-
-    # Disable Flask-Migrate in testing to prevent subprocess deadlocks
-    if not app.config.get("TESTING", False):
-        migrate.init_app(app, db)
-    else:
-        logging.warning("Skipping Flask-Migrate initialization in testing mode")
-
+    migrate.init_app(app, db)
     mail.init_app(app)
     authentication.init_app(app)
-
-    # Disable Flask-Limiter during testing to prevent concurrency deadlocks
-    if not app.config.get("TESTING", False):
-        limiter.init_app(app)
-    else:
-        logging.warning("Skipping Flask-Limiter initialization in testing mode due to concurrency issues")
-
+    limiter.init_app(app)
     handlers.init_app(app)
     configure_webpack(app)
     users.init_app(app)

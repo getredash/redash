@@ -30,13 +30,10 @@ from inspect import isclass
 
 import sqlalchemy as sa
 from sqlalchemy.orm import mapperlib
-from sqlalchemy.orm.properties import ColumnProperty
 
 # SQLAlchemy 1.4 compatibility: _ColumnEntity moved location
-try:
-    from sqlalchemy.orm.context import _ColumnEntity
-except ImportError:
-    from sqlalchemy.orm.query import _ColumnEntity
+from sqlalchemy.orm.context import _ColumnEntity
+from sqlalchemy.orm.properties import ColumnProperty
 from sqlalchemy.orm.util import AliasedInsp
 from sqlalchemy.sql.expression import asc, desc, nullslast
 

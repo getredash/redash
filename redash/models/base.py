@@ -1,6 +1,4 @@
 import functools
-import logging
-import os
 
 from flask_sqlalchemy import SQLAlchemy
 from flask_sqlalchemy.query import Query
@@ -38,11 +36,7 @@ db = RedashSQLAlchemy(
 
 # listen to a few database events to set up functions, trigger updates
 # and indexes for the full text search
-# Disable during testing to prevent subprocess deadlocks
-if not os.getenv("TESTING"):
-    make_searchable(db.metadata, options={"regconfig": "pg_catalog.simple"})
-else:
-    logging.warning("Skipping make_searchable() in testing mode to prevent deadlocks")
+make_searchable(db.metadata, options={"regconfig": "pg_catalog.simple"})
 
 
 class SearchBaseQuery(Query, SearchQueryMixin):

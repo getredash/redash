@@ -34,13 +34,4 @@ def init_app(app):
     )
 
     app.register_blueprint(routes)
-
-    # Disable Flask-RESTful API initialization during testing to prevent Flask 3.0 compatibility deadlocks
-    if not app.config.get("TESTING", False):
-        api.init_app(app)
-    else:
-        import logging
-
-        logging.warning(
-            "Skipping Flask-RESTful API initialization in testing mode due to Flask 3.0 compatibility issues"
-        )
+    api.init_app(app)
