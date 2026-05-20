@@ -45,8 +45,23 @@ EXPOSE 5000
 
 RUN useradd --create-home redash
 
-# Ubuntu packages
+# Add Debian trixie-security and trixie-updates repositories so we get the latest
+# security fixes and stable point updates at build time.
+# trixie-proposed-updates is kept for opt-in pre-release fixes already in flight.
+RUN set -eux; \
+  printf 'deb http://deb.debian.org/debian-security trixie-security main\n' \
+    > /etc/apt/sources.list.d/trixie-security.list; \
+  printf 'deb http://deb.debian.org/debian trixie-updates main\n' \
+    > /etc/apt/sources.list.d/trixie-updates.list; \
+  printf 'deb http://deb.debian.org/debian trixie-proposed-updates main\n' \
+    > /etc/apt/sources.list.d/trixie-proposed-updates.list
+
+# Apply security archive first (forces -t trixie-security so the security pocket wins),
+# then a general upgrade for stable point updates, then install build dependencies.
 RUN apt-get update && \
+  DEBIAN_FRONTEND=noninteractive apt-get -y -t trixie-security upgrade && \
+  DEBIAN_FRONTEND=noninteractive apt-get -y -t trixie-updates upgrade && \
+  DEBIAN_FRONTEND=noninteractive apt-get -y upgrade && \
   apt-get install -y --no-install-recommends \
   pkg-config \
   curl \
