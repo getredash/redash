@@ -520,7 +520,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         return query
 
     @classmethod
-    def all_queries(cls, group_ids, user_id=None, include_drafts=False, include_archived=False):
+    def all_queries(cls, group_ids, user_id=None, include_drafts=False, include_archived=False, unassigned_only=False):
         query_ids = (
             db.session.query(distinct(cls.id))
             .join(DataSourceGroup, Query.data_source_id == DataSourceGroup.data_source_id)
@@ -538,6 +538,17 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
             .outerjoin(QueryResult, QueryResult.id == Query.latest_query_data_id)
             .options(contains_eager(Query.user), contains_eager(Query.latest_query_data))
         )
+
+        if unassigned_only:
+            excluded_query_ids = (
+                db.session.query(distinct(cls.id))
+                .join(Visualization)
+                .join(Widget)
+                .join(Dashboard)
+                .filter(cls.id.in_(query_ids))
+                .filter(Dashboard.is_archived.is_(False))
+            )
+            queries = queries.filter(~cls.id.in_(excluded_query_ids))
 
         if not include_drafts:
             queries = queries.filter(or_(Query.is_draft.is_(False), Query.user_id == user_id))
@@ -691,6 +702,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         include_drafts=False,
         limit=None,
         include_archived=False,
+        unassigned_only=False,
         multi_byte_search=False,
     ):
         all_queries = cls.all_queries(
@@ -698,6 +710,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
             user_id=user_id,
             include_drafts=include_drafts,
             include_archived=include_archived,
+            unassigned_only=unassigned_only,
         )
 
         if multi_byte_search:
