@@ -43,7 +43,8 @@ import useUpdateQuery from "./hooks/useUpdateQuery";
 import useUpdateQueryDescription from "./hooks/useUpdateQueryDescription";
 import useUnsavedChangesAlert from "./hooks/useUnsavedChangesAlert";
 
-import useRefreshCooldown from "@/lib/hooks/useRefreshCooldown";
+import { notifyRefreshCooldown } from "@/lib/hooks/useRefreshCooldown";
+import RefreshCooldownLabel from "./components/RefreshCooldownLabel";
 
 import "./components/QuerySourceDropdown"; // register QuerySourceDropdown
 import "./QuerySource.less";
@@ -78,9 +79,7 @@ function QuerySource(props) {
   } = useQueryExecute(query);
 
   const queryResultData = useQueryResultData(queryResult);
-  const { isCooldownActive, remainingTime, notifyCooldown } = useRefreshCooldown(
-    queryResult ? queryResult.getUpdatedAt() : null
-  );
+  const retrievedAt = queryResult ? queryResult.getUpdatedAt() : null;
 
   const editorRef = useRef(null);
   const [autocompleteAvailable, autocompleteEnabled, toggleAutocomplete] = useAutocompleteFlags(schema);
@@ -169,8 +168,7 @@ function QuerySource(props) {
       if (!queryFlags.canExecute || (!skipParametersDirtyFlag && (areParametersDirty || isQueryExecuting))) {
         return;
       }
-      if (isCooldownActive) {
-        notifyCooldown();
+      if (notifyRefreshCooldown(retrievedAt)) {
         return;
       }
       if (isDirty || !isEmpty(selectedText)) {
@@ -181,7 +179,7 @@ function QuerySource(props) {
         executeQuery();
       }
     },
-    [query, queryFlags.canExecute, areParametersDirty, isQueryExecuting, isDirty, selectedText, executeQuery, isCooldownActive, notifyCooldown]
+    [query, queryFlags.canExecute, areParametersDirty, isQueryExecuting, isDirty, selectedText, executeQuery, retrievedAt]
   );
 
   const [isQuerySaving, setIsQuerySaving] = useState(false);
@@ -310,11 +308,9 @@ function QuerySource(props) {
                         onClick: doExecuteQuery,
                         text: (
                           <span className="hidden-xs">
-                            {isCooldownActive
-                              ? `Execute (${remainingTime}s)`
-                              : selectedText === null
-                                ? "Execute"
-                                : "Execute Selected"}
+                            <RefreshCooldownLabel retrievedAt={retrievedAt} label="Execute">
+                              {selectedText === null ? "Execute" : "Execute Selected"}
+                            </RefreshCooldownLabel>
                           </span>
                         ),
                       }}
@@ -408,7 +404,9 @@ function QuerySource(props) {
                           loading={isQueryExecuting}
                           onClick={doExecuteQuery}>
                           {!isQueryExecuting && <i className="zmdi zmdi-refresh m-r-5" aria-hidden="true" />}
-                          {isCooldownActive ? `Refresh Now (${remainingTime}s)` : "Refresh Now"}
+                          <RefreshCooldownLabel retrievedAt={retrievedAt} label="Refresh Now">
+                            Refresh Now
+                          </RefreshCooldownLabel>
                         </Button>
                       }
                     />
