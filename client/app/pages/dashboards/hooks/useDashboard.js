@@ -22,12 +22,12 @@ export { DashboardStatusEnum } from "./useEditModeHandler";
 
 function getAffectedWidgets(widgets, updatedParameters = []) {
   return !isEmpty(updatedParameters)
-    ? widgets.filter(widget =>
+    ? widgets.filter((widget) =>
         Object.values(widget.getParameterMappings())
           .filter(({ type }) => type === "dashboard-level")
           .some(({ mapTo }) =>
             includes(
-              updatedParameters.map(p => p.name),
+              updatedParameters.map((p) => p.name),
               mapTo
             )
           )
@@ -50,7 +50,7 @@ function useDashboard(dashboardData) {
     [dashboard]
   );
   const hasOnlySafeQueries = useMemo(
-    () => every(dashboard.widgets, w => (w.getQuery() ? w.getQuery().is_safe : true)),
+    () => every(dashboard.widgets, (w) => (w.getQuery() ? w.getQuery().is_safe : true)),
     [dashboard]
   );
 
@@ -67,19 +67,19 @@ function useDashboard(dashboardData) {
 
   const updateDashboard = useCallback(
     (data, includeVersion = true) => {
-      setDashboard(currentDashboard => extend({}, currentDashboard, data));
+      setDashboard((currentDashboard) => extend({}, currentDashboard, data));
       data = { ...data, id: dashboard.id };
       if (includeVersion) {
         data = { ...data, version: dashboard.version };
       }
       return Dashboard.save(data)
-        .then(updatedDashboard => {
-          setDashboard(currentDashboard => extend({}, currentDashboard, pick(updatedDashboard, keys(data))));
+        .then((updatedDashboard) => {
+          setDashboard((currentDashboard) => extend({}, currentDashboard, pick(updatedDashboard, keys(data))));
           if (has(data, "name")) {
             location.setPath(url.parse(updatedDashboard.url).pathname, true);
           }
         })
-        .catch(error => {
+        .catch((error) => {
           const status = get(error, "response.status");
           if (status === 403) {
             notification.error("Dashboard update failed", "Permission Denied.");
@@ -102,25 +102,25 @@ function useDashboard(dashboardData) {
 
   const loadWidget = useCallback((widget, forceRefresh = false) => {
     widget.getParametersDefs(); // Force widget to read parameters values from URL
-    setDashboard(currentDashboard => extend({}, currentDashboard));
+    setDashboard((currentDashboard) => extend({}, currentDashboard));
     return widget
       .load(forceRefresh)
-      .catch(error => {
+      .catch((error) => {
         // QueryResultErrors are expected
         if (error instanceof QueryResultError) {
           return;
         }
         return Promise.reject(error);
       })
-      .finally(() => setDashboard(currentDashboard => extend({}, currentDashboard)));
+      .finally(() => setDashboard((currentDashboard) => extend({}, currentDashboard)));
   }, []);
 
-  const refreshWidget = useCallback(widget => loadWidget(widget, true), [loadWidget]);
+  const refreshWidget = useCallback((widget) => loadWidget(widget, true), [loadWidget]);
 
-  const removeWidget = useCallback(widgetId => {
-    setDashboard(currentDashboard =>
+  const removeWidget = useCallback((widgetId) => {
+    setDashboard((currentDashboard) =>
       extend({}, currentDashboard, {
-        widgets: currentDashboard.widgets.filter(widget => widget.id !== undefined && widget.id !== widgetId),
+        widgets: currentDashboard.widgets.filter((widget) => widget.id !== undefined && widget.id !== widgetId),
       })
     );
   }, []);
@@ -132,11 +132,11 @@ function useDashboard(dashboardData) {
     (forceRefresh = false, updatedParameters = []) => {
       const affectedWidgets = getAffectedWidgets(dashboardRef.current.widgets, updatedParameters);
       const loadWidgetPromises = compact(
-        affectedWidgets.map(widget => loadWidget(widget, forceRefresh).catch(error => error))
+        affectedWidgets.map((widget) => loadWidget(widget, forceRefresh).catch((error) => error))
       );
 
       return Promise.all(loadWidgetPromises).then(() => {
-        const queryResults = compact(map(dashboardRef.current.widgets, widget => widget.getQueryResult()));
+        const queryResults = compact(map(dashboardRef.current.widgets, (widget) => widget.getQueryResult()));
         const updatedFilters = collectDashboardFilters(dashboardRef.current, queryResults, location.search);
         setFilters(updatedFilters);
       });
@@ -145,7 +145,7 @@ function useDashboard(dashboardData) {
   );
 
   const refreshDashboard = useCallback(
-    updatedParameters => {
+    (updatedParameters) => {
       if (!refreshing) {
         setRefreshing(true);
         loadDashboard(true, updatedParameters).finally(() => setRefreshing(false));
@@ -154,15 +154,30 @@ function useDashboard(dashboardData) {
     [refreshing, loadDashboard]
   );
 
+  const saveDashboardParameters = useCallback(() => {
+    const currentDashboard = dashboardRef.current;
+
+    return updateDashboard({
+      options: {
+        ...currentDashboard.options,
+        parameters: map(globalParameters, (p) => p.toSaveableObject()),
+      },
+    }).catch((error) => {
+      console.error("Failed to persist parameter values:", error);
+      notification.error("Parameter values could not be saved. Your changes may not be persisted.");
+      throw error;
+    });
+  }, [globalParameters, updateDashboard]);
+
   const archiveDashboard = useCallback(() => {
     recordEvent("archive", "dashboard", dashboard.id);
-    Dashboard.delete(dashboard).then(updatedDashboard =>
-      setDashboard(currentDashboard => extend({}, currentDashboard, pick(updatedDashboard, ["is_archived"])))
+    Dashboard.delete(dashboard).then((updatedDashboard) =>
+      setDashboard((currentDashboard) => extend({}, currentDashboard, pick(updatedDashboard, ["is_archived"])))
     );
   }, [dashboard]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const showShareDashboardDialog = useCallback(() => {
-    const handleDialogClose = () => setDashboard(currentDashboard => extend({}, currentDashboard));
+    const handleDialogClose = () => setDashboard((currentDashboard) => extend({}, currentDashboard));
 
     ShareDashboardDialog.showModal({
       dashboard,
@@ -175,8 +190,8 @@ function useDashboard(dashboardData) {
   const showAddTextboxDialog = useCallback(() => {
     TextboxDialog.showModal({
       isNew: true,
-    }).onClose(text =>
-      dashboard.addWidget(text).then(() => setDashboard(currentDashboard => extend({}, currentDashboard)))
+    }).onClose((text) =>
+      dashboard.addWidget(text).then(() => setDashboard((currentDashboard) => extend({}, currentDashboard)))
     );
   }, [dashboard]);
 
@@ -188,13 +203,13 @@ function useDashboard(dashboardData) {
         .addWidget(visualization, {
           parameterMappings: editableMappingsToParameterMappings(parameterMappings),
         })
-        .then(widget => {
+        .then((widget) => {
           const widgetsToSave = [
             widget,
             ...synchronizeWidgetTitles(widget.options.parameterMappings, dashboard.widgets),
           ];
-          return Promise.all(widgetsToSave.map(w => w.save())).then(() =>
-            setDashboard(currentDashboard => extend({}, currentDashboard))
+          return Promise.all(widgetsToSave.map((w) => w.save())).then(() =>
+            setDashboard((currentDashboard) => extend({}, currentDashboard))
           );
         })
     );
@@ -238,6 +253,7 @@ function useDashboard(dashboardData) {
     setRefreshRate,
     disableRefreshRate,
     ...editModeHandler,
+    saveDashboardParameters,
     gridDisabled,
     setGridDisabled,
     fullscreen,

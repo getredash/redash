@@ -44,6 +44,7 @@ describe("Box Plot", () => {
       .then(({ id }) => cy.createVisualization(id, "BOXPLOT", "Boxplot (Deprecated)", {}))
       .then(({ id: visualizationId, query_id: queryId }) => {
         cy.visit(`queries/${queryId}/source#${visualizationId}`);
+        cy.wait(1500); // eslint-disable-line cypress/no-unnecessary-waiting
         cy.getByTestId("ExecuteButton").click();
       });
   });
@@ -61,9 +62,7 @@ describe("Box Plot", () => {
     // Wait for proper initialization of visualization
     cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
 
-    cy.getByTestId("VisualizationPreview")
-      .find("svg")
-      .should("exist");
+    cy.getByTestId("VisualizationPreview").find("svg").should("exist");
 
     cy.percySnapshot("Visualizations - Box Plot", { widths: [viewportWidth] });
   });

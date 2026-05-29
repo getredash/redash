@@ -20,7 +20,7 @@ class TestBigQueryQueryRunner(unittest.TestCase):
         query = "SELECT a FROM tbl"
         expect = (
             "/* Username: username, query_id: adhoc, "
-            "Job ID: job-id, Query Hash: query-hash, "
+            "Query Hash: query-hash, "
             "Scheduled: False */ SELECT a FROM tbl"
         )
 

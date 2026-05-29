@@ -223,7 +223,7 @@ def test_read_xlsx():
     output = BytesIO()
     writer = pd.ExcelWriter(output)
     test_df.to_excel(writer, index=False)
-    writer.save()
+    writer.close()
     assert test_df.equals(EXTENSIONS_READERS["xlsx"](output))
 
 

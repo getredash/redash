@@ -37,7 +37,7 @@ RUN <<EOF
   fi
 EOF
 
-FROM python:3.10-slim-bookworm
+FROM python:3.13-slim-bookworm
 
 EXPOSE 5000
 
@@ -95,7 +95,7 @@ EOF
 
 WORKDIR /app
 
-ENV POETRY_VERSION=1.8.3
+ENV POETRY_VERSION=2.1.4
 ENV POETRY_HOME=/etc/poetry
 ENV POETRY_VIRTUALENVS_CREATE=false
 RUN curl -sSL https://install.python-poetry.org | python3 -

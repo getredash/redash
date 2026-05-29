@@ -44,6 +44,8 @@ order_map = {
     "-executed_at": "-query_results-retrieved_at",
     "created_by": "users-name",
     "-created_by": "-users-name",
+    "starred_at": "favorites-created_at",
+    "-starred_at": "-favorites-created_at",
 }
 
 order_results = partial(_order_results, default_order="-created_at", allowed_orders=order_map)
@@ -239,6 +241,8 @@ class QueryListResource(BaseQueryListResource):
         query = models.Query.create(**query_def)
         models.db.session.add(query)
         models.db.session.commit()
+        query.update_latest_result_by_query_hash()
+        models.db.session.commit()
 
         self.record_event({"action": "create", "object_id": query.id, "object_type": "query"})
 
@@ -361,6 +365,8 @@ class QueryResource(BaseResource):
 
         try:
             self.update_model(query, query_def)
+            models.db.session.commit()
+            query.update_latest_result_by_query_hash()
             models.db.session.commit()
         except StaleDataError:
             abort(409)

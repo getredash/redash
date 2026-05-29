@@ -5,34 +5,25 @@ describe("Edit visualization dialog", () => {
     cy.login();
     cy.createQuery().then(({ id }) => {
       cy.visit(`queries/${id}/source`);
+      cy.wait(1500); // eslint-disable-line cypress/no-unnecessary-waiting
       cy.getByTestId("ExecuteButton").click();
     });
   });
 
   it("opens New Visualization dialog", () => {
-    cy.getByTestId("NewVisualization")
-      .should("exist")
-      .click();
+    cy.getByTestId("NewVisualization").should("exist").click();
     cy.getByTestId("EditVisualizationDialog").should("exist");
     // Default visualization should be selected
-    cy.getByTestId("VisualizationType")
-      .should("exist")
-      .should("contain", "Chart");
-    cy.getByTestId("VisualizationName")
-      .should("exist")
-      .should("have.value", "Chart");
+    cy.getByTestId("VisualizationType").should("exist").should("contain", "Chart");
+    cy.getByTestId("VisualizationName").should("exist").should("have.value", "Chart");
   });
 
   it("opens Edit Visualization dialog", () => {
     cy.getByTestId("EditVisualization").click();
     cy.getByTestId("EditVisualizationDialog").should("exist");
     // Default `Table` visualization should be selected
-    cy.getByTestId("VisualizationType")
-      .should("exist")
-      .should("contain", "Table");
-    cy.getByTestId("VisualizationName")
-      .should("exist")
-      .should("have.value", "Table");
+    cy.getByTestId("VisualizationType").should("exist").should("contain", "Table");
+    cy.getByTestId("VisualizationName").should("exist").should("have.value", "Table");
   });
 
   it("creates visualization with custom name", () => {
@@ -44,15 +35,9 @@ describe("Edit visualization dialog", () => {
       VisualizationType.TABLE
     `);
 
-    cy.getByTestId("VisualizationName")
-      .clear()
-      .type(visualizationName);
+    cy.getByTestId("VisualizationName").clear().type(visualizationName);
 
-    cy.getByTestId("EditVisualizationDialog")
-      .contains("button", "Save")
-      .click();
-    cy.getByTestId("QueryPageVisualizationTabs")
-      .contains("span", visualizationName)
-      .should("exist");
+    cy.getByTestId("EditVisualizationDialog").contains("button", "Save").click();
+    cy.getByTestId("QueryPageVisualizationTabs").contains("span", visualizationName).should("exist");
   });
 });

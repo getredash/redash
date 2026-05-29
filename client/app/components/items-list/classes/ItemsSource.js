@@ -135,19 +135,19 @@ export class ItemsSource {
     this._changed({ sorting: true });
   };
 
-  updateSearch = (searchTerm) => {
+  updateSearch = (searchTerm, options) => {
     // here we update state directly, but later `fetchData` will update it properly
     this._searchTerm = searchTerm;
     // in search mode ignore the ordering and use the ranking order
     // provided by the server-side FTS backend instead, unless it was
     // requested by the user by actively ordering in search mode
-    if (searchTerm === "") {
+    if (searchTerm === "" || !options?.isServerSideFTS) {
       this._sorter.setField(this._savedOrderByField); // restore ordering
     } else {
       this._sorter.setField(null);
     }
     this._paginator.setPage(1);
-    this._changed({ search: true, pagination: { page: true } });
+    return this._changed({ search: true, pagination: { page: true } });
   };
 
   updateSelectedTags = (selectedTags) => {
