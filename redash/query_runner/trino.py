@@ -1,4 +1,5 @@
 import logging
+import os
 
 from redash.models.users import ApiUser, User
 from redash.query_runner import (
@@ -13,16 +14,33 @@ from redash.query_runner import (
     JobTimeoutException,
     register,
 )
+from redash.settings import parse_boolean
 
 logger = logging.getLogger(__name__)
+ANNOTATE_QUERY = parse_boolean(os.environ.get("TRINO_ANNOTATE_QUERY", "true"))
 
 try:
     import trino
     from trino.exceptions import DatabaseError
+    from trino.types import NamedRowTuple
 
     enabled = True
 except ImportError:
     enabled = False
+
+
+def _convert_row_types(value):
+    """Convert NamedRowTuple instances to dicts so ROW fields are serialized with their names."""
+    if isinstance(value, NamedRowTuple):
+        names = value.__annotations__.get("names", [])
+        return {
+            name if name is not None else f"_field{i}": _convert_row_types(v)
+            for i, (name, v) in enumerate(zip(names, value))
+        }
+    if isinstance(value, (list, tuple)):
+        return [_convert_row_types(v) for v in value]
+    return value
+
 
 TRINO_TYPES_MAPPING = {
     "boolean": TYPE_BOOLEAN,
@@ -46,7 +64,7 @@ TRINO_TYPES_MAPPING = {
 
 class Trino(BaseQueryRunner):
     noop_query = "SELECT 1"
-    should_annotate_query = False
+    should_annotate_query = ANNOTATE_QUERY
 
     @classmethod
     def configuration_schema(cls):
@@ -198,7 +216,8 @@ class Trino(BaseQueryRunner):
             results = cursor.fetchall()
             description = cursor.description
             columns = self.fetch_columns([(c[0], TRINO_TYPES_MAPPING.get(c[1], None)) for c in description])
-            rows = [dict(zip([c["name"] for c in columns], r)) for r in results]
+            column_names = [c["name"] for c in columns]
+            rows = [dict(zip(column_names, [_convert_row_types(v) for v in r])) for r in results]
             data = {"columns": columns, "rows": rows}
             error = None
         except DatabaseError as db:

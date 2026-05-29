@@ -19,7 +19,7 @@ function mount(options: any, done: any) {
       visualizationName="Test"
       data={{ columns: [], rows: [] }}
       options={options}
-      onOptionsChange={changedOptions => {
+      onOptionsChange={(changedOptions: any) => {
         expect(changedOptions).toMatchSnapshot();
         done();
       }}
@@ -228,5 +228,5 @@ describe("Visualizations -> Chart -> Editor -> General Settings", () => {
       .simulate("change", { target: { checked: true } });
   });
 
-  
+
 });

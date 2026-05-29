@@ -20,7 +20,6 @@ export default function CustomPlotlyChart({ options, data }: any) {
     if (container) {
       const unwatch = resizeObserver(container, () => {
         // Clear existing data with blank data for succeeding codeCall adds data to existing plot.
-        // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'null' is not assignable to param... Remove this comment to see the full error message
         Plotly.purge(container);
         renderCustomChart(plotlyData.x, plotlyData.ys, container, Plotly);
       });
@@ -31,7 +30,6 @@ export default function CustomPlotlyChart({ options, data }: any) {
   // Cleanup when component destroyed
   useEffect(() => {
     if (container) {
-      // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'null' is not assignable to param... Remove this comment to see the full error message
       return () => Plotly.purge(container);
     }
   }, [container]);
