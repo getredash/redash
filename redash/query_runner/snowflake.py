@@ -50,6 +50,7 @@ class Snowflake(BaseSQLQueryRunner):
                 "private_key_pwd": {"type": "string"},
                 "warehouse": {"type": "string"},
                 "database": {"type": "string"},
+                "role": {"type": "string"},
                 "region": {"type": "string", "default": "us-west"},
                 "lower_case_columns": {
                     "type": "boolean",
@@ -66,6 +67,7 @@ class Snowflake(BaseSQLQueryRunner):
                 "private_key_pwd",
                 "warehouse",
                 "database",
+                "role",
                 "region",
                 "host",
             ],
@@ -108,6 +110,7 @@ class Snowflake(BaseSQLQueryRunner):
             "account": account,
             "region": region,
             "host": host,
+            "role": self.configuration.get("role"),
             "application": "Redash/{} (Snowflake)".format(__version__.split("-")[0]),
         }
 
