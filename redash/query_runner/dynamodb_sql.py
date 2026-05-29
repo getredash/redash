@@ -107,10 +107,7 @@ class DynamoDBSQL(BaseQueryRunner):
                 row[key] = deserialized
             rows.append(row)
 
-        columns = [
-            {"name": c, "friendly_name": c, "type": column_types[c]}
-            for c in column_names
-        ]
+        columns = [{"name": c, "friendly_name": c, "type": column_types[c]} for c in column_names]
         return rows, columns
 
     def run_query(self, query, user):
@@ -144,10 +141,7 @@ class DynamoDBSQL(BaseQueryRunner):
             for table_name in page["TableNames"]:
                 try:
                     desc = client.describe_table(TableName=table_name)
-                    columns = [
-                        attr["AttributeName"]
-                        for attr in desc["Table"]["AttributeDefinitions"]
-                    ]
+                    columns = [attr["AttributeName"] for attr in desc["Table"]["AttributeDefinitions"]]
                     tables.append({"name": table_name, "columns": columns})
                 except Exception:
                     tables.append({"name": table_name, "columns": []})
