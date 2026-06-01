@@ -164,11 +164,17 @@ def get_mapper(mixed):
     if isinstance(mixed, sa.orm.attributes.InstrumentedAttribute):
         mixed = mixed.class_
     if isinstance(mixed, sa.Table):
+        found_mappers = []
         for registry in mapperlib._mapper_registries:
             for mapper in registry.mappers:
                 if mixed in mapper.tables:
-                    return mapper
-        raise ValueError("Could not get mapper for table '%s'." % mixed.name)
+                    found_mappers.append(mapper)
+        if len(found_mappers) > 1:
+            raise ValueError("Multiple mappers found for table '%s'." % mixed.name)
+        elif not found_mappers:
+            raise ValueError("Could not get mapper for table '%s'." % mixed.name)
+        else:
+            return found_mappers[0]
     if not isclass(mixed):
         mixed = type(mixed)
     return sa.inspect(mixed)

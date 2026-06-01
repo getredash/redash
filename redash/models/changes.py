@@ -73,9 +73,17 @@ class ChangeTrackingMixin:
                     try:
                         previous = getattr(self, attr.key, None)
                         self._clean_values[col.name] = previous
-                    except Exception:
-                        # If we can't get the attribute (e.g., object deleted), skip it
-                        pass
+                    except Exception as e:
+                        # Log unexpected errors accessing attributes during change tracking
+                        # This could indicate detached objects or attribute access issues
+                        import logging
+
+                        logging.warning(
+                            "Failed to get previous value for %s.%s during change tracking: %s",
+                            self.__class__.__name__,
+                            col.name,
+                            e,
+                        )
 
         super(ChangeTrackingMixin, self).__setattr__(key, value)
 
