@@ -112,5 +112,7 @@ else:
 def healthcheck():
     if not SUPERVISOR_CHECKS_AVAILABLE:
         print("Error: supervisor_checks not available. Cannot perform healthcheck.")
-        return 1
+        import sys
+
+        sys.exit(1)
     return check_runner.CheckRunner("worker_healthcheck", "worker", None, [(WorkerHealthcheck, {})]).run()
