@@ -2238,6 +2238,7 @@ files = [
     {file = "ibm_db-3.2.9-cp314-cp314-win32.whl", hash = "sha256:350d6e40c62340b583b6aa4887730a626191290fa91f63d9f7e58ff60edf17af"},
     {file = "ibm_db-3.2.9-cp314-cp314-win_amd64.whl", hash = "sha256:62b2fc14da8b49895f6d9670a3bdce65d8ea2a5fdabd00303fbe404b8f84d947"},
     {file = "ibm_db-3.2.9-cp314-cp314t-macosx_10_15_x86_64.whl", hash = "sha256:5fa430ce90eda04f2b1326a84817f09ad6a9f16d475afacb43522debf4283300"},
+    {file = "ibm_db-3.2.9.tar.gz", hash = "sha256:0ad6dc4575519a5563fd7f845fc6bc00d688020e1d3ae78d382e79183bc32b0b"},
 ]
 
 [[package]]
@@ -4180,14 +4181,14 @@ attrs = ">=20.3.0"
 
 [[package]]
 name = "pyjwt"
-version = "2.12.0"
+version = "2.13.0"
 description = "JSON Web Token implementation in Python"
 optional = false
 python-versions = ">=3.9"
 groups = ["main", "all-ds"]
 files = [
-    {file = "pyjwt-2.12.0-py3-none-any.whl", hash = "sha256:9bb459d1bdd0387967d287f5656bf7ec2b9a26645d1961628cda1764e087fd6e"},
-    {file = "pyjwt-2.12.0.tar.gz", hash = "sha256:2f62390b667cd8257de560b850bb5a883102a388829274147f1d724453f8fb02"},
+    {file = "pyjwt-2.13.0-py3-none-any.whl", hash = "sha256:66adcc2aff09b3f1bbd95fc1e1577df8ac8723c978552fd43304c8a290ac5728"},
+    {file = "pyjwt-2.13.0.tar.gz", hash = "sha256:41571c89ca91598c79e8ef18a2d07367d4810fbbd6f637794879baf1b7703423"},
 ]
 
 [package.dependencies]
@@ -4195,9 +4196,6 @@ cryptography = {version = ">=3.4.0", optional = true, markers = "extra == \"cryp
 
 [package.extras]
 crypto = ["cryptography (>=3.4.0)"]
-dev = ["coverage[toml] (==7.10.7)", "cryptography (>=3.4.0)", "pre-commit", "pytest (>=8.4.2,<9.0.0)", "sphinx", "sphinx-rtd-theme", "zope.interface"]
-docs = ["sphinx", "sphinx-rtd-theme", "zope.interface"]
-tests = ["coverage[toml] (==7.10.7)", "pytest (>=8.4.2,<9.0.0)"]
 
 [[package]]
 name = "pymongo"
@@ -6503,4 +6501,4 @@ cffi = ["cffi (>=1.17,<2.0) ; platform_python_implementation != \"PyPy\" and pyt
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.13,<3.14"
-content-hash = "10b50e2a006a1d90fd92331f3f05baba384c37c92c292526de6d5899afd4467e"
+content-hash = "491c4066a10fdcf1c2e19259cd6befb49b5c0f69df407d7cc764749321031cb3"

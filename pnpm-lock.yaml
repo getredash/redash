@@ -10,7 +10,7 @@ overrides:
   basic-ftp: ^5.3.0
   '@types/react': ^17.0.0
   '@types/react-dom': ^17.0.0
-  axios: 1.15.2
+  axios: 1.16.0
   minimatch: ^10.2.1
   picomatch: ^4.0.4
   micromatch: ^4.0.8
@@ -21,7 +21,7 @@ overrides:
   follow-redirects: ^1.16.0
   lodash: ^4.18.0
   lodash.template: 4.18.1
-  qs: ^6.14.2
+  qs: ^6.15.2
   cross-spawn: ^7.0.5
   braces: ^3.0.3
   tar: ^7.5.11
@@ -30,7 +30,7 @@ overrides:
   nth-check: ^2.0.1
   webpack: ^5.104.1
   js-yaml: ^4.1.1
-  tmp: ^0.2.4
+  tmp: ^0.2.6
   bn.js: ^5.2.3
   ip-address: ^10.1.1
   protocol-buffers-schema: ^3.6.1
@@ -61,11 +61,11 @@ importers:
         specifier: 4.4.3
         version: 4.4.3(dayjs@1.11.19)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)
       axios:
-        specifier: 1.15.2
-        version: 1.15.2(debug@3.2.7)
+        specifier: 1.16.0
+        version: 1.16.0(debug@3.2.7)
       axios-auth-refresh:
         specifier: 3.3.6
-        version: 3.3.6(axios@1.15.2(debug@3.2.7))
+        version: 3.3.6(axios@1.16.0(debug@3.2.7))
       bootstrap:
         specifier: ^3.4.1
         version: 3.4.1
@@ -381,11 +381,11 @@ importers:
         specifier: '>=4.0.0'
         version: 4.4.3(dayjs@1.11.19)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)
       axios:
-        specifier: 1.15.2
-        version: 1.15.2(debug@3.2.7)
+        specifier: 1.16.0
+        version: 1.16.0(debug@3.2.7)
       axios-auth-refresh:
         specifier: 3.3.6
-        version: 3.3.6(axios@1.15.2(debug@3.2.7))
+        version: 3.3.6(axios@1.16.0(debug@3.2.7))
       beautifymarker:
         specifier: ^1.0.7
         version: 1.0.9
@@ -2919,10 +2919,10 @@ packages:
   axios-auth-refresh@3.3.6:
     resolution: {integrity: sha512-2CeBUce/SxIfFxow5/n8vApJ97yYF6qoV4gh1UrswT7aEOnlOdBLxxyhOI4IaxGs6BY0l8YujU2jlc4aCmK17Q==}
     peerDependencies:
-      axios: 1.15.2
+      axios: 1.16.0
 
-  axios@1.15.2:
-    resolution: {integrity: sha512-wLrXxPtcrPTsNlJmKjkPnNPK2Ihe0hn0wGSaTEiHRPxwjvJwT3hKmXF4dpqxmPO9SoNb2FsYXj/xEo0gHN+D5A==}
+  axios@1.16.0:
+    resolution: {integrity: sha512-6hp5CwvTPlN2A31g5dxnwAX0orzM7pmCRDLnZSX772mv8WDqICwFjowHuPs04Mc8deIld1+ejhtaMn5vp6b+1w==}
 
   axobject-query@4.1.0:
     resolution: {integrity: sha512-qIj0G9wZbMGNLjLmg1PT6v2mE9AH2zlnADJD/2tC6E00hgmhUOfEB6greHPAfLRSufHqROIUTkw6E+M3lH0PTQ==}
@@ -6560,12 +6560,8 @@ packages:
     resolution: {integrity: sha512-KTqnxsgGiQ6ZAzZCVlJH5eOjSnvlyEgx1m8bkRJfOhmGRqfo5KLvmAlACQkrjEtOQ4B7wF9TdSLIs9O90MX9xA==}
     engines: {node: '>=16.0.0'}
 
-  qs@6.14.2:
-    resolution: {integrity: sha512-V/yCWTTF7VJ9hIh18Ugr2zhJMP01MY7c5kh4J870L7imm6/DIzBsNLTXzMwUA3yZ5b/KBqLx8Kp3uRvd7xSe3Q==}
-    engines: {node: '>=0.6'}
-
-  qs@6.15.0:
-    resolution: {integrity: sha512-mAZTtNCeetKMH+pSjrb76NAM8V9a05I9aBZOHztWy/UqcJdQYNsf59vrRKWnojAT9Y+GbIvoTBC++CPHqpDBhQ==}
+  qs@6.15.2:
+    resolution: {integrity: sha512-Rzq0KEyX/w/tEybncDgdkZrJgVUsUMk3xjh3t5bv3S1HTAtg+uOYt72+ZfwiQwKdysThkTBdL/rTi6HDmX9Ddw==}
     engines: {node: '>=0.6'}
 
   query-string@6.14.1:
@@ -7084,7 +7080,7 @@ packages:
     resolution: {integrity: sha512-PeR6ZVYscfOHrbN3A6EiP8M6UlseHpDkwVDsT6YMcZH0qyMubuFIq6gwydn+ZkvBzry3xmAZwZ3pW1zmJbvLOA==}
     engines: {node: '>=8.0.0'}
     peerDependencies:
-      axios: 1.15.2
+      axios: 1.16.0
 
   retry@0.13.1:
     resolution: {integrity: sha512-XQBQ3I8W1Cge0Seh+6gjj03LbmRFWuoszgK9ooCpwYIrhhoO80pfq4cUkU5DkknwfOfFteRwlZ56PYOGYyFWdg==}
@@ -7683,8 +7679,8 @@ packages:
   tinyqueue@3.0.0:
     resolution: {integrity: sha512-gRa9gwYU3ECmQYv3lslts5hxuIa90veaEcxDYuu3QGOIAEM2mOZkVHp48ANJuu1CURtRdHKUBY5Lm1tHV+sD4g==}
 
-  tmp@0.2.5:
-    resolution: {integrity: sha512-voyz6MApa1rQGUxT3E+BK7/ROe8itEx7vD8/HEvt4xwXucvQ5G5oeEiHkmHZJuBO21RpOf+YYm9MOivj709jow==}
+  tmp@0.2.7:
+    resolution: {integrity: sha512-e0votIpp4Uo2AJYSzVHV6xCcawuiez3DzqDAbrTc3YxBkplN6e+dM13ZeIcZnDg/QpSuU2zfZ3rzwY8ukEnaXw==}
     engines: {node: '>=14.14'}
 
   tmpl@1.0.5:
@@ -9323,7 +9319,7 @@ snapshots:
       json-stringify-safe: 5.0.1
       mime-types: 2.1.35
       performance-now: 2.1.0
-      qs: 6.15.0
+      qs: 6.15.2
       safe-buffer: 5.2.1
       tough-cookie: 4.1.4
       tunnel-agent: 0.6.0
@@ -10112,7 +10108,7 @@ snapshots:
       '@oclif/config': 1.18.17(supports-color@8.1.1)
       '@oclif/plugin-help': 2.2.3(@oclif/config@1.18.17)
       '@oclif/plugin-not-found': 1.2.6(@oclif/config@1.18.17)
-      axios: 1.15.2(debug@3.2.7)
+      axios: 1.16.0(debug@3.2.7)
       body-parser: 1.20.4
       colors: 1.4.0
       cors: 2.8.6
@@ -10127,7 +10123,7 @@ snapshots:
       js-yaml: 4.1.1
       percy-client: 3.9.0
       puppeteer: 5.5.0
-      retry-axios: 1.0.2(axios@1.15.2(debug@3.2.7))
+      retry-axios: 1.0.2(axios@1.16.0(debug@3.2.7))
       which: 2.0.2
       winston: 3.19.0
     transitivePeerDependencies:
@@ -11317,11 +11313,11 @@ snapshots:
 
   axe-core@4.11.1: {}
 
-  axios-auth-refresh@3.3.6(axios@1.15.2(debug@3.2.7)):
+  axios-auth-refresh@3.3.6(axios@1.16.0(debug@3.2.7)):
     dependencies:
-      axios: 1.15.2(debug@3.2.7)
+      axios: 1.16.0(debug@3.2.7)
 
-  axios@1.15.2(debug@3.2.7):
+  axios@1.16.0(debug@3.2.7):
     dependencies:
       follow-redirects: 1.16.0(debug@3.2.7)
       form-data: 4.0.5
@@ -11570,7 +11566,7 @@ snapshots:
       http-errors: 2.0.1
       iconv-lite: 0.4.24
       on-finished: 2.4.1
-      qs: 6.14.2
+      qs: 6.15.2
       raw-body: 2.5.3
       type-is: 1.6.18
       unpipe: 1.0.0
@@ -12146,7 +12142,7 @@ snapshots:
       request-progress: 3.0.0
       semver: 7.7.4
       supports-color: 8.1.1
-      tmp: 0.2.5
+      tmp: 0.2.7
       untildify: 4.0.0
       yauzl: 2.10.0
 
@@ -13156,7 +13152,7 @@ snapshots:
       parseurl: 1.3.3
       path-to-regexp: 0.1.13
       proxy-addr: 2.0.7
-      qs: 6.15.0
+      qs: 6.15.2
       range-parser: 1.2.1
       safe-buffer: 5.2.1
       send: 0.19.2
@@ -15838,11 +15834,7 @@ snapshots:
 
   pvutils@1.1.5: {}
 
-  qs@6.14.2:
-    dependencies:
-      side-channel: 1.1.0
-
-  qs@6.15.0:
+  qs@6.15.2:
     dependencies:
       side-channel: 1.1.0
 
@@ -16609,9 +16601,9 @@ snapshots:
 
   ret@0.1.15: {}
 
-  retry-axios@1.0.2(axios@1.15.2(debug@3.2.7)):
+  retry-axios@1.0.2(axios@1.16.0(debug@3.2.7)):
     dependencies:
-      axios: 1.15.2(debug@3.2.7)
+      axios: 1.16.0(debug@3.2.7)
 
   retry@0.13.1: {}
 
@@ -17317,7 +17309,7 @@ snapshots:
 
   tinyqueue@3.0.0: {}
 
-  tmp@0.2.5: {}
+  tmp@0.2.7: {}
 
   tmpl@1.0.5: {}
 
@@ -17580,7 +17572,7 @@ snapshots:
   url@0.11.4:
     dependencies:
       punycode: 1.4.1
-      qs: 6.15.0
+      qs: 6.15.2
 
   use-debounce@3.4.3(react@16.14.0):
     dependencies:

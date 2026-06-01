@@ -1,4 +1,4 @@
-FROM node:24-bookworm AS frontend-builder
+FROM node:24-trixie AS frontend-builder
 
 RUN npm install --global pnpm@10.30.3
 
@@ -39,7 +39,7 @@ RUN --mount=type=cache,id=pnpm-store,target=/frontend/.cache/pnpm,uid=1001,gid=1
   fi
 EOF
 
-FROM python:3.13-slim-bookworm
+FROM python:3.13-slim-trixie
 
 EXPOSE 5000
 
@@ -95,7 +95,7 @@ ARG databricks_odbc_driver_url=https://databricks-bi-artifacts.s3.us-east-2.amaz
 RUN <<EOF
   if [ "$TARGETPLATFORM" = "linux/amd64" ]; then
     curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg
-    curl https://packages.microsoft.com/config/debian/12/prod.list > /etc/apt/sources.list.d/mssql-release.list
+    curl https://packages.microsoft.com/config/debian/13/prod.list > /etc/apt/sources.list.d/mssql-release.list
     apt-get update
     ACCEPT_EULA=Y apt-get install  -y --no-install-recommends msodbcsql18
     apt-get clean
