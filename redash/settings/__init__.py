@@ -350,6 +350,7 @@ default_query_runners = [
     "redash.query_runner.risingwave",
     "redash.query_runner.d1",
     "redash.query_runner.duckdb",
+    "redash.query_runner.dynamodb_sql",
 ]
 
 enabled_query_runners = array_from_string(
