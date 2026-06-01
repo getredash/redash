@@ -1,4 +1,4 @@
-FROM node:24-bookworm AS frontend-builder
+FROM node:24-trixie AS frontend-builder
 
 RUN npm install --global pnpm@10.30.3
 
@@ -39,14 +39,29 @@ RUN --mount=type=cache,id=pnpm-store,target=/frontend/.cache/pnpm,uid=1001,gid=1
   fi
 EOF
 
-FROM python:3.13-slim-bookworm
+FROM python:3.13-slim-trixie
 
 EXPOSE 5000
 
 RUN useradd --create-home redash
 
-# Ubuntu packages
+# Add Debian trixie-security and trixie-updates repositories so we get the latest
+# security fixes and stable point updates at build time.
+# trixie-proposed-updates is kept for opt-in pre-release fixes already in flight.
+RUN set -eux; \
+  printf 'deb http://deb.debian.org/debian-security trixie-security main\n' \
+    > /etc/apt/sources.list.d/trixie-security.list; \
+  printf 'deb http://deb.debian.org/debian trixie-updates main\n' \
+    > /etc/apt/sources.list.d/trixie-updates.list; \
+  printf 'deb http://deb.debian.org/debian trixie-proposed-updates main\n' \
+    > /etc/apt/sources.list.d/trixie-proposed-updates.list
+
+# Apply security archive first (forces -t trixie-security so the security pocket wins),
+# then a general upgrade for stable point updates, then install build dependencies.
 RUN apt-get update && \
+  DEBIAN_FRONTEND=noninteractive apt-get -y -t trixie-security upgrade && \
+  DEBIAN_FRONTEND=noninteractive apt-get -y -t trixie-updates upgrade && \
+  DEBIAN_FRONTEND=noninteractive apt-get -y upgrade && \
   apt-get install -y --no-install-recommends \
   pkg-config \
   curl \
@@ -80,7 +95,7 @@ ARG databricks_odbc_driver_url=https://databricks-bi-artifacts.s3.us-east-2.amaz
 RUN <<EOF
   if [ "$TARGETPLATFORM" = "linux/amd64" ]; then
     curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg
-    curl https://packages.microsoft.com/config/debian/12/prod.list > /etc/apt/sources.list.d/mssql-release.list
+    curl https://packages.microsoft.com/config/debian/13/prod.list > /etc/apt/sources.list.d/mssql-release.list
     apt-get update
     ACCEPT_EULA=Y apt-get install  -y --no-install-recommends msodbcsql18
     apt-get clean
@@ -97,10 +112,12 @@ EOF
 
 WORKDIR /app
 
-ENV POETRY_VERSION=2.1.4
+ENV POETRY_VERSION=2.4.1
 ENV POETRY_HOME=/etc/poetry
 ENV POETRY_VIRTUALENVS_CREATE=false
-RUN curl -sSL --retry 3 --retry-delay 5 https://install.python-poetry.org | python3 -
+
+RUN python3 -m pip install --no-cache-dir --upgrade "pip>=26.1" "setuptools>=78.1.1" "wheel>=0.46.2" \
+  && curl -sSL --retry 3 --retry-delay 5 https://install.python-poetry.org | python3 -
 
 # Avoid crashes, including corrupted cache artifacts, when building multi-platform images with GitHub Actions.
 RUN /etc/poetry/bin/poetry cache clear pypi --all
