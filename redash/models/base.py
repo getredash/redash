@@ -1,6 +1,7 @@
 import functools
 
-from flask_sqlalchemy import BaseQuery, SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy
+from flask_sqlalchemy.query import Query
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import object_session
 from sqlalchemy.pool import NullPool
@@ -42,10 +43,22 @@ db.configure_mappers()
 make_searchable(db.metadata, options={"regconfig": "pg_catalog.simple"})
 
 
-class SearchBaseQuery(BaseQuery, SearchQueryMixin):
+class SearchBaseQuery(Query, SearchQueryMixin):
     """
     The SQA query class to use when full text search is wanted.
     """
+
+    @property
+    def _entities(self):
+        """Shim for sqlalchemy-searchable 1.2.0 which accesses _entities (removed in SQLAlchemy 1.4)."""
+
+        class FakeEntity:
+            def __init__(self, entity_data):
+                self.entity_zero = type(
+                    "obj", (object,), {"class_": entity_data.get("entity") or entity_data.get("type")}
+                )()
+
+        return [FakeEntity(desc) for desc in self.column_descriptions]
 
 
 @vectorizer(db.Integer)

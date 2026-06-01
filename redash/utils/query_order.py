@@ -31,7 +31,6 @@ from inspect import isclass
 import sqlalchemy as sa
 from sqlalchemy.orm import mapperlib
 from sqlalchemy.orm.properties import ColumnProperty
-from sqlalchemy.orm.query import _ColumnEntity
 from sqlalchemy.orm.util import AliasedInsp
 from sqlalchemy.sql.expression import asc, desc, nullslast
 
@@ -59,9 +58,7 @@ def query_labels(query):
         query_labels(query)  # ['articles']
     :param query: SQLAlchemy Query object
     """
-    return [
-        entity._label_name for entity in query._entities if isinstance(entity, _ColumnEntity) and entity._label_name
-    ]
+    return [col["name"] for col in query.column_descriptions if col.get("name")]
 
 
 def get_query_entity_by_alias(query, alias):
@@ -98,7 +95,28 @@ def get_query_entities(query):
         d["expr"] if is_labeled_query(d["expr"]) or isinstance(d["expr"], sa.Column) else d["entity"]
         for d in query.column_descriptions
     ]
-    return [get_query_entity(expr) for expr in exprs] + [get_query_entity(entity) for entity in query._join_entities]
+    result = [get_query_entity(expr) for expr in exprs]
+
+    # Collect entities from JOIN clauses via the statement's resolved FROM list.
+    for from_obj in query.statement.get_final_froms():
+        if hasattr(from_obj, "left") and hasattr(from_obj, "right"):
+            if isinstance(from_obj.right, sa.Table):
+                for registry in mapperlib._mapper_registries:
+                    for mapper in registry.mappers:
+                        if from_obj.right in mapper.tables:
+                            result.append(mapper.class_)
+                            break
+            elif hasattr(from_obj.right, "entity"):
+                result.append(from_obj.right.entity)
+
+    # Deduplicate while preserving order.
+    seen = set()
+    unique_result = []
+    for entity in result:
+        if entity not in seen:
+            seen.add(entity)
+            unique_result.append(entity)
+    return unique_result
 
 
 def is_labeled_query(expr):
@@ -133,12 +151,8 @@ def get_mapper(mixed):
         ValueError: if multiple mappers were found for given argument
     .. versionadded: 0.26.1
     """
-    if isinstance(mixed, sa.orm.query._MapperEntity):
-        mixed = mixed.expr
-    elif isinstance(mixed, sa.Column):
+    if isinstance(mixed, sa.Column):
         mixed = mixed.table
-    elif isinstance(mixed, sa.orm.query._ColumnEntity):
-        mixed = mixed.expr
     if isinstance(mixed, sa.orm.Mapper):
         return mixed
     if isinstance(mixed, sa.orm.util.AliasedClass):
@@ -150,13 +164,17 @@ def get_mapper(mixed):
     if isinstance(mixed, sa.orm.attributes.InstrumentedAttribute):
         mixed = mixed.class_
     if isinstance(mixed, sa.Table):
-        mappers = [mapper for mapper in mapperlib._mapper_registry if mixed in mapper.tables]
-        if len(mappers) > 1:
+        found_mappers = []
+        for registry in mapperlib._mapper_registries:
+            for mapper in registry.mappers:
+                if mixed in mapper.tables:
+                    found_mappers.append(mapper)
+        if len(found_mappers) > 1:
             raise ValueError("Multiple mappers found for table '%s'." % mixed.name)
-        elif not mappers:
+        elif not found_mappers:
             raise ValueError("Could not get mapper for table '%s'." % mixed.name)
         else:
-            return mappers[0]
+            return found_mappers[0]
     if not isclass(mixed):
         mixed = type(mixed)
     return sa.inspect(mixed)
