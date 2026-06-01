@@ -24,7 +24,6 @@ force-exclude = '''
 
 [tool.poetry.dependencies]
 python = ">=3.13,<3.14"
-advocate = "1.0.0"
 aniso8601 = "8.0.0"
 authlib = "0.15.5"
 backoff = "2.2.1"
@@ -81,7 +80,7 @@ statsd = "3.3.0"
 supervisor = "4.1.0"
 supervisor-checks = "0.8.1"
 ua-parser = "0.18.0"
-urllib3 = "1.26.19"
+urllib3 = "2.7.0"
 user-agents = "2.0"
 werkzeug = "2.3.8"
 wtforms = "2.2.1"
@@ -151,6 +150,17 @@ optional = true
 
 [tool.poetry.group.ldap3.dependencies]
 ldap3 = "2.9.1"
+
+# Optional SSRF protection (enables REDASH_ENFORCE_PRIVATE_IP_BLOCK).
+# Install via `poetry install --with ssrf` or add `ssrf` to the install_groups
+# build arg in the Dockerfile.
+[tool.poetry.group.ssrf]
+optional = true
+
+[tool.poetry.group.ssrf.dependencies]
+# Pinned to an immutable commit (champion has no PyPI release and no tags yet).
+# Bump deliberately when reviewing upstream changes.
+champion = { git = "https://github.com/Gee19/champion.git", rev = "74cf301bf89a88b8a55459fd8439766a11eb16f0" }
 
 [tool.poetry.group.dev]
 optional = true
