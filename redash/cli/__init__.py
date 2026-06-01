@@ -83,11 +83,8 @@ def send_test_mail(email=None):
 @manager.command("shell")
 @with_appcontext
 def shell():
-    import sys
-
-    from flask.globals import _app_ctx_stack
     from ptpython import repl
 
-    app = _app_ctx_stack.top.app
+    app = current_app._get_current_object()
 
     repl.embed(globals=app.make_shell_context())
