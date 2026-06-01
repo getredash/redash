@@ -8,6 +8,11 @@ import User from "@/services/user";
 import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 
 export default function ToggleUserForm(props) {
+  props = {
+    onChange: () => {},
+    ...props,
+  };
+
   const { user, onChange } = props;
 
   const [loading, setLoading] = useState(false);
@@ -17,7 +22,7 @@ export default function ToggleUserForm(props) {
     const action = user.isDisabled ? User.enableUser : User.disableUser;
     setLoading(true);
     action(user)
-      .then(data => {
+      .then((data) => {
         if (data) {
           handleChange(User.convertUserInfo(data));
         }
@@ -46,8 +51,4 @@ export default function ToggleUserForm(props) {
 ToggleUserForm.propTypes = {
   user: UserProfile.isRequired,
   onChange: PropTypes.func,
-};
-
-ToggleUserForm.defaultProps = {
-  onChange: () => {},
 };

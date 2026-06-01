@@ -41,12 +41,12 @@ function registerExtensions() {
   const modules = context
     .keys()
     .map(context)
-    .map(module => module.default);
+    .map((module) => module.default);
 
   return modules
     .filter(isFunction)
-    .filter(f => f.init)
-    .map(f => f());
+    .filter((f) => f.init)
+    .map((f) => f());
 }
 
 requireImages();

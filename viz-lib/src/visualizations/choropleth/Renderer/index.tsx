@@ -11,8 +11,7 @@ import "./renderer.less";
 export default function Renderer({ data, options, onOptionsChange }: any) {
   const [container, setContainer] = useState(null);
   const [geoJson] = useLoadGeoJson(options.mapType);
-  const onBoundsChangeRef = useRef();
-  // @ts-expect-error ts-migrate(2322) FIXME: Type '(...args: any[]) => void' is not assignable ... Remove this comment to see the full error message
+  const onBoundsChangeRef = useRef<any>(undefined);
   onBoundsChangeRef.current = onOptionsChange ? (bounds: any) => onOptionsChange({ ...options, bounds }) : noop;
 
   const optionsWithoutBounds = useMemoWithDeepCompare(() => omit(options, ["bounds"]), [options]);
@@ -36,7 +35,6 @@ export default function Renderer({ data, options, onOptionsChange }: any) {
       // @ts-expect-error ts-migrate(2531) FIXME: Object is possibly 'null'.
       map.updateLayers(
         geoJson,
-        // @ts-expect-error ts-migrate(2532) FIXME: Object is possibly 'undefined'.
         prepareData(data.rows, optionsWithoutBounds.keyColumn, optionsWithoutBounds.valueColumn),
         options // detect changes for all options except bounds, but pass them all!
       );

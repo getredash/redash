@@ -7,7 +7,7 @@ import { FiltersType } from "@/components/Filters";
 import VisualizationRenderer from "@/components/visualizations/VisualizationRenderer";
 import VisualizationName from "@/components/visualizations/VisualizationName";
 
-function ExpandedWidgetDialog({ dialog, widget, filters }) {
+function ExpandedWidgetDialog({ dialog, widget, filters = [] }) {
   return (
     <Modal
       {...dialog.props}
@@ -17,7 +17,8 @@ function ExpandedWidgetDialog({ dialog, widget, filters }) {
         </>
       }
       width="95%"
-      footer={<Button onClick={dialog.dismiss}>Close</Button>}>
+      footer={<Button onClick={dialog.dismiss}>Close</Button>}
+    >
       <VisualizationRenderer
         visualization={widget.visualization}
         queryResult={widget.getQueryResult()}
@@ -32,10 +33,6 @@ ExpandedWidgetDialog.propTypes = {
   dialog: DialogPropType.isRequired,
   widget: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
   filters: FiltersType,
-};
-
-ExpandedWidgetDialog.defaultProps = {
-  filters: [],
 };
 
 export default wrapDialog(ExpandedWidgetDialog);

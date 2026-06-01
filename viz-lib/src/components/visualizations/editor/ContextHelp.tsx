@@ -1,31 +1,36 @@
 import React from "react";
-import Popover from "antd/lib/popover";
+import { Popover } from "antd";
+import type { PopoverProps } from "antd";
 import QuestionCircleFilledIcon from "@ant-design/icons/QuestionCircleFilled";
 import { visualizationsSettings } from "@/visualizations/visualizationsSettings";
 
 import "./context-help.less";
 
-type OwnContextHelpProps = {
+type ContextHelpProps = PopoverProps & {
   icon?: React.ReactNode;
   children?: React.ReactNode;
+  arrowPointAtCenter?: boolean;
 };
 
 const contextHelpDefaultProps = {
   icon: null,
   children: null,
+  arrowPointAtCenter: false,
 };
 
-type ContextHelpProps = OwnContextHelpProps & typeof contextHelpDefaultProps;
-
-export default function ContextHelp({ icon, children, ...props }: ContextHelpProps) {
+export default function ContextHelp({
+  icon = contextHelpDefaultProps.icon,
+  children = contextHelpDefaultProps.children,
+  arrow,
+  arrowPointAtCenter = contextHelpDefaultProps.arrowPointAtCenter,
+  ...props
+}: ContextHelpProps) {
   return (
-    <Popover {...props} content={children}>
-      {icon || ContextHelp.defaultIcon}
+    <Popover {...props} arrow={arrowPointAtCenter ? { pointAtCenter: true } : arrow} content={children}>
+      {(icon || ContextHelp.defaultIcon) as React.ReactElement}
     </Popover>
   );
 }
-
-ContextHelp.defaultProps = contextHelpDefaultProps;
 
 ContextHelp.defaultIcon = <QuestionCircleFilledIcon className="context-help-default-icon" />;
 
@@ -37,7 +42,8 @@ function NumberFormatSpecs() {
       type="NUMBER_FORMAT_SPECS"
       title="Formatting Numbers"
       href="https://redash.io/help/user-guide/visualizations/formatting-numbers"
-      className="visualization-editor-context-help">
+      className="visualization-editor-context-help"
+    >
       {ContextHelp.defaultIcon}
     </HelpTriggerComponent>
   );
@@ -49,7 +55,8 @@ function DateTimeFormatSpecs() {
     <HelpTriggerComponent
       title="Formatting Dates and Times"
       href="https://momentjs.com/docs/#/displaying/format/"
-      className="visualization-editor-context-help">
+      className="visualization-editor-context-help"
+    >
       {ContextHelp.defaultIcon}
     </HelpTriggerComponent>
   );
@@ -61,7 +68,8 @@ function TickFormatSpecs() {
     <HelpTriggerComponent
       title="Tick Formatting"
       href="https://redash.io/help/user-guide/visualizations/formatting-axis"
-      className="visualization-editor-context-help">
+      className="visualization-editor-context-help"
+    >
       {ContextHelp.defaultIcon}
     </HelpTriggerComponent>
   );

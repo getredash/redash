@@ -23,8 +23,8 @@ export default function Renderer({
   addonAfter,
   ...otherProps
 }: Props) {
-  const lastOptions = useRef();
-  const errorHandlerRef = useRef();
+  const lastOptions = useRef<any>(null);
+  const errorHandlerRef = useRef<ErrorBoundary>(null);
 
   // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
   const { Renderer, getOptions } = registeredVisualizations[type];
@@ -41,7 +41,6 @@ export default function Renderer({
 
   useEffect(() => {
     if (errorHandlerRef.current) {
-      // @ts-expect-error ts-migrate(2532) FIXME: Object is possibly 'undefined'.
       errorHandlerRef.current.reset();
     }
   }, [optionsProp, data]);
@@ -49,10 +48,10 @@ export default function Renderer({
   return (
     <div className="visualization-renderer">
       {addonBefore}
-      {/* @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call. */}
       <ErrorBoundary
         ref={errorHandlerRef}
-        renderError={() => <ErrorMessage>Error while rendering visualization.</ErrorMessage>}>
+        renderError={() => <ErrorMessage>Error while rendering visualization.</ErrorMessage>}
+      >
         <div className="visualization-renderer-wrapper">
           <Renderer options={options} data={data} visualizationName={visualizationName} {...otherProps} />
         </div>

@@ -29,12 +29,12 @@ function getAncestors(node: any) {
 function buildNodesFromHierarchyData(data: any) {
   const grouped = groupBy(data, "sequence");
 
-  return map(grouped, value => {
+  return map(grouped, (value) => {
     const sorted = sortBy(value, "stage");
     return {
       size: value[0].value || 0,
       sequence: value[0].sequence,
-      nodes: map(sorted, i => i.node),
+      nodes: map(sorted, (i) => i.node),
     };
   });
 }
@@ -46,13 +46,13 @@ function buildNodesFromTableData(data: any) {
   return map(data, (row, sequence) => ({
     size: row.value || 0,
     sequence,
-    nodes: compact(map(dataKeys, key => row[key])),
+    nodes: compact(map(dataKeys, (key) => row[key])),
   }));
 }
 
 function isDataInHierarchyFormat(data: any) {
   const firstRow = first(data);
-  return every(["sequence", "stage", "node", "value"], field => has(firstRow, field));
+  return every(["sequence", "stage", "node", "value"], (field) => has(firstRow, field));
 }
 
 function buildHierarchy(data: any) {
@@ -83,7 +83,7 @@ function buildHierarchy(data: any) {
         });
       }
 
-      let childNode = find(children, child => child.name === nodeName);
+      let childNode = find(children, (child) => child.name === nodeName);
 
       if (isLeaf && childNode) {
         childNode.children = childNode.children || [];
@@ -120,18 +120,14 @@ function isDataValid(data: any) {
 export default function initSunburst(data: any) {
   if (!isDataValid(data)) {
     return (element: any) => {
-      d3.select(element)
-        .selectAll("*")
-        .remove();
+      d3.select(element).selectAll("*").remove();
     };
   }
 
   data = buildHierarchy(data.rows);
 
   return (element: any) => {
-    d3.select(element)
-      .selectAll("*")
-      .remove();
+    d3.select(element).selectAll("*").remove();
 
     // svg dimensions
     const width = element.clientWidth;
@@ -234,7 +230,7 @@ export default function initSunburst(data: any) {
     function updateBreadcrumbs(ancestors: any, percentageString: any) {
       // Data join, where primary key = name + depth.
       // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
-      const g = breadcrumbs.selectAll("g").data(ancestors, d => d.name + d.depth);
+      const g = breadcrumbs.selectAll("g").data(ancestors, (d) => d.name + d.depth);
 
       // Add breadcrumb and label for entering nodes.
       const breadcrumb = g.enter().append("g");
@@ -254,7 +250,7 @@ export default function initSunburst(data: any) {
         .attr("font-size", "10px")
         .attr("text-anchor", "middle")
         // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
-        .text(d => d.name);
+        .text((d) => d.name);
 
       // Set position for entering and updating nodes.
       g.attr("transform", (d, i) => `translate(${i * (b.w + b.s)}, 0)`);
@@ -292,7 +288,7 @@ export default function initSunburst(data: any) {
       sunburst.selectAll("path").attr("opacity", 0.3);
       sunburst
         .selectAll("path")
-        .filter(node => ancestors.indexOf(node) >= 0)
+        .filter((node) => ancestors.indexOf(node) >= 0)
         .attr("opacity", 1);
 
       // update summary
@@ -350,7 +346,7 @@ export default function initSunburst(data: any) {
       .append("path")
       .classed("nodePath", true)
       // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
-      .attr("display", d => (d.depth ? null : "none"))
+      .attr("display", (d) => (d.depth ? null : "none"))
       .attr("d", arc)
       .attr("fill", colorMap)
       .attr("opacity", 1)

@@ -18,13 +18,29 @@ export const FilterType = PropTypes.shape({
 
 export const FiltersType = PropTypes.arrayOf(FilterType);
 
+function getSelectedOptionValue(option) {
+  return get(option, "value", get(option, "key"));
+}
+
+function toSelectValue(filter, value) {
+  return {
+    value: `${indexOf(filter.values, value)}`,
+    key: `${indexOf(filter.values, value)}`,
+    label: formatColumnValue(value, get(filter, "column.type")),
+  };
+}
+
 function createFilterChangeHandler(filters, onChange) {
   return (filter, values) => {
     if (isArray(values)) {
-      values = map(values, value => filter.values[toNumber(value.key)] || value.key);
+      values = map(values, (value) => {
+        const selectedValue = getSelectedOptionValue(value);
+        return filter.values[toNumber(selectedValue)] ?? selectedValue;
+      });
     } else {
-      const _values = filter.values[toNumber(values.key)];
-      values = _values !== undefined ? _values : values.key;
+      const selectedValue = getSelectedOptionValue(values);
+      const resolvedValue = filter.values[toNumber(selectedValue)];
+      values = resolvedValue !== undefined ? resolvedValue : selectedValue;
     }
 
     if (filter.multiple && includes(values, ALL_VALUES)) {
@@ -33,7 +49,7 @@ function createFilterChangeHandler(filters, onChange) {
     if (filter.multiple && includes(values, NONE_VALUES)) {
       values = [];
     }
-    filters = map(filters, f => (f.name === filter.name ? { ...filter, current: values } : f));
+    filters = map(filters, (f) => (f.name === filter.name ? { ...filter, current: values } : f));
     onChange(filters);
   };
 }
@@ -47,11 +63,11 @@ export function filterData(rows, filters = []) {
 
   if (isArray(filters) && filters.length > 0) {
     // "every" field's value should match "some" of corresponding filter's values
-    result = result.filter(row =>
-      every(filters, filter => {
+    result = result.filter((row) =>
+      every(filters, (filter) => {
         const rowValue = row[filter.name];
         const filterValues = isArray(filter.current) ? filter.current : [filter.current];
-        return some(filterValues, filterValue => {
+        return some(filterValues, (filterValue) => {
           if (moment.isMoment(rowValue)) {
             return rowValue.isSame(filterValue);
           }
@@ -66,7 +82,7 @@ export function filterData(rows, filters = []) {
   return result;
 }
 
-function Filters({ filters, onChange }) {
+function Filters({ filters, onChange = () => {} }) {
   if (filters.length === 0) {
     return null;
   }
@@ -77,7 +93,7 @@ function Filters({ filters, onChange }) {
     <div className="filters-wrapper" data-test="Filters">
       <div className="container bg-white">
         <div className="row">
-          {map(filters, filter => {
+          {map(filters, (filter) => {
             const options = map(filter.values, (value, index) => (
               <Select.Option key={index}>{formatColumnValue(value, get(filter, "column.type"))}</Select.Option>
             ));
@@ -86,7 +102,8 @@ function Filters({ filters, onChange }) {
               <div
                 key={filter.name}
                 className="col-sm-6 p-l-0 filter-container"
-                data-test={`FilterName-${filter.name}`}>
+                data-test={`FilterName-${filter.name}`}
+              >
                 <label>{filter.friendlyName}</label>
                 {options.length === 0 && <Select className="w-100" disabled value="No values" />}
                 {options.length > 0 && (
@@ -96,19 +113,17 @@ function Filters({ filters, onChange }) {
                     mode={filter.multiple ? "multiple" : "default"}
                     value={
                       isArray(filter.current)
-                        ? map(filter.current, value => ({
-                            key: `${indexOf(filter.values, value)}`,
-                            label: formatColumnValue(value),
-                          }))
-                        : { key: `${indexOf(filter.values, filter.current)}`, label: formatColumnValue(filter.current) }
+                        ? map(filter.current, (value) => toSelectValue(filter, value))
+                        : toSelectValue(filter, filter.current)
                     }
                     allowClear={filter.multiple}
                     optionFilterProp="children"
                     showSearch
                     maxTagCount={3}
                     maxTagTextLength={10}
-                    maxTagPlaceholder={num => `+${num.length} more`}
-                    onChange={values => onChange(filter, values)}>
+                    maxTagPlaceholder={(num) => `+${num.length} more`}
+                    onChange={(values) => onChange(filter, values)}
+                  >
                     {!filter.multiple && options}
                     {filter.multiple && [
                       <Select.Option key={NONE_VALUES} data-test="ClearOption">
@@ -137,10 +152,6 @@ function Filters({ filters, onChange }) {
 Filters.propTypes = {
   filters: FiltersType.isRequired,
   onChange: PropTypes.func, // (name, value) => void
-};
-
-Filters.defaultProps = {
-  onChange: () => {},
 };
 
 export default Filters;

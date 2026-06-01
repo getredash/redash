@@ -10,7 +10,7 @@ import TagsList from "@/components/TagsList";
     SearchInput
  */
 
-export function SearchInput({ placeholder, value, showIcon, onChange, label }) {
+export function SearchInput({ placeholder = "Search...", value, showIcon = false, onChange, label = "Search" }) {
   const [currentValue, setCurrentValue] = useState(value);
 
   useEffect(() => {
@@ -18,7 +18,7 @@ export function SearchInput({ placeholder, value, showIcon, onChange, label }) {
   }, [value]);
 
   const onInputChange = useCallback(
-    event => {
+    (event) => {
       const newValue = event.target.value;
       setCurrentValue(newValue);
       onChange(newValue);
@@ -48,38 +48,41 @@ SearchInput.propTypes = {
   label: PropTypes.string,
 };
 
-SearchInput.defaultProps = {
-  placeholder: "Search...",
-  showIcon: false,
-  label: "Search",
-};
-
 /*
     Menu
  */
 
-export function Menu({ items, selected }) {
-  items = filter(items, item => (isFunction(item.isAvailable) ? item.isAvailable() : true));
+export function Menu({ items = [], selected = null }) {
+  items = filter(items, (item) => (isFunction(item.isAvailable) ? item.isAvailable() : true));
   if (items.length === 0) {
     return null;
   }
+
+  const menuItems = map(items, (item) => ({
+    key: item.key,
+    className: "m-0",
+    label: (
+      <Link href={item.href}>
+        {isString(item.icon) && item.icon !== "" && (
+          <span className="btn-favorite m-r-5">
+            <i className={item.icon} aria-hidden="true" />
+          </span>
+        )}
+        {isFunction(item.icon) && (item.icon(item) || null)}
+        {item.title}
+      </Link>
+    ),
+  }));
+
   return (
     <div className="m-b-10 tags-list tiled">
-      <AntdMenu className="invert-stripe-position" mode="inline" selectable={false} selectedKeys={[selected]}>
-        {map(items, item => (
-          <AntdMenu.Item key={item.key} className="m-0">
-            <Link href={item.href}>
-              {isString(item.icon) && item.icon !== "" && (
-                <span className="btn-favorite m-r-5">
-                  <i className={item.icon} aria-hidden="true" />
-                </span>
-              )}
-              {isFunction(item.icon) && (item.icon(item) || null)}
-              {item.title}
-            </Link>
-          </AntdMenu.Item>
-        ))}
-      </AntdMenu>
+      <AntdMenu
+        className="invert-stripe-position"
+        mode="inline"
+        selectable={false}
+        selectedKeys={[selected]}
+        items={menuItems}
+      />
     </div>
   );
 }
@@ -95,11 +98,6 @@ Menu.propTypes = {
     })
   ),
   selected: PropTypes.string,
-};
-
-Menu.defaultProps = {
-  items: [],
-  selected: null,
 };
 
 /*

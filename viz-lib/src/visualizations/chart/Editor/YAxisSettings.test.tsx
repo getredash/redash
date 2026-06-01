@@ -1,20 +1,35 @@
 import React from "react";
-import enzyme from "enzyme";
+import { render, fireEvent } from "@testing-library/react";
 
 import getOptions from "../getOptions";
 import YAxisSettings from "./YAxisSettings";
 
-function findByTestID(wrapper: any, testId: any) {
-  return wrapper.find(`[data-test="${testId}"]`);
+function findByTestID(testId: string): HTMLElement[] {
+  return Array.from(document.body.querySelectorAll(`[data-test="${testId}"]`));
 }
 
-function elementExists(wrapper: any, testId: any) {
-  return findByTestID(wrapper, testId).length > 0;
+function getInput(el: HTMLElement): HTMLInputElement {
+  return (el.tagName === "INPUT" ? el : el.querySelector("input")!) as HTMLInputElement;
+}
+
+function openSelect(testId: string) {
+  const el = findByTestID(testId).pop()!;
+  const selector = (el.matches(".ant-select") ? el : el.querySelector(".ant-select")) || el;
+  fireEvent.mouseDown(selector);
+}
+
+function clickOption(testId: string) {
+  const el = findByTestID(testId).pop();
+  if (el) fireEvent.click(el);
+}
+
+function elementExists(testId: string) {
+  return findByTestID(testId).length > 0;
 }
 
 function mount(options: any, done: any) {
   options = getOptions(options);
-  return enzyme.mount(
+  const { container } = render(
     <YAxisSettings
       visualizationName="Test"
       data={{ columns: [], rows: [] }}
@@ -25,10 +40,11 @@ function mount(options: any, done: any) {
       }}
     />
   );
+  return container;
 }
 
 describe("Visualizations -> Chart -> Editor -> Y-Axis Settings", () => {
-  test("Changes axis type", done => {
+  test("Changes axis type", (done) => {
     const el = mount(
       {
         globalSeriesType: "column",
@@ -37,15 +53,11 @@ describe("Visualizations -> Chart -> Editor -> Y-Axis Settings", () => {
       done
     );
 
-    findByTestID(el, "Chart.LeftYAxis.Type")
-      .last()
-      .simulate("mouseDown");
-    findByTestID(el, "Chart.LeftYAxis.Type.Category")
-      .last()
-      .simulate("click");
+    openSelect("Chart.LeftYAxis.Type");
+    clickOption("Chart.LeftYAxis.Type.Category");
   });
 
-  test("Changes axis name", done => {
+  test("Changes axis name", (done) => {
     const el = mount(
       {
         globalSeriesType: "column",
@@ -54,12 +66,10 @@ describe("Visualizations -> Chart -> Editor -> Y-Axis Settings", () => {
       done
     );
 
-    findByTestID(el, "Chart.LeftYAxis.Name")
-      .last()
-      .simulate("change", { target: { value: "test" } });
+    fireEvent.change(findByTestID("Chart.LeftYAxis.Name").pop()!, { target: { value: "test" } });
   });
 
-  test("Changes axis tick format", done => {
+  test("Changes axis tick format", (done) => {
     const el = mount(
       {
         globalSeriesType: "column",
@@ -68,12 +78,10 @@ describe("Visualizations -> Chart -> Editor -> Y-Axis Settings", () => {
       done
     );
 
-    findByTestID(el, "Chart.LeftYAxis.TickFormat")
-      .last()
-      .simulate("change", { target: { value: "s" } });
+    fireEvent.change(findByTestID("Chart.LeftYAxis.TickFormat").pop()!, { target: { value: "s" } });
   });
 
-  test("Changes axis min value", done => {
+  test("Changes axis min value", (done) => {
     const el = mount(
       {
         globalSeriesType: "column",
@@ -82,13 +90,10 @@ describe("Visualizations -> Chart -> Editor -> Y-Axis Settings", () => {
       done
     );
 
-    findByTestID(el, "Chart.LeftYAxis.RangeMin")
-      .find("input")
-      .last()
-      .simulate("change", { target: { value: "50" } });
+    fireEvent.change(getInput(findByTestID("Chart.LeftYAxis.RangeMin").pop()!), { target: { value: "50" } });
   });
 
-  test("Changes axis max value", done => {
+  test("Changes axis max value", (done) => {
     const el = mount(
       {
         globalSeriesType: "column",
@@ -97,10 +102,7 @@ describe("Visualizations -> Chart -> Editor -> Y-Axis Settings", () => {
       done
     );
 
-    findByTestID(el, "Chart.LeftYAxis.RangeMax")
-      .find("input")
-      .last()
-      .simulate("change", { target: { value: "200" } });
+    fireEvent.change(getInput(findByTestID("Chart.LeftYAxis.RangeMax").pop()!), { target: { value: "200" } });
   });
 
   describe("for non-heatmap", () => {
@@ -111,7 +113,7 @@ describe("Visualizations -> Chart -> Editor -> Y-Axis Settings", () => {
         yAxis: [{ type: "linear" }, { type: "linear", opposite: true }],
       });
 
-      expect(elementExists(el, "Chart.RightYAxis.Type")).toBeTruthy();
+      expect(elementExists("Chart.RightYAxis.Type")).toBeTruthy();
     });
   });
 
@@ -123,10 +125,10 @@ describe("Visualizations -> Chart -> Editor -> Y-Axis Settings", () => {
         yAxis: [{ type: "linear" }, { type: "linear", opposite: true }],
       });
 
-      expect(elementExists(el, "Chart.RightYAxis.Type")).toBeFalsy();
+      expect(elementExists("Chart.RightYAxis.Type")).toBeFalsy();
     });
 
-    test("Sets Sort X Values option", done => {
+    test("Sets Sort X Values option", (done) => {
       const el = mount(
         {
           globalSeriesType: "heatmap",
@@ -135,12 +137,10 @@ describe("Visualizations -> Chart -> Editor -> Y-Axis Settings", () => {
         done
       );
 
-      findByTestID(el, "Chart.LeftYAxis.Sort")
-        .last()
-        .simulate("click");
+      clickOption("Chart.LeftYAxis.Sort");
     });
 
-    test("Sets Reverse Y Values option", done => {
+    test("Sets Reverse Y Values option", (done) => {
       const el = mount(
         {
           globalSeriesType: "heatmap",
@@ -149,9 +149,7 @@ describe("Visualizations -> Chart -> Editor -> Y-Axis Settings", () => {
         done
       );
 
-      findByTestID(el, "Chart.LeftYAxis.Reverse")
-        .last()
-        .simulate("click");
+      clickOption("Chart.LeftYAxis.Reverse");
     });
   });
 });

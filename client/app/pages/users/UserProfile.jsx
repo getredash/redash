@@ -17,7 +17,7 @@ import ReadOnlyUserProfile from "./components/ReadOnlyUserProfile";
 
 import "./settings.less";
 
-function UserProfile({ userId, onError }) {
+function UserProfile({ userId = null, onError = () => {} }) {
   const [user, setUser] = useState(null);
 
   const handleError = useImmutableCallback(onError);
@@ -25,12 +25,12 @@ function UserProfile({ userId, onError }) {
   useEffect(() => {
     let isCancelled = false;
     User.get({ id: userId || currentUser.id })
-      .then(user => {
+      .then((user) => {
         if (!isCancelled) {
           setUser(User.convertUserInfo(user));
         }
       })
-      .catch(error => {
+      .catch((error) => {
         if (!isCancelled) {
           handleError(error);
         }
@@ -63,11 +63,6 @@ UserProfile.propTypes = {
   onError: PropTypes.func,
 };
 
-UserProfile.defaultProps = {
-  userId: null, // defaults to `currentUser.id`
-  onError: () => {},
-};
-
 const UserProfilePage = wrapSettingsTab(
   "Users.Account",
   {
@@ -83,7 +78,7 @@ routes.register(
   routeWithUserSession({
     path: "/users/me",
     title: "Account",
-    render: pageProps => <UserProfilePage {...pageProps} />,
+    render: (pageProps) => <UserProfilePage {...pageProps} />,
   })
 );
 routes.register(
@@ -91,6 +86,6 @@ routes.register(
   routeWithUserSession({
     path: "/users/:userId",
     title: "Users",
-    render: pageProps => <UserProfilePage {...pageProps} />,
+    render: (pageProps) => <UserProfilePage {...pageProps} />,
   })
 );

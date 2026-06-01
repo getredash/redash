@@ -9,6 +9,7 @@ import { clientConfig } from "@/services/auth";
 import { SettingsEditorPropTypes, SettingsEditorDefaultProps } from "../prop-types";
 
 export default function PasswordLoginSettings(props) {
+  props = { ...SettingsEditorDefaultProps, ...props };
   const { settings, values, onChange, loading } = props;
 
   const isTheOnlyAuthMethod =
@@ -31,12 +32,14 @@ export default function PasswordLoginSettings(props) {
           <Checkbox
             checked={values.auth_password_login_enabled}
             disabled={isTheOnlyAuthMethod}
-            onChange={e => onChange({ auth_password_login_enabled: e.target.checked })}>
+            onChange={(e) => onChange({ auth_password_login_enabled: e.target.checked })}
+          >
             <Tooltip
               title={
                 isTheOnlyAuthMethod ? "Password login can be disabled only if another login method is enabled." : null
               }
-              placement="right">
+              placement="right"
+            >
               Password Login Enabled
             </Tooltip>
           </Checkbox>
@@ -47,5 +50,3 @@ export default function PasswordLoginSettings(props) {
 }
 
 PasswordLoginSettings.propTypes = SettingsEditorPropTypes;
-
-PasswordLoginSettings.defaultProps = SettingsEditorDefaultProps;

@@ -6,10 +6,9 @@ import prepareData from "./prepareData";
 import initMap from "./initMap";
 
 function useMemoWithDeepCompare(create: any, inputs: any) {
-  const valueRef = useRef();
+  const valueRef = useRef<any>(undefined);
   const value = useMemo(create, inputs);
   if (!isEqual(value, valueRef.current)) {
-    // @ts-expect-error ts-migrate(2322) FIXME: Type 'unknown' is not assignable to type 'undefine... Remove this comment to see the full error message
     valueRef.current = value;
   }
   return valueRef.current;

@@ -34,7 +34,8 @@ function JsonBlock({ value, children, openingBrace, closingBrace, withKeys }: an
             return (
               <span
                 key={"item-" + key}
-                className={cx("jvi-item", { "jvi-nested-first": isFirst, "jvi-nested-last": isLast })}>
+                className={cx("jvi-item", { "jvi-nested-first": isFirst, "jvi-nested-last": isLast })}
+              >
                 {withKeys && (
                   <span className="jvi-object-key">
                     <JsonValue value={key}>
@@ -100,14 +101,12 @@ const jsonViewInteractiveDefaultProps = {
   value: undefined,
 };
 
-type JsonViewInteractiveProps = OwnJsonViewInteractiveProps & typeof jsonViewInteractiveDefaultProps;
+type JsonViewInteractiveProps = OwnJsonViewInteractiveProps;
 
-export default function JsonViewInteractive({ value }: JsonViewInteractiveProps) {
+export default function JsonViewInteractive({ value: value = undefined }: JsonViewInteractiveProps) {
   return (
     <span className="jvi-item jvi-root">
       <JsonValue value={value} />
     </span>
   );
 }
-
-JsonViewInteractive.defaultProps = jsonViewInteractiveDefaultProps;

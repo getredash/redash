@@ -15,7 +15,7 @@ export default function getOptions(options: any, { columns }: any) {
   options = merge({}, DEFAULT_OPTIONS, options);
 
   // Validate
-  const availableColumns = map(columns, c => c.name);
+  const availableColumns = map(columns, (c) => c.name);
   if (!includes(availableColumns, options.stepCol.colName)) {
     options.stepCol.colName = null;
   }

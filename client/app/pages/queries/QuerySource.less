@@ -70,13 +70,21 @@
       display: flex;
       flex-direction: column;
 
-      .ant-tabs-bar {
+      .ant-tabs-nav {
         flex: 0 0 auto;
       }
 
       .ant-tabs-content-holder {
         flex: 1 1 auto;
         position: relative;
+
+        .ant-tabs-content {
+          position: absolute;
+          left: 0;
+          top: 0;
+          right: 0;
+          bottom: 0;
+        }
 
         @media (min-width: 880px) {
           .ant-tabs-tabpane {

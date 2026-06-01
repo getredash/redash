@@ -1,4 +1,4 @@
-import { isDateTime } from "@/services/query-result";
+import QueryResult, { isDateTime } from "@/services/query-result";
 
 describe("isDateTime", () => {
   it.each([
@@ -13,5 +13,34 @@ describe("isDateTime", () => {
     ["", false],
   ])("isDateTime('%s'). expected '%s'.", (value, expected) => {
     expect(isDateTime(value)).toBe(expected);
+  });
+});
+
+describe("QueryResult filters", () => {
+  test("recognizes lowercase multiFilter aliases returned by SQL engines", () => {
+    const queryResult = new QueryResult({
+      query_result: {
+        data: {
+          columns: [
+            { name: "action__multifilter", type: "string" },
+            { name: "value", type: "integer" },
+          ],
+          rows: [
+            { action__multifilter: "login", value: 1 },
+            { action__multifilter: "view", value: 2 },
+          ],
+        },
+      },
+    });
+
+    expect(queryResult.getFilters()).toEqual([
+      expect.objectContaining({
+        name: "action__multifilter",
+        friendlyName: "Action",
+        multiple: true,
+        values: ["login", "view"],
+        current: ["login", "view"],
+      }),
+    ]);
   });
 });

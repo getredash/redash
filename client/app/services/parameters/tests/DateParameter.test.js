@@ -1,5 +1,6 @@
 import { createParameter } from "..";
 import { getDynamicDateFromString } from "../DateParameter";
+import dayjs from "dayjs";
 import moment from "moment";
 
 describe("DateParameter", () => {
@@ -52,6 +53,12 @@ describe("DateParameter", () => {
 
     test("recognizes dates from moment values", () => {
       const normalizedValue = param.normalizeValue(moment("2019-10-06"));
+      expect(moment.isMoment(normalizedValue)).toBeTruthy();
+      expect(normalizedValue.format("YYYY-MM-DD")).toBe("2019-10-06");
+    });
+
+    test("recognizes dates from dayjs values", () => {
+      const normalizedValue = param.normalizeValue(dayjs("2019-10-06"));
       expect(moment.isMoment(normalizedValue)).toBeTruthy();
       expect(normalizedValue.format("YYYY-MM-DD")).toBe("2019-10-06");
     });

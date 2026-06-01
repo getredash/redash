@@ -6,7 +6,7 @@ import Alert from "antd/lib/alert";
 import HelpTrigger from "@/components/HelpTrigger";
 import { useUniqueId } from "@/lib/hooks/useUniqueId";
 
-export default function EmailSettingsWarning({ featureName, className, mode, adminOnly }) {
+export default function EmailSettingsWarning({ featureName, className = null, mode = "alert", adminOnly = false }) {
   const messageDescriptionId = useUniqueId("sr-mail-description");
 
   if (!clientConfig.mailSettingsMissing) {
@@ -43,10 +43,4 @@ EmailSettingsWarning.propTypes = {
   className: PropTypes.string,
   mode: PropTypes.oneOf(["alert", "icon"]),
   adminOnly: PropTypes.bool,
-};
-
-EmailSettingsWarning.defaultProps = {
-  className: null,
-  mode: "alert",
-  adminOnly: false,
 };

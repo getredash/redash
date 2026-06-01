@@ -85,13 +85,13 @@ export default function StyleSettings({ options, onOptionsChange }: any) {
 
   return (
     <React.Fragment>
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Select
           label="Map Tiles"
           data-test="Map.Editor.Tiles"
           value={options.mapTileUrl}
-          onChange={(mapTileUrl: any) => onOptionsChange({ mapTileUrl })}>
+          onChange={(mapTileUrl: any) => onOptionsChange({ mapTileUrl })}
+        >
           {map(mapTiles, ({ name, url }) => (
             // @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message
             <Select.Option key={url} data-test={"Map.Editor.Tiles." + name}>
@@ -102,30 +102,28 @@ export default function StyleSettings({ options, onOptionsChange }: any) {
         </Select>
       </Section>
 
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section.Title>Markers</Section.Title>
 
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Checkbox
           data-test="Map.Editor.ClusterMarkers"
           defaultChecked={options.clusterMarkers}
-          onChange={event => onOptionsChange({ clusterMarkers: event.target.checked })}>
+          onChange={(event) => onOptionsChange({ clusterMarkers: event.target.checked })}
+        >
           Cluster Markers
         </Checkbox>
       </Section>
 
-      {/* @ts-expect-error ts-migrate(2746) FIXME: This JSX tag's 'children' prop expects a single ch... Remove this comment to see the full error message */}
       <Section>
         <Checkbox
           data-test="Map.Editor.CustomizeMarkers"
           disabled={!isCustomMarkersStyleAllowed}
           defaultChecked={options.customizeMarkers}
-          onChange={event => onOptionsChange({ customizeMarkers: event.target.checked })}>
+          onChange={(event) => onOptionsChange({ customizeMarkers: event.target.checked })}
+        >
           Override default style
         </Checkbox>
         {!isCustomMarkersStyleAllowed && (
-          // @ts-expect-error ts-migrate(2746) FIXME: This JSX tag's 'children' prop expects a single ch... Remove this comment to see the full error message
           <ContextHelp placement="topLeft" arrowPointAtCenter>
             Custom marker styles are not available
             <br />
@@ -136,14 +134,14 @@ export default function StyleSettings({ options, onOptionsChange }: any) {
 
       {isCustomMarkersStyleAllowed && options.customizeMarkers && (
         <React.Fragment>
-          {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
           <Section>
             <Select
               layout="horizontal"
               label="Shape"
               data-test="Map.Editor.MarkerShape"
               value={options.iconShape}
-              onChange={(iconShape: any) => onOptionsChange({ iconShape })}>
+              onChange={(iconShape: any) => onOptionsChange({ iconShape })}
+            >
               {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
               <Select.Option key="marker" data-test="Map.Editor.MarkerShape.marker">
                 Marker + Icon
@@ -178,14 +176,12 @@ export default function StyleSettings({ options, onOptionsChange }: any) {
           </Section>
 
           {showIcon && (
-            // @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message
             <Section>
               <Input
                 layout="horizontal"
                 label={
                   <React.Fragment>
                     Icon
-                    {/* @ts-expect-error ts-migrate(2746) FIXME: This JSX tag's 'children' prop expects a single ch... Remove this comment to see the full error message */}
                     <ContextHelp placement="topLeft" arrowPointAtCenter>
                       <div style={{ marginBottom: 5 }}>
                         Enter an icon name from{" "}
@@ -208,7 +204,6 @@ export default function StyleSettings({ options, onOptionsChange }: any) {
           )}
 
           {showIcon && (
-            // @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message
             <Section>
               <ColorPicker
                 layout="horizontal"
@@ -226,7 +221,6 @@ export default function StyleSettings({ options, onOptionsChange }: any) {
           )}
 
           {showBackgroundColor && (
-            // @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message
             <Section>
               <ColorPicker
                 layout="horizontal"
@@ -244,7 +238,6 @@ export default function StyleSettings({ options, onOptionsChange }: any) {
           )}
 
           {showBorderColor && (
-            // @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message
             <Section>
               <ColorPicker
                 layout="horizontal"

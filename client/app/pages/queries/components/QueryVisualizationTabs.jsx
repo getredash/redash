@@ -13,7 +13,7 @@ import "./QueryVisualizationTabs.less";
 
 const { TabPane } = Tabs;
 
-function EmptyState({ title, message, refreshButton }) {
+function EmptyState({ title, message, refreshButton = null }) {
   return (
     <div className="query-results-empty-state">
       <div className="empty-state-content">
@@ -34,11 +34,7 @@ EmptyState.propTypes = {
   refreshButton: PropTypes.node,
 };
 
-EmptyState.defaultProps = {
-  refreshButton: null,
-};
-
-function TabWithDeleteButton({ visualizationName, canDelete, onDelete, ...props }) {
+function TabWithDeleteButton({ visualizationName, canDelete = false, onDelete = () => {}, ...props }) {
   const handleDelete = useCallback(
     (e) => {
       e.stopPropagation();
@@ -72,7 +68,6 @@ TabWithDeleteButton.propTypes = {
   canDelete: PropTypes.bool,
   onDelete: PropTypes.func,
 };
-TabWithDeleteButton.defaultProps = { canDelete: false, onDelete: () => {} };
 
 const defaultVisualizations = [
   {
@@ -84,19 +79,19 @@ const defaultVisualizations = [
 ];
 
 export default function QueryVisualizationTabs({
-  queryResult,
-  selectedTab,
-  showNewVisualizationButton,
-  canDeleteVisualizations,
-  onChangeTab,
-  onAddVisualization,
-  onDeleteVisualization,
-  refreshButton,
-  canRefresh,
+  queryResult = null,
+  selectedTab = null,
+  showNewVisualizationButton = false,
+  canDeleteVisualizations = false,
+  onChangeTab = () => {},
+  onAddVisualization = () => {},
+  onDeleteVisualization = () => {},
+  refreshButton = null,
+  canRefresh = true,
   ...props
 }) {
   const visualizations = useMemo(
-    () => (props.visualizations.length > 0 ? props.visualizations : defaultVisualizations),
+    () => ((props.visualizations || []).length > 0 ? props.visualizations : defaultVisualizations),
     [props.visualizations]
   );
 
@@ -184,17 +179,4 @@ QueryVisualizationTabs.propTypes = {
   onDeleteVisualization: PropTypes.func,
   refreshButton: PropTypes.node,
   canRefresh: PropTypes.bool,
-};
-
-QueryVisualizationTabs.defaultProps = {
-  queryResult: null,
-  visualizations: [],
-  selectedTab: null,
-  showNewVisualizationButton: false,
-  canDeleteVisualizations: false,
-  onChangeTab: () => {},
-  onAddVisualization: () => {},
-  onDeleteVisualization: () => {},
-  refreshButton: null,
-  canRefresh: true,
 };

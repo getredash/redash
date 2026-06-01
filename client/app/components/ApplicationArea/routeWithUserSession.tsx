@@ -61,7 +61,6 @@ export function UserSessionWrapper<P>({ bodyClass, currentRoute, render }: UserS
   return (
     <ApplicationLayout>
       <React.Fragment key={currentRoute.key}>
-        {/* @ts-expect-error FIXME */}
         <ErrorBoundary renderError={(error: Error) => <ErrorMessage error={error} />}>
           <ErrorBoundaryContext.Consumer>
             {(

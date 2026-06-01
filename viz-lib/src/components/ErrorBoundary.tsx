@@ -23,28 +23,22 @@ const errorMessageDefaultProps = {
   children: "Something went wrong.",
 };
 
-type ErrorMessageProps = OwnErrorMessageProps & typeof errorMessageDefaultProps;
+type ErrorMessageProps = OwnErrorMessageProps;
 
-export function ErrorMessage({ children }: ErrorMessageProps) {
+export function ErrorMessage({ children: children = "Something went wrong." }: ErrorMessageProps) {
   return <Alert message={children} type="error" showIcon />;
 }
 
-ErrorMessage.defaultProps = errorMessageDefaultProps;
-
 type OwnErrorBoundaryProps = {
+  children?: React.ReactNode;
   renderError?: (...args: any[]) => any;
 };
 
 type ErrorBoundaryState = any;
 
-type ErrorBoundaryProps = OwnErrorBoundaryProps & typeof ErrorBoundary.defaultProps;
+type ErrorBoundaryProps = OwnErrorBoundaryProps;
 
 export default class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
-  static defaultProps = {
-    children: null,
-    renderError: null,
-  };
-
   state = { error: null };
 
   handleError = (error: any) => {
@@ -71,12 +65,11 @@ export default class ErrorBoundary extends React.Component<ErrorBoundaryProps, E
   }
 
   render() {
-    const { renderError, children } = this.props;
+    const { renderError = null, children = null } = this.props;
     const { error } = this.state;
 
     if (error) {
       if (isFunction(renderError)) {
-        // @ts-expect-error ts-migrate(2349) FIXME: This expression is not callable.
         return renderError(error);
       }
       return <ErrorMessage />;

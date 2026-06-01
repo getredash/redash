@@ -10,7 +10,7 @@ import { currentUser } from "@/services/auth";
 import useQueryFlags from "../hooks/useQueryFlags";
 import "./QuerySourceAlerts.less";
 
-export default function QuerySourceAlerts({ query, dataSourcesAvailable }) {
+export default function QuerySourceAlerts({ query, dataSourcesAvailable = false }) {
   const queryFlags = useQueryFlags(query); // we don't use flags that depend on data source
 
   let message = null;
@@ -84,8 +84,4 @@ export default function QuerySourceAlerts({ query, dataSourcesAvailable }) {
 QuerySourceAlerts.propTypes = {
   query: PropTypes.object.isRequired,
   dataSourcesAvailable: PropTypes.bool,
-};
-
-QuerySourceAlerts.defaultProps = {
-  dataSourcesAvailable: false,
 };

@@ -9,7 +9,7 @@ import { IMG_ROOT } from "@/services/data-source";
 
 import "./QueryMetadata.less";
 
-export default function QueryMetadata({ query, dataSource, layout, onEditSchedule }) {
+export default function QueryMetadata({ query, dataSource = null, layout = "table", onEditSchedule = null }) {
   return (
     <div className={`query-metadata query-metadata-${layout}`}>
       <div className="query-metadata-item">
@@ -92,10 +92,4 @@ QueryMetadata.propTypes = {
     name: PropTypes.string,
   }),
   onEditSchedule: PropTypes.func,
-};
-
-QueryMetadata.defaultProps = {
-  layout: "table",
-  dataSource: null,
-  onEditSchedule: null,
 };

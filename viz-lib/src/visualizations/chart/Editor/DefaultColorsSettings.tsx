@@ -7,6 +7,8 @@ import { AllColorPalettes } from "@/visualizations/ColorPalette";
 import getChartData from "../getChartData";
 import { Section, Select } from "@/components/visualizations/editor";
 
+const SelectOption = (Select as any).Option;
+
 export default function DefaultColorsSettings({ options, data, onOptionsChange }: any) {
   const colors = useMemo(
     () => ({
@@ -27,7 +29,7 @@ export default function DefaultColorsSettings({ options, data, onOptionsChange }
   );
 
   const updateSeriesOption = useCallback(
-    (key, prop, value) => {
+    (key: any, prop: any, value: any) => {
       onOptionsChange({
         seriesOptions: {
           [key]: {
@@ -51,17 +53,11 @@ export default function DefaultColorsSettings({ options, data, onOptionsChange }
       render: (unused: any, item: any) => (
         <ColorPicker
           data-test={`Chart.Series.${item.key}.Color`}
-          // @ts-expect-error ts-migrate(2322) FIXME: Type 'boolean' is not assignable to type 'never'.
           interactive
-          // @ts-expect-error ts-migrate(2322) FIXME: Type '{ "Indian Red": string; "Green 2": string; "... Remove this comment to see the full error message
           presetColors={colors}
-          // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
           placement="topRight"
-          // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
           color={item.color}
-          // @ts-expect-error ts-migrate(2322) FIXME: Type '(value: any) => void' is not assignable to t... Remove this comment to see the full error message
           onChange={(value: any) => updateSeriesOption(item.key, "color", value)}
-          // @ts-expect-error ts-migrate(2322) FIXME: Type 'Element' is not assignable to type 'never'.
           addonAfter={<ColorPicker.Label color={item.color} presetColors={colors} />}
         />
       ),
@@ -70,22 +66,23 @@ export default function DefaultColorsSettings({ options, data, onOptionsChange }
 
   return (
     <React.Fragment>
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
-          <Select
-            label="Color Scheme"
-            defaultValue={options.color_scheme}
-            data-test="ColorScheme"
-            onChange={(val : any) => onOptionsChange({ color_scheme: val })}>
-            {Object.keys(AllColorPalettes).map(option => (
-             // @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message
-              <Select.Option data-test={`ColorOption${option}`} key={option} value={option}>{option}</Select.Option>
-            ))}
-          </Select>
-        </Section>
+        <Select
+          label="Color Scheme"
+          defaultValue={options.color_scheme}
+          data-test="ColorScheme"
+          onChange={(val: any) => onOptionsChange({ color_scheme: val })}
+        >
+          {Object.keys(AllColorPalettes).map((option) => (
+            <SelectOption data-test={`ColorOption${option}`} key={option} value={option}>
+              {option}
+            </SelectOption>
+          ))}
+        </Select>
+      </Section>
       <Table showHeader={false} dataSource={series} columns={columns} pagination={false} />
     </React.Fragment>
-  )
+  );
 }
 
 DefaultColorsSettings.propTypes = EditorPropTypes;

@@ -7,6 +7,7 @@ import DynamicComponent from "@/components/DynamicComponent";
 import { clientConfig } from "@/services/auth";
 
 export default function FormatSettings(props) {
+  props = { ...SettingsEditorDefaultProps, ...props };
   const { values, onChange, loading } = props;
 
   return (
@@ -17,9 +18,10 @@ export default function FormatSettings(props) {
         ) : (
           <Select
             value={values.date_format}
-            onChange={value => onChange({ date_format: value })}
-            data-test="DateFormatSelect">
-            {clientConfig.dateFormatList.map(dateFormat => (
+            onChange={(value) => onChange({ date_format: value })}
+            data-test="DateFormatSelect"
+          >
+            {clientConfig.dateFormatList.map((dateFormat) => (
               <Select.Option key={dateFormat} data-test={`DateFormatSelect:${dateFormat}`}>
                 {dateFormat}
               </Select.Option>
@@ -33,9 +35,10 @@ export default function FormatSettings(props) {
         ) : (
           <Select
             value={values.time_format}
-            onChange={value => onChange({ time_format: value })}
-            data-test="TimeFormatSelect">
-            {clientConfig.timeFormatList.map(timeFormat => (
+            onChange={(value) => onChange({ time_format: value })}
+            data-test="TimeFormatSelect"
+          >
+            {clientConfig.timeFormatList.map((timeFormat) => (
               <Select.Option key={timeFormat}>{timeFormat}</Select.Option>
             ))}
           </Select>
@@ -46,5 +49,3 @@ export default function FormatSettings(props) {
 }
 
 FormatSettings.propTypes = SettingsEditorPropTypes;
-
-FormatSettings.defaultProps = SettingsEditorDefaultProps;

@@ -14,7 +14,7 @@ import LoadingOutlinedIcon from "@ant-design/icons/LoadingOutlined";
 
 import "./Query.less";
 
-export default function QueryFormItem({ query, queryResult, onChange, editMode }) {
+export default function QueryFormItem({ query = null, queryResult = null, onChange = () => {}, editMode = false }) {
   const queryHint =
     query && query.schedule ? (
       <small>
@@ -61,11 +61,4 @@ QueryFormItem.propTypes = {
   queryResult: PropTypes.object, // eslint-disable-line react/forbid-prop-types
   onChange: PropTypes.func,
   editMode: PropTypes.bool,
-};
-
-QueryFormItem.defaultProps = {
-  query: null,
-  queryResult: null,
-  onChange: () => {},
-  editMode: false,
 };

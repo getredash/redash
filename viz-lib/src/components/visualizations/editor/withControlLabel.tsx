@@ -21,9 +21,15 @@ const controlLabelDefaultProps = {
   children: null,
 };
 
-type Props = OwnProps & typeof controlLabelDefaultProps;
+type Props = OwnProps;
 
-export function ControlLabel({ layout, label, labelProps, disabled, children }: Props) {
+export function ControlLabel({
+  layout: layout = "vertical",
+  label: label = null,
+  labelProps,
+  disabled: disabled = false,
+  children: children = null,
+}: Props) {
   if (layout === "vertical" && label) {
     return (
       <div className="visualization-editor-control-label visualization-editor-control-label-vertical">
@@ -42,7 +48,8 @@ export function ControlLabel({ layout, label, labelProps, disabled, children }: 
         // @ts-expect-error ts-migrate(2322) FIXME: Type '{ children: Element[]; className: string; ty... Remove this comment to see the full error message
         type="flex"
         align="middle"
-        gutter={15}>
+        gutter={15}
+      >
         <Grid.Col span={12}>
           <label {...labelProps}>
             <Typography.Text disabled={disabled}>{label}</Typography.Text>
@@ -56,18 +63,10 @@ export function ControlLabel({ layout, label, labelProps, disabled, children }: 
   return children;
 }
 
-ControlLabel.defaultProps = controlLabelDefaultProps;
-
 export default function withControlLabel(WrappedControl: any) {
   // eslint-disable-next-line react/prop-types
   function ControlWrapper({ className, id, layout, label, labelProps, disabled, ...props }: any) {
-    const fallbackId = useMemo(
-      () =>
-        `visualization-editor-control-${Math.random()
-          .toString(36)
-          .substr(2, 10)}`,
-      []
-    );
+    const fallbackId = useMemo(() => `visualization-editor-control-${Math.random().toString(36).substr(2, 10)}`, []);
     labelProps = {
       ...labelProps,
       htmlFor: id || fallbackId,
@@ -75,7 +74,6 @@ export default function withControlLabel(WrappedControl: any) {
 
     return (
       <ControlLabel layout={layout} label={label} labelProps={labelProps} disabled={disabled}>
-        {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'Element' is not assignable to type 'null | u... Remove this comment to see the full error message */}
         <WrappedControl
           className={cx("visualization-editor-input", className)}
           id={labelProps.htmlFor}

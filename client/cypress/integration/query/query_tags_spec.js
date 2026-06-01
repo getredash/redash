@@ -13,14 +13,11 @@ describe("Query Tags", () => {
   });
 
   it("is possible to add and edit tags", () => {
-    cy.server();
-    cy.route("POST", "**/api/queries/*").as("QuerySave");
+    cy.intercept("POST", "**/api/queries/*").as("QuerySave");
 
     cy.getByTestId("TagsControl").contains(".label", "Unpublished");
 
-    cy.getByTestId("EditTagsButton")
-      .should("contain", "Add tag")
-      .click();
+    cy.getByTestId("EditTagsButton").should("contain", "Add tag").click();
 
     typeInTagsSelectAndSave("tag1{enter}tag2{enter}tag3{enter}");
 

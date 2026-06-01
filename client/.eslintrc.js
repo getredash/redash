@@ -72,7 +72,7 @@ module.exports = {
         // Many API fields and generated types use camelcase
         camelcase: "off",
         // Allow {} type - used extensively in existing codebase
-        "@typescript-eslint/ban-types": ["error", { types: { "{}": false } }],
+        "@typescript-eslint/no-empty-object-type": "off",
       },
     },
     {

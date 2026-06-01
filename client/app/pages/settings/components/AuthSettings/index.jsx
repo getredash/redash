@@ -9,9 +9,10 @@ import GoogleLoginSettings from "./GoogleLoginSettings";
 import SAMLSettings from "./SAMLSettings";
 
 export default function AuthSettings(props) {
+  props = { ...SettingsEditorDefaultProps, ...props };
   const { values, onChange } = props;
   const handleChange = useCallback(
-    changes => {
+    (changes) => {
       const allSettings = { ...values, ...changes };
       const allAuthMethodsDisabled =
         !clientConfig.googleLoginEnabled && !clientConfig.ldapLoginEnabled && !allSettings.auth_saml_enabled;
@@ -37,4 +38,3 @@ export default function AuthSettings(props) {
 }
 
 AuthSettings.propTypes = SettingsEditorPropTypes;
-AuthSettings.defaultProps = SettingsEditorDefaultProps;

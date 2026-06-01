@@ -14,11 +14,11 @@ import useDatabricksSchema from "./useDatabricksSchema";
 import "./DatabricksSchemaBrowser.less";
 
 export default function DatabricksSchemaBrowser({
-  dataSource,
-  options,
-  onOptionsUpdate,
-  onSchemaUpdate,
-  onItemSelect,
+  dataSource = null,
+  options = null,
+  onOptionsUpdate = () => {},
+  onSchemaUpdate = () => {},
+  onItemSelect = () => {},
   ...props
 }) {
   const {
@@ -44,7 +44,7 @@ export default function DatabricksSchemaBrowser({
   );
 
   const handleDatabaseSelection = useCallback(
-    databaseName => {
+    (databaseName) => {
       setCurrentDatabase(databaseName);
       cancelHandleDatabaseFilterChange();
       setDatabaseFilterString("");
@@ -53,7 +53,7 @@ export default function DatabricksSchemaBrowser({
   );
 
   const filteredDatabases = useMemo(
-    () => filter(databases, database => includes(database.toLowerCase(), databaseFilterString.toLowerCase())),
+    () => filter(databases, (database) => includes(database.toLowerCase(), databaseFilterString.toLowerCase())),
     [databases, databaseFilterString]
   );
 
@@ -86,23 +86,24 @@ export default function DatabricksSchemaBrowser({
           placeholder="Filter tables & columns..."
           aria-label="Search schema"
           disabled={loadingDatabases || loadingSchema}
-          onChange={event => handleFilterChange(event.target.value)}
+          onChange={(event) => handleFilterChange(event.target.value)}
           addonBefore={
             <Select
-              dropdownClassName="databricks-schema-browser-db-dropdown"
+              classNames={{ popup: { root: "databricks-schema-browser-db-dropdown" } }}
               loading={loadingDatabases}
               disabled={loadingDatabases}
               onChange={handleDatabaseSelection}
               value={currentDatabaseName}
               showSearch
               onSearch={handleDatabaseFilterChange}
-              onDropdownVisibleChange={setIsDatabaseSelectOpen}
+              onOpenChange={setIsDatabaseSelectOpen}
               placeholder={
                 <>
                   <i className="fa fa-database m-r-5" aria-hidden="true" /> Database
                 </>
-              }>
-              {filteredDatabases.map(database => (
+              }
+            >
+              {filteredDatabases.map((database) => (
                 <Select.Option key={database}>
                   <i className="fa fa-database m-r-5" aria-hidden="true" />
                   {database}
@@ -140,12 +141,4 @@ DatabricksSchemaBrowser.propTypes = {
   onOptionsUpdate: PropTypes.func,
   onSchemaUpdate: PropTypes.func,
   onItemSelect: PropTypes.func,
-};
-
-DatabricksSchemaBrowser.defaultProps = {
-  dataSource: null,
-  options: null,
-  onOptionsUpdate: () => {},
-  onSchemaUpdate: () => {},
-  onItemSelect: () => {},
 };

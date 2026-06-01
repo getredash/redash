@@ -28,7 +28,6 @@ const ColorSchemes = [
 export default function HeatmapColorsSettings({ options, onOptionsChange }: any) {
   return (
     <React.Fragment>
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Select
           label="Color Scheme"
@@ -36,8 +35,9 @@ export default function HeatmapColorsSettings({ options, onOptionsChange }: any)
           placeholder="Choose Color Scheme..."
           allowClear
           value={options.colorScheme || undefined}
-          onChange={(value: any) => onOptionsChange({ colorScheme: value || null })}>
-          {map(ColorSchemes, scheme => (
+          onChange={(value: any) => onOptionsChange({ colorScheme: value || null })}
+        >
+          {map(ColorSchemes, (scheme) => (
             // @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message
             <Select.Option key={scheme} value={scheme} data-test={`Chart.Colors.Heatmap.ColorScheme.${scheme}`}>
               {scheme}
@@ -49,7 +49,6 @@ export default function HeatmapColorsSettings({ options, onOptionsChange }: any)
 
       {options.colorScheme === "Custom..." && (
         <React.Fragment>
-          {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
           <Section>
             <ColorPicker
               layout="horizontal"
@@ -64,7 +63,6 @@ export default function HeatmapColorsSettings({ options, onOptionsChange }: any)
               addonAfter={<ColorPicker.Label color={options.heatMinColor} presetColors={ColorPalette} />}
             />
           </Section>
-          {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
           <Section>
             <ColorPicker
               layout="horizontal"

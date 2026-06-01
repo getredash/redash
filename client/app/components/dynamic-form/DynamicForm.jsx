@@ -33,7 +33,7 @@ const fieldRules = ({ type, required, minLength }) => {
     requiredRule && { required, message: "This field is required." },
     minLengthRule && { min: minLength, message: "This field is too short." },
     emailTypeRule && { type: "email", message: "This field must be a valid email." },
-  ].filter(rule => rule);
+  ].filter((rule) => rule);
 };
 
 function normalizeEmptyValuesToNull(fields, values) {
@@ -46,8 +46,8 @@ function normalizeEmptyValuesToNull(fields, values) {
   });
 }
 
-function DynamicFormFields({ fields, feedbackIcons, form }) {
-  return fields.map(field => {
+function DynamicFormFields({ fields = [], feedbackIcons = false, form }) {
+  return fields.map((field) => {
     const { name, type, initialValue, contentAfter } = field;
     const fieldLabel = getFieldLabel(field);
 
@@ -63,9 +63,9 @@ function DynamicFormFields({ fields, feedbackIcons, form }) {
 
     if (type === "file") {
       formItemProps.valuePropName = "data-value";
-      formItemProps.getValueFromEvent = e => {
+      formItemProps.getValueFromEvent = (e) => {
         if (e && e.fileList[0]) {
-          helper.getBase64(e.file).then(value => {
+          helper.getBase64(e.file).then((value) => {
             form.setFieldsValue({ [name]: value });
           });
         }
@@ -90,11 +90,6 @@ DynamicFormFields.propTypes = {
   form: AntdFormType.isRequired,
 };
 
-DynamicFormFields.defaultProps = {
-  fields: [],
-  feedbackIcons: false,
-};
-
 const reducerForActionSet = (state, action) => {
   if (action.inProgress) {
     state.add(action.actionName);
@@ -104,10 +99,10 @@ const reducerForActionSet = (state, action) => {
   return new Set(state);
 };
 
-function DynamicFormActions({ actions, isFormDirty }) {
+function DynamicFormActions({ actions = [], isFormDirty = false }) {
   const [inProgressActions, setActionInProgress] = useReducer(reducerForActionSet, new Set());
 
-  const handleAction = useCallback(action => {
+  const handleAction = useCallback((action) => {
     const actionName = action.name;
     if (isFunction(action.callback)) {
       setActionInProgress({ actionName, inProgress: true });
@@ -116,7 +111,7 @@ function DynamicFormActions({ actions, isFormDirty }) {
       });
     }
   }, []);
-  return actions.map(action => (
+  return actions.map((action) => (
     <Button
       key={action.name}
       htmlType="button"
@@ -124,7 +119,8 @@ function DynamicFormActions({ actions, isFormDirty }) {
       type={action.type}
       disabled={isFormDirty && action.disableWhenDirty}
       loading={inProgressActions.has(action.name)}
-      onClick={() => handleAction(action)}>
+      onClick={() => handleAction(action)}
+    >
       {action.name}
     </Button>
   ));
@@ -135,20 +131,15 @@ DynamicFormActions.propTypes = {
   isFormDirty: PropTypes.bool,
 };
 
-DynamicFormActions.defaultProps = {
-  actions: [],
-  isFormDirty: false,
-};
-
 export default function DynamicForm({
-  id,
-  fields,
-  actions,
-  feedbackIcons,
-  hideSubmitButton,
-  defaultShowExtraFields,
-  saveText,
-  onSubmit,
+  id = null,
+  fields = [],
+  actions = [],
+  feedbackIcons = false,
+  hideSubmitButton = false,
+  defaultShowExtraFields = false,
+  saveText = "Save",
+  onSubmit = () => {},
 }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isTouched, setIsTouched] = useState(false);
@@ -158,17 +149,17 @@ export default function DynamicForm({
   const regularFields = difference(fields, extraFields);
 
   const handleFinish = useCallback(
-    values => {
+    (values) => {
       setIsSubmitting(true);
       values = normalizeEmptyValuesToNull(fields, values);
       onSubmit(
         values,
-        msg => {
+        (msg) => {
           setIsSubmitting(false);
           setIsTouched(false); // reset form touched state
           notification.success(msg);
         },
-        msg => {
+        (msg) => {
           setIsSubmitting(false);
           notification.error(msg);
         }
@@ -194,7 +185,8 @@ export default function DynamicForm({
       className="dynamic-form"
       layout="vertical"
       onFinish={handleFinish}
-      onFinishFailed={handleFinishFailed}>
+      onFinishFailed={handleFinishFailed}
+    >
       <DynamicFormFields fields={regularFields} feedbackIcons={feedbackIcons} form={form} />
       {!isEmpty(extraFields) && (
         <div className="extra-options">
@@ -202,7 +194,8 @@ export default function DynamicForm({
             type="dashed"
             block
             className="extra-options-button"
-            onClick={() => setShowExtraFields(currentShowExtraFields => !currentShowExtraFields)}>
+            onClick={() => setShowExtraFields((currentShowExtraFields) => !currentShowExtraFields)}
+          >
             Additional Settings
             <i
               className={cx("fa m-l-5", { "fa-caret-up": showExtraFields, "fa-caret-down": !showExtraFields })}
@@ -233,15 +226,4 @@ DynamicForm.propTypes = {
   defaultShowExtraFields: PropTypes.bool,
   saveText: PropTypes.string,
   onSubmit: PropTypes.func,
-};
-
-DynamicForm.defaultProps = {
-  id: null,
-  fields: [],
-  actions: [],
-  feedbackIcons: false,
-  hideSubmitButton: false,
-  defaultShowExtraFields: false,
-  saveText: "Save",
-  onSubmit: () => {},
 };

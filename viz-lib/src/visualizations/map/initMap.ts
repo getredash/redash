@@ -190,12 +190,12 @@ export default function initMap(container: any) {
   function updateLayers(groups: any, options: any) {
     _tileLayer.setUrl(options.mapTileUrl);
 
-    _markerLayers.eachLayer(layer => {
+    _markerLayers.eachLayer((layer) => {
       _markerLayers.removeLayer(layer);
       _layersControls.removeLayer(layer);
     });
 
-    each(groups, group => {
+    each(groups, (group) => {
       const layer = createMarkersLayer(options, group);
       _markerLayers.addLayer(layer);
       _layersControls.addOverlay(layer, group.name);

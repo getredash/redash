@@ -16,11 +16,11 @@ import "./QueryExecutionMetadata.less";
 export default function QueryExecutionMetadata({
   query,
   queryResult,
-  isQueryExecuting,
-  selectedVisualization,
-  showEditVisualizationButton,
-  onEditVisualization,
-  extraActions,
+  isQueryExecuting = false,
+  selectedVisualization = null,
+  showEditVisualizationButton = false,
+  onEditVisualization = () => {},
+  extraActions = null,
 }) {
   const queryResultData = useQueryResultData(queryResult);
   const openAddToDashboardDialog = useAddToDashboardDialog(query);
@@ -95,12 +95,4 @@ QueryExecutionMetadata.propTypes = {
   showEditVisualizationButton: PropTypes.bool,
   onEditVisualization: PropTypes.func,
   extraActions: PropTypes.node,
-};
-
-QueryExecutionMetadata.defaultProps = {
-  isQueryExecuting: false,
-  selectedVisualization: null,
-  showEditVisualizationButton: false,
-  onEditVisualization: () => {},
-  extraActions: null,
 };

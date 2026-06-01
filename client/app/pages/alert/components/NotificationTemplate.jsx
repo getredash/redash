@@ -30,15 +30,24 @@ function normalizeCustomTemplateData(alert, query, columnNames, resultValues) {
   };
 }
 
-function NotificationTemplate({ alert, query, columnNames, resultValues, subject, setSubject, body, setBody }) {
+function NotificationTemplate({
+  alert,
+  query,
+  columnNames,
+  resultValues,
+  subject = "",
+  setSubject,
+  body = "",
+  setBody,
+}) {
   const hasContent = !!(subject || body);
   const [enabled, setEnabled] = useState(hasContent ? 1 : 0);
   const [showPreview, setShowPreview] = useState(false);
 
   const renderData = normalizeCustomTemplateData(alert, query, columnNames, resultValues);
 
-  const render = tmpl => Mustache.render(tmpl || "", renderData);
-  const onEnabledChange = value => {
+  const render = (tmpl) => Mustache.render(tmpl || "", renderData);
+  const onEnabledChange = (value) => {
     if (value || !hasContent) {
       setEnabled(value);
       setShowPreview(false);
@@ -64,8 +73,9 @@ function NotificationTemplate({ alert, query, columnNames, resultValues, subject
         value={enabled}
         onChange={onEnabledChange}
         optionLabelProp="label"
-        dropdownMatchSelectWidth={false}
-        style={{ width: "fit-content" }}>
+        popupMatchSelectWidth={false}
+        style={{ width: "fit-content" }}
+      >
         <Select.Option value={0} label="Use default template">
           Default template
         </Select.Option>
@@ -84,7 +94,7 @@ function NotificationTemplate({ alert, query, columnNames, resultValues, subject
           <Input
             value={showPreview ? render(subject) : subject}
             aria-label="Subject"
-            onChange={e => setSubject(e.target.value)}
+            onChange={(e) => setSubject(e.target.value)}
             disabled={showPreview}
             data-test="CustomSubject"
           />
@@ -92,7 +102,7 @@ function NotificationTemplate({ alert, query, columnNames, resultValues, subject
             value={showPreview ? render(body) : body}
             aria-label="Body"
             autoSize={{ minRows: 9 }}
-            onChange={e => setBody(e.target.value)}
+            onChange={(e) => setBody(e.target.value)}
             disabled={showPreview}
             data-test="CustomBody"
           />
@@ -115,11 +125,6 @@ NotificationTemplate.propTypes = {
   setSubject: PropTypes.func.isRequired,
   body: PropTypes.string,
   setBody: PropTypes.func.isRequired,
-};
-
-NotificationTemplate.defaultProps = {
-  subject: "",
-  body: "",
 };
 
 export default NotificationTemplate;

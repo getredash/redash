@@ -21,7 +21,6 @@ function validateSteps(value: any) {
 export default function ColorsSettings({ options, onOptionsChange }: any) {
   return (
     <React.Fragment>
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <ColorPicker
           layout="horizontal"
@@ -34,7 +33,6 @@ export default function ColorsSettings({ options, onOptionsChange }: any) {
           addonAfter={<ColorPicker.Label color={options.colors.min} presetColors={ColorPalette} />}
         />
       </Section>
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <ColorPicker
           layout="horizontal"
@@ -47,7 +45,6 @@ export default function ColorsSettings({ options, onOptionsChange }: any) {
           addonAfter={<ColorPicker.Label color={options.colors.max} presetColors={ColorPalette} />}
         />
       </Section>
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <InputNumber
           layout="horizontal"

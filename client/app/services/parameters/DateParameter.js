@@ -1,6 +1,7 @@
 import { findKey, startsWith, has, includes, isNull, values } from "lodash";
 import moment from "moment";
 import PropTypes from "prop-types";
+import { toMoment } from "@/lib/dateTimeUtils";
 import Parameter from "./Parameter";
 
 const DATETIME_FORMATS = {
@@ -61,8 +62,7 @@ class DateParameter extends Parameter {
       return value;
     }
 
-    const normalizedValue = moment(value, moment.ISO_8601, true);
-    return normalizedValue.isValid() ? normalizedValue : null;
+    return toMoment(value);
   }
 
   setValue(value) {

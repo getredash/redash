@@ -6,24 +6,18 @@ import "./label.less";
 
 type OwnProps = {
   className?: string;
-  color?: string;
+  color?: string | null;
   presetColors?:
     | string[]
     | {
         [key: string]: string;
-      };
+      }
+    | null;
 };
 
-const labelDefaultProps = {
-  className: null,
-  color: "#FFFFFF",
-  presetColors: null,
-};
+type Props = OwnProps & React.HTMLAttributes<HTMLSpanElement>;
 
-type Props = OwnProps & typeof labelDefaultProps;
-
-// @ts-expect-error ts-migrate(2700) FIXME: Rest types may only be created from object types.
-export default function Label({ className, color, presetColors, ...props }: Props) {
+export default function Label({ className, color = "#FFFFFF", presetColors = null, ...props }: Props) {
   const name = useMemo(() => getColorName(validateColor(color), presetColors), [color, presetColors]);
 
   return (
@@ -32,5 +26,3 @@ export default function Label({ className, color, presetColors, ...props }: Prop
     </span>
   );
 }
-
-Label.defaultProps = labelDefaultProps;

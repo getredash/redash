@@ -21,7 +21,7 @@ import HorizontalFormItem from "./components/HorizontalFormItem";
 import { STATE_CLASS } from "../alerts/AlertsList";
 import DynamicComponent from "@/components/DynamicComponent";
 
-function AlertState({ state, lastTriggered }) {
+function AlertState({ state, lastTriggered = null }) {
   return (
     <div className="alert-state">
       <span className={`alert-state-indicator label ${STATE_CLASS[state]}`}>Status: {state}</span>
@@ -41,10 +41,6 @@ function AlertState({ state, lastTriggered }) {
 AlertState.propTypes = {
   state: PropTypes.string.isRequired,
   lastTriggered: PropTypes.string,
-};
-
-AlertState.defaultProps = {
-  lastTriggered: null,
 };
 
 // eslint-disable-next-line react/prefer-stateless-function
@@ -77,13 +73,17 @@ export default class AlertView extends React.Component {
               {menuButton}
             </>
           ) : (
-            <Tooltip title="You do not have sufficient permissions to edit this alert">
-              <Button type="default" onClick={canEdit ? onEdit : null} className={cx({ disabled: !canEdit })}>
-                <i className="fa fa-edit m-r-5" aria-hidden="true" />
-                Edit
-              </Button>
+            <>
+              <Tooltip title="You do not have sufficient permissions to edit this alert">
+                <span>
+                  <Button type="default" onClick={canEdit ? onEdit : null} className={cx({ disabled: !canEdit })}>
+                    <i className="fa fa-edit m-r-5" aria-hidden="true" />
+                    Edit
+                  </Button>
+                </span>
+              </Tooltip>
               {menuButton}
-            </Tooltip>
+            </>
           )}
         </Title>
         <div className="bg-white tiled p-20">
@@ -136,7 +136,8 @@ export default class AlertView extends React.Component {
                             type="primary"
                             onClick={this.unmute}
                             loading={this.state.unmuting}
-                            className="m-t-5 m-l-5">
+                            className="m-t-5 m-l-5"
+                          >
                             Unmute
                           </Button>
                         </>

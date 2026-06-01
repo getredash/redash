@@ -1,17 +1,32 @@
 import { after } from "lodash";
 import React from "react";
-import enzyme from "enzyme";
+import { render, fireEvent } from "@testing-library/react";
 
 import getOptions from "../getOptions";
 import ColorsSettings from "./ColorsSettings";
 
-function findByTestID(wrapper: any, testId: any) {
-  return wrapper.find(`[data-test="${testId}"]`);
+function findByTestID(testId: string): HTMLElement[] {
+  return Array.from(document.body.querySelectorAll(`[data-test="${testId}"]`));
+}
+
+function getInput(el: HTMLElement): HTMLInputElement {
+  return (el.tagName === "INPUT" ? el : el.querySelector("input")!) as HTMLInputElement;
+}
+
+function openSelect(testId: string) {
+  const el = findByTestID(testId).pop()!;
+  const selector = (el.matches(".ant-select") ? el : el.querySelector(".ant-select")) || el;
+  fireEvent.mouseDown(selector);
+}
+
+function clickOption(testId: string) {
+  const el = findByTestID(testId).pop();
+  if (el) fireEvent.click(el);
 }
 
 function mount(options: any, done: any) {
   options = getOptions(options);
-  return enzyme.mount(
+  const { container } = render(
     <ColorsSettings
       visualizationName="Test"
       data={{
@@ -28,11 +43,12 @@ function mount(options: any, done: any) {
       }}
     />
   );
+  return container;
 }
 
 describe("Visualizations -> Chart -> Editor -> Colors Settings", () => {
   describe("for pie", () => {
-    test("Changes series color", done => {
+    test("Changes series color", (done) => {
       const el = mount(
         {
           globalSeriesType: "pie",
@@ -41,19 +57,15 @@ describe("Visualizations -> Chart -> Editor -> Colors Settings", () => {
         done
       );
 
-      findByTestID(el, "Chart.Series.v.Color")
-        .find(".color-picker-trigger")
-        .last()
-        .simulate("click");
-      findByTestID(el, "ColorPicker")
-        .last()
-        .find("input")
-        .simulate("change", { target: { value: "red" } });
+      // ColorPicker doesn't render data-test to DOM, use table row key instead
+      const trigger = document.body.querySelector('[data-row-key="v"] .color-picker-trigger') as HTMLElement;
+      fireEvent.click(trigger);
+      fireEvent.change(getInput(findByTestID("ColorPicker").pop()!), { target: { value: "red" } });
     });
   });
 
   describe("for heatmap", () => {
-    test("Changes color scheme", done => {
+    test("Changes color scheme", (done) => {
       const el = mount(
         {
           globalSeriesType: "heatmap",
@@ -62,15 +74,11 @@ describe("Visualizations -> Chart -> Editor -> Colors Settings", () => {
         done
       );
 
-      findByTestID(el, "Chart.Colors.Heatmap.ColorScheme")
-        .last()
-        .simulate("mouseDown");
-      findByTestID(el, "Chart.Colors.Heatmap.ColorScheme.Blues")
-        .last()
-        .simulate("click");
+      openSelect("Chart.Colors.Heatmap.ColorScheme");
+      clickOption("Chart.Colors.Heatmap.ColorScheme.Blues");
     });
 
-    test("Sets custom color scheme", done => {
+    test("Sets custom color scheme", (done) => {
       const el = mount(
         {
           globalSeriesType: "heatmap",
@@ -80,28 +88,19 @@ describe("Visualizations -> Chart -> Editor -> Colors Settings", () => {
         after(2, done)
       ); // we will perform 2 actions, so call `done` after all of them completed
 
-      findByTestID(el, "Chart.Colors.Heatmap.MinColor")
-        .find(".color-picker-trigger")
-        .last()
-        .simulate("click");
-      findByTestID(el, "ColorPicker")
-        .last()
-        .find("input")
-        .simulate("change", { target: { value: "yellow" } });
+      // ColorPicker doesn't render data-test to DOM, find by MinColor/MaxColor wrapper
+      const colorPickers = document.body.querySelectorAll(".color-picker-trigger");
+      // MinColor picker is first, MaxColor is second
+      fireEvent.click(colorPickers[0]);
+      fireEvent.change(getInput(findByTestID("ColorPicker").pop()!), { target: { value: "yellow" } });
 
-      findByTestID(el, "Chart.Colors.Heatmap.MaxColor")
-        .find(".color-picker-trigger")
-        .last()
-        .simulate("click");
-      findByTestID(el, "ColorPicker")
-        .last()
-        .find("input")
-        .simulate("change", { target: { value: "red" } });
+      fireEvent.click(colorPickers[1]);
+      fireEvent.change(getInput(findByTestID("ColorPicker").pop()!), { target: { value: "red" } });
     });
   });
 
   describe("for all except of pie and heatmap", () => {
-    test("Changes series color", done => {
+    test("Changes series color", (done) => {
       const el = mount(
         {
           globalSeriesType: "column",
@@ -110,15 +109,11 @@ describe("Visualizations -> Chart -> Editor -> Colors Settings", () => {
         done
       );
 
-      findByTestID(el, "Chart.Series.b.Color")
-        .find(".color-picker-trigger")
-        .last()
-        .simulate("click");
+      // ColorPicker doesn't render data-test to DOM, use table row key instead
+      const trigger = document.body.querySelector('[data-row-key="b"] .color-picker-trigger') as HTMLElement;
+      fireEvent.click(trigger);
 
-      findByTestID(el, "ColorPicker")
-        .last()
-        .find("input")
-        .simulate("change", { target: { value: "red" } });
+      fireEvent.change(getInput(findByTestID("ColorPicker").pop()!), { target: { value: "red" } });
     });
   });
 });

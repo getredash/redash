@@ -4,25 +4,22 @@ import cx from "classnames";
 import { isEmpty } from "lodash";
 import Dropdown from "antd/lib/dropdown";
 import Modal from "antd/lib/modal";
-import Menu from "antd/lib/menu";
 import recordEvent from "@/services/recordEvent";
 import { Moment } from "@/components/proptypes";
 import PlainButton from "@/components/PlainButton";
 
 import "./Widget.less";
 
-function WidgetDropdownButton({ extraOptions, showDeleteOption, onDelete }) {
-  const WidgetMenu = (
-    <Menu data-test="WidgetDropdownButtonMenu">
-      {extraOptions}
-      {showDeleteOption && extraOptions && <Menu.Divider />}
-      {showDeleteOption && <Menu.Item onClick={onDelete}>Remove from Dashboard</Menu.Item>}
-    </Menu>
-  );
+function WidgetDropdownButton({ extraOptions = null, showDeleteOption = false, onDelete = () => {} }) {
+  const items = [
+    ...(extraOptions || []),
+    ...(showDeleteOption && extraOptions ? [{ type: "divider" }] : []),
+    ...(showDeleteOption ? [{ key: "remove", label: "Remove from Dashboard", onClick: onDelete }] : []),
+  ];
 
   return (
     <div className="widget-menu-regular">
-      <Dropdown overlay={WidgetMenu} placement="bottomRight" trigger={["click"]}>
+      <Dropdown menu={{ items }} placement="bottomRight" trigger={["click"]}>
         <PlainButton className="action p-l-15 p-r-15" data-test="WidgetDropdownButton" aria-label="More options">
           <i className="zmdi zmdi-more-vert" aria-hidden="true" />
         </PlainButton>
@@ -32,18 +29,12 @@ function WidgetDropdownButton({ extraOptions, showDeleteOption, onDelete }) {
 }
 
 WidgetDropdownButton.propTypes = {
-  extraOptions: PropTypes.node,
+  extraOptions: PropTypes.array,
   showDeleteOption: PropTypes.bool,
   onDelete: PropTypes.func,
 };
 
-WidgetDropdownButton.defaultProps = {
-  extraOptions: null,
-  showDeleteOption: false,
-  onDelete: () => {},
-};
-
-function WidgetDeleteButton({ onClick }) {
+function WidgetDeleteButton({ onClick = () => {} }) {
   return (
     <div className="widget-menu-remove">
       <PlainButton
@@ -51,7 +42,8 @@ function WidgetDeleteButton({ onClick }) {
         title="Remove From Dashboard"
         onClick={onClick}
         data-test="WidgetDeleteButton"
-        aria-label="Close">
+        aria-label="Close"
+      >
         <i className="zmdi zmdi-close" aria-hidden="true" />
       </PlainButton>
     </div>
@@ -59,7 +51,6 @@ function WidgetDeleteButton({ onClick }) {
 }
 
 WidgetDeleteButton.propTypes = { onClick: PropTypes.func };
-WidgetDeleteButton.defaultProps = { onClick: () => {} };
 
 class Widget extends React.Component {
   static propTypes = {

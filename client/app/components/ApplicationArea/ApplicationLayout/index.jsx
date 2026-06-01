@@ -6,7 +6,7 @@ import MobileNavbar from "./MobileNavbar";
 
 import "./index.less";
 
-export default function ApplicationLayout({ children }) {
+export default function ApplicationLayout({ children = null }) {
   const mobileNavbarContainerRef = useRef();
 
   const getMobileNavbarPopupContainer = useCallback(() => mobileNavbarContainerRef.current, []);
@@ -34,8 +34,4 @@ export default function ApplicationLayout({ children }) {
 
 ApplicationLayout.propTypes = {
   children: PropTypes.node,
-};
-
-ApplicationLayout.defaultProps = {
-  children: null,
 };

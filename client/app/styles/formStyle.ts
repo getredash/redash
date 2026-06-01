@@ -1,5 +1,5 @@
-import { FormProps } from "antd/lib/form/Form";
-import { FormItemProps } from "antd/lib/form/FormItem";
+import type { FormProps } from "antd/lib/form/Form";
+import type { FormItemProps } from "antd/lib/form/FormItem";
 import "./formStyle.less";
 
 export function getHorizontalFormProps(): FormProps {

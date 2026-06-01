@@ -1,7 +1,9 @@
 import { isFunction } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
+import ConfigProvider from "antd/lib/config-provider";
+import antdTheme from "@/config/antd-theme";
 
 /**
   Wrapper for dialogs based on Ant's <Modal> component.
@@ -98,7 +100,7 @@ import ReactDOM from "react-dom";
 
 export const DialogPropType = PropTypes.shape({
   props: PropTypes.shape({
-    visible: PropTypes.bool,
+    open: PropTypes.bool,
     onOk: PropTypes.func,
     onCancel: PropTypes.func,
     afterClose: PropTypes.func,
@@ -110,7 +112,7 @@ export const DialogPropType = PropTypes.shape({
 function openDialog(DialogComponent, props) {
   const dialog = {
     props: {
-      visible: true,
+      open: true,
       okButtonProps: {},
       cancelButtonProps: {},
       onOk: () => {},
@@ -130,15 +132,20 @@ function openDialog(DialogComponent, props) {
 
   const container = document.createElement("div");
   document.body.appendChild(container);
+  const root = createRoot(container);
 
   function render() {
-    ReactDOM.render(<DialogComponent {...props} dialog={dialog} />, container);
+    root.render(
+      <ConfigProvider theme={antdTheme}>
+        <DialogComponent {...props} dialog={dialog} />
+      </ConfigProvider>
+    );
   }
 
   function destroyDialog() {
     // Allow calling chain to roll up, and then destroy component
     setTimeout(() => {
-      ReactDOM.unmountComponentAtNode(container);
+      root.unmount();
       document.body.removeChild(container);
     }, 10);
   }
@@ -151,7 +158,7 @@ function openDialog(DialogComponent, props) {
 
     return Promise.resolve(result)
       .then(() => {
-        dialog.props.visible = false;
+        dialog.props.open = false;
       })
       .finally(() => {
         dialog.props.okButtonProps = {};
@@ -191,17 +198,17 @@ function openDialog(DialogComponent, props) {
   const result = {
     close: closeDialog,
     dismiss: dismissDialog,
-    update: newProps => {
+    update: (newProps) => {
       props = { ...props, ...newProps };
       render();
     },
-    onClose: handler => {
+    onClose: (handler) => {
       if (isFunction(handler)) {
         handlers.onClose = handler;
       }
       return result;
     },
-    onDismiss: handler => {
+    onDismiss: (handler) => {
       if (isFunction(handler)) {
         handlers.onDismiss = handler;
       }
@@ -217,7 +224,7 @@ function openDialog(DialogComponent, props) {
 export function wrap(DialogComponent) {
   return {
     Component: DialogComponent,
-    showModal: props => openDialog(DialogComponent, props),
+    showModal: (props) => openDialog(DialogComponent, props),
   };
 }
 

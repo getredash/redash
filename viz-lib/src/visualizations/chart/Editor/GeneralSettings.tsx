@@ -8,6 +8,8 @@ import ChartTypeSelect from "./ChartTypeSelect";
 import ColumnMappingSelect from "./ColumnMappingSelect";
 import { useDebouncedCallback } from "use-debounce/lib";
 
+const DISABLED_STACKING_VALUE = "__disabled__";
+
 function getAvailableColumnMappingTypes(options: any) {
   const result = ["x", "y"];
 
@@ -33,12 +35,12 @@ function getAvailableColumnMappingTypes(options: any) {
 function getMappedColumns(options: any, availableColumns: any) {
   const mappedColumns = {};
   const availableTypes = getAvailableColumnMappingTypes(options);
-  each(availableTypes, type => {
+  each(availableTypes, (type) => {
     // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     mappedColumns[type] = ColumnMappingSelect.MappingTypes[type].multiple ? [] : null;
   });
 
-  availableColumns = map(availableColumns, c => c.name);
+  availableColumns = map(availableColumns, (c) => c.name);
   const usedColumns: any = [];
 
   each(options.columnMapping, (type, column) => {
@@ -66,7 +68,7 @@ function mappedColumnsToColumnMappings(mappedColumns: any) {
   const result = {};
   each(mappedColumns, (value, type) => {
     if (isArray(value)) {
-      each(value, v => {
+      each(value, (v) => {
         // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
         result[v] = type;
       });
@@ -81,17 +83,17 @@ function mappedColumnsToColumnMappings(mappedColumns: any) {
 }
 
 export default function GeneralSettings({ options, data, onOptionsChange }: any) {
-  const { mappedColumns, unusedColumns } = useMemo(() => getMappedColumns(options, data.columns), [
-    options,
-    data.columns,
-  ]);
+  const { mappedColumns, unusedColumns } = useMemo(
+    () => getMappedColumns(options, data.columns),
+    [options, data.columns]
+  );
 
   function handleGlobalSeriesTypeChange(globalSeriesType: any) {
     onOptionsChange({
       globalSeriesType,
       showDataLabels: globalSeriesType === "pie",
       swappedAxes: false,
-      seriesOptions: mapValues(options.seriesOptions, series => ({
+      seriesOptions: mapValues(options.seriesOptions, (series) => ({
         ...series,
         type: globalSeriesType,
       })),
@@ -116,7 +118,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
 
   function handleAxesSwapping() {
     // moves any item in the right Y axis to the left one
-    const seriesOptions = mapValues(options.seriesOptions, series => ({
+    const seriesOptions = mapValues(options.seriesOptions, (series) => ({
       ...series,
       yAxis: 0,
     }));
@@ -127,10 +129,8 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
 
   return (
     <React.Fragment>
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <ChartTypeSelect
-          // @ts-expect-error ts-migrate(2322) FIXME: Type '{ label: string; "data-test": string; defaul... Remove this comment to see the full error message
           label="Chart Type"
           data-test="Chart.GlobalSeriesType"
           defaultValue={options.globalSeriesType}
@@ -139,13 +139,13 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
       </Section>
 
       {includes(["column", "line", "box"], options.globalSeriesType) && (
-        // @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message
         <Section>
           <Checkbox
             data-test="Chart.SwappedAxes"
             defaultChecked={options.swappedAxes}
             checked={options.swappedAxes}
-            onChange={handleAxesSwapping}>
+            onChange={handleAxesSwapping}
+          >
             Horizontal Chart
           </Checkbox>
         </Section>
@@ -153,23 +153,18 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
 
       {map(mappedColumns, (value, type) => (
         <ColumnMappingSelect
-          // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
           key={type}
-          // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
           type={type}
           value={value}
-          // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
           areAxesSwapped={options.swappedAxes}
           // @ts-expect-error ts-migrate(2322) FIXME: Type 'unknown[]' is not assignable to type 'never'... Remove this comment to see the full error message
           availableColumns={unusedColumns}
-          // @ts-expect-error ts-migrate(2322) FIXME: Type '(column: any, type: any) => void' is not ass... Remove this comment to see the full error message
           onChange={handleColumnMappingChange}
         />
       ))}
 
       {includes(["bubble"], options.globalSeriesType) && (
         <React.Fragment>
-          {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
           <Section>
             <InputNumber
               label="Bubble Size Coefficient"
@@ -179,13 +174,13 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
             />
           </Section>
 
-          {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
           <Section>
             <Select
               label="Bubble Size Proportional To"
               data-test="Chart.SizeMode"
               defaultValue={options.sizemode}
-              onChange={(mode: any) => onOptionsChange({ sizemode: mode })}>
+              onChange={(mode: any) => onOptionsChange({ sizemode: mode })}
+            >
               {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
               <Select.Option value="area" data-test="Chart.SizeMode.Area">
                 Area
@@ -202,13 +197,13 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
       )}
 
       {includes(["pie"], options.globalSeriesType) && (
-        // @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message
         <Section>
           <Select
             label="Direction"
             data-test="Chart.PieDirection"
             defaultValue={options.direction.type}
-            onChange={(type: any) => onOptionsChange({ direction: { type } })}>
+            onChange={(type: any) => onOptionsChange({ direction: { type } })}
+          >
             {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
             <Select.Option value="counterclockwise" data-test="Chart.PieDirection.Counterclockwise">
               Counterclockwise
@@ -223,7 +218,8 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
           <Select
             label="Sort"
             defaultValue={options.piesort}
-            onChange={(val: any) => onOptionsChange({ piesort: val })}>
+            onChange={(val: any) => onOptionsChange({ piesort: val })}
+          >
             {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
             <Select.Option value={true}>
               True
@@ -240,13 +236,13 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
 
       {!includes(["custom", "heatmap"], options.globalSeriesType) && (
         <React.Fragment>
-          {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
           <Section>
             <Select
               label="Legend Placement"
               data-test="Chart.LegendPlacement"
               value={options.legend.enabled ? options.legend.placement : "hidden"}
-              onChange={handleLegendPlacementChange}>
+              onChange={handleLegendPlacementChange}
+            >
               {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
               <Select.Option value="hidden" data-test="Chart.LegendPlacement.HideLegend">
                 Hide legend
@@ -266,13 +262,13 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
           </Section>
 
           {options.legend.enabled && (
-            // @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message
             <Section>
               <Select
                 label="Legend Items Order"
                 data-test="Chart.LegendItemsOrder"
                 value={options.legend.traceorder}
-                onChange={(traceorder: any) => onOptionsChange({ legend: { traceorder } })}>
+                onChange={(traceorder: any) => onOptionsChange({ legend: { traceorder } })}
+              >
                 {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
                 <Select.Option value="normal" data-test="Chart.LegendItemsOrder.Normal">
                   Normal
@@ -290,28 +286,30 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
       )}
 
       {includes(["box"], options.globalSeriesType) && (
-        // @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message
         <Section>
           <Checkbox
             data-test="Chart.ShowPoints"
             defaultChecked={options.showpoints}
-            onChange={event => onOptionsChange({ showpoints: event.target.checked })}>
+            onChange={(event) => onOptionsChange({ showpoints: event.target.checked })}
+          >
             Show All Points
           </Checkbox>
         </Section>
       )}
 
       {!includes(["custom", "heatmap"], options.globalSeriesType) && (
-        // @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message
         <Section>
           <Select
             label="Stacking"
             data-test="Chart.Stacking"
-            defaultValue={options.series.stacking}
+            defaultValue={options.series.stacking ?? DISABLED_STACKING_VALUE}
             disabled={!includes(["line", "area", "column"], options.globalSeriesType)}
-            onChange={(stacking: any) => onOptionsChange({ series: { stacking } })}>
+            onChange={(stacking: any) =>
+              onOptionsChange({ series: { stacking: stacking === DISABLED_STACKING_VALUE ? null : stacking } })
+            }
+          >
             {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
-            <Select.Option value={null} data-test="Chart.Stacking.Disabled">
+            <Select.Option value={DISABLED_STACKING_VALUE} data-test="Chart.Stacking.Disabled">
               Disabled
               {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
             </Select.Option>
@@ -325,25 +323,25 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
       )}
 
       {includes(["line", "area", "column"], options.globalSeriesType) && (
-        // @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message
         <Section>
           <Checkbox
             data-test="Chart.NormalizeValues"
             defaultChecked={options.series.percentValues}
-            onChange={event => onOptionsChange({ series: { percentValues: event.target.checked } })}>
+            onChange={(event) => onOptionsChange({ series: { percentValues: event.target.checked } })}
+          >
             Normalize values to percentage
           </Checkbox>
         </Section>
       )}
 
       {includes(["line", "area"], options.globalSeriesType) && (
-        // @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message
         <Section>
           <Select
             label="Line Shape"
             data-test="Chart.LineShape"
             defaultValue={options.lineShape}
-            onChange={(val: any) => onOptionsChange({ lineShape: val })}>
+            onChange={(val: any) => onOptionsChange({ lineShape: val })}
+          >
             {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
             <Select.Option value="linear" data-test="Chart.LineShape.Linear">
               Linear
@@ -369,13 +367,13 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
       )}
 
       {!includes(["custom", "heatmap", "bubble"], options.globalSeriesType) && (
-        // @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message
         <Section>
           <Select
             label="Missing and NULL values"
             data-test="Chart.MissingValues"
             defaultValue={options.missingValuesAsZero ? 1 : 0}
-            onChange={(value: any) => onOptionsChange({ missingValuesAsZero: !!value })}>
+            onChange={(value: any) => onOptionsChange({ missingValuesAsZero: !!value })}
+          >
             {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
             <Select.Option value={0} data-test="Chart.MissingValues.Keep">
               Do not display in chart
@@ -390,50 +388,44 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
         </Section>
       )}
 
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Checkbox
           data-test="Chart.EnableClickEvents"
           defaultChecked={options.enableLink}
-          onChange={event => onOptionsChange({ enableLink: event.target.checked })}>
+          onChange={(event) => onOptionsChange({ enableLink: event.target.checked })}
+        >
           Enable click events
         </Checkbox>
       </Section>
 
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Checkbox
           data-test="Chart.EnableClickEvents.NewTab"
           defaultChecked={options.linkOpenNewTab}
-          onChange={event => onOptionsChange({ linkOpenNewTab: event.target.checked })}
+          onChange={(event) => onOptionsChange({ linkOpenNewTab: event.target.checked })}
           disabled={!(options.enableLink === true)}
         >
           Open in new tab
         </Checkbox>
       </Section>
 
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Input
           label={
             <React.Fragment>
               URL template
-              {/* @ts-expect-error ts-migrate(2746) FIXME: This JSX tag's 'children' prop expects a single ch... Remove this comment to see the full error message */}
-              <ContextHelp
-                placement="topLeft"
-                arrowPointAtCenter
-                // @ts-expect-error ts-migrate(2322) FIXME: Type 'Element' is not assignable to type 'null | u... Remove this comment to see the full error message
-                icon={ContextHelp.defaultIcon}>
+              <ContextHelp placement="topLeft" arrowPointAtCenter icon={ContextHelp.defaultIcon}>
                 <div>
-                  Every curve can be referenced using <code>{"{{ @@x1 }} {{ @@y1 }} {{ @@x2 }} {{ @@y2 }} ..."}</code> syntax:<br/>
+                  Every curve can be referenced using <code>{"{{ @@x1 }} {{ @@y1 }} {{ @@x2 }} {{ @@y2 }} ..."}</code>{" "}
+                  syntax:
+                  <br />
                   axis with any curve number according to the Series config.
                 </div>
                 <div>
-                  The first met curve X and Y values can be referenced by just<code>{"{{ @@x }} {{ @@y }}"}</code> syntax.
+                  The first met curve X and Y values can be referenced by just<code>{"{{ @@x }} {{ @@y }}"}</code>{" "}
+                  syntax.
                 </div>
-                <div>
-                  Any unresolved reference would be replaced with an empty string.
-                </div>
+                <div>Any unresolved reference would be replaced with an empty string.</div>
               </ContextHelp>
             </React.Fragment>
           }

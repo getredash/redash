@@ -11,13 +11,13 @@ import { currentUser } from "@/services/auth";
 
 export default function DetailsPageSidebar({
   controller,
-  group,
+  group = null,
   items,
-  canAddMembers,
-  onAddMembersClick,
-  canAddDataSources,
-  onAddDataSourcesClick,
-  onGroupDeleted,
+  canAddMembers = false,
+  onAddMembersClick = null,
+  canAddDataSources = false,
+  onAddDataSourcesClick = null,
+  onGroupDeleted = null,
 }) {
   const canRemove = group && currentUser.isAdmin && group.type !== "builtin";
 
@@ -60,16 +60,4 @@ DetailsPageSidebar.propTypes = {
   onAddDataSourcesClick: PropTypes.func,
 
   onGroupDeleted: PropTypes.func,
-};
-
-DetailsPageSidebar.defaultProps = {
-  group: null,
-
-  canAddMembers: false,
-  onAddMembersClick: null,
-
-  canAddDataSources: false,
-  onAddDataSourcesClick: null,
-
-  onGroupDeleted: null,
 };

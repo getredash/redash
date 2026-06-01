@@ -10,5 +10,5 @@ export function getColorName(color: any, presetColors: any) {
   if (isArray(presetColors)) {
     return color;
   }
-  return findKey(presetColors, v => validateColor(v) === color) || color;
+  return findKey(presetColors, (v) => validateColor(v) === color) || color;
 }

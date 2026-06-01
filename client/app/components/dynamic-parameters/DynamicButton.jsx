@@ -2,7 +2,7 @@ import React, { useRef } from "react";
 import PropTypes from "prop-types";
 import { isFunction, get, findIndex } from "lodash";
 import Dropdown from "antd/lib/dropdown";
-import Menu from "antd/lib/menu";
+import Button from "antd/lib/button";
 import Typography from "antd/lib/typography";
 import { DynamicDateType } from "@/services/parameters/DateParameter";
 import { DynamicDateRangeType } from "@/services/parameters/DateRangeParameter";
@@ -15,49 +15,67 @@ import "./DynamicButton.less";
 
 const { Text } = Typography;
 
-function DynamicButton({ options, selectedDynamicValue, onSelect, enabled, staticValueLabel }) {
-  const menu = (
-    <Menu
-      className="dynamic-menu"
-      onClick={({ key }) => onSelect(get(options, key, "static"))}
-      selectedKeys={[`${findIndex(options, { value: selectedDynamicValue })}`]}
-      data-test="DynamicButtonMenu">
-      {options.map((option, index) => (
-        // eslint-disable-next-line react/no-array-index-key
-        <Menu.Item key={index}>
+function DynamicButton({
+  options = [],
+  selectedDynamicValue = null,
+  onSelect = () => {},
+  enabled = false,
+  staticValueLabel = "Back to Static Value",
+}) {
+  const selectedIndex = findIndex(options, { value: selectedDynamicValue });
+  const menuItems = [
+    ...options.map((option, index) => ({
+      key: `${index}`,
+      label: (
+        <>
           {option.name} {option.label && <em>{isFunction(option.label) ? option.label() : option.label}</em>}
-        </Menu.Item>
-      ))}
-      {enabled && <Menu.Divider />}
-      {enabled && (
-        <Menu.Item>
-          <ArrowLeftOutlinedIcon />
-          <Text type="secondary">{staticValueLabel}</Text>
-        </Menu.Item>
-      )}
-    </Menu>
-  );
+        </>
+      ),
+    })),
+    ...(enabled ? [{ type: "divider" }] : []),
+    ...(enabled
+      ? [
+          {
+            key: "static",
+            label: (
+              <>
+                <ArrowLeftOutlinedIcon />
+                <Text type="secondary">{staticValueLabel}</Text>
+              </>
+            ),
+          },
+        ]
+      : []),
+  ];
 
   const containerRef = useRef(null);
 
   return (
     <div ref={containerRef}>
-      <div role="presentation" onClick={e => e.stopPropagation()}>
-        <Dropdown.Button
-          overlay={menu}
-          className="dynamic-button"
+      <div className="dynamic-button" role="presentation" onClick={(e) => e.stopPropagation()}>
+        <Dropdown
           placement="bottomRight"
           trigger={["click"]}
-          icon={
-            enabled ? (
-              <ThunderboltTwoToneIcon className="dynamic-icon" />
-            ) : (
-              <ThunderboltOutlinedIcon className="dynamic-icon" />
-            )
-          }
           getPopupContainer={() => containerRef.current}
-          data-test="DynamicButton"
-        />
+          menu={{
+            className: "dynamic-menu",
+            items: menuItems,
+            selectedKeys: selectedIndex >= 0 ? [`${selectedIndex}`] : enabled ? ["static"] : [],
+            "data-test": "DynamicButtonMenu",
+            onClick: ({ key }) => onSelect(key === "static" ? "static" : get(options, key, "static")),
+          }}
+        >
+          <Button
+            data-test="DynamicButton"
+            icon={
+              enabled ? (
+                <ThunderboltTwoToneIcon className="dynamic-icon" />
+              ) : (
+                <ThunderboltOutlinedIcon className="dynamic-icon" />
+              )
+            }
+          />
+        </Dropdown>
       </div>
     </div>
   );
@@ -69,14 +87,6 @@ DynamicButton.propTypes = {
   onSelect: PropTypes.func,
   enabled: PropTypes.bool,
   staticValueLabel: PropTypes.string,
-};
-
-DynamicButton.defaultProps = {
-  options: [],
-  selectedDynamicValue: null,
-  onSelect: () => {},
-  enabled: false,
-  staticValueLabel: "Back to Static Value",
 };
 
 export default DynamicButton;

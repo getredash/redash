@@ -175,6 +175,7 @@ export default class Parameters extends React.Component {
     const dirtyParamCount = size(filter(parameters, "hasPendingValue"));
     return (
       <SortableContainer
+        items={parameters.map((param) => param.name)}
         disabled={!sortable}
         axis="xy"
         useDragHandle
@@ -190,7 +191,7 @@ export default class Parameters extends React.Component {
       >
         {parameters &&
           parameters.map((param, index) => (
-            <SortableElement key={param.name} index={index}>
+            <SortableElement key={param.name} id={param.name} index={index}>
               <div
                 className="parameter-block"
                 data-editable={sortable || null}

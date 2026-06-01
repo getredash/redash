@@ -6,7 +6,7 @@ export default function useQueryParameters(query) {
   const [dirtyFlag, setDirtyFlag] = useState(query.getParameters().hasPendingValues());
 
   const updateDirtyFlag = useCallback(
-    flag => {
+    (flag) => {
       flag = isUndefined(flag) ? query.getParameters().hasPendingValues() : flag;
       setDirtyFlag(flag);
     },

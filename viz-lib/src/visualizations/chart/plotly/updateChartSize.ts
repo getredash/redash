@@ -17,7 +17,7 @@ function fixLegendContainer(plotlyElement: any) {
 function placeLegendNextToPlot(plotlyElement: any, layout: any) {
   const transformName = find(
     ["transform", "WebkitTransform", "MozTransform", "MsTransform", "OTransform"],
-    prop => prop in plotlyElement.style
+    (prop) => prop in plotlyElement.style
   );
 
   layout.legend = extend({}, layout.legend, {
@@ -42,7 +42,7 @@ function placeLegendNextToPlot(plotlyElement: any, layout: any) {
 function placeLegendBelowPlot(plotlyElement: any, layout: any) {
   const transformName = find(
     ["transform", "WebkitTransform", "MozTransform", "MsTransform", "OTransform"],
-    prop => prop in plotlyElement.style
+    (prop) => prop in plotlyElement.style
   );
 
   // Save current `layout.height` value because `Plotly.relayout().then(...)` handler may be called multiple

@@ -1,6 +1,7 @@
 import { startsWith, has, includes, findKey, values, isObject, isArray } from "lodash";
 import moment from "moment";
 import PropTypes from "prop-types";
+import { toMomentRange } from "@/lib/dateTimeUtils";
 import Parameter from "./Parameter";
 
 const DATETIME_FORMATS = {
@@ -154,10 +155,7 @@ class DateRangeParameter extends Parameter {
     }
 
     if (isArray(value) && value.length === 2) {
-      value = [moment(value[0]), moment(value[1])];
-      if (value[0].isValid() && value[1].isValid()) {
-        return value;
-      }
+      return toMomentRange(value);
     }
     return null;
   }

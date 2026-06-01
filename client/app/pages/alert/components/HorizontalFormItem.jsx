@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import cx from "classnames";
 import Form from "antd/lib/form";
 
-export default function HorizontalFormItem({ children, label, className, ...props }) {
+export default function HorizontalFormItem({ children = null, label = null, className = null, ...props }) {
   const labelCol = { span: 4 };
   const wrapperCol = { span: 16 };
   if (!label) {
@@ -23,10 +23,4 @@ HorizontalFormItem.propTypes = {
   children: PropTypes.node,
   label: PropTypes.string,
   className: PropTypes.string,
-};
-
-HorizontalFormItem.defaultProps = {
-  children: null,
-  label: null,
-  className: null,
 };

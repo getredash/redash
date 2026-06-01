@@ -55,7 +55,7 @@ class ShareDashboardDialog extends React.Component {
 
     axios
       .post(this.apiUrl)
-      .then(data => {
+      .then((data) => {
         dashboard.publicAccessEnabled = true;
         dashboard.public_url = data.public_url;
       })
@@ -85,7 +85,7 @@ class ShareDashboardDialog extends React.Component {
       });
   };
 
-  onChange = checked => {
+  onChange = (checked) => {
     if (checked) {
       this.enableAccess();
     } else {

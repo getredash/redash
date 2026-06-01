@@ -4,15 +4,13 @@ import PivotTableUI from "react-pivottable/PivotTableUI";
 import TableRenderers from "react-pivottable/TableRenderers";
 import { RendererPropTypes } from "@/visualizations/prop-types";
 import { formatColumnValue } from "@/lib/utils";
-import createPlotlyComponent from "react-plotly.js/factory";
 import createPlotlyRenderers from "react-pivottable/PlotlyRenderers";
-import { Plotly } from "@/visualizations/chart/plotly";
+import PlotlyComponent from "./PlotlyComponent";
 
 import "react-pivottable/pivottable.css";
 import "./renderer.less";
 
-const Plot = createPlotlyComponent(Plotly);
-const PlotlyRenderers = createPlotlyRenderers(Plot);
+const PlotlyRenderers = createPlotlyRenderers(PlotlyComponent);
 
 const VALID_OPTIONS = [
   "rows",
@@ -40,7 +38,7 @@ function formatRows({ rows, columns }: any) {
   );
 }
 
-export default function Renderer({ data, options, onOptionsChange }: any) {
+export default function Renderer({ data, options, onOptionsChange: onOptionsChange = () => {} }: any) {
   const [config, setConfig] = useState({ ...options });
   const dataRows = useMemo(() => formatRows(data), [data]);
 
@@ -78,4 +76,3 @@ export default function Renderer({ data, options, onOptionsChange }: any) {
 }
 
 Renderer.propTypes = RendererPropTypes;
-Renderer.defaultProps = { onOptionsChange: () => {} };

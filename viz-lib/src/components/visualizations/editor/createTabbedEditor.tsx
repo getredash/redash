@@ -26,31 +26,24 @@ const tabbedEditorDefaultProps = {
   tabs: [],
 };
 
-type Props = OwnProps & typeof tabbedEditorDefaultProps;
+type Props = OwnProps;
 
 // @ts-expect-error ts-migrate(2339) FIXME: Property 'options' does not exist on type 'Props'.
-export function TabbedEditor({ tabs, options, data, onOptionsChange, ...restProps }: Props) {
+export function TabbedEditor({ tabs: tabs = [], options, data, onOptionsChange, ...restProps }: Props) {
   const optionsChanged = (newOptions: any, updateStrategy = UpdateOptionsStrategy.deepMerge) => {
     onOptionsChange(updateStrategy(options, newOptions));
   };
 
   // @ts-expect-error ts-migrate(2322) FIXME: Type '(number | ((() => string) & (() => string)) ... Remove this comment to see the full error message
-  tabs = filter(tabs, tab => (isFunction(tab.isAvailable) ? tab.isAvailable(options, data) : true));
+  tabs = filter(tabs, (tab) => (isFunction(tab.isAvailable) ? tab.isAvailable(options, data) : true));
+  const items = map(tabs, ({ key, title, component: Component }) => ({
+    key,
+    label: <span data-test={`VisualizationEditor.Tabs.${key}`}>{isFunction(title) ? title(options) : title}</span>,
+    children: <Component options={options} data={data} onOptionsChange={optionsChanged} {...restProps} />,
+  }));
 
-  return (
-    <Tabs animated={false} tabBarGutter={20}>
-      {map(tabs, ({ key, title, component: Component }) => (
-        <Tabs.TabPane
-          key={key}
-          tab={<span data-test={`VisualizationEditor.Tabs.${key}`}>{isFunction(title) ? title(options) : title}</span>}>
-          <Component options={options} data={data} onOptionsChange={optionsChanged} {...restProps} />
-        </Tabs.TabPane>
-      ))}
-    </Tabs>
-  );
+  return <Tabs animated={false} tabBarGutter={20} items={items} />;
 }
-
-TabbedEditor.defaultProps = tabbedEditorDefaultProps;
 
 export default function createTabbedEditor(tabs: any) {
   return function TabbedEditorWrapper(props: any) {

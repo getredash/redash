@@ -1,6 +1,7 @@
 import React from "react";
 
 import Button from "antd/lib/button";
+import Space from "antd/lib/space";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import Link from "@/components/Link";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
@@ -42,10 +43,10 @@ class GroupsList extends React.Component {
     ),
     Columns.custom(
       (text, group) => (
-        <Button.Group>
+        <Space.Compact>
           <Link.Button href={`groups/${group.id}`}>Members</Link.Button>
           {currentUser.isAdmin && <Link.Button href={`groups/${group.id}/data_sources`}>Data Sources</Link.Button>}
-        </Button.Group>
+        </Space.Compact>
       ),
       {
         width: "1%",
@@ -61,7 +62,8 @@ class GroupsList extends React.Component {
             disabled={!canRemove}
             group={group}
             title={canRemove ? null : "Cannot delete built-in group"}
-            onClick={() => this.onGroupDeleted()}>
+            onClick={() => this.onGroupDeleted()}
+          >
             Delete
           </DeleteGroupButton>
         );
@@ -75,8 +77,8 @@ class GroupsList extends React.Component {
   ];
 
   createGroup = () => {
-    CreateGroupDialog.showModal().onClose(group =>
-      Group.create(group).then(newGroup => navigateTo(`groups/${newGroup.id}`))
+    CreateGroupDialog.showModal().onClose((group) =>
+      Group.create(group).then((newGroup) => navigateTo(`groups/${newGroup.id}`))
     );
   };
 
@@ -116,9 +118,9 @@ class GroupsList extends React.Component {
               showPageSizeSelect
               totalCount={controller.totalItemsCount}
               pageSize={controller.itemsPerPage}
-              onPageSizeChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
+              onPageSizeChange={(itemsPerPage) => controller.updatePagination({ itemsPerPage })}
               page={controller.page}
-              onChange={page => controller.updatePagination({ page })}
+              onChange={(page) => controller.updatePagination({ page })}
             />
           </div>
         )}
@@ -156,6 +158,6 @@ routes.register(
   routeWithUserSession({
     path: "/groups",
     title: "Groups",
-    render: pageProps => <GroupsListPage {...pageProps} currentPage="groups" />,
+    render: (pageProps) => <GroupsListPage {...pageProps} currentPage="groups" />,
   })
 );

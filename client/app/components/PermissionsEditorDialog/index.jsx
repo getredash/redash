@@ -61,7 +61,7 @@ const searchUsers = (searchTerm) =>
     .then(({ results }) => results)
     .catch(() => []);
 
-function PermissionsEditorDialogHeader({ context }) {
+function PermissionsEditorDialogHeader({ context = "query" }) {
   return (
     <>
       Manage Permissions
@@ -74,9 +74,8 @@ function PermissionsEditorDialogHeader({ context }) {
 }
 
 PermissionsEditorDialogHeader.propTypes = { context: PropTypes.oneOf(["query", "dashboard"]) };
-PermissionsEditorDialogHeader.defaultProps = { context: "query" };
 
-function UserSelect({ onSelect, shouldShowUser }) {
+function UserSelect({ onSelect = () => {}, shouldShowUser = () => true }) {
   const [loadingUsers, setLoadingUsers] = useState(true);
   const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -133,9 +132,8 @@ UserSelect.propTypes = {
   onSelect: PropTypes.func,
   shouldShowUser: PropTypes.func,
 };
-UserSelect.defaultProps = { onSelect: () => {}, shouldShowUser: () => true };
 
-function PermissionsEditorDialog({ dialog, author, context, aclUrl }) {
+function PermissionsEditorDialog({ dialog, author, context = "query", aclUrl }) {
   const [loadingGrantees, setLoadingGrantees] = useState(true);
   const [grantees, setGrantees] = useState([]);
   const { loadGrantees, addPermission, removePermission } = useGrantees(aclUrl);
@@ -210,7 +208,5 @@ PermissionsEditorDialog.propTypes = {
   context: PropTypes.oneOf(["query", "dashboard"]),
   aclUrl: PropTypes.string.isRequired,
 };
-
-PermissionsEditorDialog.defaultProps = { context: "query" };
 
 export default wrapDialog(PermissionsEditorDialog);

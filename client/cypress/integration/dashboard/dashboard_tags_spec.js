@@ -1,20 +1,17 @@
 import { expectTagsToContain, typeInTagsSelectAndSave } from "../../support/tags";
 
 describe("Dashboard Tags", () => {
-  beforeEach(function() {
+  beforeEach(function () {
     cy.login();
     cy.createDashboard("Foo Bar").then(({ id }) => cy.visit(`/dashboards/${id}`));
   });
 
   it("is possible to add and edit tags", () => {
-    cy.server();
-    cy.route("POST", "**/api/dashboards/*").as("DashboardSave");
+    cy.intercept("POST", "**/api/dashboards/*").as("DashboardSave");
 
     cy.getByTestId("TagsControl").contains(".label", "Unpublished");
 
-    cy.getByTestId("EditTagsButton")
-      .should("contain", "Add tag")
-      .click();
+    cy.getByTestId("EditTagsButton").should("contain", "Add tag").click();
 
     typeInTagsSelectAndSave("tag1{enter}tag2{enter}tag3{enter}");
 
