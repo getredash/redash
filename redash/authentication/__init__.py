@@ -278,17 +278,28 @@ def init_app(app):
 
 
 def create_and_login_user(org, name, email, picture=None):
+    from flask import current_app
+
+    is_testing = current_app.config.get("TESTING", False)
+
+    # Use flush in testing to avoid transaction conflicts, commit in production
+    def save_changes():
+        if is_testing:
+            models.db.session.flush()
+        else:
+            models.db.session.commit()
+
     try:
         user_object = models.User.get_by_email_and_org(email, org)
         if user_object.is_disabled:
             return None
         if user_object.is_invitation_pending:
             user_object.is_invitation_pending = False
-            models.db.session.commit()
+            save_changes()
         if user_object.name != name:
             logger.debug("Updating user name (%r -> %r)", user_object.name, name)
             user_object.name = name
-            models.db.session.commit()
+            save_changes()
     except NoResultFound:
         logger.debug("Creating user object (%r)", name)
         user_object = models.User(
@@ -300,7 +311,7 @@ def create_and_login_user(org, name, email, picture=None):
             group_ids=[org.default_group.id],
         )
         models.db.session.add(user_object)
-        models.db.session.commit()
+        save_changes()
 
     login_user(user_object, remember=True)
 

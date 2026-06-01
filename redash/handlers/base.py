@@ -89,7 +89,8 @@ def paginate(query_set, page, page_size, serializer, **kwargs):
     if page_size > 250 or page_size < 1:
         abort(400, message="Page size is out of range (1-250).")
 
-    results = query_set.paginate(page, page_size)
+    # Flask-SQLAlchemy 3.0 compatibility: paginate signature changed
+    results = query_set.paginate(page=page, per_page=page_size, error_out=False)
 
     # support for old function based serializers
     if isclass(serializer):
@@ -133,8 +134,13 @@ def order_results(results, default_order, allowed_orders, fallback=True):
     # and if it matches a long-form for related fields, falling
     # back to the default order
     selected_order = allowed_orders.get(requested_order, None)
-    if selected_order is None and fallback:
-        selected_order = default_order
+    if selected_order is None:
+        if fallback:
+            selected_order = default_order
+        else:
+            # No valid order requested and no fallback, return unsorted
+            return results
+
     # The query may already have an ORDER BY statement attached
     # so we clear it here and apply the selected order
     return sort_query(results.order_by(None), selected_order)

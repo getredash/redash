@@ -13,15 +13,19 @@ metrics_logger = logging.getLogger("metrics")
 
 
 def _table_name_from_select_element(elt):
-    t = elt.froms[0]
+    froms = elt.get_final_froms()
+    if not froms:
+        return "unknown"
+    t = froms[0]
 
     if isinstance(t, Alias):
-        t = t.original.froms[0]
+        inner_froms = t.element.get_final_froms() if hasattr(t.element, "get_final_froms") else []
+        t = inner_froms[0] if inner_froms else t
 
     while isinstance(t, _ORMJoin) or isinstance(t, Join):
         t = t.left
 
-    return t.name
+    return getattr(t, "name", "unknown")
 
 
 @listens_for(Engine, "before_execute")
