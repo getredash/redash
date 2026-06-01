@@ -27,6 +27,7 @@ class TestGlueSchema(TestCase):
 
     def tearDown(self):
         self.patcher.stop()
+        super(TestGlueSchema, self).tearDown()
 
     def test_external_table(self):
         """Unpartitioned table crawled through a JDBC connection"""

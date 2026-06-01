@@ -11,13 +11,33 @@ talisman = talisman.Talisman()
 csrf = CSRFProtect()
 
 
+def _embedding_content_security_policy():
+    """Build a CSP that allows the response to be embedded in any frame.
+
+    Parses ``settings.CONTENT_SECURITY_POLICY`` (a semicolon-separated string in
+    the format flask-talisman accepts) into directives and overrides
+    ``frame-ancestors`` to ``*``. Using a dict avoids brittle text replacement
+    that depended on the exact ``frame-ancestors 'none'`` substring and would
+    silently fail if the operator customised quoting, ordering, or omitted the
+    directive entirely.
+    """
+    directives = {}
+    for raw_directive in settings.CONTENT_SECURITY_POLICY.split(";"):
+        directive = raw_directive.strip()
+        if not directive:
+            continue
+        name, _, value = directive.partition(" ")
+        directives[name.strip()] = value.strip()
+    directives["frame-ancestors"] = "*"
+    return directives
+
+
 def csp_allows_embeding(fn):
     @functools.wraps(fn)
     def decorated(*args, **kwargs):
         return fn(*args, **kwargs)
 
-    embedable_csp = talisman.content_security_policy + "frame-ancestors *;"
-    return talisman(content_security_policy=embedable_csp, frame_options=None)(decorated)
+    return talisman(frame_options=None, content_security_policy=_embedding_content_security_policy())(decorated)
 
 
 def init_app(app):

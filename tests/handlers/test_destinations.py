@@ -1,4 +1,3 @@
-import json
 import textwrap
 from unittest import mock
 
@@ -8,6 +7,7 @@ from redash.destinations.discord import Discord
 from redash.destinations.slack import Slack
 from redash.destinations.webex import Webex
 from redash.models import Alert, NotificationDestination
+from redash.utils import json_dumps
 from tests import BaseTestCase
 
 
@@ -82,13 +82,13 @@ class TestDestinationResource(BaseTestCase):
             "options": {"url": "https://www.slack.com/updated"},
         }
 
-        with self.app.app_context():
-            rv = self.make_request(
-                "post",
-                "/api/destinations/{}".format(d.id),
-                user=self.factory.create_admin(),
-                data=data,
-            )
+        # No need for app_context() - already in one from setUp
+        rv = self.make_request(
+            "post",
+            "/api/destinations/{}".format(d.id),
+            user=self.factory.create_admin(),
+            data=data,
+        )
 
         self.assertEqual(rv.status_code, 200)
 
@@ -141,7 +141,7 @@ def test_discord_notify_calls_requests_post():
 
         mock_post.assert_called_once_with(
             "https://discordapp.com/api/webhooks/test",
-            data=json.dumps(expected_payload),
+            data=json_dumps(expected_payload),
             headers={"Content-Type": "application/json"},
             timeout=5.0,
         )
@@ -248,7 +248,7 @@ def test_slack_notify_calls_requests_post():
 
         mock_post.assert_called_once_with(
             "https://slack.com/api/api.test",
-            data=json.dumps(expected_payload).encode(),
+            data=json_dumps(expected_payload).encode("utf-8"),
             timeout=5.0,
         )
 
@@ -508,7 +508,7 @@ def test_datadog_notify_calls_requests_post():
 
         mock_post.assert_called_once_with(
             "https://api.datadoghq.com/api/v1/events",
-            data=json.dumps(expected_payload),
+            data=json_dumps(expected_payload),
             headers={
                 "Accept": "application/json",
                 "Content-Type": "application/json",
