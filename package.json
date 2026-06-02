@@ -203,7 +203,9 @@
     "overrides": {
       "@types/react": "^17.0.0",
       "@types/react-dom": "^17.0.0",
-      "cheerio": "1.0.0-rc.12"
+      "cheerio": "1.0.0-rc.12",
+      "@cypress/request": "^3.0.10",
+      "request": "npm:@cypress/request@^3.0.10"
     }
   }
 }
