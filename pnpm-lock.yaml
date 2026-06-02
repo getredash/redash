@@ -8,6 +8,8 @@ overrides:
   '@types/react': ^17.0.0
   '@types/react-dom': ^17.0.0
   cheerio: 1.0.0-rc.12
+  lodash: ^4.18.0
+  lodash.template: 4.18.1
 
 importers:
 
@@ -279,8 +281,8 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0
       lodash:
-        specifier: ^4.17.21
-        version: 4.17.23
+        specifier: ^4.18.0
+        version: 4.18.1
       mini-css-extract-plugin:
         specifier: ^2.10.0
         version: 2.10.0(webpack@5.105.3)
@@ -394,8 +396,8 @@ importers:
         specifier: ^1.1.0
         version: 1.5.3(leaflet@1.3.4)
       lodash:
-        specifier: ^4.17.10
-        version: 4.17.23
+        specifier: ^4.18.0
+        version: 4.18.1
       numeral:
         specifier: ^2.0.6
         version: 2.0.6
@@ -5923,8 +5925,8 @@ packages:
   lodash.once@4.1.1:
     resolution: {integrity: sha512-Sb487aTOCr9drQVL8pIxOzVhafOjZN9UU54hiN8PU3uAiSV7lx1yYNpbNmex2PK6dSJoNTSJUUswT651yww3Mg==}
 
-  lodash.template@4.5.0:
-    resolution: {integrity: sha512-84vYFxIkmidUiFxidA/KjjH9pAycqW+h980j7Fuz5qxRtO9pgB7MDFTdys1N7A5mcucRiDyEq4fusljItR1T/A==}
+  lodash.template@4.18.1:
+    resolution: {integrity: sha512-5urZrLnV/VD6zHK5KsVtZgt7H19v51mIzoS0aBNH8yp3I8tbswrEjOABOPY8m8uB7NuibubLrMX+Y0PXsU9X+w==}
     deprecated: This package is deprecated. Use https://socket.dev/npm/package/eta instead.
 
   lodash.templatesettings@4.2.0:
@@ -5933,8 +5935,8 @@ packages:
   lodash.truncate@4.4.2:
     resolution: {integrity: sha512-jttmRe7bRse52OsWIMDLaXxWqRAmtIUccAQ3garviCqJjafXOfNMO0yMfNpdD6zbGaTU0P5Nz7e7gAT6cKmJRw==}
 
-  lodash@4.17.23:
-    resolution: {integrity: sha512-LgVTMpQtIopCi79SJeDiP0TfWi5CNEc/L/aRdTh3yIvmZXTnheWpKjSZhnvMl8iXbC1tFg9gdHHDMLoV7CnG+w==}
+  lodash@4.18.1:
+    resolution: {integrity: sha512-dMInicTPVE8d1e5otfwmmjlxkZoUpiVLwyeTdUsi/Caj/gfzzblBcCE5sRHV/AsjuCmxWrte2TNGSYuCeCq+0Q==}
 
   log-symbols@4.1.0:
     resolution: {integrity: sha512-8XPvpAA8uyhfteu8pIvQxpJZ7SYYdpUivZpGy6sFsBuKRY/7rQGavedeB8aK+Zkyq6upMFVL/9AW6vOYzfRyLg==}
@@ -8680,7 +8682,7 @@ snapshots:
       '@ant-design/icons-svg': 4.4.2
       '@babel/runtime': 7.28.6
       classnames: 2.5.1
-      lodash: 4.17.23
+      lodash: 4.18.1
       rc-util: 5.44.4(react-dom@16.14.0(react@16.14.0))(react@16.14.0)
       react: 16.14.0
       react-dom: 16.14.0(react@16.14.0)
@@ -8690,7 +8692,7 @@ snapshots:
       '@babel/runtime': 7.28.6
       classnames: 2.5.1
       json2mq: 0.2.0
-      lodash: 4.17.23
+      lodash: 4.18.1
       react: 16.14.0
       react-dom: 16.14.0(react@16.14.0)
       resize-observer-polyfill: 1.5.1
@@ -9727,7 +9729,7 @@ snapshots:
       babel-loader: 10.0.0(@babel/core@7.29.0)(webpack@5.105.3)
       bluebird: 3.7.1
       debug: 4.4.0
-      lodash: 4.17.23
+      lodash: 4.18.1
       semver: 7.7.4
       webpack: 5.105.3(webpack-cli@6.0.1)
     transitivePeerDependencies:
@@ -10355,7 +10357,7 @@ snapshots:
       '@oclif/command': 1.5.19(@oclif/config@1.18.17)(@oclif/plugin-help@2.2.3(@oclif/config@1.18.17))
       chalk: 2.4.2
       indent-string: 4.0.0
-      lodash.template: 4.5.0
+      lodash.template: 4.18.1
       string-width: 3.1.0
       strip-ansi: 5.2.0
       widest-line: 2.0.1
@@ -10371,7 +10373,7 @@ snapshots:
       '@oclif/errors': 1.3.6
       chalk: 4.1.2
       indent-string: 4.0.0
-      lodash: 4.17.23
+      lodash: 4.18.1
       string-width: 4.2.3
       strip-ansi: 6.0.1
       widest-line: 3.1.0
@@ -10386,7 +10388,7 @@ snapshots:
       '@oclif/errors': 1.3.6
       chalk: 4.1.2
       indent-string: 4.0.0
-      lodash: 4.17.23
+      lodash: 4.18.1
       string-width: 4.2.3
       strip-ansi: 6.0.1
       widest-line: 3.1.0
@@ -10400,7 +10402,7 @@ snapshots:
       '@oclif/command': 1.8.11(@oclif/config@1.18.17)
       cli-ux: 5.6.6(@oclif/config@1.18.17)
       fast-levenshtein: 3.0.0
-      lodash: 4.17.23
+      lodash: 4.18.1
     transitivePeerDependencies:
       - '@oclif/config'
       - supports-color
@@ -11481,7 +11483,7 @@ snapshots:
       array-tree-filter: 2.1.0
       classnames: 2.5.1
       copy-to-clipboard: 3.3.3
-      lodash: 4.17.23
+      lodash: 4.18.1
       moment: 2.30.1
       omit.js: 2.0.2
       raf: 3.4.1
@@ -11929,7 +11931,7 @@ snapshots:
       babel-traverse: 6.26.0
       babel-types: 6.26.0
       babylon: 6.18.0
-      lodash: 4.17.23
+      lodash: 4.18.1
     transitivePeerDependencies:
       - supports-color
 
@@ -11943,7 +11945,7 @@ snapshots:
       debug: 2.6.9
       globals: 9.18.0
       invariant: 2.2.4
-      lodash: 4.17.23
+      lodash: 4.18.1
     transitivePeerDependencies:
       - supports-color
 
@@ -11951,7 +11953,7 @@ snapshots:
     dependencies:
       babel-runtime: 6.26.0
       esutils: 2.0.3
-      lodash: 4.17.23
+      lodash: 4.18.1
       to-fast-properties: 1.0.3
 
   babylon@6.18.0: {}
@@ -12316,7 +12318,7 @@ snapshots:
       indent-string: 4.0.0
       is-wsl: 2.2.0
       js-yaml: 3.14.2
-      lodash: 4.17.23
+      lodash: 4.18.1
       natural-orderby: 2.0.3
       object-treeify: 1.1.33
       password-prompt: 1.1.3
@@ -12663,7 +12665,7 @@ snapshots:
       is-installed-globally: 0.4.0
       lazy-ass: 1.6.0
       listr2: 3.14.0(enquirer@2.4.1)
-      lodash: 4.17.23
+      lodash: 4.18.1
       log-symbols: 4.1.0
       minimist: 1.2.8
       ospath: 1.2.2
@@ -13091,7 +13093,7 @@ snapshots:
     dependencies:
       '@types/cheerio': 0.22.35
       enzyme: 3.11.0
-      lodash: 4.17.23
+      lodash: 4.18.1
       react-is: 16.13.1
 
   enzyme@3.11.0:
@@ -13370,7 +13372,7 @@ snapshots:
       '@babel/plugin-syntax-flow': 7.28.6(@babel/core@7.29.0)
       '@babel/plugin-transform-react-jsx': 7.28.6(@babel/core@7.29.0)
       eslint: 8.57.1
-      lodash: 4.17.23
+      lodash: 4.18.1
       string-natural-compare: 3.0.1
 
   eslint-plugin-import@2.32.0(@typescript-eslint/parser@5.62.0(eslint@8.57.1)(typescript@5.9.3))(eslint@8.57.1):
@@ -14415,7 +14417,7 @@ snapshots:
     dependencies:
       '@types/html-minifier-terser': 6.1.0
       html-minifier-terser: 6.1.0
-      lodash: 4.17.23
+      lodash: 4.18.1
       pretty-error: 4.0.0
       tapable: 2.3.0
     optionalDependencies:
@@ -15602,7 +15604,7 @@ snapshots:
 
   lodash.once@4.1.1: {}
 
-  lodash.template@4.5.0:
+  lodash.template@4.18.1:
     dependencies:
       lodash._reinterpolate: 3.0.0
       lodash.templatesettings: 4.2.0
@@ -15613,7 +15615,7 @@ snapshots:
 
   lodash.truncate@4.4.2: {}
 
-  lodash@4.17.23: {}
+  lodash@4.18.1: {}
 
   log-symbols@4.1.0:
     dependencies:
@@ -16541,7 +16543,7 @@ snapshots:
 
   pretty-error@4.0.0:
     dependencies:
-      lodash: 4.17.23
+      lodash: 4.18.1
       renderkid: 3.0.0
 
   pretty-format@26.6.2:
@@ -17368,7 +17370,7 @@ snapshots:
       css-select: 4.3.0
       dom-converter: 0.2.0
       htmlparser2: 6.1.0
-      lodash: 4.17.23
+      lodash: 4.18.1
       strip-ansi: 6.0.1
 
   repeat-element@1.1.4: {}
@@ -17385,7 +17387,7 @@ snapshots:
 
   request-promise-core@1.1.4(request@2.88.2):
     dependencies:
-      lodash: 4.17.23
+      lodash: 4.18.1
       request: 2.88.2
 
   request-promise@4.2.6(request@2.88.2):
@@ -17873,7 +17875,7 @@ snapshots:
 
   sql-formatter@https://codeload.github.com/getredash/sql-formatter/tar.gz/26ab6c12fa4c989c8000d7f2ee46e55bd7ae43df:
     dependencies:
-      lodash: 4.17.23
+      lodash: 4.18.1
 
   sshpk@1.18.0:
     dependencies:
