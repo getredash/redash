@@ -197,6 +197,9 @@ importers:
       copy-webpack-plugin:
         specifier: ^13.0.1
         version: 13.0.1(webpack@5.105.3)
+      core-js:
+        specifier: ^2.6.12
+        version: 2.6.12
       css-loader:
         specifier: ^7.1.4
         version: 7.1.4(webpack@5.105.3)
