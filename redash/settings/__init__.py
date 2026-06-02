@@ -72,8 +72,11 @@ ENFORCE_HTTPS_PERMANENT = parse_boolean(os.environ.get("REDASH_ENFORCE_HTTPS_PER
 # Whether file downloads are enforced or not.
 ENFORCE_FILE_SAVE = parse_boolean(os.environ.get("REDASH_ENFORCE_FILE_SAVE", "true"))
 
-# Whether api calls using the json query runner will block private addresses
-ENFORCE_PRIVATE_ADDRESS_BLOCK = parse_boolean(os.environ.get("REDASH_ENFORCE_PRIVATE_IP_BLOCK", "true"))
+# Whether api calls using the json query runner will block private addresses.
+# Default off: requires the champion package (SSRF guard, modern fork of advocate).
+# Set REDASH_ENFORCE_PRIVATE_IP_BLOCK=true and install champion to enable
+# (e.g. pip install git+https://github.com/Gee19/champion.git).
+ENFORCE_PRIVATE_ADDRESS_BLOCK = parse_boolean(os.environ.get("REDASH_ENFORCE_PRIVATE_IP_BLOCK", "false"))
 
 # Whether to use secure cookies by default.
 COOKIES_SECURE = parse_boolean(os.environ.get("REDASH_COOKIES_SECURE", str(ENFORCE_HTTPS)))
