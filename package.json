@@ -52,7 +52,7 @@
     "classnames": "^2.2.6",
     "d3": "^3.5.17",
     "debug": "^3.2.7",
-    "dompurify": "^2.0.17",
+    "dompurify": "^3.4.0",
     "elliptic": "^6.6.0",
     "font-awesome": "^4.7.0",
     "history": "^4.10.1",
