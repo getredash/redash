@@ -412,6 +412,24 @@ class Redshift(PostgreSQL):
 
         self._get_definitions(schema, query)
 
+        # Fall back to svv_all_columns when svv_columns does not return results.
+        # svv_all_columns already returns only accessible tables for regular users,
+        # so no additional permission filtering is needed.
+        # https://docs.aws.amazon.com/redshift/latest/dg/r_SVV_ALL_COLUMNS.html
+        if not schema:
+            query_all = """
+            SELECT DISTINCT table_name,
+                            schema_name AS table_schema,
+                            column_name,
+                            data_type,
+                            ordinal_position AS pos
+            FROM svv_all_columns
+            WHERE schema_name NOT IN ('pg_internal','pg_catalog','information_schema')
+            AND schema_name NOT LIKE 'pg_temp_%'
+            ORDER BY table_name, pos
+            """
+            self._get_definitions(schema, query_all)
+
         return list(schema.values())
 
 
