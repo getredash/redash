@@ -7,6 +7,7 @@ settings:
 overrides:
   '@types/react': ^17.0.0
   '@types/react-dom': ^17.0.0
+  axios: 1.16.0
   cheerio: 1.0.0-rc.12
 
 importers:
@@ -26,11 +27,11 @@ importers:
         specifier: 4.4.3
         version: 4.4.3(dayjs@1.11.19)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)
       axios:
-        specifier: 0.27.2
-        version: 0.27.2(debug@3.2.7)
+        specifier: 1.16.0
+        version: 1.16.0(debug@3.2.7)
       axios-auth-refresh:
         specifier: 3.3.6
-        version: 3.3.6(axios@0.27.2(debug@3.2.7))
+        version: 3.3.6(axios@1.16.0(debug@3.2.7))
       bootstrap:
         specifier: ^3.4.1
         version: 3.4.1
@@ -352,11 +353,11 @@ importers:
         specifier: '>=4.0.0'
         version: 4.4.3(dayjs@1.11.19)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)
       axios:
-        specifier: 0.28.0
-        version: 0.28.0(debug@3.2.7)
+        specifier: 1.16.0
+        version: 1.16.0(debug@3.2.7)
       axios-auth-refresh:
         specifier: 3.3.6
-        version: 3.3.6(axios@0.28.0(debug@3.2.7))
+        version: 3.3.6(axios@1.16.0(debug@3.2.7))
       beautifymarker:
         specifier: ^1.0.7
         version: 1.0.9
@@ -2917,16 +2918,10 @@ packages:
   axios-auth-refresh@3.3.6:
     resolution: {integrity: sha512-2CeBUce/SxIfFxow5/n8vApJ97yYF6qoV4gh1UrswT7aEOnlOdBLxxyhOI4IaxGs6BY0l8YujU2jlc4aCmK17Q==}
     peerDependencies:
-      axios: '>= 0.18 < 0.19.0 || >= 0.19.1'
+      axios: 1.16.0
 
-  axios@0.21.4:
-    resolution: {integrity: sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==}
-
-  axios@0.27.2:
-    resolution: {integrity: sha512-t+yRIyySRTp/wua5xEr+z1q60QmLq8ABsS5O9Me1AsE5dfKqgnCFzwiCZZ/cGNd1lq4/7akDWMxdhVlucjmnOQ==}
-
-  axios@0.28.0:
-    resolution: {integrity: sha512-Tu7NYoGY4Yoc7I+Npf9HhUMtEEpV7ZiLH9yndTCoNhcpBH0kwcvFbzYN9/u5QKI5A6uefjsNNWaz5olJVYS62Q==}
+  axios@1.16.0:
+    resolution: {integrity: sha512-6hp5CwvTPlN2A31g5dxnwAX0orzM7pmCRDLnZSX772mv8WDqICwFjowHuPs04Mc8deIld1+ejhtaMn5vp6b+1w==}
 
   axobject-query@4.1.0:
     resolution: {integrity: sha512-qIj0G9wZbMGNLjLmg1PT6v2mE9AH2zlnADJD/2tC6E00hgmhUOfEB6greHPAfLRSufHqROIUTkw6E+M3lH0PTQ==}
@@ -4563,6 +4558,15 @@ packages:
 
   follow-redirects@1.15.11:
     resolution: {integrity: sha512-deG2P0JfjrTxl50XGCDyfI97ZGVCxIpfKYmfyrQ54n5FO/0gfIES8C/Psl6kWVDolizcaaxZJnTS0QSMxvnsBQ==}
+    engines: {node: '>=4.0'}
+    peerDependencies:
+      debug: '*'
+    peerDependenciesMeta:
+      debug:
+        optional: true
+
+  follow-redirects@1.16.0:
+    resolution: {integrity: sha512-y5rN/uOsadFT/JfYwhxRS5R7Qce+g3zG97+JrtFZlC9klX/W5hD7iiLzScI4nZqUS7DNUdhPgw4xI8W2LuXlUw==}
     engines: {node: '>=4.0'}
     peerDependencies:
       debug: '*'
@@ -6795,6 +6799,10 @@ packages:
   proxy-from-env@1.1.0:
     resolution: {integrity: sha512-D+zkORCbA9f1tdWRK0RaCR3GPv50cMxcrz4X8k5LTSUD1Dkw47mKJEZQNunItRTkWwgtaUSo1RVFRIG9ZXiFYg==}
 
+  proxy-from-env@2.1.0:
+    resolution: {integrity: sha512-cJ+oHTW1VAEa8cJslgmUZrc+sjRKgAKl3Zyse6+PV38hZe/V6Z14TbCuXcan9F9ghlz4QrFr2c92TNF82UkYHA==}
+    engines: {node: '>=10'}
+
   prr@1.0.1:
     resolution: {integrity: sha512-yPw4Sng1gWghHQWj0B3ZggWUm4qVbPwPFcRG8KyxiU7J2OHFSoEHKS+EZ3fv5l1t9CyCiop6l/ZYeWbrgoQejw==}
 
@@ -7388,7 +7396,7 @@ packages:
     resolution: {integrity: sha512-PeR6ZVYscfOHrbN3A6EiP8M6UlseHpDkwVDsT6YMcZH0qyMubuFIq6gwydn+ZkvBzry3xmAZwZ3pW1zmJbvLOA==}
     engines: {node: '>=8.0.0'}
     peerDependencies:
-      axios: '*'
+      axios: 1.16.0
 
   retry@0.13.1:
     resolution: {integrity: sha512-XQBQ3I8W1Cge0Seh+6gjj03LbmRFWuoszgK9ooCpwYIrhhoO80pfq4cUkU5DkknwfOfFteRwlZ56PYOGYyFWdg==}
@@ -10503,7 +10511,7 @@ snapshots:
       '@oclif/config': 1.18.17(supports-color@8.1.1)
       '@oclif/plugin-help': 2.2.3(@oclif/config@1.18.17)
       '@oclif/plugin-not-found': 1.2.6(@oclif/config@1.18.17)
-      axios: 0.21.4(debug@3.2.7)
+      axios: 1.16.0(debug@3.2.7)
       body-parser: 1.20.4
       colors: 1.4.0
       cors: 2.8.6
@@ -10518,7 +10526,7 @@ snapshots:
       js-yaml: 3.14.2
       percy-client: 3.9.0
       puppeteer: 5.5.0
-      retry-axios: 1.0.2(axios@0.21.4(debug@3.2.7))
+      retry-axios: 1.0.2(axios@1.16.0(debug@3.2.7))
       which: 2.0.2
       winston: 3.19.0
     transitivePeerDependencies:
@@ -11728,32 +11736,15 @@ snapshots:
 
   axe-core@4.11.1: {}
 
-  axios-auth-refresh@3.3.6(axios@0.27.2(debug@3.2.7)):
+  axios-auth-refresh@3.3.6(axios@1.16.0(debug@3.2.7)):
     dependencies:
-      axios: 0.27.2(debug@3.2.7)
+      axios: 1.16.0(debug@3.2.7)
 
-  axios-auth-refresh@3.3.6(axios@0.28.0(debug@3.2.7)):
+  axios@1.16.0(debug@3.2.7):
     dependencies:
-      axios: 0.28.0(debug@3.2.7)
-
-  axios@0.21.4(debug@3.2.7):
-    dependencies:
-      follow-redirects: 1.15.11(debug@3.2.7)
-    transitivePeerDependencies:
-      - debug
-
-  axios@0.27.2(debug@3.2.7):
-    dependencies:
-      follow-redirects: 1.15.11(debug@3.2.7)
+      follow-redirects: 1.16.0(debug@3.2.7)
       form-data: 4.0.5
-    transitivePeerDependencies:
-      - debug
-
-  axios@0.28.0(debug@3.2.7):
-    dependencies:
-      follow-redirects: 1.15.11(debug@3.2.7)
-      form-data: 4.0.5
-      proxy-from-env: 1.1.0
+      proxy-from-env: 2.1.0
     transitivePeerDependencies:
       - debug
 
@@ -13911,6 +13902,10 @@ snapshots:
   follow-redirects@1.12.1: {}
 
   follow-redirects@1.15.11(debug@3.2.7):
+    optionalDependencies:
+      debug: 3.2.7(supports-color@8.1.1)
+
+  follow-redirects@1.16.0(debug@3.2.7):
     optionalDependencies:
       debug: 3.2.7(supports-color@8.1.1)
 
@@ -16613,6 +16608,8 @@ snapshots:
 
   proxy-from-env@1.1.0: {}
 
+  proxy-from-env@2.1.0: {}
+
   prr@1.0.1:
     optional: true
 
@@ -17478,9 +17475,9 @@ snapshots:
 
   ret@0.1.15: {}
 
-  retry-axios@1.0.2(axios@0.21.4(debug@3.2.7)):
+  retry-axios@1.0.2(axios@1.16.0(debug@3.2.7)):
     dependencies:
-      axios: 0.21.4(debug@3.2.7)
+      axios: 1.16.0(debug@3.2.7)
 
   retry@0.13.1: {}
 
