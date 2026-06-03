@@ -1,3 +1,4 @@
+import json
 import logging
 
 from flask import Blueprint, flash, redirect, request, url_for
@@ -18,6 +19,66 @@ from redash.utils import mustache_render
 
 logger = logging.getLogger("saml_auth")
 blueprint = Blueprint("saml_auth", __name__)
+
+
+def _saml_http_request_summary():
+    """Safe request metadata for logs (no form secrets)."""
+    return {
+        "method": request.method,
+        "path": request.path,
+        "query_string": (
+            request.query_string.decode("utf-8", errors="replace")[:500]
+            if getattr(request, "query_string", None)
+            else ""
+        ),
+        "content_type": request.content_type,
+        "content_length": request.content_length,
+        "remote_addr": request.remote_addr,
+        "X-Forwarded-For": request.headers.get("X-Forwarded-For"),
+        "X-Real-IP": request.headers.get("X-Real-IP"),
+        "user_agent": (request.headers.get("User-Agent") or "")[:300],
+    }
+
+
+def _saml_form_summary():
+    """Form shape for ACS debugging; does not log raw SAMLResponse."""
+    keys = list(request.form.keys())
+    saml = request.form.get("SAMLResponse")
+    relay = request.form.get("RelayState")
+    return {
+        "form_keys": keys,
+        "saml_response_present": saml is not None,
+        "saml_response_len": len(saml) if saml else 0,
+        "relay_state_present": relay is not None,
+        "relay_state_len": len(relay) if relay else 0,
+    }
+
+
+def _org_saml_public_settings(org):
+    """Non-secret SAML org settings for correlation."""
+    return {
+        "org_slug": org.slug,
+        "auth_saml_enabled": org.get_setting("auth_saml_enabled"),
+        "auth_saml_type": org.get_setting("auth_saml_type"),
+        "auth_saml_entity_id_configured": bool(org.get_setting("auth_saml_entity_id")),
+        "auth_saml_metadata_url_configured": bool(org.get_setting("auth_saml_metadata_url")),
+        "auth_saml_sso_url_configured": bool(org.get_setting("auth_saml_sso_url")),
+        "auth_saml_sp_settings_configured": bool(org.get_setting("auth_saml_sp_settings")),
+    }
+
+
+def _log_saml_exception(where, exc, **extra):
+    """Structured ERROR log with traceback and request/org context."""
+    payload = {
+        "where": where,
+        "exc_type": type(exc).__name__,
+        "exc_msg": str(exc),
+        "http": _saml_http_request_summary(),
+        **extra,
+    }
+    logger.error("SAML diagnostic failure | %s", json.dumps(payload, default=str), exc_info=exc)
+
+
 inline_metadata_template = """<?xml version="1.0" encoding="UTF-8"?><md:EntityDescriptor entityID="{{entity_id}}" xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata"><md:IDPSSODescriptor WantAuthnRequestsSigned="false" protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol"><md:KeyDescriptor use="signing"><ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#"><ds:X509Data><ds:X509Certificate>{{x509_cert}}</ds:X509Certificate></ds:X509Data></ds:KeyInfo></md:KeyDescriptor><md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="{{sso_url}}"/><md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="{{sso_url}}"/></md:IDPSSODescriptor></md:EntityDescriptor>"""
 
 
