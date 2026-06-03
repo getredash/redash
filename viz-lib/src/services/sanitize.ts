@@ -20,4 +20,10 @@ DOMPurify.addHook("afterSanitizeAttributes", function(node) {
 
 export { DOMPurify };
 
-export default DOMPurify.sanitize;
+// DOMPurify 3 returns TrustedHTML | string; annotate so declaration emit stays portable.
+const sanitize = DOMPurify.sanitize as (
+  dirty: string | Node,
+  cfg?: DOMPurify.Config
+) => string;
+
+export default sanitize;
