@@ -205,7 +205,8 @@
       "@types/react": "^17.0.0",
       "@types/react-dom": "^17.0.0",
       "axios": "1.16.0",
-      "cheerio": "1.0.0-rc.12"
+      "cheerio": "1.0.0-rc.12",
+      "form-data@2": "~2.5.4"
     }
   }
 }
