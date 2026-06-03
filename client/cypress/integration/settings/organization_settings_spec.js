@@ -42,4 +42,26 @@ describe("Settings", () => {
         .should("exist");
     });
   });
+
+  it("can set a custom thousands separator", () => {
+    cy.getByTestId("ThousandsSeparatorInput").clear().type(" ");
+    // capture the new separator fields for the PR description
+    cy.getByTestId("OrganizationSettings").screenshot("format-settings-separators");
+    cy.getByTestId("OrganizationSettingsSaveButton").click();
+
+    // round-trips through the backend
+    cy.reload();
+    cy.getByTestId("ThousandsSeparatorInput").should("have.value", " ");
+
+    cy.createQuery({
+      name: "test thousands separator",
+      query: "SELECT 1234567 AS n",
+    }).then(({ id: queryId }) => {
+      cy.visit(`/queries/${queryId}`);
+      cy.findByText("Refresh Now").click();
+
+      // the integer is grouped with the configured space separator
+      cy.getByTestId("TableVisualization").should("contain", "1 234 567");
+    });
+  });
 });

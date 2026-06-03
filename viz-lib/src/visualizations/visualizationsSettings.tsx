@@ -1,5 +1,6 @@
 import React from "react";
-import { extend } from "lodash";
+import { extend, isString } from "lodash";
+import numeral from "numeral";
 import Tooltip from "antd/lib/tooltip";
 
 type HelpTriggerProps = {
@@ -42,6 +43,8 @@ export const visualizationsSettings = {
   dateTimeFormat: "DD/MM/YYYY HH:mm",
   integerFormat: "0,0",
   floatFormat: "0,0.00",
+  thousandsSeparator: ",",
+  decimalSeparator: ".",
   nullValue: "null",
   booleanValues: ["false", "true"],
   tableCellMaxJSONSize: 50000,
@@ -52,4 +55,15 @@ export const visualizationsSettings = {
 
 export function updateVisualizationsSettings(options: any) {
   extend(visualizationsSettings, options);
+
+  // `,` and `.` in numeral format strings are locale markers, not literal characters —
+  // the rendered separators come from the active locale's delimiters. Override them so
+  // settings like a space thousands separator (e.g. "1 234 567") are reachable.
+  const { thousandsSeparator, decimalSeparator } = visualizationsSettings;
+  if (isString(thousandsSeparator) && isString(decimalSeparator)) {
+    extend(numeral.localeData().delimiters, {
+      thousands: thousandsSeparator,
+      decimal: decimalSeparator,
+    });
+  }
 }
