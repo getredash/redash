@@ -1,9 +1,9 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`Visualizations -> Chart -> Editor -> Series Settings Changes series axis 1`] = `
-Object {
-  "seriesOptions": Object {
-    "a": Object {
+{
+  "seriesOptions": {
+    "a": {
       "yAxis": 1,
     },
   },
@@ -11,9 +11,9 @@ Object {
 `;
 
 exports[`Visualizations -> Chart -> Editor -> Series Settings Changes series label 1`] = `
-Object {
-  "seriesOptions": Object {
-    "a": Object {
+{
+  "seriesOptions": {
+    "a": {
       "name": "test",
     },
   },
@@ -21,9 +21,9 @@ Object {
 `;
 
 exports[`Visualizations -> Chart -> Editor -> Series Settings Changes series type 1`] = `
-Object {
-  "seriesOptions": Object {
-    "a": Object {
+{
+  "seriesOptions": {
+    "a": {
       "type": "area",
     },
   },

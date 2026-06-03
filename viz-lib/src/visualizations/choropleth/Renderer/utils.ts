@@ -53,7 +53,7 @@ export function prepareFeatureProperties(feature: any, valueFormatted: any, data
 export function getValueForFeature(feature: any, data: any, targetField: any) {
   const code = feature.properties[targetField];
   if (isString(code) && isObject(data[code])) {
-    return data[code].value;
+    return (data[code] as any).value;
   }
   return undefined;
 }

@@ -62,7 +62,7 @@ function prepareWords(rows: any, options: any) {
     }
     result = sortBy(
       map(result, (count, text) => ({ text, count })),
-      [({ count }) => -count, ({ text }) => -text.length] // "count" desc, length("text") desc
+      [({ count }: any) => -count, ({ text }: any) => -text.length] // "count" desc, length("text") desc
     );
   }
 
@@ -104,16 +104,14 @@ function createLayout() {
   const fontFamily = window.getComputedStyle(document.body).fontFamily;
 
   return (
-    // @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call.
     cloud()
       // make the area large enough to contain even very long words; word cloud will be placed in the center of the area
       // TODO: dimensions probably should be larger, but `d3-cloud` has some performance issues related to these values
       .size([5000, 5000])
       .padding(3)
       .font(fontFamily)
-      // @ts-expect-error ts-migrate(2339) FIXME: Property 'angle' does not exist on type 'Word'.
-      .rotate(d => d.angle)
-      .fontSize(d => d.size)
+      .rotate((d: any) => d.angle)
+      .fontSize((d: any) => d.size)
       .random(() => 0.5)
   ); // do not place words randomly - use compact layout
 }
