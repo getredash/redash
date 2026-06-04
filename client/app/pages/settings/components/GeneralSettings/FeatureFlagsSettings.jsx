@@ -1,6 +1,7 @@
 import React from "react";
 import Checkbox from "antd/lib/checkbox";
 import Form from "antd/lib/form";
+import InputNumber from "antd/lib/input-number";
 import Row from "antd/lib/row";
 import Skeleton from "antd/lib/skeleton";
 import DynamicComponent from "@/components/DynamicComponent";
@@ -46,6 +47,22 @@ export default function FeatureFlagsSettings(props) {
                 Enable multi-byte (Chinese, Japanese, and Korean) search for query names and descriptions (slower)
               </Checkbox>
             </Row>
+          </>
+        )}
+      </Form.Item>
+      <Form.Item label="Non-Admin Refresh Cooldown (seconds)">
+        {loading ? (
+          <Skeleton.Input active size="small" />
+        ) : (
+          <>
+            <InputNumber
+              min={0}
+              value={values.non_admin_refresh_cooldown}
+              onChange={value => onChange({ non_admin_refresh_cooldown: value })}
+            />
+            <div className="m-t-5" style={{ color: "#888" }}>
+              Non-admin users cannot refresh queries or dashboards more frequently than this interval. Set to 0 to disable.
+            </div>
           </>
         )}
       </Form.Item>

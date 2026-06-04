@@ -37,6 +37,9 @@ import useEditScheduleDialog from "./hooks/useEditScheduleDialog";
 import useEditVisualizationDialog from "./hooks/useEditVisualizationDialog";
 import useDeleteVisualization from "./hooks/useDeleteVisualization";
 import useFullscreenHandler from "../../lib/hooks/useFullscreenHandler";
+import { notifyRefreshCooldown } from "@/lib/hooks/useRefreshCooldown";
+
+import RefreshCooldownLabel from "./components/RefreshCooldownLabel";
 
 import "./QueryView.less";
 
@@ -64,6 +67,7 @@ function QueryView(props) {
   } = useQueryExecute(query);
 
   const queryResultData = useQueryResultData(queryResult);
+  const retrievedAt = queryResult ? queryResult.getUpdatedAt() : null;
 
   const updateQueryDescription = useUpdateQueryDescription(query, setQuery);
   const editSchedule = useEditScheduleDialog(query, setQuery);
@@ -79,9 +83,12 @@ function QueryView(props) {
       if (!queryFlags.canExecute || (!skipParametersDirtyFlag && (areParametersDirty || isExecuting))) {
         return;
       }
+      if (notifyRefreshCooldown(retrievedAt)) {
+        return;
+      }
       executeQuery();
     },
-    [areParametersDirty, executeQuery, isExecuting, queryFlags.canExecute]
+    [areParametersDirty, executeQuery, isExecuting, queryFlags.canExecute, retrievedAt]
   );
 
   useEffect(() => {
@@ -113,7 +120,9 @@ function QueryView(props) {
                   shortcut="mod+enter, alt+enter, ctrl+enter"
                   disabled={!queryFlags.canExecute || isExecuting || areParametersDirty}
                   onClick={doExecuteQuery}>
-                  Refresh
+                  <RefreshCooldownLabel retrievedAt={retrievedAt} label="Refresh">
+                    Refresh
+                  </RefreshCooldownLabel>
                 </QueryViewButton>
               )}
             </DynamicComponent>
@@ -179,7 +188,9 @@ function QueryView(props) {
                     loading={isExecuting}
                     onClick={doExecuteQuery}>
                     {!isExecuting && <i className="zmdi zmdi-refresh m-r-5" aria-hidden="true" />}
-                    Refresh Now
+                    <RefreshCooldownLabel retrievedAt={retrievedAt} label="Refresh Now">
+                      Refresh Now
+                    </RefreshCooldownLabel>
                   </Button>
                 )
               }
