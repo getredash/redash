@@ -50,6 +50,7 @@ export default function FormatSettings(props) {
         ) : (
           <Input
             style={{ width: 300 }}
+            maxLength={1}
             value={values.thousands_separator}
             onChange={e => onChange({ thousands_separator: e.target.value })}
             data-test="ThousandsSeparatorInput"
@@ -64,6 +65,7 @@ export default function FormatSettings(props) {
         ) : (
           <Input
             style={{ width: 300 }}
+            maxLength={1}
             value={values.decimal_separator}
             onChange={e => onChange({ decimal_separator: e.target.value })}
             data-test="DecimalSeparatorInput"

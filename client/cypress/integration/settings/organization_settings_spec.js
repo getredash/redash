@@ -44,12 +44,12 @@ describe("Settings", () => {
   });
 
   it("can set a custom thousands separator", () => {
+    cy.intercept("POST", "/api/settings/organization").as("saveSettings");
     cy.getByTestId("ThousandsSeparatorInput").clear().type(" ");
-    // capture the new separator fields for the PR description
-    cy.getByTestId("OrganizationSettings").screenshot("format-settings-separators");
     cy.getByTestId("OrganizationSettingsSaveButton").click();
+    cy.wait("@saveSettings");
 
-    // round-trips through the backend
+    // the setting round-trips through the backend
     cy.reload();
     cy.getByTestId("ThousandsSeparatorInput").should("have.value", " ");
 

@@ -36,6 +36,9 @@ function Link(props: any) {
   return <a {...props} />;
 }
 
+const DEFAULT_THOUSANDS_SEPARATOR = ",";
+const DEFAULT_DECIMAL_SEPARATOR = ".";
+
 export const visualizationsSettings = {
   HelpTriggerComponent: HelpTrigger,
   LinkComponent: Link,
@@ -43,8 +46,8 @@ export const visualizationsSettings = {
   dateTimeFormat: "DD/MM/YYYY HH:mm",
   integerFormat: "0,0",
   floatFormat: "0,0.00",
-  thousandsSeparator: ",",
-  decimalSeparator: ".",
+  thousandsSeparator: DEFAULT_THOUSANDS_SEPARATOR,
+  decimalSeparator: DEFAULT_DECIMAL_SEPARATOR,
   nullValue: "null",
   booleanValues: ["false", "true"],
   tableCellMaxJSONSize: 50000,
@@ -58,12 +61,12 @@ export function updateVisualizationsSettings(options: any) {
 
   // `,` and `.` in numeral format strings are locale markers, not literal characters —
   // the rendered separators come from the active locale's delimiters. Override them so
-  // settings like a space thousands separator (e.g. "1 234 567") are reachable.
+  // settings like a space thousands separator (e.g. "1 234 567") are reachable. Each
+  // separator is applied independently and falls back to its en default when not a string,
+  // so a non-string value never leaves numeral stuck on a stale override.
   const { thousandsSeparator, decimalSeparator } = visualizationsSettings;
-  if (isString(thousandsSeparator) && isString(decimalSeparator)) {
-    extend(numeral.localeData().delimiters, {
-      thousands: thousandsSeparator,
-      decimal: decimalSeparator,
-    });
-  }
+  extend(numeral.localeData().delimiters, {
+    thousands: isString(thousandsSeparator) ? thousandsSeparator : DEFAULT_THOUSANDS_SEPARATOR,
+    decimal: isString(decimalSeparator) ? decimalSeparator : DEFAULT_DECIMAL_SEPARATOR,
+  });
 }
