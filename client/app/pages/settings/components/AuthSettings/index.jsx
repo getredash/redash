@@ -6,15 +6,19 @@ import { SettingsEditorPropTypes, SettingsEditorDefaultProps } from "../prop-typ
 
 import PasswordLoginSettings from "./PasswordLoginSettings";
 import GoogleLoginSettings from "./GoogleLoginSettings";
+import OIDCLoginSettings from "./OIDCLoginSettings";
 import SAMLSettings from "./SAMLSettings";
 
 export default function AuthSettings(props) {
   const { values, onChange } = props;
   const handleChange = useCallback(
-    changes => {
+    (changes) => {
       const allSettings = { ...values, ...changes };
       const allAuthMethodsDisabled =
-        !clientConfig.googleLoginEnabled && !clientConfig.ldapLoginEnabled && !allSettings.auth_saml_enabled;
+        !clientConfig.oidcLoginEnabled &&
+        !clientConfig.googleLoginEnabled &&
+        !clientConfig.ldapLoginEnabled &&
+        !allSettings.auth_saml_enabled;
       if (allAuthMethodsDisabled) {
         changes = { ...changes, auth_password_login_enabled: true };
       }
@@ -31,6 +35,7 @@ export default function AuthSettings(props) {
       <hr />
       <PasswordLoginSettings {...props} onChange={handleChange} />
       <GoogleLoginSettings {...props} onChange={handleChange} />
+      <OIDCLoginSettings {...props} onChange={handleChange} />
       <SAMLSettings {...props} onChange={handleChange} />
     </DynamicComponent>
   );
