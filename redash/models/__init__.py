@@ -1517,6 +1517,35 @@ class QuerySnippet(TimestampMixin, db.Model, BelongsToOrgMixin):
         return d
 
 
+@generic_repr("id", "name", "org_id")
+class CustomMap(TimestampMixin, db.Model, BelongsToOrgMixin):
+    id = primary_key("CustomMap")
+    org_id = Column(key_type("Organization"), db.ForeignKey("organizations.id"))
+    org = db.relationship(Organization, backref="custom_maps")
+    user_id = Column(key_type("User"), db.ForeignKey("users.id"))
+    user = db.relationship(User, backref="custom_maps")
+    name = Column(db.String(255))
+    geojson = Column(db.Text)
+
+    __tablename__ = "custom_maps"
+    __table_args__ = (
+        db.Index("custom_maps_org_id_name", "org_id", "name", unique=True),
+    )
+
+    @classmethod
+    def all(cls, org):
+        return cls.query.filter(cls.org == org).order_by(cls.name.asc())
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "created_at": self.created_at,
+            "updated_at": self.updated_at,
+            "user": self.user.to_dict() if self.user else None,
+        }
+
+
 def init_db():
     default_org = Organization(name="Default", slug="default", settings={})
     admin_group = Group(
