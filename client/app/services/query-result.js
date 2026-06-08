@@ -143,6 +143,14 @@ class QueryResult {
 
       const columnTypes = {};
 
+      // Build a lookup of backend-provided column types so we can
+      // preserve them for values that were serialized as strings
+      // (e.g. large integers converted to strings to avoid precision loss).
+      const backendColumnTypes = {};
+      each(this.query_result.data.columns, (column) => {
+        backendColumnTypes[column.name] = column.type;
+      });
+
       // TODO: we should stop manipulating incoming data, and switch to relaying
       // on the column type set by the backend. This logic is prone to errors,
       // and better be removed. Kept for now, for backward compatability.
@@ -159,6 +167,9 @@ class QueryResult {
             newType = "date";
           } else if (typeof v === "object" && v !== null) {
             row[k] = JSON.stringify(v);
+          } else if (backendColumnTypes[k] === "integer" && isString(v) && v.match(/^-?\d+$/)) {
+            // Large integer serialized as string by the backend to preserve precision.
+            // Skip type sniffing so the backend's "integer" column type is kept.
           } else {
             newType = "string";
           }
