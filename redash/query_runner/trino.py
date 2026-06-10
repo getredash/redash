@@ -1,5 +1,6 @@
 import logging
 import os
+import re
 
 from redash.models.users import ApiUser, User
 from redash.query_runner import (
@@ -60,6 +61,31 @@ TRINO_TYPES_MAPPING = {
     "date": TYPE_DATE,
     "timestamp": TYPE_DATETIME,
 }
+
+
+_DECIMAL_SCALE_RE = re.compile(r"^decimal\(\d+,\s*(\d+)\)$")
+
+
+def _map_trino_type(type_name):
+    """Map a Trino type name to a Redash column type.
+
+    Handles parameterised types such as ``timestamp(3)`` or ``decimal(10,2)``
+    by falling back to the base type when an exact match is not found.
+    """
+    if not type_name:
+        return None
+    mapped = TRINO_TYPES_MAPPING.get(type_name)
+    if mapped is not None:
+        return mapped
+    # Strip parameters: "timestamp(3)" -> "timestamp"
+    base = type_name.split("(", 1)[0]
+    mapped = TRINO_TYPES_MAPPING.get(base)
+    # decimal(p, s) with s > 0 has fractional digits
+    if base == "decimal":
+        m = _DECIMAL_SCALE_RE.match(type_name)
+        if m and int(m.group(1)) > 0:
+            mapped = TYPE_FLOAT
+    return mapped
 
 
 class Trino(BaseQueryRunner):
@@ -215,7 +241,7 @@ class Trino(BaseQueryRunner):
             cursor.execute(query)
             results = cursor.fetchall()
             description = cursor.description
-            columns = self.fetch_columns([(c[0], TRINO_TYPES_MAPPING.get(c[1], None)) for c in description])
+            columns = self.fetch_columns([(c[0], _map_trino_type(c[1])) for c in description])
             column_names = [c["name"] for c in columns]
             rows = [dict(zip(column_names, [_convert_row_types(v) for v in r])) for r in results]
             data = {"columns": columns, "rows": rows}
