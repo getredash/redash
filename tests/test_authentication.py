@@ -295,6 +295,96 @@ class TestRedirectToUrlAfterLoggingIn(BaseTestCase):
         self.assertEqual(response.location, "/queries")
 
 
+class TestSAMLAuth(BaseTestCase):
+    def setUp(self):
+        super(TestSAMLAuth, self).setUp()
+        self.factory.org.set_setting("auth_saml_enabled", True)
+        models.db.session.commit()
+
+    def configure_saml_client_for_login(self, get_saml_client):
+        saml_client = Mock()
+        saml_client.prepare_for_authenticate.return_value = (
+            "request-id",
+            {"headers": [("Location", "https://idp.example.com/sso")]},
+        )
+        get_saml_client.return_value = saml_client
+        return saml_client
+
+    def configure_saml_client_for_callback(self, get_saml_client):
+        saml_client = Mock()
+        authn_response = Mock()
+        subject = Mock()
+        subject.text = "test@example.com"
+        authn_response.get_subject.return_value = subject
+        authn_response.ava = {"FirstName": ["Test"], "LastName": ["User"]}
+        saml_client.parse_authn_request_response.return_value = authn_response
+        get_saml_client.return_value = saml_client
+        return saml_client
+
+    @patch("redash.authentication.saml_auth.get_saml_client")
+    def test_sp_initiated_login_passes_next_as_relay_state(self, get_saml_client):
+        saml_client = self.configure_saml_client_for_login(get_saml_client)
+
+        response = self.get_request("/saml/login?next=/queries/1?p=abc", org=self.factory.org)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.location, "https://idp.example.com/sso")
+        self.assertEqual(saml_client.prepare_for_authenticate.call_args[1]["relay_state"], "/queries/1?p=abc")
+
+    @patch("redash.authentication.saml_auth.get_saml_client")
+    def test_sp_initiated_login_sanitizes_relay_state(self, get_saml_client):
+        saml_client = self.configure_saml_client_for_login(get_saml_client)
+
+        self.get_request("/saml/login?next=https://example.com", org=self.factory.org)
+
+        self.assertEqual(saml_client.prepare_for_authenticate.call_args[1]["relay_state"], "./")
+
+    @patch("redash.authentication.saml_auth.create_and_login_user")
+    @patch("redash.authentication.saml_auth.get_saml_client")
+    def test_callback_redirects_to_relay_state(self, get_saml_client, create_and_login_user):
+        self.configure_saml_client_for_callback(get_saml_client)
+        create_and_login_user.return_value = self.factory.user
+
+        response = self.post_request(
+            "/saml/callback",
+            org=self.factory.org,
+            data={"SAMLResponse": "response", "RelayState": "/queries/1?p=abc"},
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.location, "/queries/1?p=abc")
+
+    @patch("redash.authentication.saml_auth.create_and_login_user")
+    @patch("redash.authentication.saml_auth.get_saml_client")
+    def test_callback_sanitizes_relay_state(self, get_saml_client, create_and_login_user):
+        self.configure_saml_client_for_callback(get_saml_client)
+        create_and_login_user.return_value = self.factory.user
+
+        response = self.post_request(
+            "/saml/callback",
+            org=self.factory.org,
+            data={"SAMLResponse": "response", "RelayState": "https://example.com"},
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.location, "./")
+
+    @patch("redash.authentication.saml_auth.create_and_login_user")
+    @patch("redash.authentication.saml_auth.get_saml_client")
+    def test_callback_without_relay_state_redirects_to_index(self, get_saml_client, create_and_login_user):
+        self.configure_saml_client_for_callback(get_saml_client)
+        create_and_login_user.return_value = self.factory.user
+
+        response = self.post_request(
+            "/saml/callback",
+            org=self.factory.org,
+            data={"SAMLResponse": "response"},
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.location, "/{}/".format(self.factory.org.slug))
+
+
 class TestRemoteUserAuth(BaseTestCase):
     DEFAULT_SETTING_OVERRIDES = {"REDASH_REMOTE_USER_LOGIN_ENABLED": "true"}
 
