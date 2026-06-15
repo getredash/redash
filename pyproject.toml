@@ -160,6 +160,7 @@ dev = [
 
 [tool.uv]
 package = false
+default-groups = []
 
 [tool.ruff]
 exclude = [".git", "viz-lib", "node_modules", "migrations"]
