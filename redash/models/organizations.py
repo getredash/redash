@@ -14,6 +14,7 @@ from .users import Group, User
 class Organization(TimestampMixin, db.Model):
     SETTING_GOOGLE_APPS_DOMAINS = "google_apps_domains"
     SETTING_IS_PUBLIC = "is_public"
+    SETTING_OIDC_DOMAINS = "oidc_domains"
 
     id = primary_key("Organization")
     name = Column(db.String(255))
@@ -42,6 +43,10 @@ class Organization(TimestampMixin, db.Model):
     @property
     def google_apps_domains(self):
         return self.settings.get(self.SETTING_GOOGLE_APPS_DOMAINS, [])
+
+    @property
+    def oidc_domains(self):
+        return self.settings.get(self.SETTING_OIDC_DOMAINS, [])
 
     @property
     def is_public(self):
