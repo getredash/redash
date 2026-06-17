@@ -93,10 +93,10 @@ paramiko = "3.4.1"
 oracledb = "2.5.1"
 ibm-db = { version = "^3.2.7", markers = "platform_machine == 'x86_64' or platform_machine == 'AMD64'" }
 
-[tool.poetry.group.all_ds]
+[tool.poetry.group.all-ds]
 optional = true
 
-[tool.poetry.group.all_ds.dependencies]
+[tool.poetry.group.all-ds.dependencies]
 atsd-client = "3.0.5"
 azure-kusto-data = "5.0.1"
 boto3 = "1.28.8"
