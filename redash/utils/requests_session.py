@@ -1,19 +1,19 @@
-import warnings
+import requests
 
 from redash import settings
 
-with warnings.catch_warnings():
-    # Supress advocate warning below
-    #   /usr/local/lib/python3.13/site-packages/advocate/api.py:102: SyntaxWarning: invalid escape sequence '\*'
-    #   server-1     |   :param \*\*kwargs: Optional arguments that ``request`` takes.
-    warnings.filterwarnings("ignore", category=SyntaxWarning, module=r".*advocate.*")
 
-    from advocate.exceptions import UnacceptableAddressException  # noqa: F401, E402
+# Temporary: advocate removed to enable urllib3 2.x upgrade.
+# SSRF protection will be re-added via champion in a follow-up PR.
+class UnacceptableAddressException(Exception):
+    """Placeholder exception for when SSRF protection is not available."""
 
-    if settings.ENFORCE_PRIVATE_ADDRESS_BLOCK:
-        import advocate as requests_or_advocate
-    else:
-        import requests as requests_or_advocate
+    pass
+
+
+# Always use requests for now (advocate blocks urllib3 2.x).
+# ENFORCE_PRIVATE_ADDRESS_BLOCK setting is temporarily non-functional.
+requests_or_advocate = requests
 
 
 class ConfiguredSession(requests_or_advocate.Session):
