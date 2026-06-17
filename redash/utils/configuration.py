@@ -53,7 +53,8 @@ class ConfigurationContainer(Mutable):
         jsonschema.validate(self._config, self._schema)
 
     def to_json(self):
-        return json_dumps(self._config, sort_keys=True)
+        # Use compact separators to match test expectations (no spaces after colons/commas)
+        return json_dumps(self._config, sort_keys=True, separators=(",", ":"))
 
     def iteritems(self):
         return self._config.items()

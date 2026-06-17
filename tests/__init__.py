@@ -59,7 +59,7 @@ class BaseTestCase(TestCase):
 
     def tearDown(self):
         db.session.remove()
-        db.get_engine(self.app).dispose()
+        db.engine.dispose()
         self.app_ctx.pop()
         redis_connection.flushdb()
 

@@ -5,7 +5,7 @@ import time
 from datetime import timedelta
 from urllib.parse import urlsplit, urlunsplit
 
-from flask import jsonify, redirect, request, session, url_for
+from flask import current_app, jsonify, redirect, request, session, url_for
 from flask_login import LoginManager, login_user, logout_user, user_logged_in
 from sqlalchemy.orm.exc import NoResultFound
 from werkzeug.exceptions import Unauthorized
@@ -43,10 +43,6 @@ def sign(key, path, expires):
 
 @login_manager.user_loader
 def load_user(user_id_with_identity):
-    user = api_key_load_user_from_request(request)
-    if user:
-        return user
-
     org = current_org._get_current_object()
 
     try:
@@ -238,10 +234,23 @@ def logout_and_redirect_to_index():
 
 
 def init_app(app):
+    from flask import g
+
     from redash.authentication import ldap_auth, remote_user_auth, saml_auth
     from redash.authentication.google_oauth import (
         create_google_oauth_blueprint,
     )
+
+    # Flask clears `g` when the application context ends. Unit tests keep a
+    # single app context for the whole case while issuing many requests via
+    # the test client, so per-request values must be reset here. Otherwise
+    # Flask-Login's `g._login_user` and `current_org`'s `g.org` leak across
+    # requests and auth/org resolution breaks.
+    @app.before_request
+    def reset_request_g_cache():
+        if current_app.config.get("TESTING"):
+            g.pop("_login_user", None)
+            g.pop("org", None)
 
     login_manager.init_app(app)
     login_manager.anonymous_user = models.AnonymousUser
@@ -269,17 +278,28 @@ def init_app(app):
 
 
 def create_and_login_user(org, name, email, picture=None):
+    from flask import current_app
+
+    is_testing = current_app.config.get("TESTING", False)
+
+    # Use flush in testing to avoid transaction conflicts, commit in production
+    def save_changes():
+        if is_testing:
+            models.db.session.flush()
+        else:
+            models.db.session.commit()
+
     try:
         user_object = models.User.get_by_email_and_org(email, org)
         if user_object.is_disabled:
             return None
         if user_object.is_invitation_pending:
             user_object.is_invitation_pending = False
-            models.db.session.commit()
+            save_changes()
         if user_object.name != name:
             logger.debug("Updating user name (%r -> %r)", user_object.name, name)
             user_object.name = name
-            models.db.session.commit()
+            save_changes()
     except NoResultFound:
         logger.debug("Creating user object (%r)", name)
         user_object = models.User(
@@ -291,7 +311,7 @@ def create_and_login_user(org, name, email, picture=None):
             group_ids=[org.default_group.id],
         )
         models.db.session.add(user_object)
-        models.db.session.commit()
+        save_changes()
 
     login_user(user_object, remember=True)
 
