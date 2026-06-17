@@ -158,12 +158,15 @@ optional = true
 [tool.poetry.group.dev.dependencies]
 pytest = "7.4.0"
 coverage = "7.2.7"
+filelock = ">=3.20.3"
 freezegun = "1.5.5"
 jwcrypto = "1.5.6"
 mock = "5.0.2"
-pre-commit = "3.3.3"
+pre-commit = "4.3.0"
+pygments = ">=2.20.0"
 ptpython = "3.0.23"
 pytest-cov = "4.1.0"
+virtualenv = ">=20.36.1"
 watchdog = "3.0.0"
 ruff = "0.0.289"
 
