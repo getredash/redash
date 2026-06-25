@@ -5,9 +5,12 @@ import sys
 
 from RestrictedPython import compile_restricted
 from RestrictedPython.Guards import (
+    full_write_guard,
     guarded_iter_unpack_sequence,
+    guarded_setattr,
     guarded_unpack_sequence,
     safe_builtins,
+    safer_getattr,
 )
 from RestrictedPython.transformer import IOPERATOR_TO_STR
 
@@ -156,7 +159,7 @@ class Python(BaseQueryRunner):
         Custom hooks which controls the way objects/lists/tuples/dicts behave in
         RestrictedPython
         """
-        return obj
+        return full_write_guard(obj)
 
     @staticmethod
     def custom_get_item(obj, key):
@@ -314,10 +317,10 @@ class Python(BaseQueryRunner):
             builtins = safe_builtins.copy()
             builtins["_write_"] = self.custom_write
             builtins["__import__"] = self.custom_import
-            builtins["_getattr_"] = getattr
-            builtins["getattr"] = getattr
-            builtins["_setattr_"] = setattr
-            builtins["setattr"] = setattr
+            builtins["_getattr_"] = safer_getattr
+            builtins["getattr"] = safer_getattr
+            builtins["_setattr_"] = guarded_setattr
+            builtins["setattr"] = guarded_setattr
             builtins["_getitem_"] = self.custom_get_item
             builtins["_getiter_"] = self.custom_get_iter
             builtins["_print_"] = self._custom_print

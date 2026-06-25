@@ -96,6 +96,23 @@ class TestPythonQueryRunner(TestCase):
             },
         )
 
+    def test_getattr_cannot_access_private_attributes(self):
+        query_string = "getattr((), '__class__')"
+
+        data, error = self.python.run_query(query_string, "user")
+
+        self.assertIsNone(data)
+        self.assertIn("__class__", error)
+
+    def test_attribute_assignment_cannot_modify_exposed_objects(self):
+        query_string = "get_current_user.compromised = True"
+
+        data, error = self.python.run_query(query_string, "user")
+
+        self.assertIsNone(data)
+        self.assertIsNotNone(error)
+        self.assertFalse(hasattr(self.python.get_current_user, "compromised"))
+
 
 class TestPython(TestCase):
     def test_sorted_safe_builtins(self):
