@@ -427,7 +427,7 @@ version = "1.28.8"
 description = "The AWS SDK for Python"
 optional = false
 python-versions = ">= 3.7"
-groups = ["all_ds"]
+groups = ["main", "all_ds"]
 files = [
     {file = "boto3-1.28.8-py3-none-any.whl", hash = "sha256:7132ac3f3a9c28b84dcc344cfb439d37d2c5ab45f6b577358fc9aeba5d5aab63"},
     {file = "boto3-1.28.8.tar.gz", hash = "sha256:cf88309d9b8cd9a2fb0c8049cb4b217b4e9dcb55bf670d6054b0bbe2eef25e57"},
@@ -447,7 +447,7 @@ version = "1.31.8"
 description = "Low-level, data-driven core of boto 3."
 optional = false
 python-versions = ">= 3.7"
-groups = ["all_ds"]
+groups = ["main", "all_ds"]
 files = [
     {file = "botocore-1.31.8-py3-none-any.whl", hash = "sha256:61ba7efaa6305c1928b9b3fbb6f780cbfbd762e19008d20c11ba52b47f20e1b0"},
     {file = "botocore-1.31.8.tar.gz", hash = "sha256:092baa2168ae78080b0c28011527bfc11d8debd3767aa1e9a4ce8a91fd9943a2"},
@@ -2453,7 +2453,7 @@ version = "1.0.1"
 description = "JSON Matching Expressions"
 optional = false
 python-versions = ">=3.7"
-groups = ["all_ds"]
+groups = ["main", "all_ds"]
 files = [
     {file = "jmespath-1.0.1-py3-none-any.whl", hash = "sha256:02e2e4cc71b5bcab88332eebf907519190dd9e6e82107fa7f83b1003a6252980"},
     {file = "jmespath-1.0.1.tar.gz", hash = "sha256:90261b206d6defd58fdd5e85f478bf633a2901798906be2ad389150c5c60edbe"},
@@ -5014,7 +5014,7 @@ version = "0.6.2"
 description = "An Amazon S3 Transfer Manager"
 optional = false
 python-versions = ">= 3.7"
-groups = ["all_ds"]
+groups = ["main", "all_ds"]
 files = [
     {file = "s3transfer-0.6.2-py3-none-any.whl", hash = "sha256:b014be3a8a2aab98cfe1abc7229cc5a9a0cf05eb9c1f2b86b230fd8df3f78084"},
     {file = "s3transfer-0.6.2.tar.gz", hash = "sha256:cab66d3380cca3e70939ef2255d01cd8aece6a4907a9528740f668c4b0611861"},
@@ -6159,4 +6159,4 @@ testing = ["coverage[toml]", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.13,<3.14"
-content-hash = "059875cc4ef3045843c508c693f57018226da8a3440033d724d88b42ecfb1b01"
+content-hash = "7ec3c415ae1482543e9f9b64edc1a73cbfea275d73001bb863cc8cd9f99d9f75"
