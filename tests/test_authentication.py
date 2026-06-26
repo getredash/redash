@@ -403,11 +403,10 @@ class TestUserForgotPassword(BaseTestCase):
         self.db.session.add(user)
         self.db.session.commit()
 
-        with patch(
-            "redash.handlers.authentication.send_password_reset_email"
-        ) as send_password_reset_email_mock, patch(
-            "redash.handlers.authentication.send_user_disabled_email"
-        ) as send_user_disabled_email_mock:
+        with (
+            patch("redash.handlers.authentication.send_password_reset_email") as send_password_reset_email_mock,
+            patch("redash.handlers.authentication.send_user_disabled_email") as send_user_disabled_email_mock,
+        ):
             response = self.post_request("/forgot", org=user.org, data={"email": user.email})
             self.assertEqual(response.status_code, 200)
             send_password_reset_email_mock.assert_not_called()

@@ -52,7 +52,7 @@ labels:
 # Restylers to run, and how
 restylers:
   - name: black
-    image: restyled/restyler-black:v24.4.2
+    image: public.ecr.aws/restyled-io/restyler-black:v26.3.1
     include:
       - redash
       - tests
