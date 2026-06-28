@@ -23,7 +23,7 @@ describe("Dashboard Filters", () => {
       name: "Query Filters",
       query: `SELECT stage1 AS "stage1::filter", stage2, value FROM (${SQL}) q`,
     };
-    cy.createDashboard("Dashboard Filters").then(dashboard => {
+    cy.createDashboard("Dashboard Filters").then((dashboard) => {
       createQueryAndAddWidget(dashboard.id, queryData)
         .as("widget1TestId")
         .then(() => createQueryAndAddWidget(dashboard.id, queryData, { position: { col: 4 } }))
@@ -32,26 +32,23 @@ describe("Dashboard Filters", () => {
     });
   });
 
-  it("filters rows in a Table Visualization", function() {
+  it("filters rows in a Table Visualization", function () {
     editDashboard();
     cy.getByTestId("DashboardFilters").should("not.exist");
     cy.getByTestId("DashboardFiltersCheckbox").click();
 
     cy.getByTestId("DashboardFilters").within(() => {
-      cy.getByTestId("FilterName-stage1::filter")
-        .find(".ant-select-selection-item")
-        .should("have.text", "a");
+      cy.getByTestId("FilterName-stage1::filter").find(".ant-select-selection-item").should("have.text", "a");
     });
 
     cy.getByTestId(this.widget1TestId).within(() => {
       expectTableToHaveLength(4);
       expectFirstColumnToHaveMembers(["a", "a", "a", "a"]);
 
-      cy.getByTestId("FilterName-stage1::filter")
-        .find(".ant-select")
-        .click();
+      cy.getByTestId("FilterName-stage1::filter").find(".ant-select").click();
     });
 
+    cy.wait(1500); // eslint-disable-line cypress/no-unnecessary-waiting
     cy.contains(".ant-select-item-option-content:visible", "b").click();
 
     cy.getByTestId(this.widget1TestId).within(() => {
@@ -69,14 +66,13 @@ describe("Dashboard Filters", () => {
     // assert that changing a global filter affects all widgets
 
     cy.getByTestId("DashboardFilters").within(() => {
-      cy.getByTestId("FilterName-stage1::filter")
-        .find(".ant-select")
-        .click();
+      cy.getByTestId("FilterName-stage1::filter").find(".ant-select").click();
     });
 
+    cy.wait(1500); // eslint-disable-line cypress/no-unnecessary-waiting
     cy.contains(".ant-select-item-option-content:visible", "c").click();
 
-    [this.widget1TestId, this.widget2TestId].forEach(widgetTestId =>
+    [this.widget1TestId, this.widget2TestId].forEach((widgetTestId) =>
       cy.getByTestId(widgetTestId).within(() => {
         expectTableToHaveLength(4);
         expectFirstColumnToHaveMembers(["c", "c", "c", "c"]);

@@ -48,7 +48,6 @@
     "series": [
       {
         "visible": true,
-        "offsetgroup": "0",
         "type": "bar",
         "name": "a",
         "x": ["x1", "x2", "x3", "x4"],
@@ -64,7 +63,6 @@
       },
       {
         "visible": true,
-        "offsetgroup": "1",
         "type": "bar",
         "name": "b",
         "x": ["x1", "x2", "x3", "x4"],

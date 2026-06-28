@@ -1,6 +1,6 @@
 import functools
 
-from flask import session
+from flask import request, session
 from flask_login import current_user
 from flask_talisman import talisman
 from flask_wtf.csrf import CSRFProtect, generate_csrf
@@ -25,6 +25,7 @@ def init_app(app):
     app.config["WTF_CSRF_CHECK_DEFAULT"] = False
     app.config["WTF_CSRF_SSL_STRICT"] = False
     app.config["WTF_CSRF_TIME_LIMIT"] = settings.CSRF_TIME_LIMIT
+    app.config["SESSION_COOKIE_NAME"] = settings.SESSION_COOKIE_NAME
 
     @app.after_request
     def inject_csrf_token(response):
@@ -35,6 +36,15 @@ def init_app(app):
 
         @app.before_request
         def check_csrf():
+            # BEGIN workaround until https://github.com/lepture/flask-wtf/pull/419 is merged
+            if request.blueprint in csrf._exempt_blueprints:
+                return
+
+            view = app.view_functions.get(request.endpoint)
+            if view is not None and f"{view.__module__}.{view.__name__}" in csrf._exempt_views:
+                return
+            # END workaround
+
             if not current_user.is_authenticated or "user_id" in session:
                 csrf.protect()
 

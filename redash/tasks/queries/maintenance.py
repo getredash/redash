@@ -9,6 +9,7 @@ from redash.models.parameterized_query import (
     QueryDetachedFromDataSourceError,
 )
 from redash.monitor import rq_job_ids
+from redash.query_runner import NotSupported
 from redash.tasks.failure_report import track_failure
 from redash.utils import json_dumps, sentry
 from redash.worker import get_job_logger, job
@@ -177,6 +178,8 @@ def refresh_schema(data_source_id):
             time.time() - start_time,
         )
         statsd_client.incr("refresh_schema.timeout")
+    except NotSupported:
+        logger.debug("Datasource %s does not support schema refresh", ds.name)
     except Exception:
         logger.warning("Failed refreshing schema for the data source: %s", ds.name, exc_info=1)
         statsd_client.incr("refresh_schema.error")

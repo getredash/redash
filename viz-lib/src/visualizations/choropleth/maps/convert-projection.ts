@@ -5,9 +5,7 @@ const { each, map, filter } = require("lodash");
 // @ts-expect-error ts-migrate(2403) FIXME: Subsequent variable declarations must have the sam... Remove this comment to see the full error message
 const d3 = require("d3");
 
-// @ts-expect-error ts-migrate(2339) FIXME: Property 'geo' does not exist on type 'typeof impo... Remove this comment to see the full error message
 const albersUSA = d3.geo.albersUsa();
-// @ts-expect-error ts-migrate(2339) FIXME: Property 'geo' does not exist on type 'typeof impo... Remove this comment to see the full error message
 const mercator = d3.geo.mercator();
 
 const geojson = require("./usa.geo.json");

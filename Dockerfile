@@ -1,6 +1,6 @@
-FROM node:18-bookworm AS frontend-builder
+FROM node:24-bookworm AS frontend-builder
 
-RUN npm install --global --force yarn@1.22.22
+RUN npm install --global pnpm@10.30.3
 
 # Controls whether to build the frontend assets
 ARG skip_frontend_build
@@ -12,7 +12,7 @@ RUN useradd -m -d /frontend redash
 USER redash
 
 WORKDIR /frontend
-COPY --chown=redash package.json yarn.lock .yarnrc /frontend/
+COPY --chown=redash package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc /frontend/
 COPY --chown=redash viz-lib /frontend/viz-lib
 COPY --chown=redash scripts /frontend/scripts
 
@@ -20,16 +20,18 @@ COPY --chown=redash scripts /frontend/scripts
 ARG code_coverage
 ENV BABEL_ENV=${code_coverage:+test}
 
-# Avoid issues caused by lags in disk and network I/O speeds when working on top of QEMU emulation for multi-platform image building.
-RUN yarn config set network-timeout 300000
-
-RUN if [ "x$skip_frontend_build" = "x" ] ; then yarn --frozen-lockfile --network-concurrency 1; fi
+# Use BuildKit cache mount for pnpm store to speed rebuilds
+RUN --mount=type=cache,id=pnpm-store,target=/frontend/.cache/pnpm,uid=1001,gid=1001 \
+  pnpm config set store-dir /frontend/.cache/pnpm && \
+  if [ "x$skip_frontend_build" = "x" ] ; then pnpm install --frozen-lockfile; fi
 
 COPY --chown=redash client /frontend/client
 COPY --chown=redash webpack.config.js /frontend/
-RUN <<EOF
+
+# Use the same cache mount for the build step
+RUN --mount=type=cache,id=pnpm-store,target=/frontend/.cache/pnpm,uid=1001,gid=1001 <<EOF
   if [ "x$skip_frontend_build" = "x" ]; then
-    yarn build
+    pnpm run build
   else
     mkdir -p /frontend/client/dist
     touch /frontend/client/dist/multi_org.html
@@ -37,7 +39,7 @@ RUN <<EOF
   fi
 EOF
 
-FROM python:3.10-slim-bookworm
+FROM python:3.13-slim-bookworm
 
 EXPOSE 5000
 
@@ -95,21 +97,33 @@ EOF
 
 WORKDIR /app
 
-ENV POETRY_VERSION=1.8.3
-ENV POETRY_HOME=/etc/poetry
-ENV POETRY_VIRTUALENVS_CREATE=false
-RUN curl -sSL https://install.python-poetry.org | python3 -
+# Install uv (pinned) from the official distroless image for a reproducible build.
+COPY --from=ghcr.io/astral-sh/uv:0.11.6 /uv /usr/local/bin/uv
 
-# Avoid crashes, including corrupted cache artifacts, when building multi-platform images with GitHub Actions.
-RUN /etc/poetry/bin/poetry cache clear pypi --all
+# Install into the system environment rather than a project-local virtualenv,
+# so console scripts (gunicorn, supervisord, rq, ...) are on PATH.
+ENV UV_PROJECT_ENVIRONMENT=/usr/local
+ENV UV_COMPILE_BYTECODE=1
+ENV UV_LINK_MODE=copy
 
-COPY pyproject.toml poetry.lock ./
+COPY pyproject.toml uv.lock ./
 
-ARG POETRY_OPTIONS="--no-root --no-interaction --no-ansi"
-# for LDAP authentication, install with `ldap3` group
+ARG UV_OPTIONS="--frozen --no-install-project --no-default-groups"
+# for LDAP authentication, install with the `ldap3` group
 # disabled by default due to GPL license conflict
 ARG install_groups="main,all_ds,dev"
-RUN /etc/poetry/bin/poetry install --only $install_groups $POETRY_OPTIONS
+# Translate the comma-separated install_groups list into uv flags. "main"
+# refers to the project's base dependencies (always installed); every other
+# entry maps to a uv dependency group.
+RUN --mount=type=cache,target=/root/.cache/uv <<EOF
+  group_flags=""
+  for group in $(echo "$install_groups" | tr ',' ' '); do
+    if [ "$group" != "main" ]; then
+      group_flags="$group_flags --group $group"
+    fi
+  done
+  uv sync $UV_OPTIONS $group_flags
+EOF
 
 COPY --chown=redash . /app
 COPY --from=frontend-builder --chown=redash /frontend/client/dist /app/client/dist

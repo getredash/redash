@@ -1,5 +1,7 @@
 import logging
+import os
 
+from redash.models.users import ApiUser, User
 from redash.query_runner import (
     TYPE_BOOLEAN,
     TYPE_DATE,
@@ -12,16 +14,33 @@ from redash.query_runner import (
     JobTimeoutException,
     register,
 )
+from redash.settings import parse_boolean
 
 logger = logging.getLogger(__name__)
+ANNOTATE_QUERY = parse_boolean(os.environ.get("TRINO_ANNOTATE_QUERY", "true"))
 
 try:
     import trino
     from trino.exceptions import DatabaseError
+    from trino.types import NamedRowTuple
 
     enabled = True
 except ImportError:
     enabled = False
+
+
+def _convert_row_types(value):
+    """Convert NamedRowTuple instances to dicts so ROW fields are serialized with their names."""
+    if isinstance(value, NamedRowTuple):
+        names = value.__annotations__.get("names", [])
+        return {
+            name if name is not None else f"_field{i}": _convert_row_types(v)
+            for i, (name, v) in enumerate(zip(names, value))
+        }
+    if isinstance(value, (list, tuple)):
+        return [_convert_row_types(v) for v in value]
+    return value
+
 
 TRINO_TYPES_MAPPING = {
     "boolean": TYPE_BOOLEAN,
@@ -45,7 +64,7 @@ TRINO_TYPES_MAPPING = {
 
 class Trino(BaseQueryRunner):
     noop_query = "SELECT 1"
-    should_annotate_query = False
+    should_annotate_query = ANNOTATE_QUERY
 
     @classmethod
     def configuration_schema(cls):
@@ -57,8 +76,17 @@ class Trino(BaseQueryRunner):
                 "port": {"type": "number"},
                 "username": {"type": "string"},
                 "password": {"type": "string"},
+                "source": {"type": "string", "default": "redash"},
+                "client_tags": {"type": "string", "title": "Client tags (comma separated)"},
                 "catalog": {"type": "string"},
                 "schema": {"type": "string"},
+                "impersonation": {"type": "boolean", "default": False},
+                "impersonationField": {
+                    "type": "string",
+                    "title": "Impersonation User Attribute",
+                    "default": "email",
+                    "extendedEnum": [{"value": "email", "name": "Email"}, {"value": "name", "name": "Name"}],
+                },
             },
             "order": [
                 "protocol",
@@ -66,11 +94,19 @@ class Trino(BaseQueryRunner):
                 "port",
                 "username",
                 "password",
+                "source",
+                "client_tags",
                 "catalog",
                 "schema",
+                "impersonation",
             ],
             "required": ["host", "username"],
             "secret": ["password"],
+            "extra_options": [
+                "client_tags",
+                "impersonation",
+                "impersonationField",
+            ],
         }
 
     @classmethod
@@ -127,6 +163,32 @@ class Trino(BaseQueryRunner):
             catalogs.append(catalog)
         return catalogs
 
+    def _get_trino_user(self, user):
+        """Determine the Trino user based on impersonation settings."""
+        default_user = self.configuration.get("username")
+
+        if not self.configuration.get("impersonation") or user is None:
+            return default_user
+
+        impersonation_field = self.configuration.get("impersonationField", "email")
+
+        if isinstance(user, User):
+            if impersonation_field == "email":
+                return user.email or default_user
+            elif impersonation_field == "name":
+                return user.name or default_user
+        elif isinstance(user, ApiUser):
+            return user.name or default_user
+
+        return default_user
+
+    def _get_client_tags(self):
+        client_tags = self.configuration.get("client_tags")
+        if not client_tags:
+            return None
+        tags = [tag.strip() for tag in client_tags.split(",") if tag.strip()]
+        return tags or None
+
     def run_query(self, query, user):
         if self.configuration.get("password"):
             auth = trino.auth.BasicAuthentication(
@@ -134,13 +196,16 @@ class Trino(BaseQueryRunner):
             )
         else:
             auth = trino.constants.DEFAULT_AUTH
+
         connection = trino.dbapi.connect(
             http_scheme=self.configuration.get("protocol", "http"),
             host=self.configuration.get("host", ""),
+            source=self.configuration.get("source", "redash"),
             port=self.configuration.get("port", 8080),
             catalog=self.configuration.get("catalog", ""),
             schema=self.configuration.get("schema", ""),
-            user=self.configuration.get("username"),
+            user=self._get_trino_user(user),
+            client_tags=self._get_client_tags(),
             auth=auth,
         )
 
@@ -151,7 +216,8 @@ class Trino(BaseQueryRunner):
             results = cursor.fetchall()
             description = cursor.description
             columns = self.fetch_columns([(c[0], TRINO_TYPES_MAPPING.get(c[1], None)) for c in description])
-            rows = [dict(zip([c["name"] for c in columns], r)) for r in results]
+            column_names = [c["name"] for c in columns]
+            rows = [dict(zip(column_names, [_convert_row_types(v) for v in r])) for r in results]
             data = {"columns": columns, "rows": rows}
             error = None
         except DatabaseError as db:

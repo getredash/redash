@@ -3,13 +3,14 @@
 const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const WebpackBuildNotifierPlugin = require("webpack-build-notifier");
-const ManifestPlugin = require("webpack-manifest-plugin");
+const { WebpackManifestPlugin } = require("webpack-manifest-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const LessPluginAutoPrefix = require("less-plugin-autoprefix");
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
   .BundleAnalyzerPlugin;
 const ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
+const ESLintPlugin = require("eslint-webpack-plugin");
 
 const path = require("path");
 
@@ -76,15 +77,21 @@ const config = {
     publicPath: staticPath
   },
   node: {
-    fs: "empty",
-    path: "empty"
   },
   resolve: {
-    symlinks: false,
+    symlinks: true,
     extensions: [".js", ".jsx", ".ts", ".tsx"],
     alias: {
       "@": appPath,
       extensions: extensionPath
+    },
+    fallback: {
+      fs: false,
+      url: require.resolve("url/"),
+      stream: require.resolve("stream-browserify"),
+      assert: require.resolve("assert/"),
+      util: require.resolve("util/"),
+      process: require.resolve("process/browser"),
     }
   },
   plugins: [
@@ -109,7 +116,7 @@ const config = {
       new MiniCssExtractPlugin({
         filename: "[name].[chunkhash].css"
       }),
-    new ManifestPlugin({
+    new WebpackManifestPlugin({
       fileName: "asset-manifest.json",
       publicPath: ""
     }),
@@ -118,11 +125,24 @@ const config = {
         { from: "client/app/assets/robots.txt" },
         { from: "client/app/unsupported.html" },
         { from: "client/app/unsupportedRedirect.js" },
-        { from: "client/app/assets/css/*.css", to: "styles/", flatten: true },
+        { from: "client/app/assets/css/*.css", to: "styles/[name][ext]" },
         { from: "client/app/assets/fonts", to: "fonts/" }
       ],
     }),
-    isHotReloadingEnabled && new ReactRefreshWebpackPlugin({ overlay: false })
+    isHotReloadingEnabled && new ReactRefreshWebpackPlugin({ overlay: false }),
+    !isProduction &&
+      new ESLintPlugin({
+        extensions: ["js", "jsx", "ts", "tsx"],
+        context: path.resolve(__dirname, "client"),
+        eslintPath: require.resolve("eslint"),
+        failOnError: false,
+      }),
+    new webpack.ProvidePlugin({
+      // Make a global `process` variable that points to the `process` package,
+      // because the `util` package expects there to be a global variable named `process`.
+      // Thanks to https://stackoverflow.com/a/65018686/14239942
+      process: 'process/browser'
+    })
   ].filter(Boolean),
   optimization: {
     splitChunks: {
@@ -134,6 +154,17 @@ const config = {
   module: {
     rules: [
       {
+        test: /\.js$/,
+        enforce: "pre",
+        use: ["source-map-loader"],
+        resolve: {
+          fullySpecified: false
+        },
+        exclude: [
+          /node_modules\/@plotly\/mapbox-gl/,
+        ],
+      },
+      {
         test: /\.(t|j)sx?$/,
         exclude: /node_modules/,
         use: [
@@ -144,18 +175,13 @@ const config = {
                 isHotReloadingEnabled && require.resolve("react-refresh/babel")
               ].filter(Boolean)
             }
-          },
-          require.resolve("eslint-loader")
+          }
         ]
       },
       {
         test: /\.html$/,
         exclude: [/node_modules/, /index\.html/, /multi_org\.html/],
-        use: [
-          {
-            loader: "raw-loader"
-          }
-        ]
+        type: "asset/source"
       },
       {
         test: /\.css$/,
@@ -180,55 +206,54 @@ const config = {
           {
             loader: "less-loader",
             options: {
-              plugins: [
-                new LessPluginAutoPrefix({ browsers: ["last 3 versions"] })
-              ],
-              javascriptEnabled: true
+              sourceMap: false,
+              lessOptions: {
+                plugins: [
+                  new LessPluginAutoPrefix({ browsers: ["last 3 versions"] })
+                ],
+                javascriptEnabled: true
+              }
             }
           }
         ]
       },
       {
         test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
-        use: [
-          {
-            loader: "file-loader",
-            options: {
-              context: path.resolve(appPath, "./assets/images/"),
-              outputPath: "images/",
-              name: "[path][name].[ext]"
-            }
+        type: "asset/resource",
+        generator: {
+          filename: (pathData) => {
+            const filePath = pathData.filename || "";
+            // Strip source prefix so assets/images/db-logos/foo.png → db-logos/foo.png
+            const m = filePath.match(/assets\/images\/(.*)/);
+            if (m) return `images/${m[1]}`;
+            // For images from node_modules or elsewhere, flatten to avoid deep paths
+            const parts = filePath.split("/");
+            return `images/${parts[parts.length - 1]}`;
           }
-        ]
+        }
       },
       {
         test: /\.geo\.json$/,
-        type: "javascript/auto",
-        use: [
-          {
-            loader: "file-loader",
-            options: {
-              outputPath: "data/",
-              name: "[hash:7].[name].[ext]"
-            }
-          }
-        ]
+        type: "asset/resource",
+        generator: {
+          filename: "data/[hash:7].[name][ext]"
+        }
       },
       {
         test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/,
-        use: [
-          {
-            loader: "url-loader",
-            options: {
-              limit: 10000,
-              name: "fonts/[name].[hash:7].[ext]"
-            }
+        type: "asset",
+        parser: {
+          dataUrlCondition: {
+            maxSize: 10000
           }
-        ]
+        },
+        generator: {
+          filename: "fonts/[name].[hash:7][ext]"
+        }
       }
     ]
   },
-  devtool: isProduction ? "source-map" : "cheap-eval-module-source-map",
+  devtool: isProduction ? "source-map" : "eval-cheap-module-source-map",
   stats: {
     children: false,
     modules: false,

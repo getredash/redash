@@ -3,7 +3,7 @@
 import { getWidgetTestId, editDashboard } from "../../support/dashboard";
 
 describe("Textbox", () => {
-  beforeEach(function() {
+  beforeEach(function () {
     cy.login();
     cy.createDashboard("Foo Bar").then(({ id }) => {
       this.dashboardId = id;
@@ -12,12 +12,10 @@ describe("Textbox", () => {
   });
 
   const confirmDeletionInModal = () => {
-    cy.get(".ant-modal .ant-btn")
-      .contains("Delete")
-      .click({ force: true });
+    cy.get(".ant-modal .ant-btn").contains("Delete").click({ force: true });
   };
 
-  it("adds textbox", function() {
+  it("adds textbox", function () {
     cy.visit(this.dashboardUrl);
     editDashboard();
     cy.getByTestId("AddTextboxButton").click();
@@ -29,10 +27,10 @@ describe("Textbox", () => {
     cy.get(".widget-text").should("exist");
   });
 
-  it("removes textbox by X button", function() {
+  it("removes textbox by X button", function () {
     cy.addTextbox(this.dashboardId, "Hello World!")
       .then(getWidgetTestId)
-      .then(elTestId => {
+      .then((elTestId) => {
         cy.visit(this.dashboardUrl);
         editDashboard();
 
@@ -45,32 +43,30 @@ describe("Textbox", () => {
       });
   });
 
-  it("removes textbox by menu", function() {
+  it("removes textbox by menu", function () {
     cy.addTextbox(this.dashboardId, "Hello World!")
       .then(getWidgetTestId)
-      .then(elTestId => {
+      .then((elTestId) => {
         cy.visit(this.dashboardUrl);
         cy.getByTestId(elTestId).within(() => {
           cy.getByTestId("WidgetDropdownButton").click();
         });
-        cy.getByTestId("WidgetDropdownButtonMenu")
-          .contains("Remove from Dashboard")
-          .click();
+        cy.getByTestId("WidgetDropdownButtonMenu").contains("Remove from Dashboard").click();
 
         confirmDeletionInModal();
         cy.getByTestId(elTestId).should("not.exist");
       });
   });
 
-  it("allows opening menu after removal", function() {
+  it("allows opening menu after removal", function () {
     let elTestId1;
     cy.addTextbox(this.dashboardId, "txb 1")
       .then(getWidgetTestId)
-      .then(elTestId => {
+      .then((elTestId) => {
         elTestId1 = elTestId;
         return cy.addTextbox(this.dashboardId, "txb 2").then(getWidgetTestId);
       })
-      .then(elTestId2 => {
+      .then((elTestId2) => {
         cy.visit(this.dashboardUrl);
         editDashboard();
 
@@ -97,10 +93,10 @@ describe("Textbox", () => {
       });
   });
 
-  it("edits textbox", function() {
+  it("edits textbox", function () {
     cy.addTextbox(this.dashboardId, "Hello World!")
       .then(getWidgetTestId)
-      .then(elTestId => {
+      .then((elTestId) => {
         cy.visit(this.dashboardUrl);
         cy.getByTestId(elTestId)
           .as("textboxEl")
@@ -108,17 +104,13 @@ describe("Textbox", () => {
             cy.getByTestId("WidgetDropdownButton").click();
           });
 
-        cy.getByTestId("WidgetDropdownButtonMenu")
-          .contains("Edit")
-          .click();
+        cy.getByTestId("WidgetDropdownButtonMenu").contains("Edit").click();
 
         const newContent = "[edited]";
         cy.getByTestId("TextboxDialog")
           .should("exist")
           .within(() => {
-            cy.get("textarea")
-              .clear()
-              .type(newContent);
+            cy.get("textarea").clear().type(newContent);
             cy.contains("button", "Save").click();
           });
 
@@ -126,7 +118,7 @@ describe("Textbox", () => {
       });
   });
 
-  it("renders textbox according to position configuration", function() {
+  it("renders textbox according to position configuration", function () {
     const id = this.dashboardId;
     const txb1Pos = { col: 0, row: 0, sizeX: 3, sizeY: 2 };
     const txb2Pos = { col: 1, row: 1, sizeX: 3, sizeY: 4 };
@@ -135,15 +127,15 @@ describe("Textbox", () => {
     cy.addTextbox(id, "x", { position: txb1Pos })
       .then(() => cy.addTextbox(id, "x", { position: txb2Pos }))
       .then(getWidgetTestId)
-      .then(elTestId => {
+      .then((elTestId) => {
         cy.visit(this.dashboardUrl);
         return cy.getByTestId(elTestId);
       })
-      .should($el => {
+      .should(($el) => {
         const { top, left } = $el.offset();
         expect(top).to.be.oneOf([162, 162.015625]);
-        expect(left).to.eq(282);
-        expect($el.width()).to.eq(545);
+        expect(left).to.eq(188);
+        expect($el.width()).to.eq(265);
         expect($el.height()).to.eq(185);
       });
   });

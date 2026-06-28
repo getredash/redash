@@ -1,3 +1,4 @@
+import json
 from sys import exit
 
 from click import BOOL, argument, option, prompt
@@ -285,13 +286,33 @@ def invite(email, name, inviter_email, groups, is_admin=False, organization="def
     default=None,
     help="The organization the user belongs to (leave blank for all" " organizations)",
 )
-def list_command(organization=None):
+@option("--json", "as_json", is_flag=True, default=False, help="Output as JSON")
+def list_command(organization=None, as_json=False):
     """List all users"""
     if organization:
         org = models.Organization.get_by_slug(organization)
         users = models.User.query.filter(models.User.org == org)
     else:
         users = models.User.query
+    if as_json:
+        result = []
+        for user in users.order_by(models.User.name):
+            result.append(
+                {
+                    "id": user.id,
+                    "name": user.name,
+                    "email": user.email,
+                    "org": {
+                        "slug": user.org.slug,
+                        "name": user.org.name,
+                    },
+                    "active": not user.is_disabled,
+                }
+            )
+
+        print(json.dumps(result, indent=2))
+        return
+
     for i, user in enumerate(users.order_by(models.User.name)):
         if i > 0:
             print("-" * 20)
