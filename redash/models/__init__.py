@@ -1051,7 +1051,7 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
     def subscribers(self):
         return User.query.join(AlertSubscription).filter(AlertSubscription.alert == self)
 
-    def render_template(self, template):
+    def render_template(self, template, escape=True):
         if template is None:
             return ""
 
@@ -1081,17 +1081,18 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
             "QUERY_RESULT_COLS": data["columns"],
             "QUERY_RESULT_TABLE": result_table,
         }
-        return mustache_render_escape(template, context)
+        render = mustache_render_escape if escape else mustache_render
+        return render(template, context)
 
     @property
     def custom_body(self):
         template = self.options.get("custom_body", self.options.get("template"))
-        return self.render_template(template)
+        return self.render_template(template, escape=not self.options.get("allow_html"))
 
     @property
     def custom_subject(self):
         template = self.options.get("custom_subject")
-        return self.render_template(template)
+        return self.render_template(template, escape=not self.options.get("allow_html"))
 
     @property
     def groups(self):

@@ -216,3 +216,26 @@ class TestAlertRenderTemplate(BaseTestCase):
         """
         result = alert.render_template(textwrap.dedent(custom_alert))
         self.assertMultiLineEqual(result, textwrap.dedent(expected))
+
+    def test_custom_body_escapes_html_by_default(self):
+        alert = self.create_alert(get_results("<b>bold</b>"))
+        alert.options["custom_body"] = "Value: {{QUERY_RESULT_VALUE}}"
+        self.assertEqual(alert.custom_body, "Value: &lt;b&gt;bold&lt;/b&gt;")
+
+    def test_custom_body_renders_html_when_allow_html_enabled(self):
+        alert = self.create_alert(get_results("<b>bold</b>"))
+        alert.options["custom_body"] = "Value: {{QUERY_RESULT_VALUE}}"
+        alert.options["allow_html"] = True
+        self.assertEqual(alert.custom_body, "Value: <b>bold</b>")
+
+    def test_custom_subject_respects_allow_html(self):
+        alert = self.create_alert(get_results("<b>bold</b>"))
+        alert.options["custom_subject"] = "{{QUERY_RESULT_VALUE}}"
+        self.assertEqual(alert.custom_subject, "&lt;b&gt;bold&lt;/b&gt;")
+        alert.options["allow_html"] = True
+        self.assertEqual(alert.custom_subject, "<b>bold</b>")
+
+    def test_allow_html_does_not_affect_default_render_template(self):
+        alert = self.create_alert(get_results("<b>bold</b>"))
+        alert.options["allow_html"] = True
+        self.assertEqual(alert.render_template("{{QUERY_RESULT_VALUE}}"), "&lt;b&gt;bold&lt;/b&gt;")
