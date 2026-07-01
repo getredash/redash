@@ -1087,12 +1087,12 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
     @property
     def custom_body(self):
         template = self.options.get("custom_body", self.options.get("template"))
-        return self.render_template(template, escape=not self.options.get("allow_html"))
+        return self.render_template(template, escape=self.options.get("allow_html") is not True)
 
     @property
     def custom_subject(self):
         template = self.options.get("custom_subject")
-        return self.render_template(template, escape=not self.options.get("allow_html"))
+        return self.render_template(template, escape=self.options.get("allow_html") is not True)
 
     @property
     def groups(self):

@@ -239,3 +239,9 @@ class TestAlertRenderTemplate(BaseTestCase):
         alert = self.create_alert(get_results("<b>bold</b>"))
         alert.options["allow_html"] = True
         self.assertEqual(alert.render_template("{{QUERY_RESULT_VALUE}}"), "&lt;b&gt;bold&lt;/b&gt;")
+
+    def test_allow_html_requires_boolean_true(self):
+        alert = self.create_alert(get_results("<b>bold</b>"))
+        alert.options["custom_body"] = "Value: {{QUERY_RESULT_VALUE}}"
+        alert.options["allow_html"] = "false"
+        self.assertEqual(alert.custom_body, "Value: &lt;b&gt;bold&lt;/b&gt;")
