@@ -79,3 +79,25 @@ class DsvSerializationTest(BaseTestCase):
         self.assertEqual(rows[1]["bool"], "false")
         self.assertEqual(rows[2]["date"], "")
         self.assertEqual(rows[3]["datetime"], "459")
+
+    def test_serializes_string_values_with_nul_bytes(self):
+        query_result = self.factory.create_query_result(
+            data={
+                "rows": [
+                    {"id": 1, "address": "123 Main St\x00Apt 4"},
+                ],
+                "columns": [
+                    {"friendly_name": "id", "type": "integer", "name": "id"},
+                    {"friendly_name": "address", "type": "string", "name": "address"},
+                ],
+            }
+        )
+
+        with self.app.test_request_context("/"):
+            parsed = csv.DictReader(
+                io.StringIO(serialize_query_result_to_dsv(query_result, ","))
+            )
+
+        rows = list(parsed)
+
+        self.assertEqual(rows[0]["address"], "123 Main StApt 4")

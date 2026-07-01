@@ -44,6 +44,12 @@ def _convert_datetime(value, fmt):
     return ret
 
 
+def _sanitize_dsv_value(value):
+    if isinstance(value, str):
+        return value.replace("\x00", "")
+
+    return value
+
 def _get_column_lists(columns):
     date_format = _convert_format(current_org.get_setting("date_format"))
     datetime_format = _convert_format(
@@ -91,10 +97,13 @@ def serialize_query_result_to_dsv(query_result, delimiter):
     writer.writeheader()
 
     for row in query_data["rows"]:
+        row = row.copy()
+
         for col_name, converter in special_columns.items():
             if col_name in row:
                 row[col_name] = converter(row[col_name])
 
+        row = {key: _sanitize_dsv_value(value) for key, value in row.items()}
         writer.writerow(row)
 
     return s.getvalue()
