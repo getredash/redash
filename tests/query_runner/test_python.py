@@ -135,6 +135,14 @@ class TestPythonQueryRunnerPermissions(BaseTestCase):
 
         query_runner.run_query.assert_called_once_with("SELECT 1", self.factory.user)
 
+    def test_execute_query_rejects_ambiguous_data_source_name(self):
+        self.factory.create_data_source(name="dup", group=self.factory.default_group)
+        self.factory.create_data_source(name="dup", group=self.factory.default_group)
+        self.db.session.flush()
+
+        with self.assertRaisesRegex(Exception, "Wrong data source name/id"):
+            self.python.execute_query("dup", "SELECT 1")
+
     def test_get_source_schema_allows_view_only_data_source(self):
         data_source = self.factory.create_data_source(group=self.factory.default_group, view_only=True)
         query_runner = mock.Mock()

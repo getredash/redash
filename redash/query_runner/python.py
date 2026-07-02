@@ -10,6 +10,7 @@ from RestrictedPython.Guards import (
     safe_builtins,
 )
 from RestrictedPython.transformer import IOPERATOR_TO_STR
+from sqlalchemy.orm.exc import MultipleResultsFound
 
 from redash import models
 from redash.permissions import has_access, not_view_only, view_only
@@ -215,7 +216,7 @@ class Python(BaseQueryRunner):
                 data_source = data_sources.filter(models.DataSource.id == data_source_name_or_id).one()
             else:
                 data_source = data_sources.filter(models.DataSource.name == data_source_name_or_id).one()
-        except models.NoResultFound:
+        except (models.NoResultFound, MultipleResultsFound):
             raise Exception("Wrong data source name/id: %s." % data_source_name_or_id)
 
         if not has_access(data_source, user, access_level):
