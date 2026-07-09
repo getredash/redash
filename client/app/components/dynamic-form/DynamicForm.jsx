@@ -9,6 +9,7 @@ import Collapse from "@/components/Collapse";
 import DynamicFormField, { FieldType } from "./DynamicFormField";
 import getFieldLabel from "./getFieldLabel";
 import helper from "./dynamicFormHelper";
+import OracleHostPortOptions from "./OracleHostPortOptions";
 
 import "./DynamicForm.less";
 
@@ -46,19 +47,29 @@ function normalizeEmptyValuesToNull(fields, values) {
   });
 }
 
-function DynamicFormFields({ fields, feedbackIcons, form }) {
+function getInitialValuesFromFields(fields) {
+  return fields.reduce((acc, field) => {
+    acc[field.name] = field.initialValue;
+    return acc;
+  }, {});
+}
+
+function DynamicFormFields({ fields, feedbackIcons, form, selectedType }) {
+  if (selectedType === "oracle") {
+    return <OracleHostPortOptions fields={fields} feedbackIcons={feedbackIcons} form={form} />;
+  }
   return fields.map(field => {
-    const { name, type, initialValue, contentAfter } = field;
+    const { name, type, contentAfter } = field;
     const fieldLabel = getFieldLabel(field);
 
     const formItemProps = {
       name,
+      key: name,
       className: "m-b-10",
       hasFeedback: type !== "checkbox" && type !== "file" && feedbackIcons,
       label: type === "checkbox" ? "" : fieldLabel,
       rules: fieldRules(field),
       valuePropName: type === "checkbox" ? "checked" : "value",
-      initialValue,
     };
 
     if (type === "file") {
@@ -88,11 +99,13 @@ DynamicFormFields.propTypes = {
   fields: PropTypes.arrayOf(FieldType),
   feedbackIcons: PropTypes.bool,
   form: AntdFormType.isRequired,
+  selectedType: PropTypes.string,
 };
 
 DynamicFormFields.defaultProps = {
   fields: [],
   feedbackIcons: false,
+  selectedType: null,
 };
 
 const reducerForActionSet = (state, action) => {
@@ -149,11 +162,13 @@ export default function DynamicForm({
   defaultShowExtraFields,
   saveText,
   onSubmit,
+  selectedType,
 }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isTouched, setIsTouched] = useState(false);
   const [showExtraFields, setShowExtraFields] = useState(defaultShowExtraFields);
   const [form] = Form.useForm();
+
   const extraFields = filter(fields, { extra: true });
   const regularFields = difference(fields, extraFields);
 
@@ -161,11 +176,12 @@ export default function DynamicForm({
     values => {
       setIsSubmitting(true);
       values = normalizeEmptyValuesToNull(fields, values);
+
       onSubmit(
         values,
         msg => {
           setIsSubmitting(false);
-          setIsTouched(false); // reset form touched state
+          setIsTouched(false);
           notification.success(msg);
         },
         msg => {
@@ -187,15 +203,19 @@ export default function DynamicForm({
   return (
     <Form
       form={form}
-      onFieldsChange={() => {
-        setIsTouched(true);
-      }}
       id={id}
-      className="dynamic-form"
       layout="vertical"
+      className="dynamic-form"
+      initialValues={getInitialValuesFromFields(fields)}
+      onFieldsChange={() => setIsTouched(true)}
       onFinish={handleFinish}
-      onFinishFailed={handleFinishFailed}>
-      <DynamicFormFields fields={regularFields} feedbackIcons={feedbackIcons} form={form} />
+      onFinishFailed={handleFinishFailed}
+    >
+      {selectedType === "oracle" ? (
+        <OracleHostPortOptions fields={regularFields} feedbackIcons={feedbackIcons} form={form} />
+      ) : (
+        <DynamicFormFields fields={regularFields} feedbackIcons={feedbackIcons} form={form} />
+      )}
       {!isEmpty(extraFields) && (
         <div className="extra-options">
           <Button
@@ -210,7 +230,11 @@ export default function DynamicForm({
             />
           </Button>
           <Collapse collapsed={!showExtraFields} className="extra-options-content">
-            <DynamicFormFields fields={extraFields} feedbackIcons={feedbackIcons} form={form} />
+            <DynamicFormFields
+              fields={extraFields}
+              feedbackIcons={feedbackIcons}
+              form={form}
+            />
           </Collapse>
         </div>
       )}
@@ -233,6 +257,7 @@ DynamicForm.propTypes = {
   defaultShowExtraFields: PropTypes.bool,
   saveText: PropTypes.string,
   onSubmit: PropTypes.func,
+  selectedType: PropTypes.string,
 };
 
 DynamicForm.defaultProps = {
@@ -244,4 +269,5 @@ DynamicForm.defaultProps = {
   defaultShowExtraFields: false,
   saveText: "Save",
   onSubmit: () => {},
+  selectedType: null,
 };
