@@ -103,6 +103,8 @@ export default class AlertEdit extends React.Component {
                       setSubject={subject => onNotificationTemplateChange({ custom_subject: subject })}
                       body={options.custom_body}
                       setBody={body => onNotificationTemplateChange({ custom_body: body })}
+                      allowHtml={options.allow_html}
+                      setAllowHtml={allowHtml => onNotificationTemplateChange({ allow_html: allowHtml })}
                     />
                   </HorizontalFormItem>
                 </>

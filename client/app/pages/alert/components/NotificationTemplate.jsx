@@ -4,12 +4,14 @@ import { head, isEmpty, isNull, isUndefined } from "lodash";
 import Mustache from "mustache";
 
 import HelpTrigger from "@/components/HelpTrigger";
+import Tooltip from "@/components/Tooltip";
 import { Alert as AlertType, Query as QueryType } from "@/components/proptypes";
 
 import Input from "antd/lib/input";
 import Select from "antd/lib/select";
 import Modal from "antd/lib/modal";
 import Switch from "antd/lib/switch";
+import Checkbox from "antd/lib/checkbox";
 
 import "./NotificationTemplate.less";
 
@@ -30,7 +32,18 @@ function normalizeCustomTemplateData(alert, query, columnNames, resultValues) {
   };
 }
 
-function NotificationTemplate({ alert, query, columnNames, resultValues, subject, setSubject, body, setBody }) {
+function NotificationTemplate({
+  alert,
+  query,
+  columnNames,
+  resultValues,
+  subject,
+  setSubject,
+  body,
+  setBody,
+  allowHtml,
+  setAllowHtml,
+}) {
   const hasContent = !!(subject || body);
   const [enabled, setEnabled] = useState(hasContent ? 1 : 0);
   const [showPreview, setShowPreview] = useState(false);
@@ -49,6 +62,7 @@ function NotificationTemplate({ alert, query, columnNames, resultValues, subject
         onOk: () => {
           setSubject(null);
           setBody(null);
+          setAllowHtml(false);
           setEnabled(value);
           setShowPreview(false);
         },
@@ -100,6 +114,16 @@ function NotificationTemplate({ alert, query, columnNames, resultValues, subject
             <i className="fa fa-question-circle" aria-hidden="true" /> Formatting guide{" "}
             <span className="sr-only">(help)</span>
           </HelpTrigger>
+          <Checkbox
+            className="alert-template-allow-html"
+            checked={allowHtml}
+            onChange={e => setAllowHtml(e.target.checked)}
+            data-test="AlertTemplateAllowHTML">
+            Allow HTML content
+            <Tooltip title="Renders query values without escaping, so destination formatting comes through instead of appearing as literal text. Only enable for queries you trust.">
+              <i className="fa fa-question-circle" aria-hidden="true" />
+            </Tooltip>
+          </Checkbox>
         </div>
       )}
     </div>
@@ -115,11 +139,14 @@ NotificationTemplate.propTypes = {
   setSubject: PropTypes.func.isRequired,
   body: PropTypes.string,
   setBody: PropTypes.func.isRequired,
+  allowHtml: PropTypes.bool,
+  setAllowHtml: PropTypes.func.isRequired,
 };
 
 NotificationTemplate.defaultProps = {
   subject: "",
   body: "",
+  allowHtml: false,
 };
 
 export default NotificationTemplate;
