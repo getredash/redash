@@ -333,47 +333,56 @@ class BigQuery(BaseSQLQueryRunner):
                 location_dataset_ids[location] = []
             location_dataset_ids[location].append(dataset_id)
 
-        for location, datasets in location_dataset_ids.items():
-            queries = []
-            for dataset_id in datasets:
-                query = query_base.format(dataset_id=dataset_id)
-                queries.append(query)
-
-            query = "\nUNION ALL\n".join(queries)
-            results, error = self.run_query(query, None)
-            if error is not None:
-                self._handle_run_query_error(error)
-
-            for row in results["rows"]:
-                table_name = "{0}.{1}".format(row["table_schema"], row["table_name"])
-                if table_name not in schema:
-                    schema[table_name] = {"name": table_name, "columns": []}
-                schema[table_name]["columns"].append(
-                    {
-                        "name": row["field_path"],
-                        "type": row["data_type"],
-                        "description": row["description"],
-                    }
-                )
-
-            table_queries = []
-            for dataset_id in datasets:
-                table_query = table_query_base.format(dataset_id=dataset_id)
-                table_queries.append(table_query)
-
-            table_query = "\nUNION ALL\n".join(table_queries)
-            results, error = self.run_query(table_query, None)
-            if error is not None:
-                self._handle_run_query_error(error)
-
-            for row in results["rows"]:
-                table_name = "{0}.{1}".format(row["table_schema"], row["table_name"])
-                if table_name not in schema:
-                    schema[table_name] = {"name": table_name, "columns": []}
-                if "table_description" in row:
-                    schema[table_name]["description"] = row["table_description"]
+        for location, dataset_ids in location_dataset_ids.items():
+            self._load_columns(dataset_ids, query_base, schema)
+            self._load_table_descriptions(dataset_ids, table_query_base, schema)
 
         return list(schema.values())
+
+    def _run_schema_query(self, dataset_ids, query_template):
+        """Fetch schema metadata for the given datasets, tolerating per-dataset errors.
+
+        Sends a single batched UNION ALL query first (fast path). If it fails -
+        e.g. the service account cannot access one of the datasets - falls back to
+        querying each dataset individually and skips the ones that error, so a
+        single inaccessible dataset doesn't wipe out the schema for the whole data
+        source.
+        """
+        query = "\nUNION ALL\n".join(query_template.format(dataset_id=dataset_id) for dataset_id in dataset_ids)
+        results, error = self.run_query(query, None)
+        if error is None:
+            return results["rows"]
+
+        logger.warning("Batched schema query failed, retrying per dataset. Error: %s", error)
+        rows = []
+        for dataset_id in dataset_ids:
+            results, error = self.run_query(query_template.format(dataset_id=dataset_id), None)
+            if error is not None:
+                logger.warning("Skipping dataset '%s' while loading schema: %s", dataset_id, error)
+                continue
+            rows.extend(results["rows"])
+        return rows
+
+    def _load_columns(self, dataset_ids, query_template, schema):
+        for row in self._run_schema_query(dataset_ids, query_template):
+            table_name = "{0}.{1}".format(row["table_schema"], row["table_name"])
+            if table_name not in schema:
+                schema[table_name] = {"name": table_name, "columns": []}
+            schema[table_name]["columns"].append(
+                {
+                    "name": row["field_path"],
+                    "type": row["data_type"],
+                    "description": row["description"],
+                }
+            )
+
+    def _load_table_descriptions(self, dataset_ids, query_template, schema):
+        for row in self._run_schema_query(dataset_ids, query_template):
+            table_name = "{0}.{1}".format(row["table_schema"], row["table_name"])
+            if table_name not in schema:
+                schema[table_name] = {"name": table_name, "columns": []}
+            if "table_description" in row:
+                schema[table_name]["description"] = row["table_description"]
 
     def run_query(self, query, user):
         logger.debug("BigQuery got query: %s", query)
