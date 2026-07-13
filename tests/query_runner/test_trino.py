@@ -7,7 +7,7 @@ from unittest.mock import patch
 
 from trino.types import NamedRowTuple
 
-from redash.query_runner.trino import Trino, _convert_row_types
+from redash.query_runner.trino import Trino, _convert_row_types, _map_trino_type
 
 
 class TestTrino(TestCase):
@@ -96,3 +96,38 @@ class TestConvertRowTypes(TestCase):
         row = NamedRowTuple([1, 2], [None, None], ["integer", "integer"])
         result = _convert_row_types(row)
         self.assertEqual(result, {"_field0": 1, "_field1": 2})
+
+
+class TestMapTrinoType(TestCase):
+    def test_exact_match(self):
+        self.assertEqual(_map_trino_type("timestamp"), "datetime")
+        self.assertEqual(_map_trino_type("integer"), "integer")
+        self.assertEqual(_map_trino_type("varchar"), "string")
+        self.assertEqual(_map_trino_type("date"), "date")
+
+    def test_parameterised_timestamp(self):
+        self.assertEqual(_map_trino_type("timestamp(0)"), "datetime")
+        self.assertEqual(_map_trino_type("timestamp(3)"), "datetime")
+        self.assertEqual(_map_trino_type("timestamp(6)"), "datetime")
+
+    def test_parameterised_decimal_with_scale(self):
+        self.assertEqual(_map_trino_type("decimal(10,2)"), "float")
+        self.assertEqual(_map_trino_type("decimal(18,6)"), "float")
+
+    def test_parameterised_decimal_without_scale(self):
+        self.assertEqual(_map_trino_type("decimal(10,0)"), "integer")
+        self.assertEqual(_map_trino_type("decimal"), "integer")
+
+    def test_parameterised_varchar(self):
+        self.assertEqual(_map_trino_type("varchar(255)"), "string")
+        self.assertEqual(_map_trino_type("char(1)"), "string")
+
+    def test_unknown_type_returns_none(self):
+        self.assertIsNone(_map_trino_type("unknown"))
+        self.assertIsNone(_map_trino_type("unknown(3)"))
+
+    def test_none_returns_none(self):
+        self.assertIsNone(_map_trino_type(None))
+
+    def test_empty_string_returns_none(self):
+        self.assertIsNone(_map_trino_type(""))
