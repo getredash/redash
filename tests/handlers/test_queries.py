@@ -326,6 +326,36 @@ class TestQueryListResourcePost(BaseTestCase):
         self.assertEqual(rv.status_code, 400)
 
 
+class TestQueryUnassignedResourceGet(BaseTestCase):
+    def test_returns_queries(self):
+        q1 = self.factory.create_query()
+        self.factory.create_query(is_archived=True)
+
+        rv = self.make_request("get", "/api/queries/unassigned")
+
+        assert len(rv.json["results"]) == 1
+        assert set([result["id"] for result in rv.json["results"]]) == {q1.id}
+
+    def test_search_term(self):
+        q1 = self.factory.create_query(name="Sales")
+        q2 = self.factory.create_query(name="Q1 sales")
+        self.factory.create_query(name="Q2 sales", is_archived=True)
+
+        rv = self.make_request("get", "/api/queries/unassigned?q=sales")
+        assert len(rv.json["results"]) == 2
+        assert set([result["id"] for result in rv.json["results"]]) == {q1.id, q2.id}
+
+    def test_returns_queries_only_unassigned(self):
+        q1 = self.factory.create_query()
+        self.factory.create_widget()
+
+        rv = self.make_request("get", "/api/queries")
+        assert len(rv.json["results"]) == 2
+        rv = self.make_request("get", "/api/queries/unassigned")
+        assert len(rv.json["results"]) == 1
+        assert set([result["id"] for result in rv.json["results"]]) == {q1.id}
+
+
 class TestQueryArchiveResourceGet(BaseTestCase):
     def test_returns_queries(self):
         q1 = self.factory.create_query(is_archived=True)
