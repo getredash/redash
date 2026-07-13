@@ -163,6 +163,16 @@ class QueryOutdatedQueriesTest(BaseTestCase):
         self.assertNotIn(query, queries)
         self.assertNotIn(query_with_none, queries)
 
+    # Regression test: partial schedule objects (for example from forked queries)
+    # should be skipped instead of being auto-disabled by scheduler errors.
+    def test_outdated_queries_skips_schedule_without_interval(self):
+        query = self.factory.create_query(schedule={"time": None, "until": None, "day_of_week": None})
+
+        queries = models.Query.outdated_queries()
+
+        self.assertNotIn(query, queries)
+        self.assertIsNone(query.schedule.get("disabled"))
+
     def test_outdated_queries_works_with_ttl_based_schedule(self):
         query = self.create_scheduled_query(interval="3600")
         self.fake_previous_execution(query, hours=2)
