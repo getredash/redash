@@ -121,7 +121,14 @@ def json_loads(data, *args, **kwargs):
     return json.loads(data, *args, **kwargs)
 
 
-# Convert NaN, Inf, and -Inf to None, as they are not valid JSON values.
+# JavaScript's Number.MAX_SAFE_INTEGER (2^53 - 1).
+# Integers beyond this range lose precision when parsed by JSON.parse() in the browser.
+_MAX_SAFE_INTEGER = 9007199254740991
+
+
+# Sanitize values that cannot be faithfully represented in a JavaScript client:
+# - NaN / Inf / -Inf  → None  (not valid JSON)
+# - integers outside the safe range → str  (avoids precision loss in JSON.parse)
 def _sanitize_data(data):
     if isinstance(data, dict):
         return {k: _sanitize_data(v) for k, v in data.items()}
@@ -129,6 +136,8 @@ def _sanitize_data(data):
         return [_sanitize_data(v) for v in data]
     if isinstance(data, float) and (math.isnan(data) or math.isinf(data)):
         return None
+    if isinstance(data, int) and not isinstance(data, bool) and abs(data) > _MAX_SAFE_INTEGER:
+        return str(data)
     return data
 
 
