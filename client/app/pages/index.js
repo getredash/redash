@@ -26,6 +26,7 @@ import "./queries/QuerySource";
 import "./queries/QueryView";
 import "./queries/VisualizationEmbed";
 
+import "./custom-maps/CustomMapsList";
 import "./query-snippets/QuerySnippetsList";
 
 import "./settings/OrganizationSettings";
