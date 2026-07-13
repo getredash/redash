@@ -105,6 +105,7 @@
     "babel-plugin-istanbul": "^6.1.1",
     "babel-plugin-transform-builtin-extend": "^1.1.2",
     "copy-webpack-plugin": "^13.0.1",
+    "core-js": "^2.6.12",
     "css-loader": "^7.1.4",
     "cypress": "^11.2.0",
     "dayjs": "^1.11.9",
@@ -204,6 +205,8 @@
       "@types/react": "^17.0.0",
       "@types/react-dom": "^17.0.0",
       "cheerio": "1.0.0-rc.12",
+      "@cypress/request": "^3.0.10",
+      "request": "npm:@cypress/request@^3.0.10",
       "form-data@2": "~2.5.4"
     }
   }
