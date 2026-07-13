@@ -2,7 +2,7 @@ import { find, has } from "lodash";
 import React, { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import moment from "moment";
-import { markdown } from "markdown";
+import { marked } from "marked";
 
 import Button from "antd/lib/button";
 import Dropdown from "antd/lib/dropdown";
@@ -40,7 +40,7 @@ function VisualizationEmbedHeader({ queryName, queryDescription, visualization }
         <VisualizationName visualization={visualization} /> {queryName}
         {queryDescription && (
           <small>
-            <HtmlContent className="markdown text-muted">{markdown.toHTML(queryDescription || "")}</HtmlContent>
+            <HtmlContent className="markdown text-muted">{marked.parse(queryDescription || "")}</HtmlContent>
           </small>
         )}
       </h3>
