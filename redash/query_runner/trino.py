@@ -61,6 +61,27 @@ TRINO_TYPES_MAPPING = {
     "timestamp": TYPE_DATETIME,
 }
 
+def _map_trino_type(type_name):
+    """Map Trino type names to Redash types, handling parameterized types like timestamp(0)."""
+    if type_name is None:
+        return None
+
+    # First try direct lookup
+    mapped = TRINO_TYPES_MAPPING.get(type_name)
+    if mapped is not None:
+        return mapped
+
+    # If not found and contains parentheses, strip parameters and try again
+    if "(" in type_name:
+        base_type = type_name.split("(", 1)[0]
+        mapped = TRINO_TYPES_MAPPING.get(base_type)
+        if mapped is not None:
+            return mapped
+
+    return None
+
+
+
 
 class Trino(BaseQueryRunner):
     noop_query = "SELECT 1"
@@ -215,7 +236,7 @@ class Trino(BaseQueryRunner):
             cursor.execute(query)
             results = cursor.fetchall()
             description = cursor.description
-            columns = self.fetch_columns([(c[0], TRINO_TYPES_MAPPING.get(c[1], None)) for c in description])
+            columns = self.fetch_columns([(c[0], _map_trino_type(c[1])) for c in description])
             column_names = [c["name"] for c in columns]
             rows = [dict(zip(column_names, [_convert_row_types(v) for v in r])) for r in results]
             data = {"columns": columns, "rows": rows}
