@@ -60,6 +60,12 @@ def run_query(query, parameters, data_source, query_id, should_apply_auto_limit,
     if not data_source:
         return error_messages["no_data_source"]
 
+    # Enforce refresh cooldown for non-admin users
+    if not current_user.has_permission("admin"):
+        cooldown = current_user.org.get_setting("non_admin_refresh_cooldown")
+        if cooldown and cooldown > 0 and (max_age == 0 or (0 < max_age < cooldown)):
+            max_age = cooldown
+
     if data_source.paused:
         if data_source.pause_reason:
             message = "{} is paused ({}). Please try later.".format(data_source.name, data_source.pause_reason)
