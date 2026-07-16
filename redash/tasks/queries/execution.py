@@ -187,7 +187,12 @@ class QueryExecutor:
         )  # fmt: skip
 
         # Close DB connection to prevent holding a connection for a long time while the query is executing.
-        models.db.session.close()
+        # Skip in testing: closing the session detaches all objects and causes SQLAlchemy identity-map
+        # conflicts when the same test references factory objects across multiple execute_query calls.
+        from flask import current_app
+
+        if not current_app.config.get("TESTING", False):
+            models.db.session.close()
         self.query_hash = gen_query_hash(self.query)
         self.is_scheduled_query = is_scheduled_query
         if self.is_scheduled_query:

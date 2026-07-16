@@ -7,8 +7,21 @@ from flask.cli import AppGroup
 from rq import Connection
 from rq.worker import WorkerStatus
 from sqlalchemy.orm import configure_mappers
-from supervisor_checks import check_runner
-from supervisor_checks.check_modules import base
+
+# supervisor_checks is an optional dependency: it is only needed for the
+# `healthcheck` CLI command and currently has no wheel for Python 3.13. Skip
+# importing it (and defining WorkerHealthcheck, which inherits from one of its
+# classes) when it isn't installed so the rest of the CLI keeps working.
+try:
+    from supervisor_checks import check_runner
+    from supervisor_checks.check_modules import base
+
+    SUPERVISOR_CHECKS_AVAILABLE = True
+except ImportError as e:
+    print(f"Warning: supervisor_checks not available: {e}")
+    check_runner = None
+    base = None
+    SUPERVISOR_CHECKS_AVAILABLE = False
 
 from redash import rq_redis_connection
 from redash.tasks import (
@@ -47,47 +60,59 @@ def worker(queues):
         w.work()
 
 
-class WorkerHealthcheck(base.BaseCheck):
-    NAME = "RQ Worker Healthcheck"
+if SUPERVISOR_CHECKS_AVAILABLE:
 
-    def __call__(self, process_spec):
-        pid = process_spec["pid"]
-        all_workers = Worker.all(connection=rq_redis_connection)
-        workers = [w for w in all_workers if w.hostname == socket.gethostname() and w.pid == pid]
+    class WorkerHealthcheck(base.BaseCheck):
+        NAME = "RQ Worker Healthcheck"
 
-        if not workers:
-            self._log(f"Cannot find worker for hostname {socket.gethostname()} and pid {pid}. ==> Is healthy? False")
-            return False
+        def __call__(self, process_spec):
+            pid = process_spec["pid"]
+            all_workers = Worker.all(connection=rq_redis_connection)
+            workers = [w for w in all_workers if w.hostname == socket.gethostname() and w.pid == pid]
 
-        worker = workers.pop()
+            if not workers:
+                self._log(
+                    f"Cannot find worker for hostname {socket.gethostname()} and pid {pid}. ==> Is healthy? False"
+                )
+                return False
 
-        is_busy = worker.get_state() == WorkerStatus.BUSY
+            worker = workers.pop()
 
-        time_since_seen = datetime.datetime.utcnow() - worker.last_heartbeat
-        seen_lately = time_since_seen.seconds < 60
+            is_busy = worker.get_state() == WorkerStatus.BUSY
 
-        total_jobs_in_watched_queues = sum([len(q.jobs) for q in worker.queues])
-        has_nothing_to_do = total_jobs_in_watched_queues == 0
+            time_since_seen = datetime.datetime.utcnow() - worker.last_heartbeat
+            seen_lately = time_since_seen.seconds < 60
 
-        is_healthy = is_busy or seen_lately or has_nothing_to_do
+            total_jobs_in_watched_queues = sum([len(q.jobs) for q in worker.queues])
+            has_nothing_to_do = total_jobs_in_watched_queues == 0
 
-        self._log(
-            "Worker %s healthcheck: Is busy? %s. "
-            "Seen lately? %s (%d seconds ago). "
-            "Has nothing to do? %s (%d jobs in watched queues). "
-            "==> Is healthy? %s",
-            worker.key,
-            is_busy,
-            seen_lately,
-            time_since_seen.seconds,
-            has_nothing_to_do,
-            total_jobs_in_watched_queues,
-            is_healthy,
-        )
+            is_healthy = is_busy or seen_lately or has_nothing_to_do
 
-        return is_healthy
+            self._log(
+                "Worker %s healthcheck: Is busy? %s. "
+                "Seen lately? %s (%d seconds ago). "
+                "Has nothing to do? %s (%d jobs in watched queues). "
+                "==> Is healthy? %s",
+                worker.key,
+                is_busy,
+                seen_lately,
+                time_since_seen.seconds,
+                has_nothing_to_do,
+                total_jobs_in_watched_queues,
+                is_healthy,
+            )
+
+            return is_healthy
+
+else:
+    WorkerHealthcheck = None
 
 
 @manager.command()
 def healthcheck():
+    if not SUPERVISOR_CHECKS_AVAILABLE:
+        print("Error: supervisor_checks not available. Cannot perform healthcheck.")
+        import sys
+
+        sys.exit(1)
     return check_runner.CheckRunner("worker_healthcheck", "worker", None, [(WorkerHealthcheck, {})]).run()
