@@ -13,6 +13,132 @@
   width: 100%;
 }
 
+.dashboard-page {
+  --dash-bg-base: #f4f7fb;
+  --dash-bg-radial-left: rgba(40, 98, 150, 0.13);
+  --dash-bg-radial-right: rgba(0, 153, 129, 0.09);
+  --dash-grid-line: rgba(35, 78, 123, 0.035);
+  --dash-container-bg: #ffffff;
+  --dash-container-border: #e8edf3;
+  --dash-container-shadow: 0 14px 32px rgba(16, 39, 67, 0.08);
+  --dash-filter-bg: #f9fbfd;
+  --dash-filter-border: #dde6f0;
+  --dash-kpi-total-bg: linear-gradient(145deg, #0f172a, #1e293b);
+  --dash-kpi-total-border: #1e293b;
+  --dash-kpi-medium-bg: linear-gradient(145deg, #b45309, #d97706);
+  --dash-kpi-medium-border: #d97706;
+  --dash-kpi-high-bg: linear-gradient(145deg, #c2410c, #ea580c);
+  --dash-kpi-high-border: #ea580c;
+  --dash-kpi-critical-bg: linear-gradient(145deg, #7f1d1d, #991b1b);
+  --dash-kpi-critical-border: #991b1b;
+
+  background:
+    radial-gradient(circle at 0% 0%, var(--dash-bg-radial-left) 0, rgba(40, 98, 150, 0) 55%),
+    radial-gradient(circle at 100% 0%, var(--dash-bg-radial-right) 0, rgba(0, 153, 129, 0) 48%),
+    linear-gradient(0deg, rgba(255, 255, 255, 0.78), rgba(255, 255, 255, 0.78)),
+    linear-gradient(90deg, var(--dash-grid-line) 1px, transparent 1px),
+    linear-gradient(0deg, var(--dash-grid-line) 1px, transparent 1px),
+    var(--dash-bg-base);
+  background-size: auto, auto, auto, 28px 28px, 28px 28px, auto;
+}
+
+.dashboard-page.dashboard-theme-security {
+  --dash-bg-base: #f3f7fc;
+  --dash-bg-radial-left: rgba(22, 84, 148, 0.16);
+  --dash-bg-radial-right: rgba(2, 133, 109, 0.11);
+  --dash-grid-line: rgba(27, 78, 126, 0.04);
+  --dash-kpi-total-bg: linear-gradient(145deg, #0f2740, #15395f);
+  --dash-kpi-total-border: #15395f;
+  --dash-kpi-medium-bg: linear-gradient(145deg, #a35b05, #c87409);
+  --dash-kpi-medium-border: #c87409;
+  --dash-kpi-high-bg: linear-gradient(145deg, #b84410, #df6217);
+  --dash-kpi-high-border: #df6217;
+  --dash-kpi-critical-bg: linear-gradient(145deg, #8a2121, #ad2a2a);
+  --dash-kpi-critical-border: #ad2a2a;
+}
+
+.dashboard-page.dashboard-theme-executive {
+  --dash-bg-base: #f7f6f3;
+  --dash-bg-radial-left: rgba(148, 88, 22, 0.12);
+  --dash-bg-radial-right: rgba(12, 83, 119, 0.09);
+  --dash-grid-line: rgba(116, 81, 45, 0.035);
+  --dash-container-border: #ece5da;
+  --dash-kpi-total-bg: linear-gradient(145deg, #20293a, #33425b);
+  --dash-kpi-total-border: #33425b;
+  --dash-kpi-medium-bg: linear-gradient(145deg, #8f5c1d, #b27a36);
+  --dash-kpi-medium-border: #b27a36;
+  --dash-kpi-high-bg: linear-gradient(145deg, #a3531e, #cb6a2d);
+  --dash-kpi-high-border: #cb6a2d;
+  --dash-kpi-critical-bg: linear-gradient(145deg, #7a2522, #96312d);
+  --dash-kpi-critical-border: #96312d;
+}
+
+.dashboard-page.dashboard-theme-network {
+  --dash-bg-base: #f1f8f7;
+  --dash-bg-radial-left: rgba(16, 119, 133, 0.14);
+  --dash-bg-radial-right: rgba(17, 144, 98, 0.1);
+  --dash-grid-line: rgba(19, 112, 105, 0.04);
+  --dash-filter-bg: #f4fcfa;
+  --dash-kpi-total-bg: linear-gradient(145deg, #0d3342, #125165);
+  --dash-kpi-total-border: #125165;
+  --dash-kpi-medium-bg: linear-gradient(145deg, #2b7d58, #3ea06f);
+  --dash-kpi-medium-border: #3ea06f;
+  --dash-kpi-high-bg: linear-gradient(145deg, #117989, #1799ad);
+  --dash-kpi-high-border: #1799ad;
+  --dash-kpi-critical-bg: linear-gradient(145deg, #8a2f1c, #aa4026);
+  --dash-kpi-critical-border: #aa4026;
+}
+
+.dashboard-page.dashboard-theme-operations {
+  --dash-bg-base: #f7f5fb;
+  --dash-bg-radial-left: rgba(84, 78, 142, 0.12);
+  --dash-bg-radial-right: rgba(74, 126, 168, 0.09);
+  --dash-grid-line: rgba(77, 86, 145, 0.04);
+  --dash-kpi-total-bg: linear-gradient(145deg, #2a234f, #3b2f67);
+  --dash-kpi-total-border: #3b2f67;
+  --dash-kpi-medium-bg: linear-gradient(145deg, #4f4aa4, #615dc2);
+  --dash-kpi-medium-border: #615dc2;
+  --dash-kpi-high-bg: linear-gradient(145deg, #3f5fa7, #4f79cc);
+  --dash-kpi-high-border: #4f79cc;
+  --dash-kpi-critical-bg: linear-gradient(145deg, #7b2c57, #97376a);
+  --dash-kpi-critical-border: #97376a;
+}
+
+.dashboard-page .container {
+  padding-top: 8px;
+  padding-left: 16px;
+  padding-right: 16px;
+  max-width: 1620px;
+  margin: 14px auto 24px;
+  background: var(--dash-container-bg);
+  border: 1px solid var(--dash-container-border);
+  border-radius: 16px;
+  box-shadow: var(--dash-container-shadow);
+}
+
+.dashboard-parameters,
+[data-test="DashboardFilters"] {
+  border: 1px solid var(--dash-filter-border);
+  border-radius: @redash-radius;
+  box-shadow: 0 6px 18px rgba(16, 39, 67, 0.06);
+  background: var(--dash-filter-bg);
+}
+
+@media (max-width: 1366px) {
+  .dashboard-page .container {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+}
+
+@media (max-width: 767px) {
+  .dashboard-page .container {
+    padding-left: 8px;
+    padding-right: 8px;
+    border-radius: 12px;
+  }
+}
+
 #dashboard-container {
   position: relative;
   flex-grow: 1;

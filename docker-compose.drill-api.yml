@@ -1,0 +1,20 @@
+# SkyNet drill-api (Go) — serves /drill_do/*, /drill_static/*, /drill/* for the portal navbar.
+# Run alongside the main Redash stack and the ClickHouse lab stack, on the same network,
+# so it can reach them by service name ("server", "clickhouse") without host port juggling.
+#
+# Usage (from this directory):
+#   docker compose -f docker-compose.drill-api.yml up -d --build
+services:
+  drill-api:
+    build:
+      context: ../6.skynet-golang-drill-api
+    restart: unless-stopped
+    ports:
+      - "9989:9989"
+    networks:
+      - default
+
+networks:
+  default:
+    name: 8skynet-portal-v1010_default
+    external: true

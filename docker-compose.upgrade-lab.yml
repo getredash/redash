@@ -1,0 +1,102 @@
+# Isolated Redash 10.1.0 upgrade lab.
+# Runs independently from the legacy fork so Postgres/Redis can be upgraded safely.
+services:
+  server:
+    build:
+      context: .
+      args:
+        skip_frontend_build: "true"
+        skip_ds_deps: "true"
+        skip_dev_deps: "true"
+    command: server
+    environment:
+      REDASH_LOG_LEVEL: "INFO"
+      REDASH_REDIS_URL: "redis://redis:6379/0"
+      REDASH_DATABASE_URL: "postgresql://postgres:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}"
+      REDASH_RATELIMIT_ENABLED: "false"
+      REDASH_MAIL_DEFAULT_SENDER: "redash@example.com"
+      REDASH_MAIL_SERVER: "email"
+      REDASH_ENFORCE_CSRF: "true"
+      REDASH_COOKIE_SECRET: ${REDASH_COOKIE_SECRET}
+      REDASH_SECRET_KEY: ${REDASH_SECRET_KEY}
+      REDASH_HOST: ${REDASH_HOST:-http://localhost:5100}
+      REDASH_WEB_WORKERS: "2"
+      MAX_REQUESTS: "1000"
+      MAX_REQUESTS_JITTER: "100"
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - "5100:5000"
+
+  scheduler:
+    build:
+      context: .
+      args:
+        skip_frontend_build: "true"
+        skip_ds_deps: "true"
+        skip_dev_deps: "true"
+    command: scheduler
+    environment:
+      REDASH_LOG_LEVEL: "INFO"
+      REDASH_REDIS_URL: "redis://redis:6379/0"
+      REDASH_DATABASE_URL: "postgresql://postgres:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}"
+      REDASH_RATELIMIT_ENABLED: "false"
+      REDASH_MAIL_DEFAULT_SENDER: "redash@example.com"
+      REDASH_MAIL_SERVER: "email"
+      REDASH_ENFORCE_CSRF: "true"
+      REDASH_COOKIE_SECRET: ${REDASH_COOKIE_SECRET}
+      REDASH_SECRET_KEY: ${REDASH_SECRET_KEY}
+      REDASH_HOST: ${REDASH_HOST:-http://localhost:5100}
+    depends_on:
+      - server
+
+  worker:
+    build:
+      context: .
+      args:
+        skip_frontend_build: "true"
+        skip_ds_deps: "true"
+        skip_dev_deps: "true"
+    command: worker
+    environment:
+      REDASH_LOG_LEVEL: "INFO"
+      REDASH_REDIS_URL: "redis://redis:6379/0"
+      REDASH_DATABASE_URL: "postgresql://postgres:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}"
+      REDASH_RATELIMIT_ENABLED: "false"
+      REDASH_MAIL_DEFAULT_SENDER: "redash@example.com"
+      REDASH_MAIL_SERVER: "email"
+      REDASH_ENFORCE_CSRF: "true"
+      REDASH_COOKIE_SECRET: ${REDASH_COOKIE_SECRET}
+      REDASH_SECRET_KEY: ${REDASH_SECRET_KEY}
+      REDASH_HOST: ${REDASH_HOST:-http://localhost:5100}
+      WORKERS_COUNT: "1"
+      QUEUES: "periodic,emails,default,scheduled_queries,queries,schemas"
+    depends_on:
+      - server
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: redis-server --save 60 1000 --appendonly no
+
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-redash}
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "15433:5432"
+    volumes:
+      - redash10_postgres_data:/var/lib/postgresql/data
+
+  email:
+    image: djfarrelly/maildev
+    restart: unless-stopped
+    ports:
+      - "1081:80"
+
+volumes:
+  redash10_postgres_data:

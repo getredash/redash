@@ -114,7 +114,10 @@ export default function initChart(container: any, options: any, data: any, addit
         unwatchResize = resizeObserver(
           container,
           createSafeFunction(() => {
-            updater.append(updateChartSize(container, plotlyLayout, options)).process(container);
+            updater
+              .append(updateChartSize(container, plotlyLayout, options))
+              .append(updateAxes(container, plotlyData, plotlyLayout, options))
+              .process(container);
           })
         );
       })

@@ -1,5 +1,8 @@
 .public-dashboard-page {
   width: 100%;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
 
   .page-header-wrapper {
     margin-top: 0;
@@ -8,7 +11,8 @@
   }
 
   > .container {
-    min-height: calc(100vh - 95px);
+    min-height: 0;
+    flex: 1 0 auto;
   }
 
   .loading-message {
@@ -18,7 +22,9 @@
   }
 
   #footer {
-    height: 95px;
+    min-height: 95px;
+    padding: 14px 0 18px;
     text-align: center;
+    flex: 0 0 auto;
   }
 }

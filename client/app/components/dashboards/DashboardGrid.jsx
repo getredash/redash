@@ -215,6 +215,14 @@ class DashboardGrid extends React.Component {
     }
 
     this.autoHeightCtrl.resume();
+
+    // Some chart renderers recalculate dimensions only on window resize.
+    // Dispatching this event after grid resize keeps charts in sync with widget size.
+    if (typeof window !== "undefined") {
+      window.requestAnimationFrame(() => {
+        window.dispatchEvent(new Event("resize"));
+      });
+    }
   };
 
   normalizeTo = layout => ({

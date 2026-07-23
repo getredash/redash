@@ -44,6 +44,44 @@ body #application-root {
     @media @mobileBreakpoint {
       margin-top: @topMenuHeight; // compensate for app header fixed position
     }
+
+    .application-layout-main {
+      // size to actual content — this container is what scrolls, so the
+      // footer below must be positioned after the real content end
+      flex: none;
+
+      // this wraps the page content directly now (previously the page's own
+      // root div was this flex column's direct child) — stay a flex container
+      // so pages relying on flex-grow (e.g. the fixed-layout query view) still work
+      display: flex;
+      flex-direction: column;
+    }
+
+    // Query pages manage their own internal scroll area and need to stretch
+    // to fill available height, same as before this container existed.
+    .application-layout-main--query {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow: visible;
+    }
+
+    .application-layout-footer {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px 8px;
+      color: #666;
+      font-size: 12px;
+      text-align: center;
+      flex-wrap: wrap;
+    }
+
+    .application-layout-footer-links {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
   }
 }
 

@@ -16,6 +16,9 @@ import AlertOutlinedIcon from "@ant-design/icons/AlertOutlined";
 import PlusOutlinedIcon from "@ant-design/icons/PlusOutlined";
 import QuestionCircleOutlinedIcon from "@ant-design/icons/QuestionCircleOutlined";
 import SettingOutlinedIcon from "@ant-design/icons/SettingOutlined";
+import BranchesOutlinedIcon from "@ant-design/icons/BranchesOutlined";
+import BugOutlinedIcon from "@ant-design/icons/BugOutlined";
+import ToolOutlinedIcon from "@ant-design/icons/ToolOutlined";
 import VersionInfo from "./VersionInfo";
 
 import "./DesktopNavbar.less";
@@ -76,7 +79,8 @@ export default function DesktopNavbar() {
       <NavbarSection className="desktop-navbar-logo">
         <div role="menuitem">
           <Link href="./">
-            <img src={logoUrl} alt="Redash" />
+            <img src={logoUrl} alt="SkyNet SoC" />
+            <span className="desktop-navbar-brand-label">SkyNet SoC</span>
           </Link>
         </div>
       </NavbarSection>
@@ -106,6 +110,18 @@ export default function DesktopNavbar() {
             </Link>
           </Menu.Item>
         )}
+        <Menu.Item key="netlayout">
+          <a href="/drill_do/layout" target="_blank" rel="noreferrer">
+            <BranchesOutlinedIcon aria-label="Network layout navigation button" />
+            <span className="desktop-navbar-label">Network</span>
+          </a>
+        </Menu.Item>
+        <Menu.Item key="ismart">
+          <a href="/drill_do/ismart" target="_blank" rel="noreferrer">
+            <BugOutlinedIcon aria-label="iSmart navigation button" />
+            <span className="desktop-navbar-label">iSmart</span>
+          </a>
+        </Menu.Item>
       </NavbarSection>
 
       <NavbarSection className="desktop-navbar-spacer">
@@ -161,6 +177,12 @@ export default function DesktopNavbar() {
             </Link>
           </Menu.Item>
         )}
+        <Menu.Item key="drill-settings">
+          <a href="/drill_do/settings" rel="noreferrer">
+            <ToolOutlinedIcon aria-label="SkyNet settings navigation button" />
+            <span className="desktop-navbar-label">SkyNet</span>
+          </a>
+        </Menu.Item>
       </NavbarSection>
 
       <NavbarSection className="desktop-navbar-profile-menu">

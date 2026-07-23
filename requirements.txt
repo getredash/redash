@@ -53,7 +53,7 @@ ua-parser==0.8.0
 user-agents==2.0
 maxminddb-geolite2==2018.703
 pypd==1.1.0
-disposable-email-domains>=0.0.52
+disposable-email-domains==0.0.52
 gevent==1.4.0
 sshtunnel==0.1.5
 supervisor==4.1.0

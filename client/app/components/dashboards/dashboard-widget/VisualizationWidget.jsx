@@ -22,6 +22,28 @@ import VisualizationRenderer from "@/components/visualizations/VisualizationRend
 
 import Widget from "./Widget";
 
+function getVisualizationToneClass(visualizationName) {
+  const name = (visualizationName || "").toLowerCase();
+
+  if (name.includes("critical")) {
+    return "viz-tone-critical";
+  }
+
+  if (name.includes("high")) {
+    return "viz-tone-high";
+  }
+
+  if (name.includes("medium")) {
+    return "viz-tone-medium";
+  }
+
+  if (name.includes("total")) {
+    return "viz-tone-total";
+  }
+
+  return null;
+}
+
 function visualizationWidgetMenuOptions({ widget, canEditDashboard, onParametersEdit }) {
   const canViewQuery = currentUser.hasPermission("view_query");
   const canEditParameters = canEditDashboard && !isEmpty(invoke(widget, "query.getParametersDefs"));
@@ -321,6 +343,7 @@ class VisualizationWidget extends React.Component {
     const { localParameters } = this.state;
     const widgetQueryResult = widget.getQueryResult();
     const isRefreshing = isLoading && !!(widgetQueryResult && widgetQueryResult.getStatus());
+    const toneClass = getVisualizationToneClass(widget.visualization && widget.visualization.name);
     const onParametersEdit = parameters => {
       const paramOrder = map(parameters, "name");
       widget.options.paramOrder = paramOrder;
@@ -330,7 +353,7 @@ class VisualizationWidget extends React.Component {
     return (
       <Widget
         {...this.props}
-        className="widget-visualization"
+        className={cx("widget-visualization", toneClass)}
         menuOptions={visualizationWidgetMenuOptions({
           widget,
           canEditDashboard: canEdit,

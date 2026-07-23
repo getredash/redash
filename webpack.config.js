@@ -269,6 +269,11 @@ const config = {
         target: redashBackend + "/",
         changeOrigin: true,
         secure: false
+      },
+      {
+        context: ["/drill/**", "/drill_static/**", "/drill_do/**"],
+        target: "http://127.0.0.1:9989",
+        secure: false
       }
     ],
     stats: {

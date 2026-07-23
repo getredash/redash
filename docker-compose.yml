@@ -34,14 +34,14 @@ services:
       PYTHONUNBUFFERED: 0
   scheduler:
     <<: *redash-service
-    command: dev_scheduler
+    command: scheduler
     depends_on:
       - server
     environment:
       <<: *redash-environment
   worker:
     <<: *redash-service
-    command: dev_worker
+    command: worker
     depends_on:
       - server
     environment:

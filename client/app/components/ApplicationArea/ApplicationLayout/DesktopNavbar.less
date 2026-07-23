@@ -11,7 +11,7 @@
   flex-direction: column;
   height: 100%;
   width: 80px;
-  overflow: hidden;
+  overflow-y: auto;
 
   &-spacer {
     flex: 1 1 auto;
@@ -25,6 +25,15 @@
     img {
       height: 40px;
       transition: all 270ms;
+    }
+
+    .desktop-navbar-brand-label {
+      display: block;
+      margin-top: 6px;
+      font-size: 10px;
+      line-height: 1.2;
+      color: @textColor;
+      white-space: normal;
     }
   }
 

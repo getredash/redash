@@ -24,6 +24,34 @@ import DashboardHeader from "./components/DashboardHeader";
 
 import "./DashboardPage.less";
 
+function resolveDashboardTheme(dashboard) {
+  const queryTheme = location && location.search && location.search.theme;
+  if (queryTheme) {
+    return String(queryTheme).toLowerCase();
+  }
+
+  const optionsTheme = dashboard && dashboard.options && dashboard.options.theme;
+  const rawTheme = (optionsTheme || (dashboard && dashboard.name) || "").toLowerCase();
+
+  if (rawTheme.includes("executive") || rawTheme.includes("summary") || rawTheme.includes("board")) {
+    return "executive";
+  }
+
+  if (rawTheme.includes("network") || rawTheme.includes("traffic") || rawTheme.includes("ntop")) {
+    return "network";
+  }
+
+  if (rawTheme.includes("threat") || rawTheme.includes("security") || rawTheme.includes("soc")) {
+    return "security";
+  }
+
+  if (rawTheme.includes("ops") || rawTheme.includes("operation") || rawTheme.includes("infra")) {
+    return "operations";
+  }
+
+  return "default";
+}
+
 function DashboardSettings({ dashboardConfiguration }) {
   const { dashboard, updateDashboard } = dashboardConfiguration;
   return (
@@ -187,7 +215,13 @@ function DashboardPage({ dashboardSlug, dashboardId, onError }) {
       .catch(handleError);
   }, [dashboardId, dashboardSlug, handleError]);
 
-  return <div className="dashboard-page">{dashboard && <DashboardComponent dashboard={dashboard} />}</div>;
+  const theme = resolveDashboardTheme(dashboard);
+
+  return (
+    <div className={cx("dashboard-page", `dashboard-theme-${theme}`)}>
+      {dashboard && <DashboardComponent dashboard={dashboard} />}
+    </div>
+  );
 }
 
 DashboardPage.propTypes = {

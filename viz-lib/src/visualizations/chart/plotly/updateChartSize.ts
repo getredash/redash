@@ -126,9 +126,14 @@ export default function updateChartSize(plotlyElement: any, layout: any, options
         return placeLegendAuto(plotlyElement, layout);
         break;
       case "below":
+      // keep legacy placement value compatible with older visualizations
+      case "bottom":
         return placeLegendBelowPlot(plotlyElement, layout);
         break;
-      // no default
+      default:
+        // Always propagate width/height update even for unhandled placement values
+        // (e.g. "right"). Without this, charts may not relayout on widget resize.
+        return [pick(layout, ["width", "height", "legend"]), null]; // no further updates
     }
   } else {
     return [pick(layout, ["width", "height"]), null]; // no further updates

@@ -35,7 +35,9 @@ ARG skip_dev_deps
 RUN useradd --create-home redash
 
 # Ubuntu packages
-RUN apt-get update && \
+RUN sed -i 's|deb.debian.org/debian|archive.debian.org/debian|g; s|deb.debian.org/debian-security|archive.debian.org/debian-security|g; s|security.debian.org/debian-security|archive.debian.org/debian-security|g' /etc/apt/sources.list && \
+  sed -i '/buster-updates/d' /etc/apt/sources.list && \
+  apt-get -o Acquire::Check-Valid-Until=false update && \
   apt-get install -y \
     curl \
     gnupg \
@@ -58,7 +60,7 @@ RUN apt-get update && \
     libsasl2-dev \
     unzip \
     libsasl2-modules-gssapi-mit && \
-  # MSSQL ODBC Driver:  
+  # MSSQL ODBC Driver:
   curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
   curl https://packages.microsoft.com/config/debian/10/prod.list > /etc/apt/sources.list.d/mssql-release.list && \
   apt-get update && \
@@ -96,6 +98,7 @@ RUN pip install -r requirements.txt
 
 COPY . /app
 COPY --from=frontend-builder /frontend/client/dist /app/client/dist
+RUN sed -i 's/\r$//' /app/bin/docker-entrypoint && chmod +x /app/bin/docker-entrypoint
 RUN chown -R redash /app
 USER redash
 

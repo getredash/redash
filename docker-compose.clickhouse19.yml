@@ -1,0 +1,16 @@
+services:
+  clickhouse:
+    image: yandex/clickhouse-server:19.11
+    restart: unless-stopped
+    ports:
+      - "18123:8123"
+      - "19000:9000"
+    volumes:
+      - clickhouse19_data:/var/lib/clickhouse
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+
+volumes:
+  clickhouse19_data:
