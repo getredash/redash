@@ -530,13 +530,40 @@ class TestJWTAuthentication(BaseTestCase):
             "exp": expiration_timestamp,
             "iat": issued_at_timestamp,
             "iss": self.auth_issuer,
+            "preferred_username": "ottergottaott",
         }
         with open(self.rsa_private_key) as keyfile:
             sign_key = keyfile.read().strip()
         token_data = jwt.encode(data, sign_key, algorithm="RS256")
 
-        response = self.get_request("/data_sources", org=self.factory.org, headers={self.token_name: token_data})
+        response = self.get_request("/api/session", org=self.factory.org, headers={self.token_name: token_data})
         self.assertEqual(response.status_code, 200)
+
+        user = models.User.get_by_id(user.id)
+        self.assertEqual(user.details["preferred_username"], "ottergottaott")
+
+    def test_jwt_from_pem_file_stores_preferred_username_for_new_user(self):
+        issued_at_timestamp = time.time()
+        expiration_timestamp = issued_at_timestamp + 60
+
+        data = {
+            "aud": self.auth_audience,
+            "email": "otter@gotta.ott",
+            "exp": expiration_timestamp,
+            "iat": issued_at_timestamp,
+            "iss": self.auth_issuer,
+            "preferred_username": "ottergottaott",
+        }
+        with open(self.rsa_private_key) as keyfile:
+            sign_key = keyfile.read().strip()
+        token_data = jwt.encode(data, sign_key, algorithm="RS256")
+
+        response = self.get_request("/api/session", org=self.factory.org, headers={self.token_name: token_data})
+        self.assertEqual(response.status_code, 200)
+
+        user = models.User.get_by_email_and_org("otter@gotta.ott", self.factory.org)
+        self.assertEqual(user.name, "otter@gotta.ott")
+        self.assertEqual(user.details["preferred_username"], "ottergottaott")
 
     @patch.object(requests, "get")
     def test_jwk_decode(self, mock_get):
