@@ -85,7 +85,11 @@ class Trino(BaseQueryRunner):
                     "type": "string",
                     "title": "Impersonation User Attribute",
                     "default": "email",
-                    "extendedEnum": [{"value": "email", "name": "Email"}, {"value": "name", "name": "Name"}],
+                    "extendedEnum": [
+                        {"value": "email", "name": "Email"},
+                        {"value": "name", "name": "Name"},
+                        {"value": "preferred_username", "name": "Preferred Username"},
+                    ],
                 },
             },
             "order": [
@@ -177,6 +181,8 @@ class Trino(BaseQueryRunner):
                 return user.email or default_user
             elif impersonation_field == "name":
                 return user.name or default_user
+            elif impersonation_field == "preferred_username":
+                return (user.details or {}).get("preferred_username") or default_user
         elif isinstance(user, ApiUser):
             return user.name or default_user
 
