@@ -316,11 +316,6 @@ def _is_safe_next_url(url):
     if unicodedata.category(url[0])[0] == "C":
         return False
 
-    # Browsers normalize a leading backslash during redirect handling. Reject it
-    # rather than returning a non-canonical Location header.
-    if url.startswith("\\"):
-        return False
-
     # Chrome treats \ as / in URLs, so check both the original and
     # backslash-normalized versions to prevent bypasses like \/evil.com
     for test_url in (url, url.replace("\\", "/")):
