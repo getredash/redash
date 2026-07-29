@@ -178,7 +178,7 @@ export default function DesktopNavbar() {
           </Menu.Item>
         )}
         <Menu.Item key="drill-settings">
-          <a href="/drill_do/settings" rel="noreferrer">
+          <a href="/drill_do/settings" rel="noreferrer" data-skip-router="true">
             <ToolOutlinedIcon aria-label="SkyNet settings navigation button" />
             <span className="desktop-navbar-label">SkyNet</span>
           </a>

@@ -37,7 +37,7 @@ export default function ApplicationLayout({ children }) {
             <footer className="application-layout-footer">
               <span>© IRIS Security Corporation 2018-2021</span>
               <div className="application-layout-footer-links">
-                <a href="/drill_do/license" className="btn btn-xs btn-info">
+                <a href="/drill_do/license" className="btn btn-xs btn-info" data-skip-router="true">
                   License Info
                 </a>
                 <a href="/admin/status" className="btn btn-xs btn-info">

@@ -1,0 +1,64 @@
+# Production stack for Redash 10.1.0 + SkyNet drill-api, built HERE (has internet)
+# then shipped as image tarballs to an OFFLINE production server. See
+# build-and-export.sh / load-and-run.sh in this folder for the actual workflow —
+# this file just needs to give every image a fixed, explicit name:tag so
+# `docker save`/`docker load` move the exact same image, and so the offline
+# side never needs to build or pull anything (this same file is reused there
+# unchanged, just with `up -d`, no `--build`).
+#
+# The stack listens on $EXPOSED_HTTP_PORT (default 8090) via nginx, so it can run
+# next to the existing v9 deployment without a port clash. Point a separate
+# hostname/port at it for testing before cutting traffic over.
+
+x-redash-service: &redash-service
+  image: skynet-redash:10.1.0
+  build:
+    context: .
+    args:
+      skip_frontend_build: ""
+  env_file:
+    - .env.production
+  restart: unless-stopped
+
+services:
+  server:
+    <<: *redash-service
+    command: server
+    environment:
+      PYTHONUNBUFFERED: 0
+
+  scheduler:
+    <<: *redash-service
+    command: scheduler
+    depends_on:
+      - server
+
+  worker:
+    <<: *redash-service
+    command: worker
+    depends_on:
+      - server
+    environment:
+      PYTHONUNBUFFERED: 0
+
+  drill-api:
+    image: skynet-drill-api:1.0.0
+    build:
+      context: ../6.skynet-golang-drill-api
+      args:
+        LISTEN_HOST: ":9989"
+        BACKEND_IP: "${DRILL_API_BACKEND_IP:-server}"
+        CLICKHOUSE_IP: "${DRILL_API_CLICKHOUSE_IP:-clickhouse}"
+        INCIDENT_IP: "${DRILL_API_INCIDENT_IP:-127.0.0.1}"
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    depends_on:
+      - server
+      - drill-api
+    volumes:
+      - ./nginx.production.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "${EXPOSED_HTTP_PORT:-8090}:80"

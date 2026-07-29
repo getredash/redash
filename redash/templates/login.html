@@ -41,11 +41,17 @@
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
       <div class="form-group">
         <label for="inputEmail">{{ username_prompt or 'Email' }}</label>
-        <input type="text" class="form-control" id="inputEmail" name="email" value="{{email}}" data-test="Email">
+        <div class="input-group">
+          <span class="input-group-addon"><i class="fa fa-envelope"></i></span>
+          <input type="text" class="form-control" id="inputEmail" name="email" value="{{email}}" data-test="Email">
+        </div>
       </div>
       <div class="form-group">
         <label for="inputPassword">Password</label>
-        <input type="password" class="form-control" id="inputPassword" name="password" data-test="Password">
+        <div class="input-group">
+          <span class="input-group-addon"><i class="fa fa-lock"></i></span>
+          <input type="password" class="form-control" id="inputPassword" name="password" data-test="Password">
+        </div>
       </div>
       <div class="form-group">
         <input type="checkbox" id="inputRemember" name="remember" checked>
@@ -54,11 +60,6 @@
 
       <button type="submit" class="btn btn-primary btn-block m-t-25">Log In</button>
     </form>
-    {% if not hide_forgot_password %}
-      <div class="m-t-25">
-        <a href="{{ url_for("redash.forgot_password", org_slug=org_slug) }}">I forgot my password</a>
-      </div>
-    {% endif %}
     {% endif %}
   </div>
 </div>
