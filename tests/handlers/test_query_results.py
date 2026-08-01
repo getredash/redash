@@ -10,6 +10,74 @@ class TestRunQuery(BaseTestCase):
         self.assertEqual(status, error_messages["no_data_source"][1])
 
 
+class TestNonAdminRefreshCooldown(BaseTestCase):
+    def _set_cooldown(self, seconds):
+        self.factory.org.set_setting("non_admin_refresh_cooldown", seconds)
+        db.session.add(self.factory.org)
+        db.session.commit()
+
+    def test_disabled_by_default_allows_forced_refresh(self):
+        # With the default cooldown (0) a non-admin's max_age=0 still forces a new execution.
+        self.factory.create_query_result()
+        query = self.factory.create_query()
+
+        rv = self.make_request(
+            "post",
+            "/api/query_results",
+            data={
+                "data_source_id": self.factory.data_source.id,
+                "query": query.query_text,
+                "max_age": 0,
+            },
+        )
+
+        self.assertEqual(rv.status_code, 200)
+        self.assertNotIn("query_result", rv.json)
+        self.assertIn("job", rv.json)
+
+    def test_cooldown_returns_cached_result_for_non_admin(self):
+        # When enabled, the cooldown raises a non-admin's max_age so a recent cached
+        # result is served instead of forcing a new execution.
+        self._set_cooldown(300)
+        query_result = self.factory.create_query_result()
+        query = self.factory.create_query()
+
+        rv = self.make_request(
+            "post",
+            "/api/query_results",
+            data={
+                "data_source_id": self.factory.data_source.id,
+                "query": query.query_text,
+                "max_age": 0,
+            },
+        )
+
+        self.assertEqual(rv.status_code, 200)
+        self.assertEqual(query_result.id, rv.json["query_result"]["id"])
+
+    def test_cooldown_does_not_apply_to_admin(self):
+        # Admins bypass the cooldown entirely and can always force a new execution.
+        self._set_cooldown(300)
+        self.factory.create_query_result()
+        query = self.factory.create_query()
+        admin = self.factory.create_admin()
+
+        rv = self.make_request(
+            "post",
+            "/api/query_results",
+            data={
+                "data_source_id": self.factory.data_source.id,
+                "query": query.query_text,
+                "max_age": 0,
+            },
+            user=admin,
+        )
+
+        self.assertEqual(rv.status_code, 200)
+        self.assertNotIn("query_result", rv.json)
+        self.assertIn("job", rv.json)
+
+
 class TestQueryResultsCacheHeaders(BaseTestCase):
     def test_uses_cache_headers_for_specific_result(self):
         query_result = self.factory.create_query_result()

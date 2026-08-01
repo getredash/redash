@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useMemo } from "react";
 import cx from "classnames";
 import PropTypes from "prop-types";
-import { map, includes } from "lodash";
+import { map, includes, compact, max } from "lodash";
 import Button from "antd/lib/button";
 import Dropdown from "antd/lib/dropdown";
 import Menu from "antd/lib/menu";
@@ -18,6 +18,7 @@ import { policy } from "@/services/policy";
 import recordEvent from "@/services/recordEvent";
 import { durationHumanize } from "@/lib/utils";
 import { DashboardStatusEnum } from "../hooks/useDashboard";
+import useRefreshCooldown from "@/lib/hooks/useRefreshCooldown";
 
 import "./DashboardHeader.less";
 
@@ -64,24 +65,48 @@ DashboardPageTitle.propTypes = {
 };
 
 function RefreshButton({ dashboardConfiguration }) {
-  const { refreshRate, setRefreshRate, disableRefreshRate, refreshing, refreshDashboard } = dashboardConfiguration;
+  const { refreshRate, setRefreshRate, disableRefreshRate, refreshing, refreshDashboard, dashboard } = dashboardConfiguration;
+
+  const latestRetrievedAt = useMemo(() => {
+    const timestamps = compact(
+      map(dashboard.widgets, (w) => {
+        const qr = w.getQueryResult();
+        return qr ? qr.getUpdatedAt() : null;
+      })
+    );
+    return timestamps.length > 0 ? max(timestamps) : null;
+  }, [dashboard.widgets, refreshing]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const { isCooldownActive, remainingTime, notifyCooldown } = useRefreshCooldown(latestRetrievedAt);
   const allowedIntervals = policy.getDashboardRefreshIntervals();
   const refreshRateOptions = clientConfig.dashboardRefreshIntervals;
+  const handleRefresh = () => {
+    if (isCooldownActive) {
+      notifyCooldown();
+      return;
+    }
+    refreshDashboard();
+  };
   const onRefreshRateSelected = ({ key }) => {
     const parsedRefreshRate = parseFloat(key);
     if (parsedRefreshRate) {
       setRefreshRate(parsedRefreshRate);
-      refreshDashboard();
+      handleRefresh();
     } else {
       disableRefreshRate();
     }
   };
+  const refreshLabel = isCooldownActive
+    ? `Refresh (${remainingTime}s)`
+    : refreshRate
+      ? durationHumanize(refreshRate)
+      : "Refresh";
   return (
     <Button.Group>
       <Tooltip title={refreshRate ? `Auto Refreshing every ${durationHumanize(refreshRate)}` : null}>
-        <Button type={buttonType(refreshRate)} onClick={() => refreshDashboard()}>
+        <Button type={buttonType(refreshRate)} onClick={handleRefresh}>
           <i className={cx("zmdi zmdi-refresh m-r-5", { "zmdi-hc-spin": refreshing })} aria-hidden="true" />
-          {refreshRate ? durationHumanize(refreshRate) : "Refresh"}
+          {refreshLabel}
         </Button>
       </Tooltip>
       <Dropdown
