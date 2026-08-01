@@ -49,11 +49,11 @@ if settings.REDASH_DATABASE_AWS_IAM_AUTH:
     # only when IAM auth is enabled.
     import boto3
 
-    RDS_CLIENT = boto3.client("rds")
+    _RDS_CLIENT = boto3.client("rds")
 
     @listens_for(Engine, "do_connect")
     def db_connect_hook(_dialect, _conn_rec, _cargs, cparams):
-        auth_token = RDS_CLIENT.generate_db_auth_token(
+        auth_token = _RDS_CLIENT.generate_db_auth_token(
             DBHostname=cparams["host"],
             Port=cparams.get("port", 5432),
             DBUsername=cparams["user"],
