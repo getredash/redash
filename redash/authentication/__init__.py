@@ -316,6 +316,13 @@ def _is_safe_next_url(url):
     if unicodedata.category(url[0])[0] == "C":
         return False
 
+    # A leading backslash is never a valid on-site path. Browsers treat \ as /,
+    # so "\evil.com" or "\\evil.com" can be read as a path or a protocol-relative
+    # URL. A single leading backslash normalizes to a single-slash path (which is
+    # otherwise allowed), so reject any leading backslash outright.
+    if url.startswith("\\"):
+        return False
+
     # Chrome treats \ as / in URLs, so check both the original and
     # backslash-normalized versions to prevent bypasses like \/evil.com
     for test_url in (url, url.replace("\\", "/")):
