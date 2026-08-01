@@ -59,9 +59,11 @@ if settings.REDASH_DATABASE_AWS_IAM_AUTH:
             DBUsername=cparams["user"],
         )
         cparams["password"] = auth_token
-        # RDS IAM auth requires an encrypted connection; enforce SSL unless
-        # the operator already configured a stricter sslmode.
-        cparams.setdefault("sslmode", "require")
+        # RDS IAM auth requires an encrypted connection. Force at least
+        # sslmode=require, keeping the stricter verify-ca/verify-full if set
+        # (so a weaker explicit sslmode like disable/prefer can't downgrade it).
+        if cparams.get("sslmode") not in ("verify-ca", "verify-full"):
+            cparams["sslmode"] = "require"
 
 
 class SearchBaseQuery(BaseQuery, SearchQueryMixin):
