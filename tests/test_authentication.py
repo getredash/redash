@@ -294,6 +294,78 @@ class TestRedirectToUrlAfterLoggingIn(BaseTestCase):
         )
         self.assertEqual(response.location, "/queries")
 
+    def test_multiple_slashes_open_redirect(self):
+        response = self.post_request(
+            "/login?next=////evil.com",
+            data={"email": self.user.email, "password": self.password},
+            org=self.factory.org,
+        )
+        self.assertEqual(response.location, "./")
+
+    def test_triple_slash_open_redirect(self):
+        response = self.post_request(
+            "/login?next=///evil.com/phish",
+            data={"email": self.user.email, "password": self.password},
+            org=self.factory.org,
+        )
+        self.assertEqual(response.location, "./")
+
+    def test_multiple_slashes_with_path(self):
+        response = self.post_request(
+            "/login?next=////evil.com/callback?token=secret",
+            data={"email": self.user.email, "password": self.password},
+            org=self.factory.org,
+        )
+        self.assertEqual(response.location, "./")
+
+    def test_file_scheme_open_redirect(self):
+        response = self.post_request(
+            "/login?next=file:https://evil.com/",
+            data={"email": self.user.email, "password": self.password},
+            org=self.factory.org,
+        )
+        self.assertEqual(response.location, "./")
+
+    def test_javascript_scheme_rejected(self):
+        response = self.post_request(
+            "/login?next=javascript:alert(1)",
+            data={"email": self.user.email, "password": self.password},
+            org=self.factory.org,
+        )
+        self.assertEqual(response.location, "./")
+
+    def test_http_scheme_without_netloc_rejected(self):
+        response = self.post_request(
+            "/login?next=http:///evil.com",
+            data={"email": self.user.email, "password": self.password},
+            org=self.factory.org,
+        )
+        self.assertEqual(response.location, "./")
+
+    def test_backslash_redirect_rejected(self):
+        response = self.post_request(
+            "/login?next=%5Cevil.com",
+            data={"email": self.user.email, "password": self.password},
+            org=self.factory.org,
+        )
+        self.assertEqual(response.location, "./")
+
+    def test_slash_backslash_redirect_rejected(self):
+        response = self.post_request(
+            "/login?next=/%5Cevil.com",
+            data={"email": self.user.email, "password": self.password},
+            org=self.factory.org,
+        )
+        self.assertEqual(response.location, "./")
+
+    def test_data_scheme_rejected(self):
+        response = self.post_request(
+            "/login?next=data:text/html,<script>alert(1)</script>",
+            data={"email": self.user.email, "password": self.password},
+            org=self.factory.org,
+        )
+        self.assertEqual(response.location, "./")
+
 
 class TestRemoteUserAuth(BaseTestCase):
     DEFAULT_SETTING_OVERRIDES = {"REDASH_REMOTE_USER_LOGIN_ENABLED": "true"}
