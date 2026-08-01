@@ -1,6 +1,5 @@
 import functools
 
-import boto3
 from flask_sqlalchemy import BaseQuery, SQLAlchemy
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.engine import Engine
@@ -46,6 +45,10 @@ make_searchable(db.metadata, options={"regconfig": "pg_catalog.simple"})
 
 
 if settings.REDASH_DATABASE_AWS_IAM_AUTH:
+    # boto3 ships in the optional "all_ds" dependency group, so import it lazily
+    # only when IAM auth is enabled.
+    import boto3
+
     RDS_CLIENT = boto3.client("rds")
 
     @listens_for(Engine, "do_connect")

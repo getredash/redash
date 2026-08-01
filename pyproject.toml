@@ -80,8 +80,6 @@ dependencies = [
     "paramiko==3.4.1",
     "oracledb==2.5.1",
     "ibm-db>=3.2.7,<4.0.0; platform_machine == 'x86_64' or platform_machine == 'AMD64'",
-    "boto3==1.28.8",
-    "botocore==1.31.8",
 ]
 
 [tool.black]
@@ -98,6 +96,8 @@ all_ds = [
     "atsd-client==3.0.5",
     "azure-core>=1.38.0",
     "azure-kusto-data==5.0.1",
+    "boto3==1.28.8",
+    "botocore==1.31.8",
     "cassandra-driver==3.29.3",
     "certifi>=2019.9.11",
     "cmem-cmempy==21.2.3",
