@@ -5,7 +5,6 @@ from base64 import b64decode
 from tempfile import NamedTemporaryFile
 from uuid import uuid4
 
-import boto3
 import psycopg2
 from psycopg2.extras import Range
 
@@ -23,6 +22,13 @@ from redash.query_runner import (
 )
 
 logger = logging.getLogger(__name__)
+
+try:
+    import boto3
+
+    IAM_ENABLED = True
+except ImportError:
+    IAM_ENABLED = False
 
 types_map = {
     20: TYPE_INTEGER,
@@ -260,6 +266,8 @@ class PostgreSQL(BaseSQLQueryRunner):
         port = self.configuration.get("port", 5432)
 
         if self.configuration.get("awsIamAuth", False):
+            if not IAM_ENABLED:
+                raise Exception("boto3 must be installed to use AWS IAM authentication.")
             region_name = self.configuration.get("awsRegion")
             rds_client = boto3.client("rds", region_name=region_name)
             auth_token = rds_client.generate_db_auth_token(
@@ -440,7 +448,7 @@ class RedshiftIAM(Redshift):
 
     @classmethod
     def enabled(cls):
-        return True
+        return IAM_ENABLED
 
     def _login_method_selection(self):
         if self.configuration.get("rolename"):
