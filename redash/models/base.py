@@ -46,11 +46,11 @@ make_searchable(db.metadata, options={"regconfig": "pg_catalog.simple"})
 
 
 if settings.REDASH_DATABASE_AWS_IAM_AUTH:
+    RDS_CLIENT = boto3.client("rds")
 
     @listens_for(Engine, "do_connect")
     def db_connect_hook(_dialect, _conn_rec, _cargs, cparams):
-        rds_client = boto3.client("rds")
-        auth_token = rds_client.generate_db_auth_token(
+        auth_token = RDS_CLIENT.generate_db_auth_token(
             DBHostname=cparams["host"],
             Port=cparams.get("port", 5432),
             DBUsername=cparams["user"],
