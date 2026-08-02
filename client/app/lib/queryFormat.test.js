@@ -54,6 +54,44 @@ describe("QueryFormat.formatQuery", () => {
       expect(formattedQueryText).not.toContain("@ >");
       expect(formattedQueryText).not.toContain("< @");
     });
+
+    test("preserves Postgres JSON path and key operators", () => {
+      const queryText = `
+        select
+          data #> '{a,b}' as path_json,
+          data #>> '{a,b}' as path_text,
+          data #- '{a,b}' as deleted_path
+        from example
+        where data ? 'key'
+          and data ?| array['key1', 'key2']
+          and data ?& array['key1', 'key2']
+      `;
+      const formattedQueryText = queryFormat.formatQuery(queryText, syntax);
+
+      expect(formattedQueryText).toContain("data #> '{a,b}'");
+      expect(formattedQueryText).toContain("data #>> '{a,b}'");
+      expect(formattedQueryText).toContain("data #- '{a,b}'");
+      expect(formattedQueryText).toContain("data ? 'key'");
+      expect(formattedQueryText).toContain("data ?| array");
+      expect(formattedQueryText).toContain("data ?& array");
+      expect(formattedQueryText).not.toContain("# >");
+      expect(formattedQueryText).not.toContain("# >>");
+      expect(formattedQueryText).not.toContain("# -");
+      expect(formattedQueryText).not.toContain("? |");
+      expect(formattedQueryText).not.toContain("? &");
+    });
+
+    test("does not replace user query text that looks like an operator placeholder", () => {
+      const queryText = `
+        select '__REDASH_POSTGRES_JSON_OPERATOR_0__' as placeholder_text,
+          data #>> '{a,b}' as path_text
+        from example
+      `;
+      const formattedQueryText = queryFormat.formatQuery(queryText, syntax);
+
+      expect(formattedQueryText).toContain("'__REDASH_POSTGRES_JSON_OPERATOR_0__'");
+      expect(formattedQueryText).toContain("data #>> '{a,b}'");
+    });
   });
 
   describe("json", () => {
