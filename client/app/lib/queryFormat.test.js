@@ -39,6 +39,21 @@ describe("QueryFormat.formatQuery", () => {
       const formattedQueryParameters = new Query({ query: formattedQueryText }).getParameters().parseQuery();
       expect(formattedQueryParameters.sort()).toEqual(queryParameters.sort());
     });
+
+    test("preserves Postgres JSON containment operators", () => {
+      const queryText = `
+        select *
+        from example
+        where keywords @> '[{"keyword":{"id":12345}}]'
+          and '[{"keyword":{"id":12345}}]' <@ keywords
+      `;
+      const formattedQueryText = queryFormat.formatQuery(queryText, syntax);
+
+      expect(formattedQueryText).toContain('keywords @> \'[{"keyword":{"id":12345}}]\'');
+      expect(formattedQueryText).toContain('\'[{"keyword":{"id":12345}}]\' <@ keywords');
+      expect(formattedQueryText).not.toContain("@ >");
+      expect(formattedQueryText).not.toContain("< @");
+    });
   });
 
   describe("json", () => {
