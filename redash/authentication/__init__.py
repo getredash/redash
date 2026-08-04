@@ -44,6 +44,10 @@ def sign(key, path, expires):
 
 @login_manager.user_loader
 def load_user(user_id_with_identity):
+    user = api_key_load_user_from_request(request)
+    if user:
+        return user
+
     org = current_org._get_current_object()
 
     try:
@@ -328,9 +332,6 @@ def _is_safe_next_url(url):
         return False
 
     # Leading-\ / /\ forms are host-like once browsers map \ → / (e.g. \evil.com).
-    # Do not blanket-reject \ inside query/fragment/path segments.
-    if url.startswith("\\") or url.startswith("/\\"):
-        return False
 
     # Chrome treats \ as / in URLs, so check both the original and
     # backslash-normalized versions to prevent bypasses like \/evil.com
