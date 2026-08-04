@@ -28,7 +28,7 @@ dependencies = [
     "flask-restful==0.3.10",
     "flask-sqlalchemy==2.5.1",
     "flask-talisman==0.7.0",
-    "flask-wtf==1.1.1",
+    "flask-wtf==1.3.0",
     "funcy==1.13",
     "gevent==25.9.1",
     "greenlet==3.3.2",
