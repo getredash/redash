@@ -63,10 +63,27 @@ class ChangeTrackingMixin:
     def __setattr__(self, key, value):
         if self._clean_values is None:
             self.prep_cleanvalues()
-        for attr in inspect(self.__class__).column_attrs:
-            (col,) = attr.columns
-            previous = getattr(self, attr.key, None)
-            self._clean_values[col.name] = previous
+        # Only track changes if the instance is properly instrumented and not deleted
+        if hasattr(self, "_sa_instance_state"):
+            state = self._sa_instance_state
+            # Skip change tracking if object is deleted or detached
+            if not state.deleted and state.session is not None:
+                for attr in inspect(self.__class__).column_attrs:
+                    (col,) = attr.columns
+                    try:
+                        previous = getattr(self, attr.key, None)
+                        self._clean_values[col.name] = previous
+                    except Exception as e:
+                        # Log unexpected errors accessing attributes during change tracking
+                        # This could indicate detached objects or attribute access issues
+                        import logging
+
+                        logging.warning(
+                            "Failed to get previous value for %s.%s during change tracking: %s",
+                            self.__class__.__name__,
+                            col.name,
+                            e,
+                        )
 
         super(ChangeTrackingMixin, self).__setattr__(key, value)
 
