@@ -661,15 +661,15 @@ wheels = [
 
 [[package]]
 name = "flask-login"
-version = "0.6.0"
+version = "0.6.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "flask" },
     { name = "werkzeug" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/79/b1/9d25c54b5766f3aba7a8192f890444a56b9105b0304bb3bcae8b28f39b80/Flask-Login-0.6.0.tar.gz", hash = "sha256:aa84fcfb4c3cf09ca58c08e816b7bce73f1349ba1cf13d00d8dffc5872d5fcf6", size = 47911, upload-time = "2022-03-30T15:36:06.214Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/c3/6e/2f4e13e373bb49e68c02c51ceadd22d172715a06716f9299d9df01b6ddb2/Flask-Login-0.6.3.tar.gz", hash = "sha256:5e23d14a607ef12806c699590b89d0f0e0d67baeec599d75947bf9c147330333", size = 48834, upload-time = "2023-10-30T14:53:21.151Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/58/a5/1dc6619231e8c35cec506c604135d7a3cbcaa643bdfe9a7983fab2eea8c5/Flask_Login-0.6.0-py3-none-any.whl", hash = "sha256:5cb01ce4dc253967b6ac722a11e46de83b6272ef7a19cc7b5725ae636916d04d", size = 16771, upload-time = "2022-03-30T15:36:05.081Z" },
+    { url = "https://files.pythonhosted.org/packages/59/f5/67e9cc5c2036f58115f9fe0f00d203cf6780c3ff8ae0e705e7a9d9e8ff9e/Flask_Login-0.6.3-py3-none-any.whl", hash = "sha256:849b25b82a436bf830a054e74214074af59097171562ab10bfa999e6b78aae5d", size = 17303, upload-time = "2023-10-30T14:53:19.636Z" },
 ]
 
 [[package]]
@@ -2417,7 +2417,7 @@ requires-dist = [
     { name = "disposable-email-domains", specifier = ">=0.0.52" },
     { name = "flask", specifier = "==2.3.3" },
     { name = "flask-limiter", specifier = "==3.3.1" },
-    { name = "flask-login", specifier = "==0.6.0" },
+    { name = "flask-login", specifier = "==0.6.3" },
     { name = "flask-mail", specifier = "==0.9.1" },
     { name = "flask-migrate", specifier = "==2.5.2" },
     { name = "flask-restful", specifier = "==0.3.10" },

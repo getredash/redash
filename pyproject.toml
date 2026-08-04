@@ -22,7 +22,7 @@ dependencies = [
     "disposable-email-domains>=0.0.52",
     "flask==2.3.3",
     "flask-limiter==3.3.1",
-    "flask-login==0.6.0",
+    "flask-login==0.6.3",
     "flask-mail==0.9.1",
     "flask-migrate==2.5.2",
     "flask-restful==0.3.10",
