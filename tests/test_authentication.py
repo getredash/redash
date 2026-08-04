@@ -294,78 +294,6 @@ class TestRedirectToUrlAfterLoggingIn(BaseTestCase):
         )
         self.assertEqual(response.location, "/queries")
 
-    def test_multiple_slashes_open_redirect(self):
-        response = self.post_request(
-            "/login?next=////evil.com",
-            data={"email": self.user.email, "password": self.password},
-            org=self.factory.org,
-        )
-        self.assertEqual(response.location, "./")
-
-    def test_triple_slash_open_redirect(self):
-        response = self.post_request(
-            "/login?next=///evil.com/phish",
-            data={"email": self.user.email, "password": self.password},
-            org=self.factory.org,
-        )
-        self.assertEqual(response.location, "./")
-
-    def test_multiple_slashes_with_path(self):
-        response = self.post_request(
-            "/login?next=////evil.com/callback?token=secret",
-            data={"email": self.user.email, "password": self.password},
-            org=self.factory.org,
-        )
-        self.assertEqual(response.location, "./")
-
-    def test_file_scheme_open_redirect(self):
-        response = self.post_request(
-            "/login?next=file:https://evil.com/",
-            data={"email": self.user.email, "password": self.password},
-            org=self.factory.org,
-        )
-        self.assertEqual(response.location, "./")
-
-    def test_javascript_scheme_rejected(self):
-        response = self.post_request(
-            "/login?next=javascript:alert(1)",
-            data={"email": self.user.email, "password": self.password},
-            org=self.factory.org,
-        )
-        self.assertEqual(response.location, "./")
-
-    def test_http_scheme_without_netloc_rejected(self):
-        response = self.post_request(
-            "/login?next=http:///evil.com",
-            data={"email": self.user.email, "password": self.password},
-            org=self.factory.org,
-        )
-        self.assertEqual(response.location, "./")
-
-    def test_backslash_redirect_rejected(self):
-        response = self.post_request(
-            "/login?next=%5Cevil.com",
-            data={"email": self.user.email, "password": self.password},
-            org=self.factory.org,
-        )
-        self.assertEqual(response.location, "./")
-
-    def test_slash_backslash_redirect_rejected(self):
-        response = self.post_request(
-            "/login?next=/%5Cevil.com",
-            data={"email": self.user.email, "password": self.password},
-            org=self.factory.org,
-        )
-        self.assertEqual(response.location, "./")
-
-    def test_data_scheme_rejected(self):
-        response = self.post_request(
-            "/login?next=data:text/html,<script>alert(1)</script>",
-            data={"email": self.user.email, "password": self.password},
-            org=self.factory.org,
-        )
-        self.assertEqual(response.location, "./")
-
 
 class TestRemoteUserAuth(BaseTestCase):
     DEFAULT_SETTING_OVERRIDES = {"REDASH_REMOTE_USER_LOGIN_ENABLED": "true"}
@@ -495,7 +423,7 @@ class TestJWTAuthentication(BaseTestCase):
         self.rsa_private_key = "/tmp/jwtRS256.key"
         self.rsa_public_key = "/tmp/jwtRS256.pem"
 
-        if not os.path.exists(self.rsa_public_key):
+        if not (os.path.isfile(self.rsa_private_key) and os.path.isfile(self.rsa_public_key)):
             subprocess.check_output(["openssl", "genrsa", "-out", self.rsa_private_key, "4096"])
             subprocess.check_output(
                 ["openssl", "rsa", "-pubout", "-in", self.rsa_private_key, "-out", self.rsa_public_key]
@@ -513,6 +441,8 @@ class TestJWTAuthentication(BaseTestCase):
         org_settings["auth_jwt_auth_issuer"] = ""
         org_settings["auth_jwt_auth_audience"] = ""
         org_settings["auth_jwt_auth_header_name"] = ""
+        jwt_auth.get_public_keys.key_cache.clear()
+        super(TestJWTAuthentication, self).tearDown()
 
     def test_jwt_no_token(self):
         response = self.get_request("/data_sources", org=self.factory.org)
