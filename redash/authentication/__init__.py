@@ -317,8 +317,8 @@ def _is_safe_next_url(url):
     if not url:
         return False
 
-    # Decode percent-encoding so %5C is treated like \ (Werkzeug 3 may leave
-    # encoded forms in Location; query decoding alone is not enough to reason about).
+    # Decode percent-encoding so %5C is treated like \ (Werkzeug 3 encodes
+    # backslashes in Location as %5C; browsers still treat \ as /).
     url = unquote(url.strip())
     if not url:
         return False
@@ -327,9 +327,9 @@ def _is_safe_next_url(url):
     if unicodedata.category(url[0])[0] == "C":
         return False
 
-    # Browsers treat \ as /; reject any backslash form (e.g. \evil.com, /\evil.com)
-    # rather than only the subset that urlparse maps to a netloc after replace.
-    if "\\" in url:
+    # Leading-\ / /\ forms are host-like once browsers map \ → / (e.g. \evil.com).
+    # Do not blanket-reject \ inside query/fragment/path segments.
+    if url.startswith("\\") or url.startswith("/\\"):
         return False
 
     # Chrome treats \ as / in URLs, so check both the original and
