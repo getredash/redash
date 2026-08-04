@@ -4,7 +4,7 @@ import logging
 import time
 import unicodedata
 from datetime import timedelta
-from urllib.parse import urlparse, urlsplit, urlunsplit
+from urllib.parse import unquote, urlparse, urlsplit, urlunsplit
 
 from flask import current_app, jsonify, redirect, request, session, url_for
 from flask_login import LoginManager, login_user, logout_user, user_logged_in
@@ -317,12 +317,19 @@ def _is_safe_next_url(url):
     if not url:
         return False
 
-    url = url.strip()
+    # Decode percent-encoding so %5C is treated like \ (Werkzeug 3 may leave
+    # encoded forms in Location; query decoding alone is not enough to reason about).
+    url = unquote(url.strip())
     if not url:
         return False
 
     # Reject URLs with leading control characters (browsers silently strip them)
     if unicodedata.category(url[0])[0] == "C":
+        return False
+
+    # Browsers treat \ as /; reject any backslash form (e.g. \evil.com, /\evil.com)
+    # rather than only the subset that urlparse maps to a netloc after replace.
+    if "\\" in url:
         return False
 
     # Chrome treats \ as / in URLs, so check both the original and
