@@ -103,9 +103,7 @@ def serialize_query_result_to_dsv(query_result, delimiter):
             if col_name in serialized_row:
                 serialized_row[col_name] = converter(serialized_row[col_name])
 
-        writer.writerow(
-            {key: _sanitize_dsv_value(value) for key, value in serialized_row.items()}
-        )
+        writer.writerow({key: _sanitize_dsv_value(value) for key, value in serialized_row.items()})
 
     return s.getvalue()
 

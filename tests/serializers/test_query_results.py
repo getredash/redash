@@ -89,9 +89,7 @@ class DsvSerializationTest(BaseTestCase):
         )
 
         with self.app.test_request_context("/"):
-            parsed = csv.DictReader(
-                io.StringIO(serialize_query_result_to_dsv(query_result, ","))
-            )
+            parsed = csv.DictReader(io.StringIO(serialize_query_result_to_dsv(query_result, ",")))
         rows = list(parsed)
 
         self.assertEqual(rows[0]["message"], "helloworld")
