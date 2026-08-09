@@ -72,6 +72,13 @@ def _get_column_lists(columns):
     return fieldnames, special_columns
 
 
+def _sanitize_dsv_value(value):
+    if isinstance(value, str):
+        return value.replace("\x00", "")
+
+    return value
+
+
 def serialize_query_result(query_result, is_api_user):
     if is_api_user:
         publicly_needed_keys = ["data", "retrieved_at"]
@@ -91,11 +98,14 @@ def serialize_query_result_to_dsv(query_result, delimiter):
     writer.writeheader()
 
     for row in query_data["rows"]:
+        serialized_row = dict(row)
         for col_name, converter in special_columns.items():
-            if col_name in row:
-                row[col_name] = converter(row[col_name])
+            if col_name in serialized_row:
+                serialized_row[col_name] = converter(serialized_row[col_name])
 
-        writer.writerow(row)
+        writer.writerow(
+            {key: _sanitize_dsv_value(value) for key, value in serialized_row.items()}
+        )
 
     return s.getvalue()
 

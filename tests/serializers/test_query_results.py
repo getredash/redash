@@ -79,3 +79,19 @@ class DsvSerializationTest(BaseTestCase):
         self.assertEqual(rows[1]["bool"], "false")
         self.assertEqual(rows[2]["date"], "")
         self.assertEqual(rows[3]["datetime"], "459")
+
+    def test_removes_null_bytes_from_dsv_values(self):
+        query_result = self.factory.create_query_result(
+            data={
+                "rows": [{"message": "hello\x00world"}],
+                "columns": [{"friendly_name": "message", "type": "string", "name": "message"}],
+            }
+        )
+
+        with self.app.test_request_context("/"):
+            parsed = csv.DictReader(
+                io.StringIO(serialize_query_result_to_dsv(query_result, ","))
+            )
+        rows = list(parsed)
+
+        self.assertEqual(rows[0]["message"], "helloworld")
