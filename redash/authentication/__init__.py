@@ -197,6 +197,17 @@ def jwt_token_load_user_from_request(request):
     except models.NoResultFound:
         user = create_and_login_user(current_org, payload["email"], payload["email"])
 
+    preferred_username = payload.get("preferred_username")
+    if preferred_username:
+        user_details = user.details or {}
+
+        if user_details.get("preferred_username") != preferred_username:
+            user.details = {
+                **user_details,
+                "preferred_username": preferred_username,
+            }
+            models.db.session.commit()
+
     return user
 
 

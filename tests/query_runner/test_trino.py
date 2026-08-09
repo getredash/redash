@@ -7,6 +7,7 @@ from unittest.mock import patch
 
 from trino.types import NamedRowTuple
 
+from redash.models.users import User
 from redash.query_runner.trino import Trino, _convert_row_types
 
 
@@ -68,6 +69,64 @@ class TestTrino(TestCase):
     def test_get_client_tags_returns_none_when_empty(self):
         runner = Trino({"client_tags": " ,  , "})
         self.assertIsNone(runner._get_client_tags())
+
+    def test_configuration_schema_supports_preferred_username_impersonation(self):
+        schema = Trino.configuration_schema()
+        enum_values = [
+            item["value"]
+            for item in schema["properties"]["impersonationField"]["extendedEnum"]
+        ]
+        self.assertIn("preferred_username", enum_values)
+
+    def test_get_trino_user_uses_preferred_username(self):
+        user = User(
+            name="Otter Gottaott",
+            email="otter@gotta.ott",
+            details={"preferred_username": "ottergottaott"},
+        )
+        runner = Trino(
+            {
+                "username": "redash",
+                "impersonation": True,
+                "impersonationField": "preferred_username",
+            }
+        )
+
+        self.assertEqual(runner._get_trino_user(user), "ottergottaott")
+
+    def test_get_trino_user_uses_selected_user_attribute(self):
+        user = User(
+            name="Otter Gottaott",
+            email="otter@gotta.ott",
+            details={"preferred_username": "ottergottaott"},
+        )
+
+        self.assertEqual(
+            Trino({"username": "redash", "impersonation": True, "impersonationField": "email"})._get_trino_user(user),
+            "otter@gotta.ott",
+        )
+        self.assertEqual(
+            Trino({"username": "redash", "impersonation": True, "impersonationField": "name"})._get_trino_user(user),
+            "Otter Gottaott",
+        )
+        self.assertEqual(
+            Trino(
+                {"username": "redash", "impersonation": True, "impersonationField": "preferred_username"}
+            )._get_trino_user(user),
+            "ottergottaott",
+        )
+
+    def test_get_trino_user_falls_back_when_preferred_username_missing(self):
+        user = User(name="Otter Gottaott", email="otter@gotta.ott", details={})
+        runner = Trino(
+            {
+                "username": "redash",
+                "impersonation": True,
+                "impersonationField": "preferred_username",
+            }
+        )
+
+        self.assertEqual(runner._get_trino_user(user), "redash")
 
 
 class TestConvertRowTypes(TestCase):
