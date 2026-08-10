@@ -9,7 +9,7 @@ from redash.query_runner import (
     TYPE_FLOAT,
     TYPE_INTEGER,
     TYPE_STRING,
-    BaseQueryRunner,
+    BaseSQLQueryRunner,
     InterruptException,
     JobTimeoutException,
     register,
@@ -62,7 +62,7 @@ TRINO_TYPES_MAPPING = {
 }
 
 
-class Trino(BaseQueryRunner):
+class Trino(BaseSQLQueryRunner):
     noop_query = "SELECT 1"
     should_annotate_query = ANNOTATE_QUERY
 
