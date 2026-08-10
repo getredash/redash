@@ -69,6 +69,25 @@ class TestTrino(TestCase):
         runner = Trino({"client_tags": " ,  , "})
         self.assertIsNone(runner._get_client_tags())
 
+    def test_supports_auto_limit(self):
+        runner = Trino({})
+        self.assertTrue(runner.supports_auto_limit)
+
+    def test_apply_auto_limit_adds_limit_to_select(self):
+        runner = Trino({})
+        result = runner.apply_auto_limit("SELECT * FROM users", True)
+        self.assertEqual(result, "SELECT * FROM users LIMIT 1000")
+
+    def test_apply_auto_limit_keeps_existing_limit(self):
+        runner = Trino({})
+        query = "SELECT * FROM users LIMIT 10"
+        self.assertEqual(runner.apply_auto_limit(query, True), query)
+
+    def test_apply_auto_limit_disabled(self):
+        runner = Trino({})
+        query = "SELECT * FROM users"
+        self.assertEqual(runner.apply_auto_limit(query, False), query)
+
 
 class TestConvertRowTypes(TestCase):
     def test_plain_values_unchanged(self):
