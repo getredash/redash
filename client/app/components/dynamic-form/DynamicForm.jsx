@@ -33,15 +33,15 @@ const fieldRules = ({ type, required, minLength }) => {
     requiredRule && { required, message: "This field is required." },
     minLengthRule && { min: minLength, message: "This field is too short." },
     emailTypeRule && { type: "email", message: "This field must be a valid email." },
-  ].filter(rule => rule);
+  ].filter((rule) => rule);
 };
 
 function normalizeEmptyValuesToNull(values) {
-  return mapValues(values, value => (value === "" ? null : value));
+  return mapValues(values, (value) => (value === "" ? null : value));
 }
 
 function DynamicFormFields({ fields, feedbackIcons, form }) {
-  return fields.map(field => {
+  return fields.map((field) => {
     const { name, type, initialValue, contentAfter } = field;
     const fieldLabel = getFieldLabel(field);
 
@@ -57,9 +57,9 @@ function DynamicFormFields({ fields, feedbackIcons, form }) {
 
     if (type === "file") {
       formItemProps.valuePropName = "data-value";
-      formItemProps.getValueFromEvent = e => {
+      formItemProps.getValueFromEvent = (e) => {
         if (e && e.fileList[0]) {
-          helper.getBase64(e.file).then(value => {
+          helper.getBase64(e.file).then((value) => {
             form.setFieldsValue({ [name]: value });
           });
         }
@@ -101,7 +101,7 @@ const reducerForActionSet = (state, action) => {
 function DynamicFormActions({ actions, isFormDirty }) {
   const [inProgressActions, setActionInProgress] = useReducer(reducerForActionSet, new Set());
 
-  const handleAction = useCallback(action => {
+  const handleAction = useCallback((action) => {
     const actionName = action.name;
     if (isFunction(action.callback)) {
       setActionInProgress({ actionName, inProgress: true });
@@ -110,7 +110,7 @@ function DynamicFormActions({ actions, isFormDirty }) {
       });
     }
   }, []);
-  return actions.map(action => (
+  return actions.map((action) => (
     <Button
       key={action.name}
       htmlType="button"
@@ -118,7 +118,8 @@ function DynamicFormActions({ actions, isFormDirty }) {
       type={action.type}
       disabled={isFormDirty && action.disableWhenDirty}
       loading={inProgressActions.has(action.name)}
-      onClick={() => handleAction(action)}>
+      onClick={() => handleAction(action)}
+    >
       {action.name}
     </Button>
   ));
@@ -152,17 +153,17 @@ export default function DynamicForm({
   const regularFields = difference(fields, extraFields);
 
   const handleFinish = useCallback(
-    values => {
+    (values) => {
       setIsSubmitting(true);
       values = normalizeEmptyValuesToNull(values);
       onSubmit(
         values,
-        msg => {
+        (msg) => {
           setIsSubmitting(false);
           setIsTouched(false); // reset form touched state
           notification.success(msg);
         },
-        msg => {
+        (msg) => {
           setIsSubmitting(false);
           notification.error(msg);
         }
@@ -188,7 +189,8 @@ export default function DynamicForm({
       className="dynamic-form"
       layout="vertical"
       onFinish={handleFinish}
-      onFinishFailed={handleFinishFailed}>
+      onFinishFailed={handleFinishFailed}
+    >
       <DynamicFormFields fields={regularFields} feedbackIcons={feedbackIcons} form={form} />
       {!isEmpty(extraFields) && (
         <div className="extra-options">
@@ -196,7 +198,8 @@ export default function DynamicForm({
             type="dashed"
             block
             className="extra-options-button"
-            onClick={() => setShowExtraFields(currentShowExtraFields => !currentShowExtraFields)}>
+            onClick={() => setShowExtraFields((currentShowExtraFields) => !currentShowExtraFields)}
+          >
             Additional Settings
             <i
               className={cx("fa m-l-5", { "fa-caret-up": showExtraFields, "fa-caret-down": !showExtraFields })}
