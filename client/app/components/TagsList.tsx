@@ -26,7 +26,7 @@ function TagsList({ tagsUrl, showUnselectAll = false, onUpdate }: TagsListProps)
   useEffect(() => {
     let isCancelled = false;
 
-    getTags(tagsUrl).then(tags => {
+    getTags(tagsUrl).then((tags) => {
       if (!isCancelled) {
         setAllTags(tags);
       }
@@ -89,11 +89,12 @@ function TagsList({ tagsUrl, showUnselectAll = false, onUpdate }: TagsListProps)
 
       <div className="tiled">
         <Menu className="invert-stripe-position" mode="inline" selectedKeys={selectedTags}>
-          {map(allTags, tag => (
+          {map(allTags, (tag) => (
             <Menu.Item key={tag.name} className="m-0">
               <PlainButton
                 className="d-flex align-items-center justify-content-between"
-                onClick={event => toggleTag(event, tag.name)}>
+                onClick={(event) => toggleTag(event, tag.name)}
+              >
                 <span className="max-character col-xs-11">{tag.name}</span>
                 <Badge count={tag.count} />
               </PlainButton>

@@ -19,10 +19,10 @@ function AddToDashboardDialog({ dialog, visualization }) {
   const [searchTerm, setSearchTerm] = useState("");
 
   const [doSearch, dashboards, isLoading] = useSearchResults(
-    term => {
+    (term) => {
       if (isString(term) && term !== "") {
         return Dashboard.query({ q: term })
-          .then(results => results.results)
+          .then((results) => results.results)
           .catch(() => []);
       }
       return Promise.resolve([]);
@@ -41,15 +41,13 @@ function AddToDashboardDialog({ dialog, visualization }) {
   function addWidgetToDashboard() {
     // Load dashboard with all widgets
     Dashboard.get(selectedDashboard)
-      .then(dashboard => {
+      .then((dashboard) => {
         dashboard.addWidget(visualization);
         return dashboard;
       })
-      .then(dashboard => {
+      .then((dashboard) => {
         dialog.close();
-        const key = `notification-${Math.random()
-          .toString(36)
-          .substr(2, 10)}`;
+        const key = `notification-${Math.random().toString(36).substr(2, 10)}`;
         notification.success(
           "Widget added to dashboard",
           <React.Fragment>
@@ -77,7 +75,8 @@ function AddToDashboardDialog({ dialog, visualization }) {
       title="Add to Dashboard"
       okButtonProps={{ disabled: !selectedDashboard || saveInProgress, loading: saveInProgress }}
       cancelButtonProps={{ disabled: saveInProgress }}
-      onOk={addWidgetToDashboard}>
+      onOk={addWidgetToDashboard}
+    >
       <label htmlFor="add-to-dashboard-dialog-dashboard">Choose the dashboard to add this query to:</label>
 
       {!selectedDashboard && (
@@ -88,7 +87,7 @@ function AddToDashboardDialog({ dialog, visualization }) {
           autoFocus
           placeholder="Search a dashboard by name"
           value={searchTerm}
-          onChange={event => setSearchTerm(event.target.value)}
+          onChange={(event) => setSearchTerm(event.target.value)}
           suffix={
             <PlainButton className={searchTerm === "" ? "hidden" : null} onClick={() => setSearchTerm("")}>
               <CloseOutlinedIcon />
@@ -104,7 +103,7 @@ function AddToDashboardDialog({ dialog, visualization }) {
           itemLayout="horizontal"
           loading={isLoading}
           dataSource={items}
-          renderItem={d => (
+          renderItem={(d) => (
             <List.Item
               key={`dashboard-${d.id}`}
               actions={
@@ -116,7 +115,8 @@ function AddToDashboardDialog({ dialog, visualization }) {
                     ]
                   : []
               }
-              onClick={selectedDashboard ? null : () => setSelectedDashboard(d)}>
+              onClick={selectedDashboard ? null : () => setSelectedDashboard(d)}
+            >
               <div className="add-to-dashboard-dialog-item-content">
                 {d.name}
                 <QueryTagsControl isDraft={d.is_draft} tags={d.tags} />
