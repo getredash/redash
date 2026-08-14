@@ -1,3 +1,5 @@
+from sqlalchemy import event
+
 from redash.models import AccessPermission, ApiKey, Dashboard, db
 from redash.permissions import ACCESS_TYPE_MODIFY
 from redash.serializers import serialize_dashboard
@@ -81,6 +83,29 @@ class TestDashboardResourceGet(BaseTestCase):
         self.assertEqual(rv.status_code, 200)
         self.assertTrue(rv.json["widgets"][0]["restricted"])
         self.assertNotIn("restricted", rv.json["widgets"][1])
+
+    def test_widget_count_does_not_cause_n_plus_one_queries(self):
+        dashboard = self.factory.create_dashboard()
+        for _ in range(20):
+            query = self.factory.create_query()
+            visualization = self.factory.create_visualization(query_rel=query)
+            self.factory.create_widget(dashboard=dashboard, visualization=visualization)
+
+        statements = []
+        engine = db.get_engine(self.app)
+
+        def capture_statement(*args):
+            statements.append(args[2])
+
+        event.listen(engine, "before_cursor_execute", capture_statement)
+        try:
+            rv = self.make_request("get", "/api/dashboards/{0}".format(dashboard.id))
+        finally:
+            event.remove(engine, "before_cursor_execute", capture_statement)
+
+        self.assertEqual(rv.status_code, 200)
+        self.assertEqual(len(rv.json["widgets"]), 20)
+        self.assertLessEqual(len(statements), 12)
 
     def test_get_non_existing_dashboard(self):
         rv = self.make_request("get", "/api/dashboards/-1")

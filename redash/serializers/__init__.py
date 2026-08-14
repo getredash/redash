@@ -8,6 +8,7 @@ from flask_login import current_user
 from funcy import project
 from rq.job import JobStatus
 from rq.timeouts import JobTimeoutException
+from sqlalchemy.orm import joinedload
 
 from redash import models
 from redash.models.parameterized_query import ParameterizedQuery
@@ -212,10 +213,29 @@ def serialize_dashboard(obj, with_widgets=False, user=None, with_favorite_state=
     widgets = []
 
     if with_widgets:
-        for w in obj.widgets:
+        widget_query = obj.widgets.options(
+            joinedload(models.Widget.visualization)
+            .joinedload(models.Visualization.query_rel)
+            .joinedload(models.Query.user),
+            joinedload(models.Widget.visualization)
+            .joinedload(models.Visualization.query_rel)
+            .joinedload(models.Query.last_modified_by),
+            joinedload(models.Widget.visualization)
+            .joinedload(models.Visualization.query_rel)
+            .joinedload(models.Query.data_source)
+            .selectinload(models.DataSource.data_source_groups),
+        )
+        permissions = user.permissions if user and not user.is_api_user() else None
+
+        for w in widget_query:
             if w.visualization_id is None:
                 widgets.append(serialize_widget(w))
-            elif user and has_access(w.visualization.query_rel, user, view_only):
+            elif user and has_access(
+                w.visualization.query_rel,
+                user,
+                view_only,
+                permissions=permissions,
+            ):
                 widgets.append(serialize_widget(w))
             else:
                 widget = project(

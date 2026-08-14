@@ -290,8 +290,10 @@ class DataSource(BelongsToOrgMixin, db.Model):
     # XXX examine call sites to see if a regular SQLA collection would work better
     @property
     def groups(self):
-        groups = DataSourceGroup.query.filter(DataSourceGroup.data_source == self)
-        return dict([(group.group_id, group.view_only) for group in groups])
+        groups = self.__dict__.get("data_source_groups")
+        if groups is None or any(group.group_id is None for group in groups):
+            groups = DataSourceGroup.query.filter(DataSourceGroup.data_source == self)
+        return {group.group_id: group.view_only for group in groups}
 
 
 @generic_repr("id", "data_source_id", "group_id", "view_only")
