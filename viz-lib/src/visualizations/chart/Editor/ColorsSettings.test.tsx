@@ -32,7 +32,7 @@ function mount(options: any, done: any) {
 
 describe("Visualizations -> Chart -> Editor -> Colors Settings", () => {
   describe("for pie", () => {
-    test("Changes series color", done => {
+    test("Changes series color", (done) => {
       const el = mount(
         {
           globalSeriesType: "pie",
@@ -41,10 +41,7 @@ describe("Visualizations -> Chart -> Editor -> Colors Settings", () => {
         done
       );
 
-      findByTestID(el, "Chart.Series.v.Color")
-        .find(".color-picker-trigger")
-        .last()
-        .simulate("click");
+      findByTestID(el, "Chart.Series.v.Color").find(".color-picker-trigger").last().simulate("click");
       findByTestID(el, "ColorPicker")
         .last()
         .find("input")
@@ -53,7 +50,7 @@ describe("Visualizations -> Chart -> Editor -> Colors Settings", () => {
   });
 
   describe("for heatmap", () => {
-    test("Changes color scheme", done => {
+    test("Changes color scheme", (done) => {
       const el = mount(
         {
           globalSeriesType: "heatmap",
@@ -62,15 +59,11 @@ describe("Visualizations -> Chart -> Editor -> Colors Settings", () => {
         done
       );
 
-      findByTestID(el, "Chart.Colors.Heatmap.ColorScheme")
-        .last()
-        .simulate("mouseDown");
-      findByTestID(el, "Chart.Colors.Heatmap.ColorScheme.Blues")
-        .last()
-        .simulate("click");
+      findByTestID(el, "Chart.Colors.Heatmap.ColorScheme").last().simulate("mouseDown");
+      findByTestID(el, "Chart.Colors.Heatmap.ColorScheme.Blues").last().simulate("click");
     });
 
-    test("Sets custom color scheme", done => {
+    test("Sets custom color scheme", (done) => {
       const el = mount(
         {
           globalSeriesType: "heatmap",
@@ -80,19 +73,13 @@ describe("Visualizations -> Chart -> Editor -> Colors Settings", () => {
         after(2, done)
       ); // we will perform 2 actions, so call `done` after all of them completed
 
-      findByTestID(el, "Chart.Colors.Heatmap.MinColor")
-        .find(".color-picker-trigger")
-        .last()
-        .simulate("click");
+      findByTestID(el, "Chart.Colors.Heatmap.MinColor").find(".color-picker-trigger").last().simulate("click");
       findByTestID(el, "ColorPicker")
         .last()
         .find("input")
         .simulate("change", { target: { value: "yellow" } });
 
-      findByTestID(el, "Chart.Colors.Heatmap.MaxColor")
-        .find(".color-picker-trigger")
-        .last()
-        .simulate("click");
+      findByTestID(el, "Chart.Colors.Heatmap.MaxColor").find(".color-picker-trigger").last().simulate("click");
       findByTestID(el, "ColorPicker")
         .last()
         .find("input")
@@ -101,7 +88,7 @@ describe("Visualizations -> Chart -> Editor -> Colors Settings", () => {
   });
 
   describe("for all except of pie and heatmap", () => {
-    test("Changes series color", done => {
+    test("Changes series color", (done) => {
       const el = mount(
         {
           globalSeriesType: "column",
@@ -110,10 +97,7 @@ describe("Visualizations -> Chart -> Editor -> Colors Settings", () => {
         done
       );
 
-      findByTestID(el, "Chart.Series.b.Color")
-        .find(".color-picker-trigger")
-        .last()
-        .simulate("click");
+      findByTestID(el, "Chart.Series.b.Color").find(".color-picker-trigger").last().simulate("click");
 
       findByTestID(el, "ColorPicker")
         .last()

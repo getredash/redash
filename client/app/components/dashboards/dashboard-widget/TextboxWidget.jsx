@@ -13,7 +13,7 @@ function TextboxWidget(props) {
   const editTextBox = () => {
     TextboxDialog.showModal({
       text: widget.text,
-    }).onClose(newText => {
+    }).onClose((newText) => {
       widget.text = newText;
       setText(newText);
       return widget.save();
