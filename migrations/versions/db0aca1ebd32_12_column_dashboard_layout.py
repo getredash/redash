@@ -20,22 +20,24 @@ def upgrade():
     # Guard against widgets whose options lack the position keys (e.g. rows written
     # through the API with options = '{}'): jsonb_set() with a NULL new_value returns
     # NULL, which would violate the NOT NULL constraint on widgets.options.
+    # The 9-digit bound also keeps the ::int cast and the doubling within int4 range.
     op.execute("""
     UPDATE widgets
     SET options = jsonb_set(options, '{position,col}', to_json((options->'position'->>'col')::int * 2)::jsonb)
-    WHERE options->'position'->>'col' ~ '^-?[0-9]+$';
+    WHERE options->'position'->>'col' ~ '^-?[0-9]{1,9}$';
     UPDATE widgets
     SET options = jsonb_set(options, '{position,sizeX}', to_json((options->'position'->>'sizeX')::int * 2)::jsonb)
-    WHERE options->'position'->>'sizeX' ~ '^-?[0-9]+$';
+    WHERE options->'position'->>'sizeX' ~ '^-?[0-9]{1,9}$';
     """)
 
 
 def downgrade():
+    # The 10-digit bound and bigint cast cover everything upgrade() can produce.
     op.execute("""
     UPDATE widgets
-    SET options = jsonb_set(options, '{position,col}', to_json((options->'position'->>'col')::int / 2)::jsonb)
-    WHERE options->'position'->>'col' ~ '^-?[0-9]+$';
+    SET options = jsonb_set(options, '{position,col}', to_json((options->'position'->>'col')::bigint / 2)::jsonb)
+    WHERE options->'position'->>'col' ~ '^-?[0-9]{1,10}$';
     UPDATE widgets
-    SET options = jsonb_set(options, '{position,sizeX}', to_json((options->'position'->>'sizeX')::int / 2)::jsonb)
-    WHERE options->'position'->>'sizeX' ~ '^-?[0-9]+$';
+    SET options = jsonb_set(options, '{position,sizeX}', to_json((options->'position'->>'sizeX')::bigint / 2)::jsonb)
+    WHERE options->'position'->>'sizeX' ~ '^-?[0-9]{1,10}$';
     """)
