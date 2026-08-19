@@ -209,7 +209,8 @@ const config = {
               sourceMap: false,
               lessOptions: {
                 plugins: [
-                  new LessPluginAutoPrefix({ browsers: ["last 3 versions"] })
+                  // Uses browserslist from package.json (Autoprefixer 10+ no longer accepts `browsers`).
+                  new LessPluginAutoPrefix()
                 ],
                 javascriptEnabled: true
               }
