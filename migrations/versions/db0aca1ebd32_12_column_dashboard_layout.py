@@ -34,14 +34,17 @@ def upgrade():
 def downgrade():
     # Halve exactly the values the original statement could halve (anything in
     # int4 range, which also covers everything upgrade() can produce) and skip
-    # the rest instead of aborting on the cast.
+    # the rest instead of aborting on the cast. The CASE guarantees the regex is
+    # checked before the cast (AND operands have no defined evaluation order).
     op.execute("""
     UPDATE widgets
     SET options = jsonb_set(options, '{position,col}', to_json((options->'position'->>'col')::bigint / 2)::jsonb)
-    WHERE options->'position'->>'col' ~ '^-?[0-9]{1,10}$'
-      AND (options->'position'->>'col')::bigint BETWEEN -2147483648 AND 2147483647;
+    WHERE CASE WHEN options->'position'->>'col' ~ '^-?[0-9]{1,10}$'
+               THEN (options->'position'->>'col')::bigint BETWEEN -2147483648 AND 2147483647
+               ELSE false END;
     UPDATE widgets
     SET options = jsonb_set(options, '{position,sizeX}', to_json((options->'position'->>'sizeX')::bigint / 2)::jsonb)
-    WHERE options->'position'->>'sizeX' ~ '^-?[0-9]{1,10}$'
-      AND (options->'position'->>'sizeX')::bigint BETWEEN -2147483648 AND 2147483647;
+    WHERE CASE WHEN options->'position'->>'sizeX' ~ '^-?[0-9]{1,10}$'
+               THEN (options->'position'->>'sizeX')::bigint BETWEEN -2147483648 AND 2147483647
+               ELSE false END;
     """)
