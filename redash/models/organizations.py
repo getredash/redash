@@ -2,6 +2,7 @@ from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm.attributes import flag_modified
 from sqlalchemy_utils.models import generic_repr
 
+from redash.settings.organization import env_overrides as org_settings_env_overrides
 from redash.settings.organization import settings as org_settings
 
 from .base import Column, db, primary_key
@@ -66,7 +67,7 @@ class Organization(TimestampMixin, db.Model):
         flag_modified(self, "settings")
 
     def get_setting(self, key, raise_on_missing=True):
-        if key in self.settings.get("settings", {}):
+        if key in self.settings.get("settings", {}) and key not in org_settings_env_overrides:
             return self.settings["settings"][key]
 
         if key in org_settings:
