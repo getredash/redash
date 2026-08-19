@@ -32,12 +32,16 @@ def upgrade():
 
 
 def downgrade():
-    # The 10-digit bound and bigint cast cover everything upgrade() can produce.
+    # Halve exactly the values the original statement could halve (anything in
+    # int4 range, which also covers everything upgrade() can produce) and skip
+    # the rest instead of aborting on the cast.
     op.execute("""
     UPDATE widgets
     SET options = jsonb_set(options, '{position,col}', to_json((options->'position'->>'col')::bigint / 2)::jsonb)
-    WHERE options->'position'->>'col' ~ '^-?[0-9]{1,10}$';
+    WHERE options->'position'->>'col' ~ '^-?[0-9]{1,10}$'
+      AND (options->'position'->>'col')::bigint BETWEEN -2147483648 AND 2147483647;
     UPDATE widgets
     SET options = jsonb_set(options, '{position,sizeX}', to_json((options->'position'->>'sizeX')::bigint / 2)::jsonb)
-    WHERE options->'position'->>'sizeX' ~ '^-?[0-9]{1,10}$';
+    WHERE options->'position'->>'sizeX' ~ '^-?[0-9]{1,10}$'
+      AND (options->'position'->>'sizeX')::bigint BETWEEN -2147483648 AND 2147483647;
     """)
