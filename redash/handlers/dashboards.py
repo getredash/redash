@@ -356,7 +356,11 @@ class DashboardTagsResource(BaseResource):
         """
         Lists all accessible dashboards.
         """
-        tags = models.Dashboard.all_tags(self.current_org, self.current_user)
+        tags = models.Dashboard.all_tags(
+            self.current_org,
+            self.current_user,
+            sort_by=self.current_org.get_setting("tags_sort_by"),
+        )
         return {"tags": [{"name": name, "count": count} for name, count in tags]}
 
 
