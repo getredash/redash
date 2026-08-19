@@ -400,8 +400,10 @@ def should_schedule_next(previous_iteration, now, interval, time=None, day_of_we
     else:
         # Accept both "HH:MM" (what the UI sends) and "HH:MM:SS" (common when the
         # schedule is written through the API); seconds are ignored.
-        hour, minute = time.split(":")[:2]
-        hour, minute = int(hour), int(minute)
+        time_parts = time.split(":")
+        if len(time_parts) not in (2, 3) or not all(part.isdigit() for part in time_parts):
+            raise ValueError("Invalid schedule time {!r}; expected HH:MM or HH:MM:SS".format(time))
+        hour, minute = int(time_parts[0]), int(time_parts[1])
 
         # The following logic is needed for cases like the following:
         # - The query scheduled to run at 23:59.

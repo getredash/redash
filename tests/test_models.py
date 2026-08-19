@@ -63,6 +63,13 @@ class ShouldScheduleNextTest(TestCase):
         self.assertFalse(models.should_schedule_next(yesterday, now, "86400", "23:00:00"))
         self.assertTrue(models.should_schedule_next(yesterday, now, "86400", "17:00:00"))
 
+    def test_exact_time_rejects_malformed_time(self):
+        now = date_parse("2015-10-16 20:10")
+        yesterday = date_parse("2015-10-15 23:07")
+        for malformed in ("23:00:garbage", "23:00:00:00", "23", "garbage:00"):
+            with self.assertRaises(ValueError):
+                models.should_schedule_next(yesterday, now, "86400", malformed)
+
     def test_exact_time_every_x_days_that_needs_reschedule(self):
         now = utcnow()
         four_days_ago = now - datetime.timedelta(days=4)
