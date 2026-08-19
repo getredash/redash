@@ -11,6 +11,11 @@ from redash.handlers.alerts import (
     AlertSubscriptionResource,
 )
 from redash.handlers.base import org_scoped_rule
+from redash.handlers.custom_maps import (
+    CustomMapGeoJsonResource,
+    CustomMapListResource,
+    CustomMapResource,
+)
 from redash.handlers.dashboards import (
     DashboardFavoriteListResource,
     DashboardForkResource,
@@ -283,5 +288,9 @@ api.add_org_resource(DestinationListResource, "/api/destinations", endpoint="des
 
 api.add_org_resource(QuerySnippetResource, "/api/query_snippets/<snippet_id>", endpoint="query_snippet")
 api.add_org_resource(QuerySnippetListResource, "/api/query_snippets", endpoint="query_snippets")
+
+api.add_org_resource(CustomMapListResource, "/api/custom_maps", endpoint="custom_maps")
+api.add_org_resource(CustomMapResource, "/api/custom_maps/<map_id>", endpoint="custom_map")
+api.add_org_resource(CustomMapGeoJsonResource, "/api/custom_maps/<map_id>/geojson", endpoint="custom_map_geojson")
 
 api.add_org_resource(OrganizationSettings, "/api/settings/organization", endpoint="organization_settings")
