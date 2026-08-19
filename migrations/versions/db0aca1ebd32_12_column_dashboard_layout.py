@@ -17,18 +17,25 @@ depends_on = None
 
 
 def upgrade():
+    # Guard against widgets whose options lack the position keys (e.g. rows written
+    # through the API with options = '{}'): jsonb_set() with a NULL new_value returns
+    # NULL, which would violate the NOT NULL constraint on widgets.options.
     op.execute("""
     UPDATE widgets
-    SET options = jsonb_set(options, '{position,col}', to_json((options->'position'->>'col')::int * 2)::jsonb);
+    SET options = jsonb_set(options, '{position,col}', to_json((options->'position'->>'col')::int * 2)::jsonb)
+    WHERE options->'position'->>'col' ~ '^-?[0-9]+$';
     UPDATE widgets
-    SET options = jsonb_set(options, '{position,sizeX}', to_json((options->'position'->>'sizeX')::int * 2)::jsonb);
+    SET options = jsonb_set(options, '{position,sizeX}', to_json((options->'position'->>'sizeX')::int * 2)::jsonb)
+    WHERE options->'position'->>'sizeX' ~ '^-?[0-9]+$';
     """)
 
 
 def downgrade():
     op.execute("""
     UPDATE widgets
-    SET options = jsonb_set(options, '{position,col}', to_json((options->'position'->>'col')::int / 2)::jsonb);
+    SET options = jsonb_set(options, '{position,col}', to_json((options->'position'->>'col')::int / 2)::jsonb)
+    WHERE options->'position'->>'col' ~ '^-?[0-9]+$';
     UPDATE widgets
-    SET options = jsonb_set(options, '{position,sizeX}', to_json((options->'position'->>'sizeX')::int / 2)::jsonb);
+    SET options = jsonb_set(options, '{position,sizeX}', to_json((options->'position'->>'sizeX')::int / 2)::jsonb)
+    WHERE options->'position'->>'sizeX' ~ '^-?[0-9]+$';
     """)
