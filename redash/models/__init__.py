@@ -398,8 +398,12 @@ def should_schedule_next(previous_iteration, now, interval, time=None, day_of_we
         ttl = int(interval)
         next_iteration = previous_iteration + datetime.timedelta(seconds=ttl)
     else:
-        hour, minute = time.split(":")
-        hour, minute = int(hour), int(minute)
+        # Accept both "HH:MM" (what the UI sends) and "HH:MM:SS" (common when the
+        # schedule is written through the API); seconds are ignored.
+        time_parts = time.split(":")
+        if len(time_parts) not in (2, 3) or not all(part.isdigit() for part in time_parts):
+            raise ValueError("Invalid schedule time {!r}; expected HH:MM or HH:MM:SS".format(time))
+        hour, minute = int(time_parts[0]), int(time_parts[1])
 
         # The following logic is needed for cases like the following:
         # - The query scheduled to run at 23:59.
@@ -607,12 +611,15 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
                 if query.schedule.get("disabled"):
                     continue
 
-                # Skip queries that have None for all schedule values. It's unclear whether this
-                # something that can happen in practice, but we have a test case for it.
-                if all(value is None for value in query.schedule.values()):
+                # The schedule is free-form JSON that can also be written through the API,
+                # so optional keys may be missing entirely; treat a missing key like null.
+                # A schedule without an interval (e.g. one where all values are None) has
+                # nothing to run, so skip it rather than treating it as faulty.
+                interval = query.schedule.get("interval")
+                if interval is None:
                     continue
 
-                if query.schedule["until"]:
+                if query.schedule.get("until"):
                     schedule_until = pytz.utc.localize(datetime.datetime.strptime(query.schedule["until"], "%Y-%m-%d"))
 
                     if schedule_until <= now:
@@ -625,9 +632,9 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
                 if should_schedule_next(
                     retrieved_at,
                     now,
-                    query.schedule["interval"],
-                    query.schedule["time"],
-                    query.schedule["day_of_week"],
+                    interval,
+                    query.schedule.get("time"),
+                    query.schedule.get("day_of_week"),
                     query.schedule_failures,
                 ):
                     key = "{}:{}".format(query.query_hash, query.data_source_id)
@@ -640,7 +647,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
                     "Could not determine if query %d is outdated due to %s. The schedule for this query has been disabled."
                     % (query.id, repr(e))
                 )
-                logging.info(message)
+                logging.warning(message)
                 sentry.capture_exception(type(e)(message).with_traceback(e.__traceback__))
 
         return list(outdated_queries.values())
