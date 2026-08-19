@@ -56,6 +56,13 @@ class ShouldScheduleNextTest(TestCase):
         schedule = "23:59"
         self.assertTrue(models.should_schedule_next(previous, now, "86400", schedule))
 
+    def test_exact_time_with_seconds_component(self):
+        # "HH:MM:SS" is accepted as well as "HH:MM"; the seconds are ignored.
+        now = date_parse("2015-10-16 20:10")
+        yesterday = date_parse("2015-10-15 23:07")
+        self.assertFalse(models.should_schedule_next(yesterday, now, "86400", "23:00:00"))
+        self.assertTrue(models.should_schedule_next(yesterday, now, "86400", "17:00:00"))
+
     def test_exact_time_every_x_days_that_needs_reschedule(self):
         now = utcnow()
         four_days_ago = now - datetime.timedelta(days=4)
@@ -311,7 +318,7 @@ class QueryOutdatedQueriesTest(BaseTestCase):
         self.assertIn(query, queries)
 
     def test_skips_and_disables_faulty_queries(self):
-        faulty_query = self.create_scheduled_query(until="pigs fly")
+        faulty_query = self.create_scheduled_query(interval="60", until="pigs fly")
         valid_query = self.create_scheduled_query(interval="60")
         self.fake_previous_execution(valid_query, minutes=10)
 
@@ -324,6 +331,34 @@ class QueryOutdatedQueriesTest(BaseTestCase):
         query = self.create_scheduled_query(disabled=True)
         queries = models.Query.outdated_queries()
         self.assertNotIn(query, queries)
+
+    def test_partial_schedule_with_interval_only_is_not_disabled(self):
+        """
+        Schedules written through the API may omit optional keys (time, day_of_week, until).
+        They should still be scheduled rather than being treated as faulty and disabled.
+        """
+        query = self.factory.create_query(schedule={"interval": "3600"})
+        self.fake_previous_execution(query, hours=2)
+
+        self.assertEqual(list(models.Query.outdated_queries()), [query])
+        self.assertFalse(query.schedule.get("disabled"))
+
+    def test_partial_schedule_with_time_containing_seconds_is_not_disabled(self):
+        half_an_hour_ago = utcnow() - datetime.timedelta(minutes=30)
+        query = self.factory.create_query(
+            schedule={"interval": "86400", "time": half_an_hour_ago.strftime("%H:%M:%S")}
+        )
+        self.fake_previous_execution(query, hours=23)
+
+        self.assertEqual(list(models.Query.outdated_queries()), [query])
+        self.assertFalse(query.schedule.get("disabled"))
+
+    def test_schedule_without_interval_is_skipped_not_disabled(self):
+        query = self.factory.create_query(schedule={"until": "2050-01-01"})
+        self.fake_previous_execution(query, hours=2)
+
+        self.assertEqual(list(models.Query.outdated_queries()), [])
+        self.assertFalse(query.schedule.get("disabled"))
 
 
 class QueryArchiveTest(BaseTestCase):
