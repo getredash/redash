@@ -17,34 +17,26 @@ depends_on = None
 
 
 def upgrade():
-    # Guard against widgets whose options lack the position keys (e.g. rows written
-    # through the API with options = '{}'): jsonb_set() with a NULL new_value returns
-    # NULL, which would violate the NOT NULL constraint on widgets.options.
-    # The 9-digit bound also keeps the ::int cast and the doubling within int4 range.
+    # Skip widgets whose position values are missing or not numeric, e.g. rows
+    # written through the API with options = '{}'. Without the filter the cast
+    # yields NULL, jsonb_set() returns NULL for a NULL new_value, and the update
+    # fails the NOT NULL constraint on widgets.options.
     op.execute("""
     UPDATE widgets
     SET options = jsonb_set(options, '{position,col}', to_json((options->'position'->>'col')::int * 2)::jsonb)
-    WHERE options->'position'->>'col' ~ '^-?[0-9]{1,9}$';
+    WHERE options->'position'->>'col' ~ '^-?[0-9]+$';
     UPDATE widgets
     SET options = jsonb_set(options, '{position,sizeX}', to_json((options->'position'->>'sizeX')::int * 2)::jsonb)
-    WHERE options->'position'->>'sizeX' ~ '^-?[0-9]{1,9}$';
+    WHERE options->'position'->>'sizeX' ~ '^-?[0-9]+$';
     """)
 
 
 def downgrade():
-    # Halve exactly the values the original statement could halve (anything in
-    # int4 range, which also covers everything upgrade() can produce) and skip
-    # the rest instead of aborting on the cast. The CASE guarantees the regex is
-    # checked before the cast (AND operands have no defined evaluation order).
     op.execute("""
     UPDATE widgets
-    SET options = jsonb_set(options, '{position,col}', to_json((options->'position'->>'col')::bigint / 2)::jsonb)
-    WHERE CASE WHEN options->'position'->>'col' ~ '^-?[0-9]{1,10}$'
-               THEN (options->'position'->>'col')::bigint BETWEEN -2147483648 AND 2147483647
-               ELSE false END;
+    SET options = jsonb_set(options, '{position,col}', to_json((options->'position'->>'col')::int / 2)::jsonb)
+    WHERE options->'position'->>'col' ~ '^-?[0-9]+$';
     UPDATE widgets
-    SET options = jsonb_set(options, '{position,sizeX}', to_json((options->'position'->>'sizeX')::bigint / 2)::jsonb)
-    WHERE CASE WHEN options->'position'->>'sizeX' ~ '^-?[0-9]{1,10}$'
-               THEN (options->'position'->>'sizeX')::bigint BETWEEN -2147483648 AND 2147483647
-               ELSE false END;
+    SET options = jsonb_set(options, '{position,sizeX}', to_json((options->'position'->>'sizeX')::int / 2)::jsonb)
+    WHERE options->'position'->>'sizeX' ~ '^-?[0-9]+$';
     """)
