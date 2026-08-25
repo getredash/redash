@@ -8,7 +8,7 @@ export default function useQuery(originalQuery) {
   const [originalQuerySource, setOriginalQuerySource] = useState(originalQuery.query);
   const [originalAutoLimit, setOriginalAutoLimit] = useState(query.options.apply_auto_limit);
 
-  const updateQuery = useUpdateQuery(query, updatedQuery => {
+  const updateQuery = useUpdateQuery(query, (updatedQuery) => {
     // It's important to update URL first, and only then update state
     if (updatedQuery.id !== query.id) {
       // Don't reload page when saving new query

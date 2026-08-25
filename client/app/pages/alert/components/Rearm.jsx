@@ -34,12 +34,12 @@ function RearmByDuration({ value, onChange, editMode }) {
     return null;
   }
 
-  const onChangeCount = newCount => {
+  const onChangeCount = (newCount) => {
     setCount(newCount);
     onChange(newCount * DURATIONS[durationIdx][1]);
   };
 
-  const onChangeIdx = newIdx => {
+  const onChangeIdx = (newIdx) => {
     setDurationIdx(newIdx);
     onChange(count * DURATIONS[newIdx][1]);
   };
@@ -79,7 +79,7 @@ RearmByDuration.defaultProps = {
 function RearmEditor({ value, onChange }) {
   const [selected, setSelected] = useState(value < 2 ? value : 2);
 
-  const _onChange = newSelected => {
+  const _onChange = (newSelected) => {
     setSelected(newSelected);
     onChange(newSelected < 2 ? newSelected : 3600);
   };
@@ -90,7 +90,8 @@ function RearmEditor({ value, onChange }) {
         optionLabelProp="label"
         defaultValue={selected || 0}
         dropdownMatchSelectWidth={false}
-        onChange={_onChange}>
+        onChange={_onChange}
+      >
         <Select.Option value={0} label="Just once">
           Just once <em>until back to normal</em>
         </Select.Option>

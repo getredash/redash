@@ -17,7 +17,7 @@ function nextOrderByDirection(direction: any) {
 
 function toggleOrderBy(columnName: any, orderBy = [], multiColumnSort = false) {
   // @ts-expect-error ts-migrate(2339) FIXME: Property 'name' does not exist on type 'never'.
-  const index = findIndex(orderBy, i => i.name === columnName);
+  const index = findIndex(orderBy, (i) => i.name === columnName);
   const item = { name: columnName, direction: "ascend" };
   if (index >= 0) {
     // @ts-expect-error ts-migrate(2322) FIXME: Type 'string | null' is not assignable to type 'st... Remove this comment to see the full error message
@@ -27,7 +27,7 @@ function toggleOrderBy(columnName: any, orderBy = [], multiColumnSort = false) {
   if (multiColumnSort) {
     if (!item.direction) {
       // @ts-expect-error ts-migrate(2339) FIXME: Property 'name' does not exist on type 'never'.
-      return filter(orderBy, i => i.name !== columnName);
+      return filter(orderBy, (i) => i.name !== columnName);
     }
     if (index >= 0) {
       // @ts-expect-error ts-migrate(2322) FIXME: Type '{ name: any; direction: string; }' is not as... Remove this comment to see the full error message
@@ -57,7 +57,7 @@ export function prepareColumns(columns: any, searchInput: any, orderBy: any, onO
   const isMultiColumnSort = orderBy.length > 1;
   const orderByInfo = getOrderByInfo(orderBy);
 
-  let tableColumns = map(columns, column => {
+  let tableColumns = map(columns, (column) => {
     // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     const isAscend = orderByInfo[column.name] && orderByInfo[column.name].direction === "ascend";
     // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
@@ -145,21 +145,17 @@ export function initRows(rows: any) {
 export function filterRows(rows: any, searchTerm: any, searchColumns: any) {
   if (searchTerm !== "" && searchColumns.length > 0) {
     searchTerm = searchTerm.toUpperCase();
-    const matchFields = map(searchColumns, column => {
+    const matchFields = map(searchColumns, (column) => {
       // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
       const initColumn = ColumnTypes[column.displayAs];
       const { prepareData } = initColumn(column);
       return (row: any) => {
         const { text } = prepareData(row);
-        return (
-          toString(text)
-            .toUpperCase()
-            .indexOf(searchTerm) >= 0
-        );
+        return toString(text).toUpperCase().indexOf(searchTerm) >= 0;
       };
     });
 
-    return filter(rows, row => some(matchFields, match => match(row.record)));
+    return filter(rows, (row) => some(matchFields, (match) => match(row.record)));
   }
   return rows;
 }

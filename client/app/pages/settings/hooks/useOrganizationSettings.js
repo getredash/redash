@@ -19,7 +19,7 @@ export default function useOrganizationSettings({ onError }) {
     let isCancelled = false;
 
     OrgSettings.get()
-      .then(response => {
+      .then((response) => {
         if (!isCancelled) {
           const settings = get(response, "settings");
           setSettings(settings);
@@ -27,7 +27,7 @@ export default function useOrganizationSettings({ onError }) {
           setIsLoading(false);
         }
       })
-      .catch(error => {
+      .catch((error) => {
         if (!isCancelled) {
           handleError(error);
         }
@@ -38,15 +38,15 @@ export default function useOrganizationSettings({ onError }) {
     };
   }, [handleError]);
 
-  const handleChange = useCallback(changes => {
-    setCurrentValues(currentValues => ({ ...currentValues, ...changes }));
+  const handleChange = useCallback((changes) => {
+    setCurrentValues((currentValues) => ({ ...currentValues, ...changes }));
   }, []);
 
   const handleSubmit = useCallback(() => {
     if (!isSaving) {
       setIsSaving(true);
       OrgSettings.save(currentValues)
-        .then(response => {
+        .then((response) => {
           const settings = get(response, "settings");
           setSettings(settings);
           setCurrentValues({ ...settings });

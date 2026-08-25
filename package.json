@@ -1,6 +1,6 @@
 {
   "name": "redash-client",
-  "version": "26.05.0-dev",
+  "version": "26.08.0-dev",
   "description": "The frontend part of Redash.",
   "main": "index.js",
   "scripts": {
@@ -18,7 +18,7 @@
     "lint:fix": "pnpm run lint:base  --fix --ext .js --ext .jsx --ext .ts --ext .tsx ./client",
     "lint:base": "eslint --config ./client/.eslintrc.js --ignore-path ./client/.eslintignore",
     "lint:ci": "pnpm run lint --max-warnings 0 --format junit --output-file /tmp/test-results/eslint/results.xml",
-    "prettier": "prettier --write 'client/app/**/*.{js,jsx,ts,tsx}' 'client/cypress/**/*.{js,jsx,ts,tsx}'",
+    "prettier": "prettier --write 'client/app/**/*.{js,jsx,ts,tsx}' 'client/cypress/**/*.{js,jsx,ts,tsx}' 'viz-lib/src/**/*.{ts,tsx}'",
     "type-check": "tsc --noEmit --project client/tsconfig.json",
     "type-check:watch": "pnpm run type-check --watch",
     "jest": "TZ=Africa/Khartoum jest",
@@ -203,7 +203,8 @@
     "overrides": {
       "@types/react": "^17.0.0",
       "@types/react-dom": "^17.0.0",
-      "cheerio": "1.0.0-rc.12"
+      "cheerio": "1.0.0-rc.12",
+      "form-data@2": "~2.5.4"
     }
   }
 }

@@ -36,7 +36,7 @@ describe("Visualizations -> Details -> Renderer", () => {
 
   test("Renders all columns when no options provided", () => {
     const el = mount(sampleData);
-    
+
     // Check that the component renders with expected data
     expect(el.text()).toContain("id");
     expect(el.text()).toContain("name");
@@ -55,9 +55,9 @@ describe("Visualizations -> Details -> Renderer", () => {
         { name: "active", visible: false, order: 3 },
       ],
     };
-    
+
     const el = mount(sampleData, options);
-    
+
     // Should show id and created_at, but not name and active
     expect(el.text()).toContain("id");
     expect(el.text()).toContain("created_at");
@@ -78,10 +78,10 @@ describe("Visualizations -> Details -> Renderer", () => {
     const el = mount(sampleData, options);
 
     // Get all description item labels in order
-    const labels = el.find('.ant-descriptions-item-label').map(node => node.text());
+    const labels = el.find(".ant-descriptions-item-label").map((node) => node.text());
 
     // Should appear in order: active (0), name (1), created_at (2), id (3)
-    expect(labels).toEqual(['active', 'name', 'created_at', 'id']);
+    expect(labels).toEqual(["active", "name", "created_at", "id"]);
   });
 
   test("Uses custom column titles", () => {
@@ -91,9 +91,9 @@ describe("Visualizations -> Details -> Renderer", () => {
         { name: "name", visible: true, title: "Full Name", order: 1 },
       ],
     };
-    
+
     const el = mount(sampleData, options);
-    
+
     expect(el.text()).toContain("User ID");
     expect(el.text()).toContain("Full Name");
   });
@@ -105,17 +105,17 @@ describe("Visualizations -> Details -> Renderer", () => {
         { name: "name", visible: true, alignContent: "right", order: 1 },
       ],
     };
-    
+
     const el = mount(sampleData, options);
-    
+
     // Check that alignment styles are applied
-    const alignedDivs = el.find('div[style]');
+    const alignedDivs = el.find("div[style]");
     expect(alignedDivs.length).toBeGreaterThan(0);
   });
 
   test("Shows pagination for multiple rows", () => {
     const el = mount(sampleData);
-    
+
     // Check that pagination is present - look for pagination elements
     const paginationElements = el.find('[className*="paginator"]');
     expect(paginationElements.length).toBeGreaterThan(0);
@@ -126,9 +126,9 @@ describe("Visualizations -> Details -> Renderer", () => {
       ...sampleData,
       rows: [sampleData.rows[0]],
     };
-    
+
     const el = mount(singleRowData);
-    
+
     // Check that pagination is not present for single row
     const paginationElements = el.find('[className*="paginator"]');
     expect(paginationElements.length).toBe(0);
@@ -139,9 +139,9 @@ describe("Visualizations -> Details -> Renderer", () => {
       columns: [],
       rows: [],
     };
-    
+
     const el = mount(emptyData);
-    
+
     expect(el.html()).toBeNull();
   });
 
@@ -152,7 +152,7 @@ describe("Visualizations -> Details -> Renderer", () => {
 
     // Test the component directly with null data instead of using mount helper
     const el = enzyme.mount(<Renderer data={null as any} options={{}} />);
-    
+
     expect(el.html()).toBeNull();
 
     // Restore console.error
@@ -161,13 +161,15 @@ describe("Visualizations -> Details -> Renderer", () => {
 
   test("Navigates between rows with pagination", () => {
     const el = mount(sampleData);
-    
+
     // Check first row is displayed
     expect(el.text()).toContain("John Doe");
     expect(el.text()).not.toContain("Jane Smith");
-    
+
     // Find and click next button
-    const nextButton = el.find('button').filterWhere(n => n.text().includes('Next') || n.prop('aria-label') === 'Next Page');
+    const nextButton = el
+      .find("button")
+      .filterWhere((n) => n.text().includes("Next") || n.prop("aria-label") === "Next Page");
     if (nextButton.length > 0) {
       nextButton.first().simulate("click");
 

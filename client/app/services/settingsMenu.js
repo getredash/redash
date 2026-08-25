@@ -36,18 +36,18 @@ class SettingsMenu {
 
   remove(id) {
     if (isString(id)) {
-      this.items = filter(this.items, item => item.id !== id);
+      this.items = filter(this.items, (item) => item.id !== id);
       // removing item does not change order of other items, so no need to sort
     }
   }
 
   getAvailableItems() {
-    return filter(this.items, item => item.isAvailable());
+    return filter(this.items, (item) => item.isAvailable());
   }
 
   getActiveItem(path) {
     const strippedPath = stripBase(path);
-    return find(this.items, item => item.isActive(strippedPath));
+    return find(this.items, (item) => item.isActive(strippedPath));
   }
 }
 

@@ -18,7 +18,7 @@ export function SearchInput({ placeholder, value, showIcon, onChange, label }) {
   }, [value]);
 
   const onInputChange = useCallback(
-    event => {
+    (event) => {
       const newValue = event.target.value;
       setCurrentValue(newValue);
       onChange(newValue);
@@ -59,14 +59,14 @@ SearchInput.defaultProps = {
  */
 
 export function Menu({ items, selected }) {
-  items = filter(items, item => (isFunction(item.isAvailable) ? item.isAvailable() : true));
+  items = filter(items, (item) => (isFunction(item.isAvailable) ? item.isAvailable() : true));
   if (items.length === 0) {
     return null;
   }
   return (
     <div className="m-b-10 tags-list tiled">
       <AntdMenu className="invert-stripe-position" mode="inline" selectable={false} selectedKeys={[selected]}>
-        {map(items, item => (
+        {map(items, (item) => (
           <AntdMenu.Item key={item.key} className="m-0">
             <Link href={item.href}>
               {isString(item.icon) && item.icon !== "" && (
