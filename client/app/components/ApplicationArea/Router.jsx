@@ -1,15 +1,15 @@
-import { isFunction, startsWith, trimStart, trimEnd } from "lodash";
-import React, { useState, useEffect, useRef, useContext } from "react";
-import PropTypes from "prop-types";
-import UniversalRouter from "universal-router";
-import ErrorBoundary from "@redash/viz/lib/components/ErrorBoundary";
 import location from "@/services/location";
 import url from "@/services/url";
+import ErrorBoundary from "@redash/viz/lib/components/ErrorBoundary";
+import { isFunction, startsWith, trimEnd, trimStart } from "lodash";
+import PropTypes from "prop-types";
+import React, { useContext, useEffect, useRef, useState } from "react";
+import UniversalRouter from "universal-router";
 
 import ErrorMessage from "./ErrorMessage";
 
 function generateRouteKey() {
-  return Math.random().toString(32).substr(2);
+  return Math.random().toString(32).slice(2);
 }
 
 export const CurrentRouteContext = React.createContext(null);
@@ -28,7 +28,7 @@ export function stripBase(href) {
   href = url.normalize(href);
 
   if (startsWith(href, baseHref)) {
-    return "/" + trimStart(href.substr(baseHref.length), "/");
+    return "/" + trimStart(href.slice(baseHref.length), "/");
   }
 
   return false;

@@ -1,5 +1,5 @@
+import { each, get, includes, isEmpty, isNil, isUndefined, map, some } from "lodash";
 import React from "react";
-import { each, includes, isUndefined, isEmpty, isNil, map, get, some } from "lodash";
 
 function orderedInputs(properties, order, targetOptions) {
   const inputs = new Array(order.length);

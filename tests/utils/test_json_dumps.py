@@ -15,7 +15,14 @@ class TestJsonDumps(BaseTestCase):
                 {"name": "_col2", "friendly_name": "_col1", "type": "float"},
                 {"name": "_col3", "friendly_name": "_col1", "type": "float"},
             ],
-            "rows": [{"_col0": 1.0, "_col1": float("nan"), "_col2": float("inf"), "_col3": float("-inf")}],
+            "rows": [
+                {
+                    "_col0": 1.0,
+                    "_col1": float("nan"),
+                    "_col2": float("inf"),
+                    "_col3": float("-inf"),
+                }
+            ],
         }
         expected_output_data = {
             "columns": [

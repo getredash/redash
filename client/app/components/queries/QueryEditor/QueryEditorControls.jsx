@@ -1,14 +1,15 @@
-import { isFunction, map, filter, fromPairs, noop } from "lodash";
-import React, { useEffect } from "react";
-import PropTypes from "prop-types";
 import Tooltip from "@/components/Tooltip";
+import KeyboardShortcuts, { humanReadableShortcut } from "@/services/KeyboardShortcuts";
 import Button from "antd/lib/button";
 import Select from "antd/lib/select";
-import KeyboardShortcuts, { humanReadableShortcut } from "@/services/KeyboardShortcuts";
+import { filter, fromPairs, isFunction, map, noop } from "lodash";
+import PropTypes from "prop-types";
+import React, { useEffect } from "react";
 
+import AutoLimitCheckbox from "@/components/queries/QueryEditor/AutoLimitCheckbox";
+import AiQueryToggle from "./AiQueryToggle";
 import AutocompleteToggle from "./AutocompleteToggle";
 import "./QueryEditorControls.less";
-import AutoLimitCheckbox from "@/components/queries/QueryEditor/AutoLimitCheckbox";
 
 export function ButtonTooltip({ title, shortcut, ...props }) {
   shortcut = humanReadableShortcut(shortcut, 1); // show only primary shortcut
@@ -38,6 +39,7 @@ export default function EditorControl({
   formatButtonProps,
   saveButtonProps,
   executeButtonProps,
+  aiQueryToggleProps,
   autocompleteToggleProps,
   autoLimitCheckboxProps,
   dataSourceSelectorProps,
@@ -80,6 +82,13 @@ export default function EditorControl({
             {formatButtonProps.text}
           </Button>
         </ButtonTooltip>
+      )}
+      {aiQueryToggleProps !== false && (
+        <AiQueryToggle
+          available={aiQueryToggleProps.available}
+          enabled={aiQueryToggleProps.enabled}
+          onToggle={aiQueryToggleProps.onToggle}
+        />
       )}
       {autocompleteToggleProps !== false && (
         <AutocompleteToggle
@@ -161,6 +170,14 @@ EditorControl.propTypes = {
       onToggle: PropTypes.func,
     }),
   ]),
+  aiQueryToggleProps: PropTypes.oneOfType([
+    PropTypes.bool, // `false` to hide
+    PropTypes.shape({
+      available: PropTypes.bool,
+      enabled: PropTypes.bool,
+      onToggle: PropTypes.func,
+    }),
+  ]),
   autoLimitCheckboxProps: PropTypes.oneOfType([
     PropTypes.bool, // `false` to hide
     PropTypes.shape(AutoLimitCheckbox.propTypes),
@@ -188,5 +205,6 @@ EditorControl.defaultProps = {
   executeButtonProps: false,
   autocompleteToggleProps: false,
   autoLimitCheckboxProps: false,
+  aiQueryToggleProps: false,
   dataSourceSelectorProps: false,
 };

@@ -11,6 +11,7 @@ from redash.query_runner import (
     BaseQueryRunner,
     register,
 )
+from redash.query_runner.ai import AI
 from redash.settings import parse_boolean
 
 logger = logging.getLogger(__name__)
@@ -53,6 +54,10 @@ class SimpleFormatter:
 
 class Athena(BaseQueryRunner):
     noop_query = "SELECT 1"
+
+    def __init__(self, configuration):
+        super(Athena, self).__init__(configuration)
+        self.ai = AI(self)
 
     @classmethod
     def name(cls):
@@ -99,9 +104,17 @@ class Athena(BaseQueryRunner):
                     "title": "Minutes to reuse Athena query results",
                     "default": 60,
                 },
+                "ai_prompt": {"type": "textarea", "title": "Data source description"},
             },
             "required": ["region", "s3_staging_dir"],
-            "extra_options": ["glue", "catalog_ids", "cost_per_tb", "result_reuse_enable", "result_reuse_minutes"],
+            "extra_options": [
+                "glue",
+                "catalog_ids",
+                "cost_per_tb",
+                "result_reuse_enable",
+                "result_reuse_minutes",
+                "ai_prompt",
+            ],
             "order": [
                 "region",
                 "s3_staging_dir",
@@ -164,6 +177,14 @@ class Athena(BaseQueryRunner):
     @classmethod
     def type(cls):
         return "athena"
+
+    @property
+    def supports_ai_query(self):
+        return True
+
+    @property
+    def supports_ai_query_type(self):
+        return "sql"
 
     def _get_iam_credentials(self, user=None):
         if ASSUME_ROLE:
@@ -229,7 +250,10 @@ class Athena(BaseQueryRunner):
     def get_schema(self, get_stats=False):
         if self.configuration.get("glue", False):
             catalog_ids = [id.strip() for id in self.configuration.get("catalog_ids", "").split(",")]
-            return sum([self.__get_schema_from_glue(catalog_id) for catalog_id in catalog_ids], [])
+            return sum(
+                [self.__get_schema_from_glue(catalog_id) for catalog_id in catalog_ids],
+                [],
+            )
 
         schema = {}
         query = """

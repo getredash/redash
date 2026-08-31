@@ -22,10 +22,14 @@ from redash.query_runner import (
     get_configuration_schema_for_query_runner_type,
     query_runners,
 )
+from redash.query_runner.ai.highlights_generator import HighlightsGenerator
 from redash.serializers import serialize_job
 from redash.tasks.general import get_schema, test_connection
 from redash.utils import filter_none
 from redash.utils.configuration import ConfigurationContainer, ValidationError
+from redash.utils.data_source import clean_ai_schema
+
+logger = logging.getLogger(__name__)
 
 
 class DataSourceTypeListResource(BaseResource):
@@ -47,16 +51,31 @@ class DataSourceResource(BaseResource):
         # add view_only info, required for frontend permissions
         ds["view_only"] = all(project(data_source.groups, self.current_user.group_ids).values())
         self.record_event({"action": "view", "object_id": data_source_id, "object_type": "datasource"})
-        return ds
+        return clean_ai_schema(ds)
 
     @require_admin
     def post(self, data_source_id):
         data_source = models.DataSource.get_by_id_and_org(data_source_id, self.current_org)
         req = request.get_json(True)
 
+        logger.info("Current data source options: %s", data_source.options.to_dict())
+
+        if req["options"].get("ai_prompt", "").strip():
+            if req["options"]["ai_prompt"].strip().lower() != data_source.options.get("ai_prompt", "").strip().lower():
+                try:
+                    highlighter = HighlightsGenerator(data_source.query_runner)
+                    req["options"]["ai_highlights"] = highlighter.get_highlights(req["options"]["ai_prompt"])
+                except Exception:
+                    pass
+        else:
+            req["options"]["ai_highlights"] = []
+
         schema = get_configuration_schema_for_query_runner_type(req["type"])
         if schema is None:
             abort(400)
+
+        schema["properties"]["ai_highlights"] = {"type": "array", "items": {"type": "string"}}
+
         try:
             data_source.options.set_schema(schema)
             data_source.options.update(filter_none(req["options"]))
@@ -114,9 +133,9 @@ class DataSourceListResource(BaseResource):
             try:
                 d = ds.to_dict()
                 d["view_only"] = all(project(ds.groups, self.current_user.group_ids).values())
-                response[ds.id] = d
+                response[ds.id] = clean_ai_schema(d)
             except AttributeError:
-                logging.exception("Error with DataSource#to_dict (data source id: %d)", ds.id)
+                logger.exception("Error with DataSource#to_dict (data source id: %d)", ds.id)
 
         self.record_event(
             {

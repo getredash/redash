@@ -25,13 +25,27 @@ class TestIgnite(TestCase):
         }
         ignite = Ignite(config)
 
-        row = [1, 1.0, "string", True, datetime.datetime(2014, 10, 3, 0, 0), (datetime.datetime(2014, 10, 3, 0, 0), 0)]
+        row = [
+            1,
+            1.0,
+            "string",
+            True,
+            datetime.datetime(2014, 10, 3, 0, 0),
+            (datetime.datetime(2014, 10, 3, 0, 0), 0),
+        ]
 
         converted = ignite.normalise_row(row)
 
         self.assertListEqual(
             converted,
-            [1, 1.0, "string", True, datetime.datetime(2014, 10, 3, 0, 0), datetime.datetime(2014, 10, 3, 0, 0)],
+            [
+                1,
+                1.0,
+                "string",
+                True,
+                datetime.datetime(2014, 10, 3, 0, 0),
+                datetime.datetime(2014, 10, 3, 0, 0),
+            ],
         )
 
     def test_parse_query_results(self):
@@ -41,7 +55,12 @@ class TestIgnite(TestCase):
         ignite = Ignite(config)
 
         results = ignite._parse_results(
-            iter([["col1", "col2", "col3", "col4"], [1, 2.0, "three", (datetime.datetime(2014, 10, 3, 0, 0), 0)]])
+            iter(
+                [
+                    ["col1", "col2", "col3", "col4"],
+                    [1, 2.0, "three", (datetime.datetime(2014, 10, 3, 0, 0), 0)],
+                ]
+            )
         )
 
         self.assertListEqual(
@@ -56,6 +75,11 @@ class TestIgnite(TestCase):
         self.assertListEqual(
             results[1],
             [
-                {"col1": 1, "col2": 2.0, "col3": "three", "col4": datetime.datetime(2014, 10, 3, 0, 0)},
+                {
+                    "col1": 1,
+                    "col2": 2.0,
+                    "col3": "three",
+                    "col4": datetime.datetime(2014, 10, 3, 0, 0),
+                },
             ],
         )

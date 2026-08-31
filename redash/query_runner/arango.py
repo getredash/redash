@@ -7,6 +7,7 @@ from redash.query_runner import (
     BaseQueryRunner,
     register,
 )
+from redash.query_runner.ai import AI
 
 logger = logging.getLogger(__name__)
 
@@ -30,6 +31,10 @@ _TYPE_MAPPINGS = {
 class Arango(BaseQueryRunner):
     noop_query = "RETURN {'id': 1}"
 
+    def __init__(self, configuration):
+        super(Arango, self).__init__(configuration)
+        self.ai = AI(self)
+
     @classmethod
     def name(cls):
         return "ArangoDB"
@@ -44,11 +49,17 @@ class Arango(BaseQueryRunner):
                 "host": {"type": "string", "default": "127.0.0.1"},
                 "port": {"type": "number", "default": 8529},
                 "dbname": {"type": "string", "title": "Database Name"},
-                "timeout": {"type": "number", "default": 0.0, "title": "AQL Timeout in seconds (0 = no timeout)"},
+                "timeout": {
+                    "type": "number",
+                    "default": 0.0,
+                    "title": "AQL Timeout in seconds (0 = no timeout)",
+                },
+                "ai_prompt": {"type": "textarea", "title": "Data source description"},
             },
             "order": ["host", "port", "user", "password", "dbname"],
             "required": ["host", "user", "password", "dbname"],
             "secret": ["password"],
+            "extra_options": ["ai_prompt"],
         }
 
     @classmethod
@@ -67,7 +78,9 @@ class Arango(BaseQueryRunner):
     def run_query(self, query, user):
         client = ArangoClient(hosts="{}:{}".format(self.configuration["host"], self.configuration.get("port", 8529)))
         db = client.db(
-            self.configuration["dbname"], username=self.configuration["user"], password=self.configuration["password"]
+            self.configuration["dbname"],
+            username=self.configuration["user"],
+            password=self.configuration["password"],
         )
 
         try:
@@ -85,6 +98,14 @@ class Arango(BaseQueryRunner):
             raise
 
         return data, error
+
+    @property
+    def supports_ai_query(self):
+        return True
+
+    @property
+    def supports_ai_query_type(self):
+        return "nosql"
 
 
 register(Arango)

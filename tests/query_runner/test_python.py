@@ -16,7 +16,10 @@ class TestPythonQueryRunner(TestCase):
         query_string = "print('test')"
         mock_dt.utcnow = mock.Mock(return_value=datetime(1901, 12, 21))
         result = self.python.run_query(query_string, "user")
-        self.assertEqual(result[0], {"rows": [], "columns": [], "log": ["[1901-12-21T00:00:00] test"]})
+        self.assertEqual(
+            result[0],
+            {"rows": [], "columns": [], "log": ["[1901-12-21T00:00:00] test"]},
+        )
 
     def test_empty_result(self):
         query_string = "result={}"
@@ -70,7 +73,10 @@ class TestPythonQueryRunner(TestCase):
         self.assertEqual(
             result[0],
             {
-                "columns": [{"name": "col1", "type": "string"}, {"name": "col2", "type": "integer"}],
+                "columns": [
+                    {"name": "col1", "type": "string"},
+                    {"name": "col2", "type": "integer"},
+                ],
                 "rows": [{"col1": "foo", "col2": 100}, {"col1": "bar", "col2": 200}],
                 "log": [],
             },
@@ -91,7 +97,10 @@ class TestPythonQueryRunner(TestCase):
         self.assertEqual(
             result[0],
             {
-                "columns": [{"name": "col1", "type": "string"}, {"name": "col2", "type": "integer"}],
+                "columns": [
+                    {"name": "col1", "type": "string"},
+                    {"name": "col2", "type": "integer"},
+                ],
                 "rows": [{"col1": "foo", "col2": 100}, {"col1": "bar", "col2": 200}],
                 "log": ["[1901-12-21T00:00:00] test"],
             },

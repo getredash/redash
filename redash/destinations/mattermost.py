@@ -5,6 +5,8 @@ import requests
 from redash.destinations import BaseDestination, register
 from redash.utils import json_dumps
 
+logger = logging.getLogger(__name__)
+
 
 class Mattermost(BaseDestination):
     @classmethod
@@ -45,12 +47,12 @@ class Mattermost(BaseDestination):
 
         try:
             resp = requests.post(options.get("url"), data=json_dumps(payload), timeout=5.0)
-            logging.warning(resp.text)
+            logger.warning(resp.text)
 
             if resp.status_code != 200:
-                logging.error("Mattermost webhook send ERROR. status_code => {status}".format(status=resp.status_code))
+                logger.error("Mattermost webhook send ERROR. status_code => {status}".format(status=resp.status_code))
         except Exception:
-            logging.exception("Mattermost webhook send ERROR.")
+            logger.exception("Mattermost webhook send ERROR.")
 
 
 register(Mattermost)

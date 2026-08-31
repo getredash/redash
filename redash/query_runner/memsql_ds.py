@@ -10,6 +10,7 @@ from redash.query_runner import (
     JobTimeoutException,
     register,
 )
+from redash.query_runner.ai import AI
 
 logger = logging.getLogger(__name__)
 
@@ -48,6 +49,10 @@ class MemSQL(BaseSQLQueryRunner):
     should_annotate_query = False
     noop_query = "SELECT 1"
 
+    def __init__(self, configuration):
+        super(MemSQL, self).__init__(configuration)
+        self.ai = AI(self)
+
     @classmethod
     def configuration_schema(cls):
         return {
@@ -57,9 +62,11 @@ class MemSQL(BaseSQLQueryRunner):
                 "port": {"type": "number"},
                 "user": {"type": "string"},
                 "password": {"type": "string"},
+                "ai_prompt": {"type": "textarea", "title": "Data source description"},
             },
             "required": ["host", "port"],
             "secret": ["password"],
+            "extra_options": ["ai_prompt"],
         }
 
     @classmethod
@@ -69,6 +76,14 @@ class MemSQL(BaseSQLQueryRunner):
     @classmethod
     def enabled(cls):
         return enabled
+
+    @property
+    def supports_ai_query(self):
+        return True
+
+    @property
+    def supports_ai_query_type(self):
+        return "sql"
 
     def _get_tables(self, schema):
         schemas_query = "show schemas"

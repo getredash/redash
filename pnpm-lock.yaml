@@ -547,7 +547,7 @@ importers:
         version: 5.105.3(webpack-cli@6.0.1)
       webpack-cli:
         specifier: ^6.0.1
-        version: 6.0.1(webpack-bundle-analyzer@5.2.0)(webpack-dev-server@5.2.3)(webpack@5.105.3)
+        version: 6.0.1(webpack-bundle-analyzer@5.2.0)(webpack-dev-server@5.2.3(debug@3.2.7)(tslib@2.8.1)(webpack-cli@6.0.1)(webpack@5.105.3))(webpack@5.105.3)
 
 packages:
 
@@ -1719,6 +1719,10 @@ packages:
   '@mapbox/jsonlint-lines-primitives@2.0.2':
     resolution: {integrity: sha512-rY0o9A5ECsTQRVhv7tL/OyDpGAoUB4tTvLiW1DSzQGq4bvTPhNw1VpSNjDJc5GFZ2XuyOtSWSVN05qOtcD71qQ==}
     engines: {node: '>= 0.6'}
+
+  '@mapbox/jsonlint-lines-primitives@2.0.3':
+    resolution: {integrity: sha512-0SElaV0uMxEnxzBhhX9WTuPyUeMsAN/SS0i16tjuba4/mio63MG9khjC1a0JAiPGXAwvwm4UfHJURCN7nyudQg==}
+    engines: {node: '>= 22'}
 
   '@mapbox/mapbox-gl-supported@1.5.0':
     resolution: {integrity: sha512-/PT1P6DNf7vjEEiPkVIRJkvibbqWtqnyGaBz3nfRdcxclNSnSdaLU5tfAgcD7I8Yt5i+L19s406YLl1koLnLbg==}
@@ -10222,6 +10226,8 @@ snapshots:
 
   '@mapbox/jsonlint-lines-primitives@2.0.2': {}
 
+  '@mapbox/jsonlint-lines-primitives@2.0.3': {}
+
   '@mapbox/mapbox-gl-supported@1.5.0(mapbox-gl@1.13.3)':
     dependencies:
       mapbox-gl: 1.13.3
@@ -11343,6 +11349,13 @@ snapshots:
     dependencies:
       webpack: 5.105.3(webpack-cli@6.0.1)
       webpack-cli: 6.0.1(webpack-bundle-analyzer@5.2.0)(webpack-dev-server@5.2.3)(webpack@5.105.3)
+
+  '@webpack-cli/serve@3.0.1(webpack-cli@6.0.1)(webpack-dev-server@5.2.3(debug@3.2.7)(tslib@2.8.1)(webpack-cli@6.0.1)(webpack@5.105.3))(webpack@5.105.3)':
+    dependencies:
+      webpack: 5.105.3(webpack-cli@6.0.1)
+      webpack-cli: 6.0.1(webpack-bundle-analyzer@5.2.0)(webpack-dev-server@5.2.3(debug@3.2.7)(tslib@2.8.1)(webpack-cli@6.0.1)(webpack@5.105.3))(webpack@5.105.3)
+    optionalDependencies:
+      webpack-dev-server: 5.2.3(debug@3.2.7)(tslib@2.8.1)(webpack-cli@6.0.1)(webpack@5.105.3)
 
   '@webpack-cli/serve@3.0.1(webpack-cli@6.0.1)(webpack-dev-server@5.2.3)(webpack@5.105.3)':
     dependencies:
@@ -15693,7 +15706,7 @@ snapshots:
     dependencies:
       '@mapbox/geojson-rewind': 0.5.2
       '@mapbox/geojson-types': 1.0.2
-      '@mapbox/jsonlint-lines-primitives': 2.0.2
+      '@mapbox/jsonlint-lines-primitives': 2.0.3
       '@mapbox/mapbox-gl-supported': 1.5.0(mapbox-gl@1.13.3)
       '@mapbox/point-geometry': 0.1.0
       '@mapbox/tiny-sdf': 1.2.5
@@ -18647,6 +18660,26 @@ snapshots:
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
+
+  webpack-cli@6.0.1(webpack-bundle-analyzer@5.2.0)(webpack-dev-server@5.2.3(debug@3.2.7)(tslib@2.8.1)(webpack-cli@6.0.1)(webpack@5.105.3))(webpack@5.105.3):
+    dependencies:
+      '@discoveryjs/json-ext': 0.6.3
+      '@webpack-cli/configtest': 3.0.1(webpack-cli@6.0.1)(webpack@5.105.3)
+      '@webpack-cli/info': 3.0.1(webpack-cli@6.0.1)(webpack@5.105.3)
+      '@webpack-cli/serve': 3.0.1(webpack-cli@6.0.1)(webpack-dev-server@5.2.3(debug@3.2.7)(tslib@2.8.1)(webpack-cli@6.0.1)(webpack@5.105.3))(webpack@5.105.3)
+      colorette: 2.0.20
+      commander: 12.1.0
+      cross-spawn: 7.0.6
+      envinfo: 7.21.0
+      fastest-levenshtein: 1.0.16
+      import-local: 3.2.0
+      interpret: 3.1.1
+      rechoir: 0.8.0
+      webpack: 5.105.3(webpack-cli@6.0.1)
+      webpack-merge: 6.0.1
+    optionalDependencies:
+      webpack-bundle-analyzer: 5.2.0
+      webpack-dev-server: 5.2.3(debug@3.2.7)(tslib@2.8.1)(webpack-cli@6.0.1)(webpack@5.105.3)
 
   webpack-cli@6.0.1(webpack-bundle-analyzer@5.2.0)(webpack-dev-server@5.2.3)(webpack@5.105.3):
     dependencies:

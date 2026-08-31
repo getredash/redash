@@ -5,6 +5,8 @@ import requests
 from redash.destinations import BaseDestination, register
 from redash.utils import json_dumps
 
+logger = logging.getLogger(__name__)
+
 
 class Slack(BaseDestination):
     @classmethod
@@ -50,12 +52,16 @@ class Slack(BaseDestination):
         payload = {"attachments": [{"text": text, "color": color, "fields": fields}]}
 
         try:
-            resp = requests.post(options.get("url"), data=json_dumps(payload).encode("utf-8"), timeout=5.0)
-            logging.warning(resp.text)
+            resp = requests.post(
+                options.get("url"),
+                data=json_dumps(payload).encode("utf-8"),
+                timeout=5.0,
+            )
+            logger.warning(resp.text)
             if resp.status_code != 200:
-                logging.error("Slack send ERROR. status_code => {status}".format(status=resp.status_code))
+                logger.error("Slack send ERROR. status_code => {status}".format(status=resp.status_code))
         except Exception:
-            logging.exception("Slack send ERROR.")
+            logger.exception("Slack send ERROR.")
 
 
 register(Slack)

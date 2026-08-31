@@ -71,7 +71,7 @@ class TestDataSourceResourceGet(BaseTestCase):
 
         rv = self.make_request("get", "/api/data_sources/{}".format(data_source.id), user=user)
         self.assertEqual(rv.status_code, 200)
-        self.assertEqual(rv.json, {"view_only": True})
+        self.assertEqual(rv.json, {"options": {}, "view_only": True})
 
     def test_returns_limited_data_for_non_admin_in_the_default_group(self):
         user = self.factory.create_user()
@@ -79,7 +79,8 @@ class TestDataSourceResourceGet(BaseTestCase):
 
         rv = self.make_request("get", self.path, user=user)
         self.assertEqual(rv.status_code, 200)
-        self.assertNotIn("options", rv.json)
+        self.assertIn("options", rv.json)
+        self.assertEqual(rv.json["options"], {})
         self.assertIn("view_only", rv.json)
 
     def test_returns_403_for_non_admin_in_group_without_permission(self):
@@ -108,7 +109,15 @@ class TestDataSourceResourcePost(BaseTestCase):
     def test_updates_data_source(self):
         admin = self.factory.create_admin()
         new_name = "New Name"
-        new_options = {"dbname": "newdb"}
+        new_options = {
+            "ai_enabled": True,
+            "ai_highlights": [],
+            "ai_host": "",
+            "ai_model": "",
+            "ai_token": None,
+            "ai_type": "huggingface-local",
+            "dbname": "newdb",
+        }
         rv = self.make_request(
             "post",
             self.path,

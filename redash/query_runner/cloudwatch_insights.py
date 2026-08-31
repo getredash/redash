@@ -4,6 +4,7 @@ import time
 import yaml
 
 from redash.query_runner import BaseQueryRunner, register
+from redash.query_runner.ai import AI
 from redash.utils import parse_human_time
 
 try:
@@ -81,19 +82,30 @@ class CloudWatchInsights(BaseQueryRunner):
                 "region": {"type": "string", "title": "AWS Region"},
                 "aws_access_key": {"type": "string", "title": "AWS Access Key"},
                 "aws_secret_key": {"type": "string", "title": "AWS Secret Key"},
+                "ai_prompt": {"type": "textarea", "title": "Data source description"},
             },
             "required": ["region", "aws_access_key", "aws_secret_key"],
             "order": ["region", "aws_access_key", "aws_secret_key"],
             "secret": ["aws_secret_key"],
+            "extra_options": ["ai_prompt"],
         }
 
     @classmethod
     def enabled(cls):
         return enabled
 
+    @property
+    def supports_ai_query(self):
+        return True
+
+    @property
+    def supports_ai_query_type(self):
+        return "nosql"
+
     def __init__(self, configuration):
         super(CloudWatchInsights, self).__init__(configuration)
         self.syntax = "yaml"
+        self.ai = AI(self)
 
     def test_connection(self):
         self.get_schema()

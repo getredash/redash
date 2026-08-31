@@ -72,7 +72,13 @@ def test_connection(data_source_id):
         return True
 
 
-@job("schemas", queue_class=Queue, at_front=True, timeout=settings.SCHEMAS_REFRESH_TIMEOUT, ttl=90)
+@job(
+    "schemas",
+    queue_class=Queue,
+    at_front=True,
+    timeout=settings.SCHEMAS_REFRESH_TIMEOUT,
+    ttl=90,
+)
 def get_schema(data_source_id, refresh):
     try:
         data_source = models.DataSource.get_by_id(data_source_id)
@@ -85,7 +91,13 @@ def get_schema(data_source_id, refresh):
             }
         }
     except Exception as e:
-        return {"error": {"code": 2, "message": "Error retrieving schema", "details": str(e)}}
+        return {
+            "error": {
+                "code": 2,
+                "message": "Error retrieving schema",
+                "details": str(e),
+            }
+        }
 
 
 def sync_user_details():

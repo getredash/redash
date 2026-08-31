@@ -29,10 +29,12 @@ class Druid(BaseQueryRunner):
                 "scheme": {"type": "string", "default": "http"},
                 "user": {"type": "string"},
                 "password": {"type": "string"},
+                "ai_prompt": {"type": "textarea", "title": "Data source description"},
             },
             "order": ["scheme", "host", "port", "user", "password"],
             "required": ["host"],
             "secret": ["password"],
+            "extra_options": ["ai_prompt"],
         }
 
     @classmethod

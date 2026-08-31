@@ -1,27 +1,41 @@
-import React from "react";
-import PropTypes from "prop-types";
-
+import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
+import wrapSettingsTab from "@/components/SettingsWrapper";
 import Button from "antd/lib/button";
 import Form from "antd/lib/form";
 import Skeleton from "antd/lib/skeleton";
-import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
-import wrapSettingsTab from "@/components/SettingsWrapper";
+import PropTypes from "prop-types";
+import React from "react";
+import AISettings from "./components/AISettings";
+import useAIModelsList from "./hooks/useAIModelsList";
+import useAITypesList from "./hooks/useAITypesList";
 
 import routes from "@/services/routes";
-import { getHorizontalFormProps, getHorizontalFormItemWithoutLabelProps } from "@/styles/formStyle";
+import { getHorizontalFormItemWithoutLabelProps, getHorizontalFormProps } from "@/styles/formStyle";
 
-import useOrganizationSettings from "./hooks/useOrganizationSettings";
-import GeneralSettings from "./components/GeneralSettings";
 import AuthSettings from "./components/AuthSettings";
+import GeneralSettings from "./components/GeneralSettings";
+import useOrganizationSettings from "./hooks/useOrganizationSettings";
 
 function OrganizationSettings({ onError }) {
   const { settings, currentValues, isLoading, isSaving, handleSubmit, handleChange } = useOrganizationSettings(onError);
+  const { aiTypes } = useAITypesList(currentValues);
+  const { modelsList, setModelsList } = useAIModelsList(currentValues);
+
   return (
     <div className="row" data-test="OrganizationSettings">
       <div className="m-r-20 m-l-20">
         <Form {...getHorizontalFormProps()} onFinish={handleSubmit}>
           <GeneralSettings loading={isLoading} settings={settings} values={currentValues} onChange={handleChange} />
           <AuthSettings loading={isLoading} settings={settings} values={currentValues} onChange={handleChange} />
+          <AISettings
+            loading={isLoading}
+            settings={settings}
+            values={currentValues}
+            onChange={handleChange}
+            aiTypes={aiTypes}
+            modelsList={modelsList}
+            setModelsList={setModelsList}
+          />
           <Form.Item {...getHorizontalFormItemWithoutLabelProps()}>
             {isLoading ? (
               <Skeleton.Button active />

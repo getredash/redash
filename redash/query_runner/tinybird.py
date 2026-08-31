@@ -34,10 +34,11 @@ class Tinybird(ClickHouse):
                     "title": "Verify SSL certificate",
                     "default": True,
                 },
+                "ai_prompt": {"type": "textarea", "title": "Data source description"},
             },
             "order": ["url", "token"],
             "required": ["token"],
-            "extra_options": ["timeout", "verify"],
+            "extra_options": ["timeout", "verify", "ai_prompt"],
             "secret": ["token"],
         }
 

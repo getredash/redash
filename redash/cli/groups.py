@@ -15,7 +15,7 @@ manager = AppGroup(help="Groups management commands.")
     "--org",
     "organization",
     default="default",
-    help="The organization the user belongs to (leave blank for " "'default').",
+    help="The organization the user belongs to (leave blank for 'default').",
 )
 @option(
     "--permissions",

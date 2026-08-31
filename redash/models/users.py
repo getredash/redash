@@ -234,7 +234,8 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
 
     def get_id(self):
         identity = hashlib.md5(
-            "{},{}".format(self.email, self.password_hash).encode(), usedforsecurity=False
+            "{},{}".format(self.email, self.password_hash).encode(),
+            usedforsecurity=False,
         ).hexdigest()
         return "{0}-{1}".format(self.id, identity)
 

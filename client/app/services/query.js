@@ -1,30 +1,30 @@
-import moment from "moment";
-import debug from "debug";
-import Mustache from "mustache";
 import { axios } from "@/services/axios";
+import location from "@/services/location";
+import debug from "debug";
 import {
-  zipObject,
-  isEmpty,
-  isArray,
-  map,
+  clone,
+  each,
+  extend,
   filter,
-  includes,
-  union,
-  uniq,
+  find,
   has,
   identity,
-  extend,
-  each,
+  includes,
+  isArray,
+  isEmpty,
+  map,
   some,
-  clone,
-  find,
+  union,
+  uniq,
+  zipObject,
 } from "lodash";
-import location from "@/services/location";
+import moment from "moment";
+import Mustache from "mustache";
 
-import { Parameter, createParameter } from "./parameters";
-import { currentUser } from "./auth";
-import QueryResult from "./query-result";
 import localOptions from "@/lib/localOptions";
+import { currentUser } from "./auth";
+import { Parameter, createParameter } from "./parameters";
+import QueryResult from "./query-result";
 
 Mustache.escape = identity; // do not html-escape values
 
@@ -52,6 +52,7 @@ export class Query {
       this.options = {};
     }
     this.options.apply_auto_limit = !!this.options.apply_auto_limit;
+    this.options.apply_ai_query = !!this.options.apply_ai_query;
 
     if (!isArray(this.options.parameters)) {
       this.options.parameters = [];
@@ -128,7 +129,13 @@ export class Query {
 
   getQueryResult(maxAge) {
     const execute = () =>
-      QueryResult.getByQueryId(this.id, this.getParameters().getExecutionValues(), this.getAutoLimit(), maxAge);
+      QueryResult.getByQueryId(
+        this.id,
+        this.getParameters().getExecutionValues(),
+        this.getAutoLimit(),
+        this.getAiQuery(),
+        maxAge
+      );
     return this.prepareQueryResultExecution(execute, maxAge);
   }
 
@@ -140,7 +147,15 @@ export class Query {
 
     const parameters = this.getParameters().getExecutionValues({ joinListValues: true });
     const execute = () =>
-      QueryResult.get(this.data_source_id, queryText, parameters, this.getAutoLimit(), maxAge, this.id);
+      QueryResult.get(
+        this.data_source_id,
+        queryText,
+        parameters,
+        this.getAutoLimit(),
+        this.getAiQuery(),
+        maxAge,
+        this.id
+      );
     return this.prepareQueryResultExecution(execute, maxAge);
   }
 
@@ -185,6 +200,10 @@ export class Query {
 
   getAutoLimit() {
     return this.options.apply_auto_limit;
+  }
+
+  getAiQuery() {
+    return this.options.apply_ai_query;
   }
 
   getParametersDefs(update = true) {

@@ -15,6 +15,7 @@ from redash.query_runner import (
     register,
     split_sql_statements,
 )
+from redash.query_runner.ai import AI
 from redash.settings import cast_int_or_default
 
 try:
@@ -46,6 +47,10 @@ class Databricks(BaseSQLQueryRunner):
     noop_query = "SELECT 1"
     should_annotate_query = False
 
+    def __init__(self, configuration):
+        super(Databricks, self).__init__(configuration)
+        self.ai = AI(self)
+
     @classmethod
     def type(cls):
         return "databricks"
@@ -63,11 +68,21 @@ class Databricks(BaseSQLQueryRunner):
                 "http_path": {"type": "string", "title": "HTTP Path"},
                 # We're using `http_password` here for legacy reasons
                 "http_password": {"type": "string", "title": "Access Token"},
+                "ai_prompt": {"type": "textarea", "title": "Data source description"},
             },
             "order": ["host", "http_path", "http_password"],
             "secret": ["http_password"],
             "required": ["host", "http_path", "http_password"],
+            "extra_options": ["ai_prompt"],
         }
+
+    @property
+    def supports_ai_query(self):
+        return True
+
+    @property
+    def supports_ai_query_type(self):
+        return "sql"
 
     def _get_cursor(self):
         user_agent = "Redash/{} (Databricks)".format(__version__.split("-")[0])

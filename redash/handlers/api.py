@@ -2,6 +2,11 @@ from flask import make_response
 from flask_restful import Api
 from werkzeug.wrappers import Response
 
+from redash.handlers.ai import (
+    AIAlertsSuggestionsResource,
+    AIModelsListResource,
+    AITypesListResource,
+)
 from redash.handlers.alerts import (
     AlertEvaluateResource,
     AlertListResource,
@@ -116,6 +121,10 @@ def json_representation(data, code, headers=None):
     return resp
 
 
+api.add_org_resource(AITypesListResource, "/api/ai/types", endpoint="ai_types_list")
+api.add_org_resource(AIModelsListResource, "/api/ai/models", endpoint="ai_models_list")
+api.add_org_resource(AIAlertsSuggestionsResource, "/api/ai/alerts/<query_id>", endpoint="ai_alerts_suggestions")
+
 api.add_org_resource(AlertResource, "/api/alerts/<alert_id>", endpoint="alert")
 api.add_org_resource(AlertMuteResource, "/api/alerts/<alert_id>/mute", endpoint="alert_mute")
 api.add_org_resource(AlertEvaluateResource, "/api/alerts/<alert_id>/eval", endpoint="alert_eval")
@@ -193,7 +202,11 @@ api.add_org_resource(
     "/api/dashboards/<object_id>/favorite",
     endpoint="dashboard_favorite",
 )
-api.add_org_resource(DashboardForkResource, "/api/dashboards/<dashboard_id>/fork", endpoint="dashboard_fork")
+api.add_org_resource(
+    DashboardForkResource,
+    "/api/dashboards/<dashboard_id>/fork",
+    endpoint="dashboard_fork",
+)
 
 api.add_org_resource(MyDashboardsResource, "/api/dashboards/my", endpoint="my_dashboards")
 

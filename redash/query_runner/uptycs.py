@@ -28,10 +28,12 @@ class Uptycs(BaseSQLQueryRunner):
                     "title": "Verify SSL Certificates",
                 },
                 "secret": {"type": "string"},
+                "ai_prompt": {"type": "textarea", "title": "Data source description"},
             },
             "order": ["url", "customer_id", "key", "secret"],
             "required": ["url", "customer_id", "key", "secret"],
             "secret": ["secret", "key"],
+            "extra_options": ["ai_prompt"],
         }
 
     def generate_header(self, key, secret):

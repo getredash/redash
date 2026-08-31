@@ -6,6 +6,8 @@ import requests
 from redash.destinations import BaseDestination, register
 from redash.utils import json_dumps
 
+logger = logging.getLogger(__name__)
+
 
 class Datadog(BaseDestination):
     @classmethod
@@ -15,9 +17,17 @@ class Datadog(BaseDestination):
             "properties": {
                 "api_key": {"type": "string", "title": "API Key"},
                 "tags": {"type": "string", "title": "Tags"},
-                "priority": {"type": "string", "default": "normal", "title": "Priority"},
+                "priority": {
+                    "type": "string",
+                    "default": "normal",
+                    "title": "Priority",
+                },
                 # https://docs.datadoghq.com/integrations/faq/list-of-api-source-attribute-value/
-                "source_type_name": {"type": "string", "default": "my_apps", "title": "Source Type Name"},
+                "source_type_name": {
+                    "type": "string",
+                    "default": "my_apps",
+                    "title": "Source Type Name",
+                },
             },
             "secret": ["api_key"],
             "required": ["api_key"],
@@ -83,11 +93,11 @@ class Datadog(BaseDestination):
 
         try:
             resp = requests.post(url, headers=headers, data=json_dumps(body), timeout=5.0)
-            logging.warning(resp.text)
+            logger.warning(resp.text)
             if resp.status_code != 202:
-                logging.error(f"Datadog send ERROR. status_code => {resp.status_code}")
+                logger.error(f"Datadog send ERROR. status_code => {resp.status_code}")
         except Exception as e:
-            logging.exception("Datadog send ERROR: %s", e)
+            logger.exception("Datadog send ERROR: %s", e)
 
 
 register(Datadog)

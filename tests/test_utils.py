@@ -130,7 +130,10 @@ def mock_dataframe():
             "integer_col": [1, 2],
             "float_col": [1.1, 2.2],
             "date_col": [np.datetime64("2020-01-01"), np.datetime64("2020-05-05")],
-            "datetime_col": [np.datetime64("2020-01-01 12:00:00"), np.datetime64("2020-05-05 14:30:00")],
+            "datetime_col": [
+                np.datetime64("2020-01-01 12:00:00"),
+                np.datetime64("2020-05-05 14:30:00"),
+            ],
             "string_col": ["A", "B"],
         }
     )
@@ -145,7 +148,11 @@ def test_get_column_types_from_dataframe(mock_dataframe):
         {"name": "integer_col", "friendly_name": "integer_col", "type": TYPE_INTEGER},
         {"name": "float_col", "friendly_name": "float_col", "type": TYPE_FLOAT},
         {"name": "date_col", "friendly_name": "date_col", "type": TYPE_DATE},
-        {"name": "datetime_col", "friendly_name": "datetime_col", "type": TYPE_DATETIME},
+        {
+            "name": "datetime_col",
+            "friendly_name": "datetime_col",
+            "type": TYPE_DATETIME,
+        },
         {"name": "string_col", "friendly_name": "string_col", "type": TYPE_STRING},
     ]
 

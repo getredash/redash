@@ -1,47 +1,49 @@
-import { extend, find, includes, isEmpty, map } from "lodash";
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import PropTypes from "prop-types";
+import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
+import DynamicComponent from "@/components/DynamicComponent";
+import EditInPlace from "@/components/EditInPlace";
+import Parameters from "@/components/Parameters";
+import Resizable from "@/components/Resizable";
+import * as queryFormat from "@/lib/queryFormat";
+import notification from "@/services/notification";
+import { ExecutionStatus } from "@/services/query-result";
+import recordEvent from "@/services/recordEvent";
+import routes from "@/services/routes";
+import Button from "antd/lib/button";
 import cx from "classnames";
+import { extend, find, includes, isEmpty, map } from "lodash";
+import PropTypes from "prop-types";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useDebouncedCallback } from "use-debounce";
 import useMedia from "use-media";
-import Button from "antd/lib/button";
-import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
-import Resizable from "@/components/Resizable";
-import Parameters from "@/components/Parameters";
-import EditInPlace from "@/components/EditInPlace";
-import DynamicComponent from "@/components/DynamicComponent";
-import recordEvent from "@/services/recordEvent";
-import { ExecutionStatus } from "@/services/query-result";
-import routes from "@/services/routes";
-import notification from "@/services/notification";
-import * as queryFormat from "@/lib/queryFormat";
 
-import QueryPageHeader from "./components/QueryPageHeader";
-import QueryMetadata from "./components/QueryMetadata";
-import QueryVisualizationTabs from "./components/QueryVisualizationTabs";
-import QueryExecutionStatus from "./components/QueryExecutionStatus";
-import QuerySourceAlerts from "./components/QuerySourceAlerts";
-import wrapQueryPage from "./components/wrapQueryPage";
 import QueryExecutionMetadata from "./components/QueryExecutionMetadata";
+import QueryExecutionStatus from "./components/QueryExecutionStatus";
+import QueryMetadata from "./components/QueryMetadata";
+import QueryPageHeader from "./components/QueryPageHeader";
+import QuerySourceAlerts from "./components/QuerySourceAlerts";
+import QueryVisualizationTabs from "./components/QueryVisualizationTabs";
+import wrapQueryPage from "./components/wrapQueryPage";
 
 import { getEditorComponents } from "@/components/queries/editor-components";
-import useQuery from "./hooks/useQuery";
-import useVisualizationTabHandler from "./hooks/useVisualizationTabHandler";
+import useQueryResultData from "@/lib/useQueryResultData";
+import useOrganizationSettings from "@/pages/settings/hooks/useOrganizationSettings";
+import useAddNewParameterDialog from "./hooks/useAddNewParameterDialog";
+import useAddVisualizationDialog from "./hooks/useAddVisualizationDialog";
+import useAIQueryFlags from "./hooks/useAIQueryFlags";
 import useAutocompleteFlags from "./hooks/useAutocompleteFlags";
 import useAutoLimitFlags from "./hooks/useAutoLimitFlags";
-import useQueryExecute from "./hooks/useQueryExecute";
-import useQueryResultData from "@/lib/useQueryResultData";
+import useDeleteVisualization from "./hooks/useDeleteVisualization";
+import useEditScheduleDialog from "./hooks/useEditScheduleDialog";
+import useEditVisualizationDialog from "./hooks/useEditVisualizationDialog";
+import useQuery from "./hooks/useQuery";
 import useQueryDataSources from "./hooks/useQueryDataSources";
+import useQueryExecute from "./hooks/useQueryExecute";
 import useQueryFlags from "./hooks/useQueryFlags";
 import useQueryParameters from "./hooks/useQueryParameters";
-import useAddNewParameterDialog from "./hooks/useAddNewParameterDialog";
-import useEditScheduleDialog from "./hooks/useEditScheduleDialog";
-import useAddVisualizationDialog from "./hooks/useAddVisualizationDialog";
-import useEditVisualizationDialog from "./hooks/useEditVisualizationDialog";
-import useDeleteVisualization from "./hooks/useDeleteVisualization";
+import useUnsavedChangesAlert from "./hooks/useUnsavedChangesAlert";
 import useUpdateQuery from "./hooks/useUpdateQuery";
 import useUpdateQueryDescription from "./hooks/useUpdateQueryDescription";
-import useUnsavedChangesAlert from "./hooks/useUnsavedChangesAlert";
+import useVisualizationTabHandler from "./hooks/useVisualizationTabHandler";
 
 import "./components/QuerySourceDropdown"; // register QuerySourceDropdown
 import "./QuerySource.less";
@@ -52,6 +54,7 @@ function chooseDataSourceId(dataSourceIds, availableDataSources) {
 }
 
 function QuerySource(props) {
+  const { settings } = useOrganizationSettings({ onError: () => {} });
   const { query, setQuery, isDirty, saveQuery } = useQuery(props.query);
   const { dataSourcesLoaded, dataSources, dataSource } = useQueryDataSources(query);
   const [schema, setSchema] = useState([]);
@@ -80,6 +83,8 @@ function QuerySource(props) {
   const editorRef = useRef(null);
   const [autocompleteAvailable, autocompleteEnabled, toggleAutocomplete] = useAutocompleteFlags(schema);
   const [autoLimitAvailable, autoLimitChecked, setAutoLimit] = useAutoLimitFlags(dataSource, query, setQuery);
+  const [aiQueryAvailable, aiQueryEnabled, setAiQuery] = useAIQueryFlags(dataSource, query, setQuery, settings);
+  const aiQueryTextFixFlag = useRef(false); // to avoid infinite loop when query text is changed by AI query
 
   const [handleQueryEditorChange] = useDebouncedCallback((queryText) => {
     setQuery(extend(query.clone(), { query: queryText }));
@@ -141,6 +146,35 @@ function QuerySource(props) {
       );
     }
   }, [query.data_source_id, queryFlags.isNew, dataSourcesLoaded, dataSources, handleDataSourceChange]);
+
+  /**
+   * We want to disable AI query option and update the text with the result of the AI query after the query execution is finished.
+   * But we don't want to do it if the user is still executing the query, because it will cause an infinite loop of query execution.
+   */
+  useEffect(() => {
+    if (isQueryExecuting) {
+      aiQueryTextFixFlag.current = true;
+    } else if (isExecutionCancelling) {
+      aiQueryTextFixFlag.current = false;
+    } else if (aiQueryAvailable && query.options.apply_ai_query && aiQueryTextFixFlag.current) {
+      aiQueryTextFixFlag.current = false;
+
+      if (queryResult?.query_result?.query) {
+        if (query.id) {
+          // Navigate to `?_=<timestamp>` to force the page to reload and show the updated query text in the editor and visualizations.
+          // TODO: Fix this hack !!!!!!!! And find out how to populate the new visualizations !!!!!
+          document.location = document.location.origin + `/queries/${query.id}/source?_=${Date.now()}`;
+        } else {
+          setAiQuery(false);
+          setQuery((prevQuery) => {
+            return extend(prevQuery.clone(), { query: queryResult.query_result.query });
+          });
+        }
+      }
+    } else {
+      aiQueryTextFixFlag.current = false;
+    }
+  }, [isExecutionCancelling, isQueryExecuting, queryResult, setAiQuery, setQuery]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const editSchedule = useEditScheduleDialog(query, setQuery);
   const openAddNewParameterDialog = useAddNewParameterDialog(query, (newQuery, param) => {
@@ -303,6 +337,11 @@ function QuerySource(props) {
                         text: (
                           <span className="hidden-xs">{selectedText === null ? "Execute" : "Execute Selected"}</span>
                         ),
+                      }}
+                      aiQueryToggleProps={{
+                        available: aiQueryAvailable,
+                        enabled: aiQueryEnabled,
+                        onToggle: setAiQuery,
                       }}
                       autocompleteToggleProps={{
                         available: autocompleteAvailable,

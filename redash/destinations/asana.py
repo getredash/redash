@@ -6,6 +6,8 @@ import requests
 from redash.destinations import BaseDestination, register
 from redash.models import Alert
 
+logger = logging.getLogger(__name__)
+
 
 class Asana(BaseDestination):
     @classmethod
@@ -54,11 +56,11 @@ class Asana(BaseDestination):
                 timeout=5.0,
                 headers={"Authorization": f"Bearer {options['pat']}"},
             )
-            logging.warning(resp.text)
+            logger.warning(resp.text)
             if resp.status_code != 201:
-                logging.error("Asana send ERROR. status_code => {status}".format(status=resp.status_code))
+                logger.error("Asana send ERROR. status_code => {status}".format(status=resp.status_code))
         except Exception as e:
-            logging.exception("Asana send ERROR. {exception}".format(exception=e))
+            logger.exception("Asana send ERROR. {exception}".format(exception=e))
 
 
 register(Asana)

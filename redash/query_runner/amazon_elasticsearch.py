@@ -1,3 +1,5 @@
+from redash.query_runner.ai import AI
+
 from . import register
 from .elasticsearch2 import ElasticSearch2
 
@@ -36,6 +38,7 @@ class AmazonElasticsearchService(ElasticSearch2):
                     "type": "boolean",
                     "title": "Use AWS IAM Profile",
                 },
+                "ai_prompt": {"type": "textarea", "title": "Data source description"},
             },
             "secret": ["secret_key"],
             "order": [
@@ -46,7 +49,16 @@ class AmazonElasticsearchService(ElasticSearch2):
                 "use_aws_iam_profile",
             ],
             "required": ["server", "region"],
+            "extra_options": ["ai_prompt"],
         }
+
+    @property
+    def supports_ai_query(self):
+        return True
+
+    @property
+    def supports_ai_query_type(self):
+        return "nosql"
 
     def __init__(self, configuration):
         super(AmazonElasticsearchService, self).__init__(configuration)
@@ -62,6 +74,8 @@ class AmazonElasticsearchService(ElasticSearch2):
             )
 
         self.auth = AWSV4Sign(cred, region, "es")
+
+        self.ai = AI(self)
 
     def get_auth(self):
         return self.auth

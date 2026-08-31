@@ -9,6 +9,7 @@ from rq.timeouts import JobTimeoutException
 from sshtunnel import open_tunnel
 
 from redash import settings, utils
+from redash.query_runner.ai import AI
 from redash.utils.requests_session import (
     UnacceptableAddressException,
     requests_or_advocate,
@@ -255,6 +256,14 @@ class BaseQueryRunner:
         }
 
     @property
+    def supports_ai_query(self):
+        return False
+
+    @property
+    def supports_ai_query_type(self):
+        return None
+
+    @property
     def supports_auto_limit(self):
         return False
 
@@ -267,6 +276,8 @@ class BaseQueryRunner:
 
 
 class BaseSQLQueryRunner(BaseQueryRunner):
+    ai = AI()
+
     def get_schema(self, get_stats=False):
         schema_dict = {}
         self._get_tables(schema_dict)
@@ -347,9 +358,11 @@ class BaseHTTPQueryRunner(BaseQueryRunner):
                 "url": {"type": "string", "title": cls.url_title},
                 "username": {"type": "string", "title": cls.username_title},
                 "password": {"type": "string", "title": cls.password_title},
+                "ai_prompt": {"type": "textarea", "title": "Data source description"},
             },
             "secret": ["password"],
             "order": ["url", "username", "password"],
+            "extra_options": ["ai_prompt"],
         }
 
         if cls.requires_url or cls.requires_authentication:

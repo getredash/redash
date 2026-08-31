@@ -47,7 +47,10 @@ def test_test_connection(mock_cursor):
 
     json_data, error = runner.run_query(query, user)
 
-    expected_json_data = {"columns": [{"name": "EXPR$0", "type": TYPE_INTEGER}], "rows": [{"EXPR$0": 1}]}
+    expected_json_data = {
+        "columns": [{"name": "EXPR$0", "type": TYPE_INTEGER}],
+        "rows": [{"EXPR$0": 1}],
+    }
 
     assert json_data == expected_json_data
 

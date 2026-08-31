@@ -33,7 +33,7 @@ def build_groups(org, groups, is_admin):
     "--org",
     "organization",
     default="default",
-    help="the organization the user belongs to, (leave blank for " "'default').",
+    help="the organization the user belongs to, (leave blank for 'default').",
 )
 def grant_admin(email, organization="default"):
     """
@@ -62,7 +62,7 @@ def grant_admin(email, organization="default"):
     "--org",
     "organization",
     default="default",
-    help="The organization the user belongs to (leave blank for " "'default').",
+    help="The organization the user belongs to (leave blank for 'default').",
 )
 @option("--admin", "is_admin", is_flag=True, default=False, help="set user as admin")
 @option(
@@ -76,13 +76,13 @@ def grant_admin(email, organization="default"):
     "--password",
     "password",
     default=None,
-    help="Password for users who don't use Google Auth " "(leave blank for prompt).",
+    help="Password for users who don't use Google Auth (leave blank for prompt).",
 )
 @option(
     "--groups",
     "groups",
     default=None,
-    help="Comma separated list of groups (leave blank for " "default).",
+    help="Comma separated list of groups (leave blank for default).",
 )
 def create(
     email,
@@ -195,7 +195,7 @@ def create_root(email, name, google_auth=False, password=None, organization="def
     "--org",
     "organization",
     default=None,
-    help="The organization the user belongs to (leave blank for all" " organizations).",
+    help="The organization the user belongs to (leave blank for all organizations).",
 )
 def delete(email, organization=None):
     """
@@ -217,7 +217,7 @@ def delete(email, organization=None):
     "--org",
     "organization",
     default=None,
-    help="The organization the user belongs to (leave blank for all " "organizations).",
+    help="The organization the user belongs to (leave blank for all organizations).",
 )
 def password(email, password, organization=None):
     """
@@ -284,7 +284,7 @@ def invite(email, name, inviter_email, groups, is_admin=False, organization="def
     "--org",
     "organization",
     default=None,
-    help="The organization the user belongs to (leave blank for all" " organizations)",
+    help="The organization the user belongs to (leave blank for all organizations)",
 )
 @option("--json", "as_json", is_flag=True, default=False, help="Output as JSON")
 def list_command(organization=None, as_json=False):

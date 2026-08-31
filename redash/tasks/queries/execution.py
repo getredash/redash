@@ -11,6 +11,7 @@ from rq.timeouts import JobTimeoutException
 
 from redash import models, redis_connection, settings
 from redash.query_runner import InterruptException
+from redash.query_runner.ai.visualizations_generator import VisualizationsGenerator
 from redash.tasks.alerts import check_alerts_for_query
 from redash.tasks.failure_report import track_failure
 from redash.tasks.worker import Job, Queue
@@ -31,7 +32,7 @@ def _unlock(query_hash, data_source_id):
 
 def enqueue_query(query, data_source, user_id, is_api_key=False, scheduled_query=None, metadata={}):
     query_hash = gen_query_hash(query)
-    logger.info("Inserting job for %s with metadata=%s", query_hash, metadata)
+    logger.info("Inserting job for %s with metadata=%s ; query=%s", query_hash, metadata, query)
     try_count = 0
     job = None
 
@@ -95,6 +96,7 @@ def enqueue_query(query, data_source, user_id, is_api_key=False, scheduled_query
                         "scheduled": scheduled_query_id is not None,
                         "query_id": metadata.get("query_id"),
                         "user_id": user_id,
+                        "apply_ai_query": metadata.get("apply_ai_query", False),
                     },
                 }
 
@@ -186,10 +188,12 @@ class QueryExecutor:
             else None
         )  # fmt: skip
 
-        # Close DB connection to prevent holding a connection for a long time while the query is executing.
-        models.db.session.close()
+        # TODO: Check if this is still needed !!!
+        # # Close DB connection to prevent holding a connection for a long time while the query is executing.
+        # models.db.session.close()
         self.query_hash = gen_query_hash(self.query)
         self.is_scheduled_query = is_scheduled_query
+        self.is_ai_query = metadata.get("apply_ai_query", False)
         if self.is_scheduled_query:
             # Load existing tracker or create a new one if the job was created before code update:
             models.scheduled_queries_executions.update(self.query_model.id)
@@ -202,10 +206,20 @@ class QueryExecutor:
         self._log_progress("executing_query")
 
         query_runner = self.data_source.query_runner
-        annotated_query = self._annotate_query(query_runner)
 
         try:
+            if self.is_ai_query:
+                self.query = query_runner.ai.apply_ai_query(self.query)
+
+            annotated_query = self._annotate_query(query_runner)
+
             data, error = query_runner.run_query(annotated_query, self.user)
+
+            if self.is_ai_query and self.query_model and data:
+                visualizations = VisualizationsGenerator(query_runner, data).get_visualizations()
+                if visualizations:
+                    for visualization in visualizations:
+                        models.db.session.add(models.Visualization(query_rel=self.query_model, **visualization))
         except Exception as e:
             if isinstance(e, JobTimeoutException):
                 error = TIMEOUT_MESSAGE
@@ -250,7 +264,7 @@ class QueryExecutor:
                 utcnow(),
             )
 
-            updated_query_ids = models.Query.update_latest_result(query_result)
+            updated_query_ids = models.Query.update_latest_result(query_result, self.is_ai_query)
 
             models.db.session.commit()  # make sure that alert sees the latest query result
             self._log_progress("checking_alerts")

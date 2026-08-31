@@ -28,3 +28,7 @@ npm-debug.log
 
 client/cypress/screenshots
 client/cypress/videos
+
+.pnpm-store
+__pycache__
+.python-version

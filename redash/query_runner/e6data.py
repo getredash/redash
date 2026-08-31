@@ -71,6 +71,7 @@ class e6data(BaseQueryRunner):
                 "password": {"type": "string"},
                 "catalog": {"type": "string"},
                 "database": {"type": "string"},
+                "ai_prompt": {"type": "textarea", "title": "Data source description"},
             },
             "order": [
                 "host",
@@ -82,6 +83,7 @@ class e6data(BaseQueryRunner):
             ],
             "required": ["host", "port", "username", "password", "catalog", "database"],
             "secret": ["password"],
+            "extra_options": ["ai_prompt"],
         }
 
     @classmethod

@@ -1,25 +1,27 @@
-import { first } from "lodash";
-import React from "react";
-import PropTypes from "prop-types";
-import Button from "antd/lib/button";
-import MenuOutlinedIcon from "@ant-design/icons/MenuOutlined";
-import Dropdown from "antd/lib/dropdown";
-import Menu from "antd/lib/menu";
+import logoUrl from "@/assets/images/redash_icon_small.png";
 import Link from "@/components/Link";
+import useOrganizationSettings from "@/pages/settings/hooks/useOrganizationSettings";
 import { Auth, currentUser } from "@/services/auth";
 import settingsMenu from "@/services/settingsMenu";
-import logoUrl from "@/assets/images/redash_icon_small.png";
+import MenuOutlinedIcon from "@ant-design/icons/MenuOutlined";
+import Button from "antd/lib/button";
+import Dropdown from "antd/lib/dropdown";
+import Menu from "antd/lib/menu";
+import { first } from "lodash";
+import PropTypes from "prop-types";
+import React from "react";
 
 import "./MobileNavbar.less";
 
 export default function MobileNavbar({ getPopupContainer }) {
+  const { settings } = useOrganizationSettings({ onError: () => {} });
   const firstSettingsTab = first(settingsMenu.getAvailableItems());
 
   return (
     <div className="mobile-navbar">
       <div className="mobile-navbar-logo">
         <Link href="./">
-          <img src={logoUrl} alt="Redash" />
+          <img src={settings.logo_url || logoUrl} alt="Redash" />
         </Link>
       </div>
       <div>

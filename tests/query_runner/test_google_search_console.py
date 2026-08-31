@@ -19,7 +19,10 @@ class TestParseGaResponse(TestCase):
                     "position": 1.0163934426229508,
                 },
                 {
-                    "keys": ["second keyword example", "https://example.com/example.html"],
+                    "keys": [
+                        "second keyword example",
+                        "https://example.com/example.html",
+                    ],
                     "clicks": 12300,
                     "impressions": 41944,
                     "ctr": 0.5417661097852029,
@@ -36,7 +39,11 @@ class TestParseGaResponse(TestCase):
                 {"name": "query", "friendly_name": "query", "type": "string"},
                 {"name": "page", "friendly_name": "page", "type": "string"},
                 {"name": "clicks", "friendly_name": "clicks", "type": "number"},
-                {"name": "impressions", "friendly_name": "impressions", "type": "number"},
+                {
+                    "name": "impressions",
+                    "friendly_name": "impressions",
+                    "type": "number",
+                },
                 {"name": "ctr", "friendly_name": "ctr", "type": "number"},
                 {"name": "position", "friendly_name": "position", "type": "number"},
             ],
@@ -92,7 +99,11 @@ class TestParseGaResponse(TestCase):
                 {"name": "query", "friendly_name": "query", "type": "string"},
                 {"name": "date", "friendly_name": "date", "type": "date"},
                 {"name": "clicks", "friendly_name": "clicks", "type": "number"},
-                {"name": "impressions", "friendly_name": "impressions", "type": "number"},
+                {
+                    "name": "impressions",
+                    "friendly_name": "impressions",
+                    "type": "number",
+                },
                 {"name": "ctr", "friendly_name": "ctr", "type": "number"},
                 {"name": "position", "friendly_name": "position", "type": "number"},
             ],

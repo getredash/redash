@@ -8,6 +8,8 @@ import requests
 from redash.destinations import BaseDestination, register
 from redash.models import Alert
 
+logger = logging.getLogger(__name__)
+
 
 class Webex(BaseDestination):
     @classmethod
@@ -64,7 +66,16 @@ class Webex(BaseDestination):
                         {
                             "type": "ColumnSet",
                             "columns": [
-                                {"type": "Column", "items": [{"type": "TextBlock", "text": str(item), "wrap": True}]}
+                                {
+                                    "type": "Column",
+                                    "items": [
+                                        {
+                                            "type": "TextBlock",
+                                            "text": str(item),
+                                            "wrap": True,
+                                        }
+                                    ],
+                                }
                                 for item in row
                             ],
                         }
@@ -186,10 +197,16 @@ class Webex(BaseDestination):
             subject = f"{alert.name} went back to normal"
 
         attachments = self.formatted_attachments_template(
-            subject=subject, description=alert.custom_body, query_link=query_link, alert_link=alert_link
+            subject=subject,
+            description=alert.custom_body,
+            query_link=query_link,
+            alert_link=alert_link,
         )
 
-        template_payload = {"markdown": subject + "\n" + alert.custom_body, "attachments": attachments}
+        template_payload = {
+            "markdown": subject + "\n" + alert.custom_body,
+            "attachments": attachments,
+        }
 
         headers = {"Authorization": f"Bearer {options['webex_bot_token']}"}
 
@@ -220,11 +237,11 @@ class Webex(BaseDestination):
                 headers=headers,
                 timeout=5.0,
             )
-            logging.warning(resp.text)
+            logger.warning(resp.text)
             if resp.status_code != 200:
-                logging.error("Webex send ERROR. status_code => {status}".format(status=resp.status_code))
+                logger.error("Webex send ERROR. status_code => {status}".format(status=resp.status_code))
         except Exception as e:
-            logging.exception(f"Webex send ERROR: {e}")
+            logger.exception(f"Webex send ERROR: {e}")
 
 
 register(Webex)

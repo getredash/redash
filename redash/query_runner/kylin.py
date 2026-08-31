@@ -70,10 +70,12 @@ class Kylin(BaseQueryRunner):
                     "default": "http://kylin.example.com/kylin/",
                 },
                 "project": {"type": "string", "title": "Kylin Project"},
+                "ai_prompt": {"type": "textarea", "title": "Data source description"},
             },
             "order": ["url", "project", "user", "password"],
             "required": ["url", "project", "user", "password"],
             "secret": ["password"],
+            "extra_options": ["ai_prompt"],
         }
 
     def run_query(self, query, user):

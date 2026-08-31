@@ -35,7 +35,9 @@ class CSV(BaseQueryRunner):
     def configuration_schema(cls):
         return {
             "type": "object",
-            "properties": {},
+            "properties": {
+                "ai_prompt": {"type": "textarea", "title": "Data source description"},
+            },
         }
 
     def __init__(self, configuration):
@@ -86,7 +88,11 @@ class CSV(BaseQueryRunner):
                 for conversion in conversions:
                     if issubclass(dtype.type, conversion["pandas_type"]):
                         data["columns"].append(
-                            {"name": label, "friendly_name": label, "type": conversion["redash_type"]}
+                            {
+                                "name": label,
+                                "friendly_name": label,
+                                "type": conversion["redash_type"],
+                            }
                         )
                         labels.append(label)
                         func = conversion.get("to_redash")

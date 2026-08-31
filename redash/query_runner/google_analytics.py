@@ -105,9 +105,16 @@ class GoogleAnalytics(BaseSQLQueryRunner):
     def configuration_schema(cls):
         return {
             "type": "object",
-            "properties": {"jsonKeyFile": {"type": "string", "title": "JSON Key File (ADC is used if omitted)"}},
+            "properties": {
+                "jsonKeyFile": {
+                    "type": "string",
+                    "title": "JSON Key File (ADC is used if omitted)",
+                },
+                "ai_prompt": {"type": "textarea", "title": "Data source description"},
+            },
             "required": [],
             "secret": ["jsonKeyFile"],
+            "extra_options": ["ai_prompt"],
         }
 
     def __init__(self, configuration):

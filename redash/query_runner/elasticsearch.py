@@ -16,6 +16,7 @@ from redash.query_runner import (
     JobTimeoutException,
     register,
 )
+from redash.query_runner.ai import AI
 from redash.utils import json_loads
 
 try:
@@ -65,15 +66,25 @@ class BaseElasticSearch(BaseQueryRunner):
                     "type": "string",
                     "title": "Basic Auth Password",
                 },
+                "ai_prompt": {"type": "textarea", "title": "Data source description"},
             },
             "order": ["server", "basic_auth_user", "basic_auth_password"],
             "secret": ["basic_auth_password"],
             "required": ["server"],
+            "extra_options": ["ai_prompt"],
         }
 
     @classmethod
     def enabled(cls):
         return False
+
+    @property
+    def supports_ai_query(self):
+        return True
+
+    @property
+    def supports_ai_query_type(self):
+        return "nosql"
 
     def __init__(self, configuration):
         super(BaseElasticSearch, self).__init__(configuration)
@@ -100,6 +111,8 @@ class BaseElasticSearch(BaseQueryRunner):
         self.auth = None
         if basic_auth_user and basic_auth_password:
             self.auth = HTTPBasicAuth(basic_auth_user, basic_auth_password)
+
+        self.ai = AI(self)
 
     def _get_mappings(self, url):
         mappings = {}

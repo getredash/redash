@@ -23,13 +23,27 @@ DATASOURCES_RESPONSE = {
                     "nullable": False,
                     "normalized_name": "number_attribute",
                 },
-                {"name": "date_attribute", "type": "DateTime", "nullable": False, "normalized_name": "date_attribute"},
+                {
+                    "name": "date_attribute",
+                    "type": "DateTime",
+                    "nullable": False,
+                    "normalized_name": "date_attribute",
+                },
             ],
         }
     ]
 }
 
-PIPES_RESPONSE = {"pipes": [{"id": "t_pipe_id", "name": "test_pipe", "endpoint": "t_endpoint_id", "type": "endpoint"}]}
+PIPES_RESPONSE = {
+    "pipes": [
+        {
+            "id": "t_pipe_id",
+            "name": "test_pipe",
+            "endpoint": "t_endpoint_id",
+            "type": "endpoint",
+        }
+    ]
+}
 
 SCHEMA_RESPONSE = {
     "meta": [
@@ -42,7 +56,11 @@ SCHEMA_RESPONSE = {
 QUERY_RESPONSE = {
     **SCHEMA_RESPONSE,
     "data": [
-        {"string_attribute": "hello world", "number_attribute": 123, "date_attribute": "2023-01-01 00:00:03.001000"},
+        {
+            "string_attribute": "hello world",
+            "number_attribute": 123,
+            "date_attribute": "2023-01-01 00:00:03.001000",
+        },
     ],
     "rows": 1,
     "statistics": {"elapsed": 0.011556914, "rows_read": 87919, "bytes_read": 17397219},
@@ -61,8 +79,22 @@ class TestTinybird(TestCase):
         self.assertEqual(
             schema,
             [
-                {"name": "test_datasource", "columns": ["string_attribute", "number_attribute", "date_attribute"]},
-                {"name": "test_pipe", "columns": ["string_attribute", "number_attribute", "date_attribute"]},
+                {
+                    "name": "test_datasource",
+                    "columns": [
+                        "string_attribute",
+                        "number_attribute",
+                        "date_attribute",
+                    ],
+                },
+                {
+                    "name": "test_pipe",
+                    "columns": [
+                        "string_attribute",
+                        "number_attribute",
+                        "date_attribute",
+                    ],
+                },
             ],
         )
 
@@ -76,7 +108,9 @@ class TestTinybird(TestCase):
         query_runner = self._build_query_runner()
 
         get_request.return_value = Mock(
-            status_code=200, text=json.dumps(QUERY_RESPONSE), json=Mock(return_value=QUERY_RESPONSE)
+            status_code=200,
+            text=json.dumps(QUERY_RESPONSE),
+            json=Mock(return_value=QUERY_RESPONSE),
         )
 
         data, error = query_runner.run_query("SELECT * FROM test_datasource LIMIT 1", None)
@@ -86,9 +120,21 @@ class TestTinybird(TestCase):
             data,
             {
                 "columns": [
-                    {"name": "string_attribute", "friendly_name": "string_attribute", "type": TYPE_STRING},
-                    {"name": "number_attribute", "friendly_name": "number_attribute", "type": TYPE_INTEGER},
-                    {"name": "date_attribute", "friendly_name": "date_attribute", "type": TYPE_DATETIME},
+                    {
+                        "name": "string_attribute",
+                        "friendly_name": "string_attribute",
+                        "type": TYPE_STRING,
+                    },
+                    {
+                        "name": "number_attribute",
+                        "friendly_name": "number_attribute",
+                        "type": TYPE_INTEGER,
+                    },
+                    {
+                        "name": "date_attribute",
+                        "friendly_name": "date_attribute",
+                        "type": TYPE_DATETIME,
+                    },
                 ],
                 "rows": [
                     {
@@ -105,7 +151,10 @@ class TestTinybird(TestCase):
         self.assertEqual(url, "https://api.tinybird.co/v0/sql")
         self.assertEqual(kwargs["timeout"], 60)
         self.assertEqual(kwargs["headers"], {"Authorization": "Bearer p.test.token"})
-        self.assertEqual(kwargs["params"], {"q": b"SELECT * FROM test_datasource LIMIT 1\nFORMAT JSON"})
+        self.assertEqual(
+            kwargs["params"],
+            {"q": b"SELECT * FROM test_datasource LIMIT 1\nFORMAT JSON"},
+        )
 
     def _mock_tinybird_schema_requests(self, endpoint, **kwargs):
         response = {}

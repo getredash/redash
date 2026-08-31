@@ -160,7 +160,7 @@ def forgot_password(org_slug=None):
             else:
                 send_password_reset_email(user)
         except NoResultFound:
-            logging.error("No user found for forgot password: %s", email)
+            logger.error("No user found for forgot password: %s", email)
 
     return render_template("forgot.html", submitted=submitted)
 

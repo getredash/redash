@@ -111,7 +111,9 @@ class Python(BaseQueryRunner):
                 },
                 "additionalModulesPaths": {"type": "string"},
                 "additionalBuiltins": {"type": "string"},
+                "ai_prompt": {"type": "textarea", "title": "Data source description"},
             },
+            "extra_options": ["ai_prompt"],
         }
 
     @classmethod

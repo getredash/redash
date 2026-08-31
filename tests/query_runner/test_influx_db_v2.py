@@ -15,8 +15,20 @@ def influx_table_list():
     tables = TableList()
     table_1 = FluxTable()
     table_2 = FluxTable()
-    column_1 = FluxColumn(index=0, label="col_1", data_type="string", group=False, default_value="default_value_2")
-    column_2 = FluxColumn(index=0, label="col_2", data_type="integer", group=False, default_value="default_value_2")
+    column_1 = FluxColumn(
+        index=0,
+        label="col_1",
+        data_type="string",
+        group=False,
+        default_value="default_value_2",
+    )
+    column_2 = FluxColumn(
+        index=0,
+        label="col_2",
+        data_type="integer",
+        group=False,
+        default_value="default_value_2",
+    )
     column_3 = FluxColumn(index=1, label="col_3", data_type="float", group=False, default_value=3.0)
 
     record_1 = FluxRecord(table_1, values={"col_1": "col_value_1", "col_2": 1})
@@ -44,7 +56,7 @@ def influx_table_list():
 
 
 class TestInfluxDBv2:
-    @mock.patch("redash.query_runner.influx_db_v2.InfluxDBv2." "_create_cert_file")
+    @mock.patch("redash.query_runner.influx_db_v2.InfluxDBv2._create_cert_file")
     def test_get_influx_kwargs(self, create_cert_file_mock: mock.MagicMock):
         # 1. case: without ssl attributes
         influx_db_v2 = InfluxDBv2({"url": "url", "token": "token", "org": "org"})
@@ -62,7 +74,11 @@ class TestInfluxDBv2:
         }
 
         create_cert_file_mock.assert_has_calls(
-            [mock.call("cert_File"), mock.call("cert_key_File"), mock.call("ssl_ca_cert_File")]
+            [
+                mock.call("cert_File"),
+                mock.call("cert_key_File"),
+                mock.call("ssl_ca_cert_File"),
+            ]
         )
 
         create_cert_file_mock.reset_mock()
@@ -98,7 +114,11 @@ class TestInfluxDBv2:
             "ssl_ca_cert": "ssl_ca_cert_file.crt",
         }
         create_cert_file_mock.assert_has_calls(
-            [mock.call("cert_File"), mock.call("cert_key_File"), mock.call("ssl_ca_cert_File")]
+            [
+                mock.call("cert_File"),
+                mock.call("cert_key_File"),
+                mock.call("ssl_ca_cert_File"),
+            ]
         )
 
     @mock.patch("redash.query_runner.influx_db_v2.NamedTemporaryFile")
@@ -162,23 +182,65 @@ class TestInfluxDBv2:
                 "url": {"type": "string", "title": "URL"},
                 "org": {"type": "string", "title": "Organization"},
                 "token": {"type": "string", "title": "Token"},
-                "verify_ssl": {"type": "boolean", "title": "Verify SSL", "default": False},
-                "cert_File": {"type": "string", "title": "SSL Client Certificate", "default": None},
-                "cert_key_File": {"type": "string", "title": "SSL Client Key", "default": None},
-                "cert_key_password": {"type": "string", "title": "Password for SSL Client Key", "default": None},
-                "ssl_ca_cert_File": {"type": "string", "title": "SSL Root Certificate", "default": None},
+                "verify_ssl": {
+                    "type": "boolean",
+                    "title": "Verify SSL",
+                    "default": False,
+                },
+                "cert_File": {
+                    "type": "string",
+                    "title": "SSL Client Certificate",
+                    "default": None,
+                },
+                "cert_key_File": {
+                    "type": "string",
+                    "title": "SSL Client Key",
+                    "default": None,
+                },
+                "cert_key_password": {
+                    "type": "string",
+                    "title": "Password for SSL Client Key",
+                    "default": None,
+                },
+                "ssl_ca_cert_File": {
+                    "type": "string",
+                    "title": "SSL Root Certificate",
+                    "default": None,
+                },
+                "ai_prompt": {"type": "textarea", "title": "Data source description"},
             },
-            "order": ["url", "org", "token", "cert_File", "cert_key_File", "cert_key_password", "ssl_ca_cert_File"],
+            "order": [
+                "url",
+                "org",
+                "token",
+                "cert_File",
+                "cert_key_File",
+                "cert_key_password",
+                "ssl_ca_cert_File",
+            ],
             "required": ["url", "org", "token"],
-            "secret": ["token", "cert_File", "cert_key_File", "cert_key_password", "ssl_ca_cert_File"],
-            "extra_options": ["verify_ssl", "cert_File", "cert_key_File", "cert_key_password", "ssl_ca_cert_File"],
+            "secret": [
+                "token",
+                "cert_File",
+                "cert_key_File",
+                "cert_key_password",
+                "ssl_ca_cert_File",
+            ],
+            "extra_options": [
+                "verify_ssl",
+                "cert_File",
+                "cert_key_File",
+                "cert_key_password",
+                "ssl_ca_cert_File",
+                "ai_prompt",
+            ],
         }
 
     def test_enabled(self):
         assert InfluxDBv2.enabled() is True
 
     @mock.patch("redash.query_runner.influx_db_v2.InfluxDBClient")
-    @mock.patch("redash.query_runner.influx_db_v2.InfluxDBv2." "_cleanup_cert_files")
+    @mock.patch("redash.query_runner.influx_db_v2.InfluxDBv2._cleanup_cert_files")
     @mock.patch("redash.query_runner.influx_db_v2.logger")
     def test_test_connection(
         self,
@@ -265,7 +327,11 @@ class TestInfluxDBv2:
                 {"friendly_name": "Col_2", "name": "col_2", "type": "integer"},
                 {"friendly_name": "Col_3", "name": "col_3", "type": "float"},
             ],
-            "rows": [{"col_1": "col_value_1", "col_2": 1}, {"col_1": "col_value_2", "col_2": 2}, {"col_3": 3.0}],
+            "rows": [
+                {"col_1": "col_value_1", "col_2": 1},
+                {"col_1": "col_value_2", "col_2": 2},
+                {"col_3": 3.0},
+            ],
         }
 
         # 2. case: get empty object without coulmns and rows
@@ -273,7 +339,7 @@ class TestInfluxDBv2:
         assert data == {"columns": [], "rows": []}
 
     @mock.patch("redash.query_runner.influx_db_v2.InfluxDBClient")
-    @mock.patch("redash.query_runner.influx_db_v2.InfluxDBv2." "_cleanup_cert_files")
+    @mock.patch("redash.query_runner.influx_db_v2.InfluxDBv2._cleanup_cert_files")
     @mock.patch("redash.query_runner.influx_db_v2.logger")
     def test_run_query(
         self,
@@ -304,7 +370,11 @@ class TestInfluxDBv2:
                 {"friendly_name": "Col_2", "name": "col_2", "type": "integer"},
                 {"friendly_name": "Col_3", "name": "col_3", "type": "float"},
             ],
-            "rows": [{"col_1": "col_value_1", "col_2": 1}, {"col_1": "col_value_2", "col_2": 2}, {"col_3": 3.0}],
+            "rows": [
+                {"col_1": "col_value_1", "col_2": 1},
+                {"col_1": "col_value_2", "col_2": 2},
+                {"col_3": 3.0},
+            ],
         }
 
         query_mock = influx_db_client_mock.return_value.__enter__().query_api().query

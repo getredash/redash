@@ -231,7 +231,11 @@ class TestQueryListResourceGet(BaseTestCase):
         rv = self.make_request("get", "/api/queries")
 
         assert len(rv.json["results"]) == 3
-        assert set([result["id"] for result in rv.json["results"]]) == {q1.id, q2.id, q3.id}
+        assert set([result["id"] for result in rv.json["results"]]) == {
+            q1.id,
+            q2.id,
+            q3.id,
+        }
 
     def test_filters_with_tags(self):
         q1 = self.factory.create_query(tags=["test"])

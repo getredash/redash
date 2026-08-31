@@ -7,8 +7,15 @@ x-redash-service: &redash-service
       skip_frontend_build: "true"  # set to empty string to build
   volumes:
     - .:/app
+    # This works well only on MacOS 🤷‍♂️
+    - /tmp/redash-cache:/home/redash/.cache/
   env_file:
     - .env
+x-redash-logging: &redash-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
 x-redash-environment: &redash-environment
   REDASH_HOST: http://localhost:5001
   REDASH_LOG_LEVEL: "INFO"
@@ -34,6 +41,8 @@ services:
     environment:
       <<: *redash-environment
       PYTHONUNBUFFERED: 0
+    logging:
+      <<: *redash-logging
   scheduler:
     <<: *redash-service
     command: dev_scheduler
@@ -41,6 +50,8 @@ services:
       - server
     environment:
       <<: *redash-environment
+    logging:
+      <<: *redash-logging
   worker:
     <<: *redash-service
     command: dev_worker
@@ -49,9 +60,13 @@ services:
     environment:
       <<: *redash-environment
       PYTHONUNBUFFERED: 0
+    logging:
+      <<: *redash-logging
   redis:
     image: redis:7-alpine
     restart: unless-stopped
+    logging:
+      <<: *redash-logging
   postgres:
     image: postgres:18-alpine
     ports:
@@ -59,13 +74,17 @@ services:
     # The following turns the DB into less durable, but gains significant performance improvements for the tests run (x3
     # improvement on my personal machine). We should consider moving this into a dedicated Docker Compose configuration for
     # tests.
-    command: "postgres -c fsync=off -c full_page_writes=off -c synchronous_commit=OFF"
+    # command: "postgres -c fsync=off -c full_page_writes=off -c synchronous_commit=OFF"
     restart: unless-stopped
     environment:
       POSTGRES_HOST_AUTH_METHOD: "trust"
+    logging:
+      <<: *redash-logging
   email:
     image: maildev/maildev
     ports:
       - "1080:1080"
       - "1025:1025"
     restart: unless-stopped
+    logging:
+      <<: *redash-logging

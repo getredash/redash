@@ -131,8 +131,16 @@ def test_discord_notify_calls_requests_post():
                 {
                     "color": "12597547",
                     "fields": [
-                        {"name": "Query", "value": f"{host}/queries/{query.id}", "inline": True},
-                        {"name": "Alert", "value": f"{host}/alerts/{alert.id}", "inline": True},
+                        {
+                            "name": "Query",
+                            "value": f"{host}/queries/{query.id}",
+                            "inline": True,
+                        },
+                        {
+                            "name": "Alert",
+                            "value": f"{host}/alerts/{alert.id}",
+                            "inline": True,
+                        },
                         {"name": "Description", "value": "Test custom body"},
                     ],
                 }

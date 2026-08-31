@@ -52,7 +52,14 @@ def public_widget(widget):
 def public_dashboard(dashboard):
     dashboard_dict = project(
         serialize_dashboard(dashboard, with_favorite_state=False),
-        ("name", "layout", "dashboard_filters_enabled", "updated_at", "created_at", "options"),
+        (
+            "name",
+            "layout",
+            "dashboard_filters_enabled",
+            "updated_at",
+            "created_at",
+            "options",
+        ),
     )
 
     widget_list = (

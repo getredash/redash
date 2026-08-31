@@ -71,9 +71,11 @@ class DuckDB(BaseSQLQueryRunner):
                     "type": "string",
                     "title": "Extensions (comma separated)",
                 },
+                "ai_prompt": {"type": "textarea", "title": "Data source description"},
             },
             "order": ["dbpath", "extensions"],
             "required": ["dbpath"],
+            "extra_options": ["ai_prompt"],
         }
 
     @classmethod

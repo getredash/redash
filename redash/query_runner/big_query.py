@@ -17,6 +17,7 @@ from redash.query_runner import (
     JobTimeoutException,
     register,
 )
+from redash.query_runner.ai import AI
 from redash.utils import json_loads
 
 logger = logging.getLogger(__name__)
@@ -84,7 +85,7 @@ def _get_query_results(jobs, project_id, location, job_id, start_index):
     query_reply = jobs.getQueryResults(
         projectId=project_id, location=location, jobId=job_id, startIndex=start_index
     ).execute()
-    logging.debug("query_reply %s", query_reply)
+    logger.debug("query_reply %s", query_reply)
     if not query_reply["jobComplete"]:
         time.sleep(1)
         return _get_query_results(jobs, project_id, location, job_id, start_index)
@@ -102,8 +103,9 @@ class BigQuery(BaseSQLQueryRunner):
     noop_query = "SELECT 1"
 
     def __init__(self, configuration):
-        super().__init__(configuration)
+        super(BigQuery, self).__init__(configuration)
         self.should_annotate_query = configuration.get("useQueryAnnotation", False)
+        self.ai = AI(self)
 
     @classmethod
     def enabled(cls):
@@ -115,7 +117,10 @@ class BigQuery(BaseSQLQueryRunner):
             "type": "object",
             "properties": {
                 "projectId": {"type": "string", "title": "Project ID"},
-                "jsonKeyFile": {"type": "string", "title": "JSON Key File (ADC is used if omitted)"},
+                "jsonKeyFile": {
+                    "type": "string",
+                    "title": "JSON Key File (ADC is used if omitted)",
+                },
                 "totalMBytesProcessedLimit": {
                     "type": "number",
                     "title": "Scanned Data Limit (MB)",
@@ -140,6 +145,7 @@ class BigQuery(BaseSQLQueryRunner):
                     "title": "Use Query Annotation",
                     "default": False,
                 },
+                "ai_prompt": {"type": "textarea", "title": "Data source description"},
             },
             "required": ["projectId"],
             "order": [
@@ -154,12 +160,21 @@ class BigQuery(BaseSQLQueryRunner):
                 "useQueryAnnotation",
             ],
             "secret": ["jsonKeyFile"],
+            "extra_options": ["ai_prompt"],
         }
+
+    @property
+    def supports_ai_query(self):
+        return True
+
+    @property
+    def supports_ai_query_type(self):
+        return "sql"
 
     def annotate_query(self, query, metadata):
         # Remove "Job ID" before annotating the query to avoid cache misses
         metadata = {k: v for k, v in metadata.items() if k != "Job ID"}
-        return super().annotate_query(query, metadata)
+        return super(BigQuery, self).annotate_query(query, metadata)
 
     def _get_bigquery_service(self):
         socket.setdefaulttimeout(settings.BIGQUERY_HTTP_TIMEOUT)

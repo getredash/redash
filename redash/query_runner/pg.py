@@ -20,6 +20,7 @@ from redash.query_runner import (
     JobTimeoutException,
     register,
 )
+from redash.query_runner.ai import AI
 
 logger = logging.getLogger(__name__)
 
@@ -150,6 +151,10 @@ def _parse_dsn(configuration):
 class PostgreSQL(BaseSQLQueryRunner):
     noop_query = "SELECT 1"
 
+    def __init__(self, configuration):
+        super(PostgreSQL, self).__init__(configuration)
+        self.ai = AI(self)
+
     @classmethod
     def configuration_schema(cls):
         return {
@@ -160,7 +165,11 @@ class PostgreSQL(BaseSQLQueryRunner):
                 "host": {"type": "string", "default": "127.0.0.1"},
                 "port": {"type": "number", "default": 5432},
                 "dbname": {"type": "string", "title": "Database Name"},
-                "dsn": {"type": "string", "default": "application_name=redash", "title": "Parameters"},
+                "dsn": {
+                    "type": "string",
+                    "default": "application_name=redash",
+                    "title": "Parameters",
+                },
                 "sslmode": {
                     "type": "string",
                     "title": "SSL Mode",
@@ -177,6 +186,7 @@ class PostgreSQL(BaseSQLQueryRunner):
                 "sslrootcertFile": {"type": "string", "title": "SSL Root Certificate"},
                 "sslcertFile": {"type": "string", "title": "SSL Client Certificate"},
                 "sslkeyFile": {"type": "string", "title": "SSL Client Key"},
+                "ai_prompt": {"type": "textarea", "title": "Data source description"},
             },
             "order": ["host", "port", "user", "password"],
             "required": ["dbname"],
@@ -186,6 +196,7 @@ class PostgreSQL(BaseSQLQueryRunner):
                 "sslrootcertFile",
                 "sslcertFile",
                 "sslkeyFile",
+                "ai_prompt",
             ],
         }
 
@@ -204,6 +215,14 @@ class PostgreSQL(BaseSQLQueryRunner):
 
             return "".join(items)
         return None
+
+    @property
+    def supports_ai_query(self):
+        return True
+
+    @property
+    def supports_ai_query_type(self):
+        return "sql"
 
     def _get_definitions(self, schema, query):
         results, error = self.run_query(query, None)
@@ -304,6 +323,10 @@ class PostgreSQL(BaseSQLQueryRunner):
 
 
 class Redshift(PostgreSQL):
+    def __init__(self, configuration):
+        super(Redshift, self).__init__(configuration)
+        self.ai = AI(self)
+
     @classmethod
     def type(cls):
         return "redshift"
@@ -351,6 +374,7 @@ class Redshift(PostgreSQL):
                     "title": "Query Group for Scheduled Queries",
                     "default": "default",
                 },
+                "ai_prompt": {"type": "textarea", "title": "Data source description"},
             },
             "order": [
                 "host",
@@ -363,6 +387,7 @@ class Redshift(PostgreSQL):
                 "scheduled_query_group",
             ],
             "required": ["dbname", "user", "password", "host", "port"],
+            "extra_options": ["ai_prompt"],
             "secret": ["password"],
         }
 
@@ -428,6 +453,10 @@ class RedshiftIAM(Redshift):
     def enabled(cls):
         return IAM_ENABLED
 
+    def __init__(self, configuration):
+        super(RedshiftIAM, self).__init__(configuration)
+        self.ai = AI(self)
+
     def _login_method_selection(self):
         if self.configuration.get("rolename"):
             if not self.configuration.get("aws_access_key_id") or not self.configuration.get("aws_secret_access_key"):
@@ -467,6 +496,7 @@ class RedshiftIAM(Redshift):
                     "title": "Query Group for Scheduled Queries",
                     "default": "default",
                 },
+                "ai_prompt": {"type": "textarea", "title": "Data source description"},
             },
             "order": [
                 "rolename",
@@ -484,6 +514,7 @@ class RedshiftIAM(Redshift):
             ],
             "required": ["dbname", "user", "host", "port", "aws_region"],
             "secret": ["aws_secret_access_key"],
+            "extra_options": ["sslmode", "ai_prompt"],
         }
 
     def _get_connection(self):
@@ -548,6 +579,10 @@ class CockroachDB(PostgreSQL):
     @classmethod
     def type(cls):
         return "cockroach"
+
+    def __init__(self, configuration):
+        super(CockroachDB, self).__init__(configuration)
+        self.ai = AI(self)
 
 
 register(PostgreSQL)

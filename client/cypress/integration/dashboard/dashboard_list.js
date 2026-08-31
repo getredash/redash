@@ -8,7 +8,7 @@ describe("Dashboard list sort", () => {
     cy.getByTestId("CreateButton").click();
     cy.getByTestId("CreateDashboardMenuItem").click();
     cy.getByTestId("CreateDashboardDialog").within(() => {
-      cy.get("input").type("A Foo Bar");
+      cy.get("input[type='text']").type("A Foo Bar");
       cy.getByTestId("DashboardSaveButton").click();
     });
   });

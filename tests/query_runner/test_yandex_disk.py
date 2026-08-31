@@ -59,7 +59,10 @@ def test__send_query(mock_requests_get):
 @skip_condition
 @pytest.mark.parametrize(
     "configuration, error_message",
-    [({"token": test_token}, None), ({"token": ""}, "Code: 400, message: Unauthorized")],
+    [
+        ({"token": test_token}, None),
+        ({"token": ""}, "Code: 400, message: Unauthorized"),
+    ],
 )
 @mock.patch("requests.get")
 def test_test_connection(mock_requests_get, configuration, error_message):

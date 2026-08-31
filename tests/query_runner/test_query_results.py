@@ -113,7 +113,13 @@ class TestCreateTable(TestCase):
         connection = sqlite3.connect(":memory:")
         results = {
             "columns": [{"name": "test1"}, {"name": "test2"}, {"name": "test3"}],
-            "rows": [{"test1": 1, "test2": decimal.Decimal(2), "test3": datetime.timedelta(seconds=3)}],
+            "rows": [
+                {
+                    "test1": 1,
+                    "test2": decimal.Decimal(2),
+                    "test3": datetime.timedelta(seconds=3),
+                }
+            ],
         }
         table_name = "query_123"
         create_table(connection, table_name, results)
@@ -211,7 +217,10 @@ class TestExtractParamQueryIds(TestCase):
 
     def test_finds_queries_in_joins(self):
         query = "SELECT * FROM param_query_123_{token1=test1} JOIN param_query_456_{token2=test2}"
-        self.assertEqual([("123", "token1=test1"), ("456", "token2=test2")], extract_query_params(query))
+        self.assertEqual(
+            [("123", "token1=test1"), ("456", "token2=test2")],
+            extract_query_params(query),
+        )
 
 
 class TestPrepareParameterizedQuery(TestCase):

@@ -39,6 +39,7 @@ const redashBackend = process.env.REDASH_BACKEND || "http://localhost:5001";
 const baseHref = CONFIG.baseHref || "/";
 const staticPath = CONFIG.staticPath || "/static/";
 const htmlTitle = CONFIG.title || "Redash";
+const logoUrl = CONFIG.logoUrl || "/static/images/redash_icon_small.png";
 
 const basePath = path.join(__dirname, "client");
 const appPath = path.join(__dirname, "client", "app");
@@ -105,7 +106,8 @@ const config = {
       release: process.env.BUILD_VERSION || "dev",
       staticPath,
       baseHref,
-      title: htmlTitle
+      title: htmlTitle,
+	  logoUrl: logoUrl,
     }),
     new HtmlWebpackPlugin({
       template: "./client/app/multi_org.html",

@@ -3,6 +3,7 @@ import logging
 from redash.destinations import BaseDestination, register
 
 enabled = True
+logger = logging.getLogger(__name__)
 
 try:
     import pypd
@@ -66,17 +67,17 @@ class PagerDuty(BaseDestination):
         if new_state == "triggered":
             data["event_action"] = "trigger"
         elif new_state == "unknown":
-            logging.info("Unknown state, doing nothing")
+            logger.info("Unknown state, doing nothing")
             return
         else:
             data["event_action"] = "resolve"
 
         try:
             ev = pypd.EventV2.create(data=data)
-            logging.warning(ev)
+            logger.warning(ev)
 
         except Exception:
-            logging.exception("PagerDuty trigger failed!")
+            logger.exception("PagerDuty trigger failed!")
 
 
 register(PagerDuty)

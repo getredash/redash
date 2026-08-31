@@ -21,7 +21,9 @@ class StatsdRecordingJobDecorator(rq_job):  # noqa
 
 
 job = partial(
-    StatsdRecordingJobDecorator, connection=rq_redis_connection, failure_ttl=settings.JOB_DEFAULT_FAILURE_TTL
+    StatsdRecordingJobDecorator,
+    connection=rq_redis_connection,
+    failure_ttl=settings.JOB_DEFAULT_FAILURE_TTL,
 )
 
 

@@ -6,6 +6,7 @@ from redash.query_runner import (
     JobTimeoutException,
     register,
 )
+from redash.query_runner.ai import AI
 
 logger = logging.getLogger(__name__)
 
@@ -17,18 +18,31 @@ class Sqlite(BaseSQLQueryRunner):
     def configuration_schema(cls):
         return {
             "type": "object",
-            "properties": {"dbpath": {"type": "string", "title": "Database Path"}},
+            "properties": {
+                "dbpath": {"type": "string", "title": "Database Path"},
+                "ai_prompt": {"type": "textarea", "title": "Data source description"},
+            },
             "required": ["dbpath"],
+            "extra_options": ["ai_prompt"],
         }
 
     @classmethod
     def type(cls):
         return "sqlite"
 
+    @property
+    def supports_ai_query(self):
+        return True
+
+    @property
+    def supports_ai_query_type(self):
+        return "sql"
+
     def __init__(self, configuration):
         super(Sqlite, self).__init__(configuration)
 
         self._dbpath = self.configuration.get("dbpath", "")
+        self.ai = AI(self)
 
     def _get_tables(self, schema):
         query_table = "select tbl_name from sqlite_master where type='table'"

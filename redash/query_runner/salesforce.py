@@ -79,9 +79,11 @@ class Salesforce(BaseQueryRunner):
                     "title": "Salesforce API Version",
                     "default": DEFAULT_API_VERSION,
                 },
+                "ai_prompt": {"type": "textarea", "title": "Data source description"},
             },
             "required": ["username", "password"],
             "secret": ["password", "token"],
+            "extra_options": ["ai_prompt"],
         }
 
     def test_connection(self):

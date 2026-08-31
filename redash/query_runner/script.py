@@ -44,8 +44,10 @@ class Script(BaseQueryRunner):
                     "type": "boolean",
                     "title": "Execute command through the shell",
                 },
+                "ai_prompt": {"type": "textarea", "title": "Data source description"},
             },
             "required": ["path"],
+            "extra_options": ["ai_prompt"],
         }
 
     @classmethod

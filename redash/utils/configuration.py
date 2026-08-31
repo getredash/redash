@@ -32,6 +32,8 @@ class ConfigurationContainer(Mutable):
                 if "extendedEnum" in prop:
                     prop["enum"] = [option["value"] for option in prop["extendedEnum"]]
                     del prop["extendedEnum"]
+                if prop["type"] == "textarea":
+                    prop["type"] = "string"
         self._schema = configuration_schema
 
     @property

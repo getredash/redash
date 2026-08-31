@@ -87,7 +87,11 @@ class TestQueryResultListAPI(BaseTestCase):
         rv = self.make_request(
             "post",
             "/api/query_results",
-            data={"data_source_id": ds.id, "query": query.query_text, "apply_auto_limit": True},
+            data={
+                "data_source_id": ds.id,
+                "query": query.query_text,
+                "apply_auto_limit": True,
+            },
         )
 
         self.assertEqual(rv.status_code, 200)
@@ -102,7 +106,11 @@ class TestQueryResultListAPI(BaseTestCase):
         rv = self.make_request(
             "post",
             "/api/query_results",
-            data={"data_source_id": ds.id, "query": query.query_text, "apply_auto_limit": True},
+            data={
+                "data_source_id": ds.id,
+                "query": query.query_text,
+                "apply_auto_limit": True,
+            },
         )
 
         self.assertEqual(rv.status_code, 200)
@@ -258,7 +266,10 @@ class TestQueryResultAPI(BaseTestCase):
 
     def test_get_latest_query_result_with_apply_auto_limit(self):
         query = self.factory.create_query(
-            options={"parameters": [{"name": "foo", "type": "number"}], "apply_auto_limit": True}
+            options={
+                "parameters": [{"name": "foo", "type": "number"}],
+                "apply_auto_limit": True,
+            }
         )
         rv = self.make_request(
             "post",

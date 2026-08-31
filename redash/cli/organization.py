@@ -32,7 +32,7 @@ def show_google_apps_domains():
     "--slug",
     "slug",
     default="default",
-    help="The slug the organization belongs to (leave blank for " "'default').",
+    help="The slug the organization belongs to (leave blank for 'default').",
 )
 def create(name, slug="default"):
     print("Creating organization (%s)..." % (name))

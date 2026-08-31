@@ -9,6 +9,7 @@ from redash.query_runner import (
     BaseQueryRunner,
     register,
 )
+from redash.query_runner.ai import AI
 
 logger = logging.getLogger(__name__)
 
@@ -45,6 +46,10 @@ class TreasureData(BaseQueryRunner):
     should_annotate_query = False
     noop_query = "SELECT 1"
 
+    def __init__(self, configuration):
+        super(TreasureData, self).__init__(configuration)
+        self.ai = AI(self)
+
     @classmethod
     def configuration_schema(cls):
         return {
@@ -59,9 +64,11 @@ class TreasureData(BaseQueryRunner):
                     "title": "Auto Schema Retrieval",
                     "default": False,
                 },
+                "ai_prompt": {"type": "textarea", "title": "Data source description"},
             },
             "secret": ["apikey"],
             "required": ["apikey", "db"],
+            "extra_options": ["ai_prompt"],
         }
 
     @classmethod
@@ -72,12 +79,21 @@ class TreasureData(BaseQueryRunner):
     def type(cls):
         return "treasuredata"
 
+    @property
+    def supports_ai_query(self):
+        return True
+
+    @property
+    def supports_ai_query_type(self):
+        return "sql"
+
     def get_schema(self, get_stats=False):
         schema = {}
         if self.configuration.get("get_schema", False):
             try:
                 with tdclient.Client(
-                    self.configuration.get("apikey"), endpoint=self.configuration.get("endpoint")
+                    self.configuration.get("apikey"),
+                    endpoint=self.configuration.get("endpoint"),
                 ) as client:
                     for table in client.tables(self.configuration.get("db")):
                         table_name = "{}.{}".format(self.configuration.get("db"), table.name)

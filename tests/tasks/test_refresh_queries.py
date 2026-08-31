@@ -20,7 +20,10 @@ class TestRefreshQuery(BaseTestCase):
             options={"apply_auto_limit": True},
         )
         oq = staticmethod(lambda: [query1, query2])
-        with patch(ENQUEUE_QUERY) as add_job_mock, patch.object(Query, "outdated_queries", oq):
+        with (
+            patch(ENQUEUE_QUERY) as add_job_mock,
+            patch.object(Query, "outdated_queries", oq),
+        ):
             refresh_queries()
             self.assertEqual(add_job_mock.call_count, 2)
             add_job_mock.assert_has_calls(
@@ -30,14 +33,22 @@ class TestRefreshQuery(BaseTestCase):
                         query1.data_source,
                         query1.user_id,
                         scheduled_query=query1,
-                        metadata={"query_id": query1.id, "Username": query1.user.get_actual_user()},
+                        metadata={
+                            "query_id": query1.id,
+                            "Username": query1.user.get_actual_user(),
+                            "apply_ai_query": False,
+                        },
                     ),
                     call(
                         "select 42 LIMIT 1000",
                         query2.data_source,
                         query2.user_id,
                         scheduled_query=query2,
-                        metadata={"query_id": query2.id, "Username": query2.user.get_actual_user()},
+                        metadata={
+                            "query_id": query2.id,
+                            "Username": query2.user.get_actual_user(),
+                            "apply_ai_query": False,
+                        },
                     ),
                 ],
                 any_order=True,
@@ -52,7 +63,10 @@ class TestRefreshQuery(BaseTestCase):
         query1 = self.factory.create_query(data_source=ds, options={"apply_auto_limit": True})
         query2 = self.factory.create_query(query_text="select 42;", data_source=ds, options={"apply_auto_limit": True})
         oq = staticmethod(lambda: [query1, query2])
-        with patch(ENQUEUE_QUERY) as add_job_mock, patch.object(Query, "outdated_queries", oq):
+        with (
+            patch(ENQUEUE_QUERY) as add_job_mock,
+            patch.object(Query, "outdated_queries", oq),
+        ):
             refresh_queries()
             self.assertEqual(add_job_mock.call_count, 2)
             add_job_mock.assert_has_calls(
@@ -62,14 +76,22 @@ class TestRefreshQuery(BaseTestCase):
                         query1.data_source,
                         query1.user_id,
                         scheduled_query=query1,
-                        metadata={"query_id": query1.id, "Username": query1.user.get_actual_user()},
+                        metadata={
+                            "query_id": query1.id,
+                            "Username": query1.user.get_actual_user(),
+                            "apply_ai_query": False,
+                        },
                     ),
                     call(
                         query2.query_text,
                         query2.data_source,
                         query2.user_id,
                         scheduled_query=query2,
-                        metadata={"query_id": query2.id, "Username": query2.user.get_actual_user()},
+                        metadata={
+                            "query_id": query2.id,
+                            "Username": query2.user.get_actual_user(),
+                            "apply_ai_query": False,
+                        },
                     ),
                 ],
                 any_order=True,
@@ -148,7 +170,10 @@ class TestRefreshQuery(BaseTestCase):
             },
         )
         oq = staticmethod(lambda: [query])
-        with patch(ENQUEUE_QUERY) as add_job_mock, patch.object(Query, "outdated_queries", oq):
+        with (
+            patch(ENQUEUE_QUERY) as add_job_mock,
+            patch.object(Query, "outdated_queries", oq),
+        ):
             refresh_queries()
             add_job_mock.assert_called_with(
                 "select 42 LIMIT 1000",
@@ -180,7 +205,10 @@ class TestRefreshQuery(BaseTestCase):
             data_source=ds,
         )
         oq = staticmethod(lambda: [query])
-        with patch(ENQUEUE_QUERY) as add_job_mock, patch.object(Query, "outdated_queries", oq):
+        with (
+            patch(ENQUEUE_QUERY) as add_job_mock,
+            patch.object(Query, "outdated_queries", oq),
+        ):
             refresh_queries()
             add_job_mock.assert_called_with(
                 "select 42",
@@ -210,7 +238,10 @@ class TestRefreshQuery(BaseTestCase):
             },
         )
         oq = staticmethod(lambda: [query])
-        with patch(ENQUEUE_QUERY) as add_job_mock, patch.object(Query, "outdated_queries", oq):
+        with (
+            patch(ENQUEUE_QUERY) as add_job_mock,
+            patch.object(Query, "outdated_queries", oq),
+        ):
             refresh_queries()
             add_job_mock.assert_not_called()
 
@@ -239,6 +270,9 @@ class TestRefreshQuery(BaseTestCase):
         self.factory.create_query(id=100, data_source=None)
 
         oq = staticmethod(lambda: [query])
-        with patch(ENQUEUE_QUERY) as add_job_mock, patch.object(Query, "outdated_queries", oq):
+        with (
+            patch(ENQUEUE_QUERY) as add_job_mock,
+            patch.object(Query, "outdated_queries", oq),
+        ):
             refresh_queries()
             add_job_mock.assert_not_called()

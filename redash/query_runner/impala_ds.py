@@ -10,6 +10,7 @@ from redash.query_runner import (
     JobTimeoutException,
     register,
 )
+from redash.query_runner.ai import AI
 
 logger = logging.getLogger(__name__)
 
@@ -44,6 +45,10 @@ types_map = {
 class Impala(BaseSQLQueryRunner):
     noop_query = "show schemas"
 
+    def __init__(self, configuration):
+        super(Impala, self).__init__(configuration)
+        self.ai = AI(self)
+
     @classmethod
     def configuration_schema(cls):
         return {
@@ -65,10 +70,20 @@ class Impala(BaseSQLQueryRunner):
                 "ldap_user": {"type": "string"},
                 "ldap_password": {"type": "string"},
                 "timeout": {"type": "number"},
+                "ai_prompt": {"type": "textarea", "title": "Data source description"},
             },
             "required": ["host"],
             "secret": ["ldap_password"],
+            "extra_options": ["ai_prompt"],
         }
+
+    @property
+    def supports_ai_query(self):
+        return True
+
+    @property
+    def supports_ai_query_type(self):
+        return "sql"
 
     @classmethod
     def type(cls):

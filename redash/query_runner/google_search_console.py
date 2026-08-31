@@ -111,10 +111,15 @@ class GoogleSearchConsole(BaseSQLQueryRunner):
             "type": "object",
             "properties": {
                 "siteURL": {"type": "string", "title": "Site URL"},
-                "jsonKeyFile": {"type": "string", "title": "JSON Key File (ADC is used if omitted)"},
+                "jsonKeyFile": {
+                    "type": "string",
+                    "title": "JSON Key File (ADC is used if omitted)",
+                },
+                "ai_prompt": {"type": "textarea", "title": "Data source description"},
             },
             "required": [],
             "secret": ["jsonKeyFile"],
+            "extra_options": ["ai_prompt"],
         }
 
     def __init__(self, configuration):

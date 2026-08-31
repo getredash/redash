@@ -76,7 +76,10 @@ class TestGlueSchema(TestCase):
         )
         with self.stubber:
             assert query_runner.get_schema() == [
-                {"columns": [{"name": "row_id", "type": "int"}], "name": "test1.jdbc_table"}
+                {
+                    "columns": [{"name": "row_id", "type": "int"}],
+                    "name": "test1.jdbc_table",
+                }
             ]
 
     def test_partitioned_table(self):
@@ -128,7 +131,10 @@ class TestGlueSchema(TestCase):
         with self.stubber:
             assert query_runner.get_schema() == [
                 {
-                    "columns": [{"name": "sk", "type": "int"}, {"name": "category", "type": "int"}],
+                    "columns": [
+                        {"name": "sk", "type": "int"},
+                        {"name": "category", "type": "int"},
+                    ],
                     "name": "test1.partitioned_table",
                 }
             ]
@@ -321,6 +327,12 @@ class TestGlueSchema(TestCase):
         )
         with self.stubber:
             assert query_runner.get_schema() == [
-                {"columns": [{"name": "row_id", "type": "int"}], "name": "test1.jdbc_table"},
-                {"columns": [{"name": "row_id", "type": "int"}], "name": "test2.jdbc_table"},
+                {
+                    "columns": [{"name": "row_id", "type": "int"}],
+                    "name": "test1.jdbc_table",
+                },
+                {
+                    "columns": [{"name": "row_id", "type": "int"}],
+                    "name": "test2.jdbc_table",
+                },
             ]

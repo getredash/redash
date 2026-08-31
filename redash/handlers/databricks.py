@@ -72,7 +72,9 @@ class DatabricksSchemaResource(BaseResource):
             return serialize_job(job)
 
         job = get_database_tables_with_columns.delay(
-            data_source.id, database_name, redis_key=_tables_key(data_source_id, database_name)
+            data_source.id,
+            database_name,
+            redis_key=_tables_key(data_source_id, database_name),
         )
         return serialize_job(job)
 

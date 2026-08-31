@@ -19,7 +19,7 @@ describe("Dashboard", () => {
 
     cy.getByTestId("CreateDashboardDialog").within(() => {
       cy.getByTestId("DashboardSaveButton").should("be.disabled");
-      cy.get("input").type("Foo Bar");
+      cy.get("input[type='text']").type("Foo Bar");
       cy.getByTestId("DashboardSaveButton").click();
     });
 

@@ -8,6 +8,7 @@ from redash import redis_connection
 from redash.models import Organization, db
 
 REDIS_KEY = "new_version_available"
+logger = logging.getLogger(__name__)
 
 
 def usage_data():
@@ -59,8 +60,8 @@ def usage_data():
 
 
 def run_version_check():
-    logging.info("Performing version check.")
-    logging.info("Current version: %s", current_version)
+    logger.info("Performing version check.")
+    logger.info("Current version: %s", current_version)
 
     data = {"current_version": current_version}
 
@@ -77,9 +78,9 @@ def run_version_check():
 
         _compare_and_update(latest_version)
     except requests.RequestException:
-        logging.exception("Failed checking for new version.")
+        logger.exception("Failed checking for new version.")
     except (ValueError, KeyError):
-        logging.exception("Failed checking for new version (probably bad/non-JSON response).")
+        logger.exception("Failed checking for new version (probably bad/non-JSON response).")
 
 
 def reset_new_version_status():
@@ -95,7 +96,7 @@ def get_latest_version():
 def _compare_and_update(latest_version):
     # TODO: support alpha channel (allow setting which channel to check & parse build number)
     is_newer = semver.compare(current_version, latest_version) == -1
-    logging.info("Latest version: %s (newer: %s)", latest_version, is_newer)
+    logger.info("Latest version: %s (newer: %s)", latest_version, is_newer)
 
     if is_newer:
         redis_connection.set(REDIS_KEY, latest_version)

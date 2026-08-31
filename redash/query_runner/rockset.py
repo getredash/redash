@@ -8,6 +8,7 @@ from redash.query_runner import (
     BaseSQLQueryRunner,
     register,
 )
+from redash.query_runner.ai import AI
 
 
 def _get_type(value):
@@ -31,7 +32,10 @@ class RocksetAPI:
         self.vi_id = vi_id
 
     def _request(self, endpoint, method="GET", body=None):
-        headers = {"Authorization": "ApiKey {}".format(self.api_key), "User-Agent": "rest:redash/1.0"}
+        headers = {
+            "Authorization": "ApiKey {}".format(self.api_key),
+            "User-Agent": "rest:redash/1.0",
+        }
         url = "{}/v1/orgs/self/{}".format(self.api_server, endpoint)
 
         if method == "GET":
@@ -77,15 +81,25 @@ class Rockset(BaseSQLQueryRunner):
                 },
                 "api_key": {"title": "API Key", "type": "string"},
                 "vi_id": {"title": "Virtual Instance ID", "type": "string"},
+                "ai_prompt": {"type": "textarea", "title": "Data source description"},
             },
             "order": ["api_key", "api_server", "vi_id"],
             "required": ["api_server", "api_key"],
             "secret": ["api_key"],
+            "extra_options": ["ai_prompt"],
         }
 
     @classmethod
     def type(cls):
         return "rockset"
+
+    @property
+    def supports_ai_query(self):
+        return True
+
+    @property
+    def supports_ai_query_type(self):
+        return "sql"
 
     def __init__(self, configuration):
         super(Rockset, self).__init__(configuration)
@@ -94,6 +108,7 @@ class Rockset(BaseSQLQueryRunner):
             self.configuration.get("api_server", "https://api.usw2a1.rockset.com"),
             self.configuration.get("vi_id"),
         )
+        self.ai = AI(self)
 
     def _get_tables(self, schema):
         for workspace in self.api.list_workspaces():

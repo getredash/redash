@@ -9,6 +9,7 @@ import logging
 from os import environ
 
 from redash.query_runner import BaseQueryRunner
+from redash.query_runner.ai import AI
 
 from . import register
 
@@ -72,6 +73,7 @@ class CorporateMemoryQueryRunner(BaseQueryRunner):
         FEATURE?: allow to use a context graph per data source
         """
         self.configuration = configuration
+        self.ai = AI(self)
 
     def _setup_environment(self):
         """provide environment for cmempy
@@ -145,6 +147,14 @@ class CorporateMemoryQueryRunner(BaseQueryRunner):
     @classmethod
     def type(cls):
         return "corporate_memory"
+
+    @property
+    def supports_ai_query(self):
+        return True
+
+    @property
+    def supports_ai_query_type(self):
+        return "sparql"
 
     def run_query(self, query, user):
         """send a sparql query to corporate memory"""
@@ -221,6 +231,7 @@ class CorporateMemoryQueryRunner(BaseQueryRunner):
                     "type": "string",
                     "title": "Path to the CA Bundle file (.pem)",
                 },
+                "ai_prompt": {"type": "textarea", "title": "Data source description"},
             },
             "required": ["CMEM_BASE_URI", "OAUTH_GRANT_TYPE", "OAUTH_CLIENT_ID"],
             "secret": ["OAUTH_CLIENT_SECRET", "OAUTH_PASSWORD"],
@@ -230,6 +241,7 @@ class CorporateMemoryQueryRunner(BaseQueryRunner):
                 "OAUTH_PASSWORD",
                 "SSL_VERIFY",
                 "REQUESTS_CA_BUNDLE",
+                "ai_prompt",
             ],
         }
 

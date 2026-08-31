@@ -467,11 +467,10 @@ class TestUserForgotPassword(BaseTestCase):
         self.db.session.add(user)
         self.db.session.commit()
 
-        with patch(
-            "redash.handlers.authentication.send_password_reset_email"
-        ) as send_password_reset_email_mock, patch(
-            "redash.handlers.authentication.send_user_disabled_email"
-        ) as send_user_disabled_email_mock:
+        with (
+            patch("redash.handlers.authentication.send_password_reset_email") as send_password_reset_email_mock,
+            patch("redash.handlers.authentication.send_user_disabled_email") as send_user_disabled_email_mock,
+        ):
             response = self.post_request("/forgot", org=user.org, data={"email": user.email})
             self.assertEqual(response.status_code, 200)
             send_password_reset_email_mock.assert_not_called()
@@ -490,7 +489,15 @@ class TestJWTAuthentication(BaseTestCase):
         if not os.path.exists(self.rsa_public_key):
             subprocess.check_output(["openssl", "genrsa", "-out", self.rsa_private_key, "4096"])
             subprocess.check_output(
-                ["openssl", "rsa", "-pubout", "-in", self.rsa_private_key, "-out", self.rsa_public_key]
+                [
+                    "openssl",
+                    "rsa",
+                    "-pubout",
+                    "-in",
+                    self.rsa_private_key,
+                    "-out",
+                    self.rsa_public_key,
+                ]
             )
 
         org_settings["auth_jwt_login_enabled"] = True

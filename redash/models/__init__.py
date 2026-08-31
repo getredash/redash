@@ -147,6 +147,7 @@ class DataSource(BelongsToOrgMixin, db.Model):
             "syntax": self.query_runner.syntax,
             "paused": self.paused,
             "pause_reason": self.pause_reason,
+            "supports_ai_query": self.query_runner.supports_ai_query,
             "supports_auto_limit": self.query_runner.supports_auto_limit,
         }
 
@@ -219,7 +220,7 @@ class DataSource(BelongsToOrgMixin, db.Model):
             try:
                 out_schema = self._sort_schema(schema)
             except Exception:
-                logging.exception("Error sorting schema columns for data_source {}".format(self.id))
+                logger.exception("Error sorting schema columns for data_source {}".format(self.id))
                 out_schema = schema
             finally:
                 ttl = int(datetime.timedelta(minutes=settings.SCHEMAS_REFRESH_SCHEDULE, days=7).total_seconds())
@@ -229,7 +230,10 @@ class DataSource(BelongsToOrgMixin, db.Model):
 
     def _sort_schema(self, schema):
         return [
-            {**i, "columns": sorted(i["columns"], key=lambda x: x["name"] if isinstance(x, dict) else x)}
+            {
+                **i,
+                "columns": sorted(i["columns"], key=lambda x: x["name"] if isinstance(x, dict) else x),
+            }
             for i in sorted(schema, key=lambda x: x["name"])
         ]
 
@@ -276,7 +280,19 @@ class DataSource(BelongsToOrgMixin, db.Model):
 
     @property
     def query_runner(self):
+        # Avoid lazy-loading `self.org` on a detached DataSource instance which
+        # would raise DetachedInstanceError. Fetch the Organization by id
+        # instead so this works even when the DataSource isn't bound to a
+        # session.
+        try:
+            org = Organization.get_by_id(self.org_id)
+            for key in ["ai_enabled", "ai_type", "ai_model", "ai_host", "ai_token"]:
+                self.options[key] = org.get_setting(key)
+        except Exception:
+            pass
+
         query_runner = get_query_runner(self.type, self.options)
+        self.options["ai_token"] = None  # Prevent token from being stored in memory after initialization
 
         if self.uses_ssh_tunnel:
             query_runner = with_ssh_tunnel(query_runner, self.options.get("ssh_tunnel"))
@@ -378,7 +394,7 @@ class QueryResult(db.Model, BelongsToOrgMixin):
         )
 
         db.session.add(query_result)
-        logging.info("Inserted query (%s) data; id=%s", query_hash, query_result.id)
+        logger.info("Inserted query (%s) data; id=%s", query_hash, query_result.id)
 
         return query_result
 
@@ -640,7 +656,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
                     "Could not determine if query %d is outdated due to %s. The schedule for this query has been disabled."
                     % (query.id, repr(e))
                 )
-                logging.info(message)
+                logger.info(message)
                 sentry.capture_exception(type(e)(message).with_traceback(e.__traceback__))
 
         return list(outdated_queries.values())
@@ -771,7 +787,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
             db.session.add(self)
 
     @classmethod
-    def update_latest_result(cls, query_result):
+    def update_latest_result(cls, query_result, is_ai_query=False):
         # TODO: Investigate how big an impact this select-before-update makes.
         queries = Query.query.filter(
             Query.query_hash == query_result.query_hash,
@@ -779,17 +795,29 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
             Query.is_archived.is_(False),
         )
 
+        if is_ai_query:
+            query_hash = gen_query_hash(query_result.query_text)
+        else:
+            query_hash = query_result.query_hash
+
         for q in queries:
             q.latest_query_data = query_result
             # don't auto-update the updated_at timestamp
             q.skip_updated_at = True
+
+            if is_ai_query:
+                q.query_text = query_result.query_text
+                q.query_hash = query_hash
+                q.options["apply_ai_query"] = False
+                # q.search_vector = None # TODO: See how to update this, if even needed ?!
+
             db.session.add(q)
 
         query_ids = [q.id for q in queries]
-        logging.info(
+        logger.info(
             "Updated %s queries with result (%s).",
             len(query_ids),
-            query_result.query_hash,
+            query_hash,
         )
 
         return query_ids
@@ -876,9 +904,9 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
             try:
                 query_text = self.parameterized.apply(parameters_dict).query
             except InvalidParameterError as e:
-                logging.info(f"Unable to update hash for query {self.id} because of invalid parameters: {str(e)}")
+                logger.info(f"Unable to update hash for query {self.id} because of invalid parameters: {str(e)}")
             except QueryDetachedFromDataSourceError as e:
-                logging.info(
+                logger.info(
                     f"Unable to update hash for query {self.id} because of dropdown query {e.query_id} is unattached from datasource"
                 )
 
@@ -970,7 +998,11 @@ def next_state(op, value, threshold):
 
     if op(value, threshold):
         new_state = Alert.TRIGGERED_STATE
-    elif not value_is_number and op not in [OPERATORS.get("!="), OPERATORS.get("=="), OPERATORS.get("equals")]:
+    elif not value_is_number and op not in [
+        OPERATORS.get("!="),
+        OPERATORS.get("=="),
+        OPERATORS.get("equals"),
+    ]:
         new_state = Alert.UNKNOWN_STATE
     else:
         new_state = Alert.OK_STATE
@@ -1190,7 +1222,12 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
         if base_query is None:
             base_query = cls.all(user.org, user.group_ids, user.id)
         return (
-            base_query.distinct(cls.lowercase_name, Dashboard.created_at, Dashboard.slug, Favorite.created_at)
+            base_query.distinct(
+                cls.lowercase_name,
+                Dashboard.created_at,
+                Dashboard.slug,
+                Favorite.created_at,
+            )
             .join(
                 (
                     Favorite,
@@ -1446,7 +1483,9 @@ class AlertSubscription(TimestampMixin, db.Model):
     user_id = Column(key_type("User"), db.ForeignKey("users.id"))
     user = db.relationship(User)
     destination_id = Column(
-        key_type("NotificationDestination"), db.ForeignKey("notification_destinations.id"), nullable=True
+        key_type("NotificationDestination"),
+        db.ForeignKey("notification_destinations.id"),
+        nullable=True,
     )
     destination = db.relationship(NotificationDestination)
     alert_id = Column(key_type("Alert"), db.ForeignKey("alerts.id"))

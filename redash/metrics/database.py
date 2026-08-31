@@ -39,7 +39,7 @@ def after_execute(conn, elt, multiparams, params, result):
         try:
             name = _table_name_from_select_element(elt)
         except Exception:
-            logging.exception("Failed finding table name.")
+            metrics_logger.exception("Failed finding table name.")
     elif action in ["Update", "Insert", "Delete"]:
         name = elt.table.name
     else:

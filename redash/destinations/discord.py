@@ -12,6 +12,7 @@ colors = {
     Alert.TRIGGERED_STATE: "12597547",  # Red Decimal Code
     Alert.UNKNOWN_STATE: "16776960",  # Yellow Decimal Code
 }
+logger = logging.getLogger(__name__)
 
 
 class Discord(BaseDestination):
@@ -62,9 +63,9 @@ class Discord(BaseDestination):
                 timeout=5.0,
             )
             if resp.status_code != 200 and resp.status_code != 204:
-                logging.error(f"Discord send ERROR. status_code => {resp.status_code}")
+                logger.error(f"Discord send ERROR. status_code => {resp.status_code}")
         except Exception as e:
-            logging.exception("Discord send ERROR: %s", e)
+            logger.exception("Discord send ERROR: %s", e)
 
 
 register(Discord)

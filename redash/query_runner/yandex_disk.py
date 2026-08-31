@@ -46,9 +46,11 @@ class YandexDisk(BaseSQLQueryRunner):
             "type": "object",
             "properties": {
                 "token": {"type": "string", "title": "OAuth Token"},
+                "ai_prompt": {"type": "textarea", "title": "Data source description"},
             },
             "secret": ["token"],
             "required": ["token"],
+            "extra_options": ["ai_prompt"],
         }
 
     def __init__(self, configuration):
@@ -63,7 +65,10 @@ class YandexDisk(BaseSQLQueryRunner):
 
         while True:
             tmp_response = self._send_query(
-                "resources/public", media_type="spreadsheet,text", limit=limit, offset=offset
+                "resources/public",
+                media_type="spreadsheet,text",
+                limit=limit,
+                offset=offset,
             )
 
             tmp_items = tmp_response["items"]

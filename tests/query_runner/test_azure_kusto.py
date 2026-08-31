@@ -29,11 +29,17 @@ class TestAzureKusto(TestCase):
         expected_schema = [
             {
                 "name": "Table1",
-                "columns": [{"name": "Column1", "type": "string"}, {"name": "Column2", "type": "datetime"}],
+                "columns": [
+                    {"name": "Column1", "type": "string"},
+                    {"name": "Column2", "type": "datetime"},
+                ],
             },
             {
                 "name": "View1",
-                "columns": [{"name": "Column1", "type": "string"}, {"name": "Column2", "type": "datetime"}],
+                "columns": [
+                    {"name": "Column1", "type": "string"},
+                    {"name": "Column2", "type": "datetime"},
+                ],
             },
         ]
 

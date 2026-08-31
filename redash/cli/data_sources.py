@@ -21,7 +21,7 @@ manager = AppGroup(help="Data sources management commands.")
     "--org",
     "organization",
     default=None,
-    help="The organization the user belongs to (leave blank for " "all organizations).",
+    help="The organization the user belongs to (leave blank for all organizations).",
 )
 def list_command(organization=None):
     """List currently configured data sources."""
@@ -63,7 +63,7 @@ def validate_data_source_type(type):
     "--org",
     "organization",
     default="default",
-    help="The organization the user belongs to " "(leave blank for 'default').",
+    help="The organization the user belongs to (leave blank for 'default').",
 )
 def test(name, organization="default"):
     """Test connection to data source by issuing a trivial query."""
@@ -93,7 +93,7 @@ def test(name, organization="default"):
     "--org",
     "organization",
     default="default",
-    help="The organization the user belongs to (leave blank for " "'default').",
+    help="The organization the user belongs to (leave blank for 'default').",
 )
 def new(name=None, type=None, options=None, organization="default"):
     """Create new data source."""
@@ -118,7 +118,7 @@ def new(name=None, type=None, options=None, organization="default"):
     schema = query_runner.configuration_schema()
 
     if options is None:
-        types = {"string": str, "number": int, "boolean": bool}
+        types = {"string": str, "textarea": str, "number": int, "boolean": bool}
 
         options_obj = {}
 
@@ -177,7 +177,7 @@ def new(name=None, type=None, options=None, organization="default"):
     "--org",
     "organization",
     default="default",
-    help="The organization the user belongs to (leave blank for " "'default').",
+    help="The organization the user belongs to (leave blank for 'default').",
 )
 def delete(name, organization="default"):
     """Delete data source by name."""
@@ -210,7 +210,7 @@ def update_attr(obj, attr, new_value):
     "--org",
     "organization",
     default="default",
-    help="The organization the user belongs to (leave blank for " "'default').",
+    help="The organization the user belongs to (leave blank for 'default').",
 )
 def edit(name, new_name=None, options=None, type=None, organization="default"):
     """Edit data source settings (name, options, type)."""

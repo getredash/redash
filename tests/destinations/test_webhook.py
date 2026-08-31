@@ -25,7 +25,11 @@ def test_webhook_notify_handles_unicode():
     user = mock.Mock()
     app = mock.Mock()
     host = "http://redash.local"
-    options = {"url": "https://example.com/webhook", "username": "user", "password": "password"}
+    options = {
+        "url": "https://example.com/webhook",
+        "username": "user",
+        "password": "password",
+    }
     metadata = {}
     new_state = Alert.TRIGGERED_STATE
     destination = Webhook(options)

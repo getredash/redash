@@ -55,7 +55,10 @@ class TestTrino(TestCase):
 
     @patch.object(Trino, "run_query")
     def test__get_catalogs(self, mock_run_query):
-        mock_run_query.return_value = ({"rows": [{"Catalog": TestTrino.catalog_name}]}, None)
+        mock_run_query.return_value = (
+            {"rows": [{"Catalog": TestTrino.catalog_name}]},
+            None,
+        )
         runner = Trino({})
         catalogs = runner._get_catalogs()
         expected_catalogs = [TestTrino.catalog_name]

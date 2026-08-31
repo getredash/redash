@@ -209,7 +209,10 @@ class TestLogin(BaseTestCase):
             self.assertFalse(login_user_mock.called)
 
     def test_user_already_loggedin(self):
-        with authenticated_user(self.client), patch("redash.handlers.authentication.login_user") as login_user_mock:
+        with (
+            authenticated_user(self.client),
+            patch("redash.handlers.authentication.login_user") as login_user_mock,
+        ):
             rv = self.client.get("/default/login")
             self.assertEqual(rv.status_code, 302)
             self.assertFalse(login_user_mock.called)

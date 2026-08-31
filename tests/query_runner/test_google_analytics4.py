@@ -110,7 +110,12 @@ class TestParseGaResponse(TestCase):
         response = {
             "dimensionHeaders": [{"name": "date"}],
             "metricHeaders": [{"name": "activeUsers", "type": "TYPE_INTEGER"}],
-            "rows": [{"dimensionValues": [{"value": "20230713"}], "metricValues": [{"value": "50"}]}],
+            "rows": [
+                {
+                    "dimensionValues": [{"value": "20230713"}],
+                    "metricValues": [{"value": "50"}],
+                }
+            ],
             "rowCount": 1,
             "metadata": {"currencyCode": "USD", "timeZone": "Asia/Calcutta"},
             "kind": "analyticsData#runReport",
@@ -119,7 +124,11 @@ class TestParseGaResponse(TestCase):
         expected_value = {
             "columns": [
                 {"name": "date", "friendly_name": "date", "type": "date"},
-                {"name": "activeUsers", "friendly_name": "activeUsers", "type": "string"},
+                {
+                    "name": "activeUsers",
+                    "friendly_name": "activeUsers",
+                    "type": "string",
+                },
             ],
             "rows": [{"date": datetime.datetime(2023, 7, 13, 0, 0), "activeUsers": "50"}],
         }
@@ -133,27 +142,90 @@ class TestParseGaResponse(TestCase):
             "dimensionHeaders": [{"name": "dateHour"}],
             "metricHeaders": [{"name": "activeUsers", "type": "TYPE_INTEGER"}],
             "rows": [
-                {"dimensionValues": [{"value": "2023071312"}], "metricValues": [{"value": "7"}]},
-                {"dimensionValues": [{"value": "2023071318"}], "metricValues": [{"value": "7"}]},
-                {"dimensionValues": [{"value": "2023071317"}], "metricValues": [{"value": "5"}]},
-                {"dimensionValues": [{"value": "2023071319"}], "metricValues": [{"value": "5"}]},
-                {"dimensionValues": [{"value": "2023071320"}], "metricValues": [{"value": "5"}]},
-                {"dimensionValues": [{"value": "2023071314"}], "metricValues": [{"value": "4"}]},
-                {"dimensionValues": [{"value": "2023071315"}], "metricValues": [{"value": "4"}]},
-                {"dimensionValues": [{"value": "2023071302"}], "metricValues": [{"value": "3"}]},
-                {"dimensionValues": [{"value": "2023071305"}], "metricValues": [{"value": "3"}]},
-                {"dimensionValues": [{"value": "2023071313"}], "metricValues": [{"value": "3"}]},
-                {"dimensionValues": [{"value": "2023071306"}], "metricValues": [{"value": "2"}]},
-                {"dimensionValues": [{"value": "2023071310"}], "metricValues": [{"value": "2"}]},
-                {"dimensionValues": [{"value": "2023071321"}], "metricValues": [{"value": "2"}]},
-                {"dimensionValues": [{"value": "2023071300"}], "metricValues": [{"value": "1"}]},
-                {"dimensionValues": [{"value": "2023071304"}], "metricValues": [{"value": "1"}]},
-                {"dimensionValues": [{"value": "2023071307"}], "metricValues": [{"value": "1"}]},
-                {"dimensionValues": [{"value": "2023071308"}], "metricValues": [{"value": "1"}]},
-                {"dimensionValues": [{"value": "2023071309"}], "metricValues": [{"value": "1"}]},
-                {"dimensionValues": [{"value": "2023071311"}], "metricValues": [{"value": "1"}]},
-                {"dimensionValues": [{"value": "2023071316"}], "metricValues": [{"value": "1"}]},
-                {"dimensionValues": [{"value": "2023071323"}], "metricValues": [{"value": "1"}]},
+                {
+                    "dimensionValues": [{"value": "2023071312"}],
+                    "metricValues": [{"value": "7"}],
+                },
+                {
+                    "dimensionValues": [{"value": "2023071318"}],
+                    "metricValues": [{"value": "7"}],
+                },
+                {
+                    "dimensionValues": [{"value": "2023071317"}],
+                    "metricValues": [{"value": "5"}],
+                },
+                {
+                    "dimensionValues": [{"value": "2023071319"}],
+                    "metricValues": [{"value": "5"}],
+                },
+                {
+                    "dimensionValues": [{"value": "2023071320"}],
+                    "metricValues": [{"value": "5"}],
+                },
+                {
+                    "dimensionValues": [{"value": "2023071314"}],
+                    "metricValues": [{"value": "4"}],
+                },
+                {
+                    "dimensionValues": [{"value": "2023071315"}],
+                    "metricValues": [{"value": "4"}],
+                },
+                {
+                    "dimensionValues": [{"value": "2023071302"}],
+                    "metricValues": [{"value": "3"}],
+                },
+                {
+                    "dimensionValues": [{"value": "2023071305"}],
+                    "metricValues": [{"value": "3"}],
+                },
+                {
+                    "dimensionValues": [{"value": "2023071313"}],
+                    "metricValues": [{"value": "3"}],
+                },
+                {
+                    "dimensionValues": [{"value": "2023071306"}],
+                    "metricValues": [{"value": "2"}],
+                },
+                {
+                    "dimensionValues": [{"value": "2023071310"}],
+                    "metricValues": [{"value": "2"}],
+                },
+                {
+                    "dimensionValues": [{"value": "2023071321"}],
+                    "metricValues": [{"value": "2"}],
+                },
+                {
+                    "dimensionValues": [{"value": "2023071300"}],
+                    "metricValues": [{"value": "1"}],
+                },
+                {
+                    "dimensionValues": [{"value": "2023071304"}],
+                    "metricValues": [{"value": "1"}],
+                },
+                {
+                    "dimensionValues": [{"value": "2023071307"}],
+                    "metricValues": [{"value": "1"}],
+                },
+                {
+                    "dimensionValues": [{"value": "2023071308"}],
+                    "metricValues": [{"value": "1"}],
+                },
+                {
+                    "dimensionValues": [{"value": "2023071309"}],
+                    "metricValues": [{"value": "1"}],
+                },
+                {
+                    "dimensionValues": [{"value": "2023071311"}],
+                    "metricValues": [{"value": "1"}],
+                },
+                {
+                    "dimensionValues": [{"value": "2023071316"}],
+                    "metricValues": [{"value": "1"}],
+                },
+                {
+                    "dimensionValues": [{"value": "2023071323"}],
+                    "metricValues": [{"value": "1"}],
+                },
             ],
             "rowCount": 21,
             "metadata": {"currencyCode": "USD", "timeZone": "Asia/Calcutta"},
@@ -163,7 +235,11 @@ class TestParseGaResponse(TestCase):
         expected_value = {
             "columns": [
                 {"name": "dateHour", "friendly_name": "dateHour", "type": "datetime"},
-                {"name": "activeUsers", "friendly_name": "activeUsers", "type": "string"},
+                {
+                    "name": "activeUsers",
+                    "friendly_name": "activeUsers",
+                    "type": "string",
+                },
             ],
             "rows": [
                 {"dateHour": datetime.datetime(2023, 7, 13, 12, 0), "activeUsers": "7"},

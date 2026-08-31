@@ -5,6 +5,8 @@ from werkzeug.local import LocalProxy
 
 from redash.models import Organization
 
+logger = logging.getLogger(__name__)
+
 
 def _get_current_org():
     if "org" in g:
@@ -16,7 +18,7 @@ def _get_current_org():
         slug = request.view_args.get("org_slug", g.get("org_slug", "default"))
 
     g.org = Organization.get_by_slug(slug)
-    logging.debug("Current organization: %s (slug: %s)", g.org, slug)
+    logger.debug("Current organization: %s (slug: %s)", g.org, slug)
     return g.org
 
 

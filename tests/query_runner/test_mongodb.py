@@ -31,7 +31,10 @@ class TestMongoDB(TestCase):
         self.assertIn("password", mongo_client.call_args.kwargs)
 
     def test_username_password_absent_does_not_pass_args(self, mongo_client):
-        config = {"connectionString": "mongodb://user:pass@localhost:27017/test", "dbName": "test"}
+        config = {
+            "connectionString": "mongodb://user:pass@localhost:27017/test",
+            "dbName": "test",
+        }
         mongo_qr = MongoDB(config)
         _ = mongo_qr._get_db()
 
@@ -39,7 +42,11 @@ class TestMongoDB(TestCase):
         self.assertNotIn("password", mongo_client.call_args.kwargs)
 
     def test_run_query_with_fields(self, mongo_client):
-        query = {"collection": "test", "query": {"age": 10}, "fields": {"_id": 1, "name": 2}}
+        query = {
+            "collection": "test",
+            "query": {"age": 10},
+            "fields": {"_id": 1, "name": 2},
+        }
         return_value = [{"_id": "6569ee53d53db7930aaa0cc0", "name": "test2"}]
         expected = {
             "columns": [
@@ -77,7 +84,12 @@ class TestMongoDB(TestCase):
             "aggregate": [
                 {"$unwind": "$tags"},
                 {"$group": {"_id": "$tags", "count": {"$sum": 1}}},
-                {"$sort": [{"name": "count", "direction": -1}, {"name": "_id", "direction": -1}]},
+                {
+                    "$sort": [
+                        {"name": "count", "direction": -1},
+                        {"name": "_id", "direction": -1},
+                    ]
+                },
             ],
         }
         return_value = [{"_id": "foo", "count": 10}, {"_id": "bar", "count": 9}]

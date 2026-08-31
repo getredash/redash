@@ -13,6 +13,7 @@ from redash.query_runner import (
     BaseQueryRunner,
     register,
 )
+from redash.query_runner.ai import AI
 from redash.utils import json_loads, parse_human_time
 
 logger = logging.getLogger(__name__)
@@ -174,9 +175,11 @@ class MongoDB(BaseQueryRunner):
                     ],
                     "title": "Flatten Results",
                 },
+                "ai_prompt": {"type": "textarea", "title": "Data source description"},
             },
             "secret": ["password"],
             "required": ["connectionString", "dbName"],
+            "extra_options": ["ai_prompt"],
         }
 
     @classmethod
@@ -194,8 +197,17 @@ class MongoDB(BaseQueryRunner):
             True if "replicaSetName" in self.configuration and self.configuration["replicaSetName"] else False
         )
 
-        self.flatten = self.configuration.get("flatten", "False").upper() in ["TRUE", "YES", "ON", "1", "Y", "T"]
+        self.flatten = self.configuration.get("flatten", "False").upper() in [
+            "TRUE",
+            "YES",
+            "ON",
+            "1",
+            "Y",
+            "T",
+        ]
         logger.debug("flatten: {}".format(self.flatten))
+
+        self.ai = AI(self)
 
     @classmethod
     def custom_json_encoder(cls, dec, o):
@@ -206,6 +218,14 @@ class MongoDB(BaseQueryRunner):
         elif isinstance(o, Decimal128):
             return o.to_decimal()
         return None
+
+    @property
+    def supports_ai_query(self):
+        return True
+
+    @property
+    def supports_ai_query_type(self):
+        return "nosql"
 
     def _get_db(self):
         kwargs = {}

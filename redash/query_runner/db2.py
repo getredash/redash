@@ -52,10 +52,12 @@ class DB2(BaseSQLQueryRunner):
                 "host": {"type": "string", "default": "127.0.0.1"},
                 "port": {"type": "number", "default": 50000},
                 "dbname": {"type": "string", "title": "Database Name"},
+                "ai_prompt": {"type": "textarea", "title": "Data source description"},
             },
             "order": ["host", "port", "user", "password", "dbname"],
             "required": ["dbname"],
             "secret": ["password"],
+            "extra_options": ["ai_prompt"],
         }
 
     @classmethod

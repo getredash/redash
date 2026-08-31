@@ -16,6 +16,7 @@ from redash.models.types import EncryptedConfiguration
 from redash.utils.configuration import ConfigurationContainer
 
 manager = AppGroup(help="Manage the database (create/drop tables. reencrypt data.).")
+logger = logging.getLogger(__name__)
 
 
 def _wait_for_db_connection(db):
@@ -78,13 +79,16 @@ def drop_tables():
 @option("--show-sql/--no-show-sql", default=False, help="show sql for debug")
 def reencrypt(old_secret, new_secret, show_sql):
     """Reencrypt data encrypted by OLD_SECRET with NEW_SECRET."""
+    global logger
+
     from redash.models import db
 
     _wait_for_db_connection(db)
 
     if show_sql:
         logging.basicConfig()
-        logging.getLogger("sqlalchemy.engine").setLevel(logging.INFO)
+        logger = logging.getLogger("sqlalchemy.engine")
+        logger.setLevel(logging.INFO)
 
     def _reencrypt_for_table(table_name, orm_name):
         table_for_select = sqlalchemy.Table(
@@ -114,7 +118,7 @@ def reencrypt(old_secret, new_secret, show_sql):
                     encrypted_options=item["encrypted_options"]
                 )
             except InvalidToken:
-                logging.error(f'Invalid Decryption Key for id {item["id"]} in table {table_for_select}')
+                logger.error(f"Invalid Decryption Key for id {item['id']} in table {table_for_select}")
             else:
                 db.session.execute(stmt)
 

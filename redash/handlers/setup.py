@@ -57,8 +57,8 @@ def setup():
         return redirect("/")
 
     form = SetupForm(request.form)
-    form.newsletter.data = True
-    form.security_notifications.data = True
+    # form.newsletter.data = True
+    # form.security_notifications.data = True
 
     if request.method == "POST" and form.validate():
         default_org, user = create_org(form.org_name.data, form.name.data, form.email.data, form.password.data)

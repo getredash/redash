@@ -77,6 +77,6 @@ def verify_jwt_token(jwt_token, expected_issuer, expected_audience, algorithms, 
             valid_token = True
             break
         except Exception as e:
-            logging.exception(e)
+            logger.exception(e)
 
     return payload, valid_token

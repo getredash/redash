@@ -1,26 +1,28 @@
-import { extend, map, filter, reduce } from "lodash";
-import React, { useMemo } from "react";
-import PropTypes from "prop-types";
+import EditInPlace from "@/components/EditInPlace";
+import FavoritesControl from "@/components/FavoritesControl";
+import Link from "@/components/Link";
+import { QueryTagsControl } from "@/components/tags-control/TagsControl";
+import useOrganizationSettings from "@/pages/settings/hooks/useOrganizationSettings";
+import { clientConfig } from "@/services/auth";
+import getTags from "@/services/getTags";
+import EllipsisOutlinedIcon from "@ant-design/icons/EllipsisOutlined";
 import Button from "antd/lib/button";
 import Dropdown from "antd/lib/dropdown";
 import Menu from "antd/lib/menu";
-import EllipsisOutlinedIcon from "@ant-design/icons/EllipsisOutlined";
+import { extend, filter, map, reduce } from "lodash";
+import PropTypes from "prop-types";
+import React, { useMemo } from "react";
 import useMedia from "use-media";
-import Link from "@/components/Link";
-import EditInPlace from "@/components/EditInPlace";
-import FavoritesControl from "@/components/FavoritesControl";
-import { QueryTagsControl } from "@/components/tags-control/TagsControl";
-import getTags from "@/services/getTags";
-import { clientConfig } from "@/services/auth";
-import useQueryFlags from "../hooks/useQueryFlags";
+import useAIAlertsDialog from "../hooks/useAIAlertsDialog";
+import useApiKeyDialog from "../hooks/useApiKeyDialog";
 import useArchiveQuery from "../hooks/useArchiveQuery";
+import useDuplicateQuery from "../hooks/useDuplicateQuery";
+import usePermissionsEditorDialog from "../hooks/usePermissionsEditorDialog";
 import usePublishQuery from "../hooks/usePublishQuery";
+import useQueryFlags from "../hooks/useQueryFlags";
+import useRenameQuery from "../hooks/useRenameQuery";
 import useUnpublishQuery from "../hooks/useUnpublishQuery";
 import useUpdateQueryTags from "../hooks/useUpdateQueryTags";
-import useRenameQuery from "../hooks/useRenameQuery";
-import useDuplicateQuery from "../hooks/useDuplicateQuery";
-import useApiKeyDialog from "../hooks/useApiKeyDialog";
-import usePermissionsEditorDialog from "../hooks/usePermissionsEditorDialog";
 
 import "./QueryPageHeader.less";
 
@@ -80,7 +82,9 @@ export default function QueryPageHeader({
   const unpublishQuery = useUnpublishQuery(query, onChange);
   const [isDuplicating, duplicateQuery] = useDuplicateQuery(query);
   const openApiKeyDialog = useApiKeyDialog(query, onChange);
+  const openAIAlertsDialog = useAIAlertsDialog(query, onChange);
   const openPermissionsEditorDialog = usePermissionsEditorDialog(query);
+  const { settings } = useOrganizationSettings({ onError: () => {} });
 
   const moreActionsMenu = useMemo(
     () =>
@@ -122,6 +126,13 @@ export default function QueryPageHeader({
           },
         },
         {
+          aiAlerts: {
+            isAvailable: settings.ai_enabled && query.id,
+            title: "Suggest Alerts",
+            onClick: openAIAlertsDialog,
+          },
+        },
+        {
           showAPIKey: {
             isAvailable: !clientConfig.disablePublicUrls && !queryFlags.isNew,
             title: "Show API Key",
@@ -130,11 +141,13 @@ export default function QueryPageHeader({
         },
       ]),
     [
+      query.id,
       queryFlags.isNew,
       queryFlags.canFork,
       queryFlags.canEdit,
       queryFlags.isArchived,
       queryFlags.isDraft,
+      settings.ai_enabled,
       isDuplicating,
       duplicateQuery,
       archiveQuery,
@@ -143,6 +156,7 @@ export default function QueryPageHeader({
       publishQuery,
       unpublishQuery,
       openApiKeyDialog,
+      openAIAlertsDialog,
     ]
   );
 

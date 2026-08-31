@@ -124,10 +124,15 @@ class GoogleAnalytics4(BaseQueryRunner):
             "type": "object",
             "properties": {
                 "propertyId": {"type": "number", "title": "Property Id"},
-                "jsonKeyFile": {"type": "string", "title": "JSON Key File (ADC is used if omitted)"},
+                "jsonKeyFile": {
+                    "type": "string",
+                    "title": "JSON Key File (ADC is used if omitted)",
+                },
+                "ai_prompt": {"type": "textarea", "title": "Data source description"},
             },
             "required": ["propertyId"],
             "secret": ["jsonKeyFile"],
+            "extra_options": ["ai_prompt"],
         }
 
     def _get_access_token(self):
@@ -149,7 +154,10 @@ class GoogleAnalytics4(BaseQueryRunner):
 
         property_id = self.configuration["propertyId"]
 
-        headers = {"Content-Type": "application/json", "Authorization": f"Bearer {access_token}"}
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {access_token}",
+        }
 
         url = ga_report_endpoint.replace("{propertyId}", str(property_id))
         r = requests.post(url, json=params, headers=headers)
@@ -170,7 +178,10 @@ class GoogleAnalytics4(BaseQueryRunner):
 
             url = ga_metadata_endpoint.replace("{propertyId}", str(property_id))
 
-            headers = {"Content-Type": "application/json", "Authorization": f"Bearer {access_token}"}
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {access_token}",
+            }
 
             r = requests.get(url, headers=headers)
             r.raise_for_status()

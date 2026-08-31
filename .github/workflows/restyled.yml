@@ -11,7 +11,7 @@ jobs:
   restyled:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
@@ -25,7 +25,7 @@ jobs:
           !cancelled() &&
           steps.restyler.outputs.success == 'true' &&
           github.event.pull_request.head.repo.full_name == github.repository
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v8
         with:
           base: ${{ steps.restyler.outputs.restyled-base }}
           branch: ${{ steps.restyler.outputs.restyled-head }}

@@ -51,7 +51,13 @@ class TestAlertEvaluate(BaseTestCase):
         result = self.factory.create_query_result(data=results)
         query = self.factory.create_query(latest_query_data_id=result.id)
         alert = self.factory.create_alert(
-            query_rel=query, options={"selector": "first", "op": "equals", "column": column, "value": value}
+            query_rel=query,
+            options={
+                "selector": "first",
+                "op": "equals",
+                "column": column,
+                "value": value,
+            },
         )
         return alert
 
@@ -73,7 +79,10 @@ class TestAlertEvaluate(BaseTestCase):
         self.assertEqual(alert.evaluate(), Alert.UNKNOWN_STATE)
 
     def test_evaluates_correctly_with_first_selector(self):
-        results = {"rows": [{"foo": 1}, {"foo": 2}], "columns": [{"name": "foo", "type": "INTEGER"}]}
+        results = {
+            "rows": [{"foo": 1}, {"foo": 2}],
+            "columns": [{"name": "foo", "type": "INTEGER"}],
+        }
         alert = self.create_alert(results)
         alert.options["selector"] = "first"
         self.assertEqual(alert.evaluate(), Alert.TRIGGERED_STATE)
@@ -87,7 +96,10 @@ class TestAlertEvaluate(BaseTestCase):
         self.assertEqual(alert.evaluate(), Alert.UNKNOWN_STATE)
 
     def test_evaluates_correctly_with_min_selector(self):
-        results = {"rows": [{"foo": 2}, {"foo": 1}], "columns": [{"name": "foo", "type": "INTEGER"}]}
+        results = {
+            "rows": [{"foo": 2}, {"foo": 1}],
+            "columns": [{"name": "foo", "type": "INTEGER"}],
+        }
         alert = self.create_alert(results)
         alert.options["selector"] = "min"
         self.assertEqual(alert.evaluate(), Alert.TRIGGERED_STATE)
@@ -100,7 +112,10 @@ class TestAlertEvaluate(BaseTestCase):
         self.assertEqual(alert.evaluate(), Alert.UNKNOWN_STATE)
 
     def test_evaluates_correctly_with_max_selector(self):
-        results = {"rows": [{"foo": 1}, {"foo": 2}], "columns": [{"name": "foo", "type": "INTEGER"}]}
+        results = {
+            "rows": [{"foo": 1}, {"foo": 2}],
+            "columns": [{"name": "foo", "type": "INTEGER"}],
+        }
         alert = self.create_alert(results)
         alert.options["selector"] = "max"
         self.assertEqual(alert.evaluate(), Alert.OK_STATE)
@@ -115,7 +130,13 @@ class TestAlertEvaluate(BaseTestCase):
     def test_evaluate_alerts_without_query_rel(self):
         query = self.factory.create_query(latest_query_data_id=None)
         alert = self.factory.create_alert(
-            query_rel=query, options={"selector": "first", "op": "equals", "column": "foo", "value": "1"}
+            query_rel=query,
+            options={
+                "selector": "first",
+                "op": "equals",
+                "column": "foo",
+                "value": "1",
+            },
         )
         self.assertEqual(alert.evaluate(), Alert.UNKNOWN_STATE)
 
@@ -149,7 +170,13 @@ class TestAlertRenderTemplate(BaseTestCase):
         result = self.factory.create_query_result(data=results)
         query = self.factory.create_query(latest_query_data_id=result.id)
         alert = self.factory.create_alert(
-            query_rel=query, options={"selector": "first", "op": "equals", "column": column, "value": value}
+            query_rel=query,
+            options={
+                "selector": "first",
+                "op": "equals",
+                "column": column,
+                "value": value,
+            },
         )
         return alert
 

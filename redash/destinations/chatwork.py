@@ -4,6 +4,8 @@ import requests
 
 from redash.destinations import BaseDestination, register
 
+logger = logging.getLogger(__name__)
+
 
 class ChatWork(BaseDestination):
     ALERTS_DEFAULT_MESSAGE_TEMPLATE = "{alert_name} changed state to {new_state}.\\n{alert_url}\\n{query_url}"
@@ -54,11 +56,11 @@ class ChatWork(BaseDestination):
             payload = {"body": message}
 
             resp = requests.post(url, headers=headers, data=payload, timeout=5.0)
-            logging.warning(resp.text)
+            logger.warning(resp.text)
             if resp.status_code != 200:
-                logging.error("ChatWork send ERROR. status_code => {status}".format(status=resp.status_code))
+                logger.error("ChatWork send ERROR. status_code => {status}".format(status=resp.status_code))
         except Exception:
-            logging.exception("ChatWork send ERROR.")
+            logger.exception("ChatWork send ERROR.")
 
 
 register(ChatWork)

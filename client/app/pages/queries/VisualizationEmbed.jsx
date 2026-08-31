@@ -1,42 +1,49 @@
 import { find, has } from "lodash";
-import React, { useState, useEffect, useCallback } from "react";
-import PropTypes from "prop-types";
-import moment from "moment";
 import { markdown } from "markdown";
+import moment from "moment";
+import PropTypes from "prop-types";
+import React, { useCallback, useEffect, useState } from "react";
 
-import Button from "antd/lib/button";
-import Dropdown from "antd/lib/dropdown";
-import Menu from "antd/lib/menu";
-import Tooltip from "@/components/Tooltip";
-import Link from "@/components/Link";
 import routeWithApiKeySession from "@/components/ApplicationArea/routeWithApiKeySession";
+import QueryResultsLink from "@/components/EditVisualizationButton/QueryResultsLink";
+import Link from "@/components/Link";
 import Parameters from "@/components/Parameters";
 import { Moment } from "@/components/proptypes";
 import TimeAgo from "@/components/TimeAgo";
 import Timer from "@/components/Timer";
-import QueryResultsLink from "@/components/EditVisualizationButton/QueryResultsLink";
+import Tooltip from "@/components/Tooltip";
 import VisualizationName from "@/components/visualizations/VisualizationName";
 import VisualizationRenderer from "@/components/visualizations/VisualizationRenderer";
+import useOrganizationSettings from "@/pages/settings/hooks/useOrganizationSettings";
+import Button from "antd/lib/button";
+import Dropdown from "antd/lib/dropdown";
+import Menu from "antd/lib/menu";
 
-import FileOutlinedIcon from "@ant-design/icons/FileOutlined";
 import FileExcelOutlinedIcon from "@ant-design/icons/FileExcelOutlined";
+import FileOutlinedIcon from "@ant-design/icons/FileOutlined";
 
 import { VisualizationType } from "@redash/viz/lib";
 import HtmlContent from "@redash/viz/lib/components/HtmlContent";
 
-import { formatDateTime } from "@/lib/utils";
 import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
-import { Query } from "@/services/query";
+import { formatDateTime } from "@/lib/utils";
 import location from "@/services/location";
+import { Query } from "@/services/query";
 import routes from "@/services/routes";
 
 import logoUrl from "@/assets/images/redash_icon_small.png";
 
 function VisualizationEmbedHeader({ queryName, queryDescription, visualization }) {
+  const { settings } = useOrganizationSettings({ onError: () => {} });
+
   return (
     <div className="embed-heading p-b-10 p-r-15 p-l-15">
       <h3>
-        <img src={logoUrl} alt="Redash Logo" style={{ height: "24px", verticalAlign: "text-bottom" }} />
+        <img
+          src={settings.logo_url || logoUrl}
+          alt="Redash Logo"
+          style={{ height: "24px", verticalAlign: "text-bottom" }}
+        />
         <VisualizationName visualization={visualization} /> {queryName}
         {queryDescription && (
           <small>

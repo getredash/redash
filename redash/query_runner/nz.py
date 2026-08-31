@@ -11,6 +11,7 @@ from redash.query_runner import (
     BaseSQLQueryRunner,
     register,
 )
+from redash.query_runner.ai import AI
 
 logger = logging.getLogger(__name__)
 
@@ -79,11 +80,17 @@ class Netezza(BaseSQLQueryRunner):
                 "password": {"type": "string"},
                 "host": {"type": "string", "default": "127.0.0.1"},
                 "port": {"type": "number", "default": 5480},
-                "database": {"type": "string", "title": "Database Name", "default": "system"},
+                "database": {
+                    "type": "string",
+                    "title": "Database Name",
+                    "default": "system",
+                },
+                "ai_prompt": {"type": "textarea", "title": "Data source description"},
             },
             "order": ["host", "port", "user", "password", "database"],
             "required": ["user", "password", "database"],
             "secret": ["password"],
+            "extra_options": ["ai_prompt"],
         }
 
     @classmethod
@@ -91,8 +98,17 @@ class Netezza(BaseSQLQueryRunner):
         return "nz"
 
     def __init__(self, configuration):
-        super().__init__(configuration)
+        super(Netezza, self).__init__(configuration)
         self._conn = None
+        self.ai = AI(self)
+
+    @property
+    def supports_ai_query(self):
+        return True
+
+    @property
+    def supports_ai_query_type(self):
+        return "sql"
 
     @property
     def connection(self):
@@ -144,7 +160,11 @@ class Netezza(BaseSQLQueryRunner):
         if typid == nzpy.core.NzTypeInt2:
             return TYPE_STRING if "text" in func.__name__ else typ
 
-        if typid in (nzpy.core.NzTypeVarFixedChar, nzpy.core.NzTypeVarBinary, nzpy.core.NzTypeNVarChar):
+        if typid in (
+            nzpy.core.NzTypeVarFixedChar,
+            nzpy.core.NzTypeVarBinary,
+            nzpy.core.NzTypeNVarChar,
+        ):
             return TYPE_INTEGER if "int" in func.__name__ else typ
         return typ
 
@@ -158,7 +178,10 @@ class Netezza(BaseSQLQueryRunner):
                 else:
                     columns = self.fetch_columns(
                         [
-                            (val[0], self.type_map(val[1], cursor.ps["row_desc"][i]["func"]))
+                            (
+                                val[0],
+                                self.type_map(val[1], cursor.ps["row_desc"][i]["func"]),
+                            )
                             for i, val in enumerate(cursor.description)
                         ]
                     )

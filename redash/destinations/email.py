@@ -5,6 +5,8 @@ from flask_mail import Message
 from redash import mail, settings
 from redash.destinations import BaseDestination, register
 
+logger = logging.getLogger(__name__)
+
 
 class Email(BaseDestination):
     @classmethod
@@ -31,14 +33,14 @@ class Email(BaseDestination):
         recipients = [email for email in options.get("addresses", "").split(",") if email]
 
         if not recipients:
-            logging.warning("No emails given. Skipping send.")
+            logger.warning("No emails given. Skipping send.")
 
         if alert.custom_body:
             html = alert.custom_body
         else:
             with open(settings.REDASH_ALERTS_DEFAULT_MAIL_BODY_TEMPLATE_FILE, "r") as f:
                 html = alert.render_template(f.read())
-        logging.debug("Notifying: %s", recipients)
+        logger.debug("Notifying: %s", recipients)
 
         try:
             state = new_state.upper()
@@ -51,7 +53,7 @@ class Email(BaseDestination):
             message = Message(recipients=recipients, subject=subject, html=html)
             mail.send(message)
         except Exception:
-            logging.exception("Mail send error.")
+            logger.exception("Mail send error.")
 
 
 register(Email)

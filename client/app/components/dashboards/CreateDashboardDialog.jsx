@@ -1,16 +1,18 @@
+import navigateTo from "@/components/ApplicationArea/navigateTo";
+import { DialogPropType, wrap as wrapDialog } from "@/components/DialogWrapper";
+import DynamicComponent from "@/components/DynamicComponent";
+import { Dashboard } from "@/services/dashboard";
+import { policy } from "@/services/policy";
+import recordEvent from "@/services/recordEvent";
+import Checkbox from "antd/lib/checkbox";
+import Input from "antd/lib/input";
+import Modal from "antd/lib/modal";
 import { trim } from "lodash";
 import React, { useState } from "react";
-import Modal from "antd/lib/modal";
-import Input from "antd/lib/input";
-import DynamicComponent from "@/components/DynamicComponent";
-import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
-import navigateTo from "@/components/ApplicationArea/navigateTo";
-import recordEvent from "@/services/recordEvent";
-import { policy } from "@/services/policy";
-import { Dashboard } from "@/services/dashboard";
 
 function CreateDashboardDialog({ dialog }) {
   const [name, setName] = useState("");
+  const [aiGenerated, setAiGenerated] = useState(false);
   const [isValid, setIsValid] = useState(false);
   const [saveInProgress, setSaveInProgress] = useState(false);
   const isCreateDashboardEnabled = policy.isCreateDashboardEnabled();
@@ -25,7 +27,7 @@ function CreateDashboardDialog({ dialog }) {
     if (name !== "") {
       setSaveInProgress(true);
 
-      Dashboard.save({ name }).then((data) => {
+      Dashboard.save({ name, ai_generated: aiGenerated }).then((data) => {
         dialog.close();
         navigateTo(`${data.url}?edit`);
       });
@@ -65,6 +67,14 @@ function CreateDashboardDialog({ dialog }) {
           disabled={saveInProgress}
           autoFocus
         />
+        <Checkbox
+          checked={aiGenerated}
+          onChange={(e) => setAiGenerated(e.target.checked)}
+          disabled={saveInProgress}
+          className="m-t-20"
+        >
+          Generate using AI
+        </Checkbox>
       </DynamicComponent>
     </Modal>
   );

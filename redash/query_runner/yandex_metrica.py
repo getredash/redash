@@ -99,9 +99,13 @@ class YandexMetrica(BaseSQLQueryRunner):
     def configuration_schema(cls):
         return {
             "type": "object",
-            "properties": {"token": {"type": "string", "title": "OAuth Token"}},
+            "properties": {
+                "token": {"type": "string", "title": "OAuth Token"},
+                "ai_prompt": {"type": "textarea", "title": "Data source description"},
+            },
             "secret": ["token"],
             "required": ["token"],
+            "extra_options": ["ai_prompt"],
         }
 
     def __init__(self, configuration):
@@ -155,7 +159,7 @@ class YandexMetrica(BaseSQLQueryRunner):
         try:
             params = yaml.safe_load(query)
         except ValueError as e:
-            logging.exception(e)
+            logger.exception(e)
             error = str(e)
             return data, error
 
@@ -170,7 +174,7 @@ class YandexMetrica(BaseSQLQueryRunner):
             data = parse_ym_response(self._send_query(**params))
             error = None
         except Exception as e:
-            logging.exception(e)
+            logger.exception(e)
             error = str(e)
         return data, error
 

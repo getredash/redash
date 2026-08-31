@@ -16,14 +16,14 @@ jobs:
       - if: github.event.pull_request.mergeable == 'false'
         name: Exit if PR is not mergeable
         run: exit 1
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 1
           ref: ${{ github.event.pull_request.head.sha }}
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.13'
-      - run: python -m pip install black==23.1.0 ruff==0.0.287
+      - run: python -m pip install black==23.1.0 ruff==0.16.5
       - run: ruff check .
       - run: black --check .
 
@@ -39,7 +39,7 @@ jobs:
       - if: github.event.pull_request.mergeable == 'false'
         name: Exit if PR is not mergeable
         run: exit 1
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 1
           ref: ${{ github.event.pull_request.head.sha }}
@@ -65,12 +65,12 @@ jobs:
       #   with:
       #     token: ${{ secrets.CODECOV_TOKEN }}
       - name: Store Test Results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: backend-test-results
           path: /tmp/test-results
       - name: Store Coverage Results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: coverage
           path: coverage.xml
@@ -81,14 +81,14 @@ jobs:
       - if: github.event.pull_request.mergeable == 'false'
         name: Exit if PR is not mergeable
         run: exit 1
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 1
           ref: ${{ github.event.pull_request.head.sha }}
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         with:
           version: ${{ env.PNPM_VERSION }}
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
@@ -97,7 +97,7 @@ jobs:
       - name: Run Lint
         run: pnpm run lint:ci
       - name: Store Test Results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: frontend-test-results
           path: /tmp/test-results
@@ -109,14 +109,14 @@ jobs:
       - if: github.event.pull_request.mergeable == 'false'
         name: Exit if PR is not mergeable
         run: exit 1
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 1
           ref: ${{ github.event.pull_request.head.sha }}
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         with:
           version: ${{ env.PNPM_VERSION }}
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
@@ -143,14 +143,14 @@ jobs:
       - if: github.event.pull_request.mergeable == 'false'
         name: Exit if PR is not mergeable
         run: exit 1
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 1
           ref: ${{ github.event.pull_request.head.sha }}
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         with:
           version: ${{ env.PNPM_VERSION }}
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'

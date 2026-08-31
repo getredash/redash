@@ -11,9 +11,9 @@ describe("Visualizations -> Counter -> Utils", () => {
         { city: "Tokyo", population: 38140000 },
       ],
       options: {},
-      visualisationName: "Visualisation Name",
+      visualizationName: "Visualization Name",
       result: {
-        counterLabel: "Visualisation Name",
+        counterLabel: "Visualization Name",
         counterValue: "",
         targetValue: null,
         counterValueTooltip: "",
@@ -25,7 +25,7 @@ describe("Visualizations -> Counter -> Utils", () => {
   describe("getCounterData()", () => {
     describe('"Count rows" option is disabled', () => {
       test("No target and counter values return empty result", () => {
-        const result = getCounterData(dummy.rows, dummy.options, dummy.visualisationName);
+        const result = getCounterData(dummy.rows, dummy.options, dummy.visualizationName);
         expect(result).toEqual({
           ...dummy.result,
           showTrend: false,
@@ -33,7 +33,7 @@ describe("Visualizations -> Counter -> Utils", () => {
       });
 
       test('"Counter label" overrides vizualization name', () => {
-        const result = getCounterData(dummy.rows, { counterLabel: "Counter Label" }, dummy.visualisationName);
+        const result = getCounterData(dummy.rows, { counterLabel: "Counter Label" }, dummy.visualizationName);
         expect(result).toEqual({
           ...dummy.result,
           counterLabel: "Counter Label",
@@ -42,13 +42,13 @@ describe("Visualizations -> Counter -> Utils", () => {
       });
 
       test('"Counter Value Column Name" must be set to a correct non empty value', () => {
-        const result = getCounterData(dummy.rows, { rowNumber: 3 }, dummy.visualisationName);
+        const result = getCounterData(dummy.rows, { rowNumber: 3 }, dummy.visualizationName);
         expect(result).toEqual({
           ...dummy.result,
           showTrend: false,
         });
 
-        const result2 = getCounterData(dummy.rows, { counterColName: "missingColumn" }, dummy.visualisationName);
+        const result2 = getCounterData(dummy.rows, { counterColName: "missingColumn" }, dummy.visualizationName);
         expect(result2).toEqual({
           ...dummy.result,
           showTrend: false,
@@ -56,7 +56,7 @@ describe("Visualizations -> Counter -> Utils", () => {
       });
 
       test('"Counter Value Column Name" uses correct column', () => {
-        const result = getCounterData(dummy.rows, { counterColName: "population" }, dummy.visualisationName);
+        const result = getCounterData(dummy.rows, { counterColName: "population" }, dummy.visualizationName);
         expect(result).toEqual({
           ...dummy.result,
           counterValue: "18,604,000.000",
@@ -74,7 +74,7 @@ describe("Visualizations -> Counter -> Utils", () => {
             targetRowNumber: 2,
             targetColName: "population",
           },
-          dummy.visualisationName
+          dummy.visualizationName
         );
         expect(result).toEqual({
           ...dummy.result,
@@ -94,7 +94,7 @@ describe("Visualizations -> Counter -> Utils", () => {
             targetRowNumber: 1,
             targetColName: "population",
           },
-          dummy.visualisationName
+          dummy.visualizationName
         );
         expect(result2).toEqual({
           ...dummy.result,
@@ -119,7 +119,7 @@ describe("Visualizations -> Counter -> Utils", () => {
       });
 
       test("Rows are counted correctly", () => {
-        const result = getCounterData(dummy.rows, { countRow: true }, dummy.visualisationName);
+        const result = getCounterData(dummy.rows, { countRow: true }, dummy.visualizationName);
         expect(result).toEqual(dummy.result);
       });
 
@@ -131,7 +131,7 @@ describe("Visualizations -> Counter -> Utils", () => {
             rowNumber: 3,
             counterColName: "population",
           },
-          dummy.visualisationName
+          dummy.visualizationName
         );
         expect(result).toEqual(dummy.result);
       });
@@ -144,7 +144,7 @@ describe("Visualizations -> Counter -> Utils", () => {
             targetRowNumber: 2,
             targetColName: "population",
           },
-          dummy.visualisationName
+          dummy.visualizationName
         );
         expect(result).toEqual({
           ...dummy.result,
@@ -156,7 +156,7 @@ describe("Visualizations -> Counter -> Utils", () => {
       });
 
       test("Empty rows return counter value 0", () => {
-        const result = getCounterData([], { countRow: true }, dummy.visualisationName);
+        const result = getCounterData([], { countRow: true }, dummy.visualizationName);
         expect(result).toEqual({
           ...dummy.result,
           counterValue: "0.000",

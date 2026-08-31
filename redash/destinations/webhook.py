@@ -7,6 +7,8 @@ from redash.destinations import BaseDestination, register
 from redash.serializers import serialize_alert
 from redash.utils import json_dumps
 
+logger = logging.getLogger(__name__)
+
 
 class Webhook(BaseDestination):
     @classmethod
@@ -48,9 +50,9 @@ class Webhook(BaseDestination):
                 timeout=5.0,
             )
             if resp.status_code != 200:
-                logging.error("webhook send ERROR. status_code => {status}".format(status=resp.status_code))
+                logger.error("webhook send ERROR. status_code => {status}".format(status=resp.status_code))
         except Exception:
-            logging.exception("webhook send ERROR.")
+            logger.exception("webhook send ERROR.")
 
 
 register(Webhook)

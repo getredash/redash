@@ -1,5 +1,7 @@
 import json
 
+from redash.query_runner.ai import AI
+
 try:
     import pydgraph
 
@@ -37,6 +39,10 @@ class Dgraph(BaseQueryRunner):
     }
     """
 
+    def __init__(self, configuration):
+        super(Dgraph, self).__init__(configuration)
+        self.ai = AI(self)
+
     @classmethod
     def configuration_schema(cls):
         return {
@@ -45,10 +51,12 @@ class Dgraph(BaseQueryRunner):
                 "user": {"type": "string"},
                 "password": {"type": "string"},
                 "servers": {"type": "string"},
+                "ai_prompt": {"type": "textarea", "title": "Data source description"},
             },
             "order": ["servers", "user", "password"],
             "required": ["servers"],
             "secret": ["password"],
+            "extra_options": ["ai_prompt"],
         }
 
     @classmethod
@@ -58,6 +66,14 @@ class Dgraph(BaseQueryRunner):
     @classmethod
     def enabled(cls):
         return enabled
+
+    @property
+    def supports_ai_query(self):
+        return True
+
+    @property
+    def supports_ai_query_type(self):
+        return "nosql"
 
     def run_dgraph_query_raw(self, query):
         servers = self.configuration.get("servers")

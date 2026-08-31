@@ -103,7 +103,11 @@ class TestPrometheus(TestCase):
         }
 
         create_cert_file_mock.assert_has_calls(
-            [mock.call("ca_cert_File"), mock.call("cert_File"), mock.call("cert_key_File")]
+            [
+                mock.call("ca_cert_File"),
+                mock.call("cert_File"),
+                mock.call("cert_key_File"),
+            ]
         )
 
         create_cert_file_mock.reset_mock()
@@ -133,7 +137,11 @@ class TestPrometheus(TestCase):
             "cert": ("cert_file.crt", "cert_key_file.key"),
         }
         create_cert_file_mock.assert_has_calls(
-            [mock.call("ca_cert_File"), mock.call("cert_File"), mock.call("cert_key_File")]
+            [
+                mock.call("ca_cert_File"),
+                mock.call("cert_File"),
+                mock.call("cert_key_File"),
+            ]
         )
 
     @mock.patch("redash.query_runner.prometheus.NamedTemporaryFile")
@@ -184,10 +192,18 @@ class TestPrometheus(TestCase):
         prometheus._cleanup_cert_files({"verify": "ca_cert_file", "cert": ("cert_file", "cert_key_file")})
 
         os_mock.path.exists.assert_has_calls(
-            [mock.call("ca_cert_file"), mock.call("cert_file"), mock.call("cert_key_file")]
+            [
+                mock.call("ca_cert_file"),
+                mock.call("cert_file"),
+                mock.call("cert_key_file"),
+            ]
         )
         os_mock.remove.assert_has_calls(
-            [mock.call("ca_cert_file"), mock.call("cert_file"), mock.call("cert_key_file")]
+            [
+                mock.call("ca_cert_file"),
+                mock.call("cert_file"),
+                mock.call("cert_key_file"),
+            ]
         )
 
     def test_configuration_schema(self):
@@ -201,13 +217,26 @@ class TestPrometheus(TestCase):
                     "title": "Verify SSL (Ignored, if SSL Root Certificate is given)",
                     "default": True,
                 },
-                "cert_File": {"type": "string", "title": "SSL Client Certificate", "default": None},
-                "cert_key_File": {"type": "string", "title": "SSL Client Key", "default": None},
-                "ca_cert_File": {"type": "string", "title": "SSL Root Certificate", "default": None},
+                "cert_File": {
+                    "type": "string",
+                    "title": "SSL Client Certificate",
+                    "default": None,
+                },
+                "cert_key_File": {
+                    "type": "string",
+                    "title": "SSL Client Key",
+                    "default": None,
+                },
+                "ca_cert_File": {
+                    "type": "string",
+                    "title": "SSL Root Certificate",
+                    "default": None,
+                },
+                "ai_prompt": {"type": "textarea", "title": "Data source description"},
             },
             "required": ["url"],
             "secret": ["cert_File", "cert_key_File", "ca_cert_File"],
-            "extra_options": ["verify_ssl", "cert_File", "cert_key_File", "ca_cert_File"],
+            "extra_options": ["verify_ssl", "cert_File", "cert_key_File", "ca_cert_File", "ai_prompt"],
         }
 
     def test_enabled(self):
@@ -360,7 +389,9 @@ class TestPrometheus(TestCase):
         self.assertEqual(data, data_expected)
         self.assertIsNone(error)
         requests_get_mock.assert_called_once_with(
-            "url/api/v1/query", params={"query": ["http_requests_total"]}, **prometheus_kwargs
+            "url/api/v1/query",
+            params={"query": ["http_requests_total"]},
+            **prometheus_kwargs,
         )
         cleanup_cert_files_mock.assert_called_once_with(prometheus_kwargs)
 
@@ -378,7 +409,9 @@ class TestPrometheus(TestCase):
         self.assertIsNone(data)
         self.assertEqual(error, "query result is empty.")
         requests_get_mock.assert_called_once_with(
-            "url/api/v1/query", params={"query": ["http_requests_total"]}, **prometheus_kwargs
+            "url/api/v1/query",
+            params={"query": ["http_requests_total"]},
+            **prometheus_kwargs,
         )
         cleanup_cert_files_mock.assert_called_once_with(prometheus_kwargs)
 
@@ -432,7 +465,8 @@ class TestPrometheus(TestCase):
         start_timestamp_expected = int(time.mktime(datetime(2018, 1, 26).timetuple()))
         end_timestamp_expected = int(time.mktime(datetime(2018, 1, 27).timetuple()))
         data, error = prometheus.run_query(
-            "http_requests_total&start=2018-01-26T00:00:00.000Z&end=2018-01-27T00:00:00.000Z&step=60s", "user"
+            "http_requests_total&start=2018-01-26T00:00:00.000Z&end=2018-01-27T00:00:00.000Z&step=60s",
+            "user",
         )
 
         self.assertEqual(data, data_expected)
@@ -534,6 +568,8 @@ class TestPrometheus(TestCase):
         self.assertIsNone(error)
         self.assertEqual(str(exception_obj.exception), "test exception")
         requests_get_mock.assert_called_once_with(
-            "url/api/v1/query", params={"query": ["http_requests_total"]}, **prometheus_kwargs
+            "url/api/v1/query",
+            params={"query": ["http_requests_total"]},
+            **prometheus_kwargs,
         )
         cleanup_cert_files_mock.assert_called_once_with(prometheus_kwargs)

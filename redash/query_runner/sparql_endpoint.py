@@ -8,6 +8,7 @@ import logging
 from os import environ
 
 from redash.query_runner import BaseQueryRunner
+from redash.query_runner.ai import AI
 
 from . import register
 
@@ -40,6 +41,7 @@ class SPARQLEndpointQueryRunner(BaseQueryRunner):
         super(SPARQLEndpointQueryRunner, self).__init__(configuration)
 
         self.configuration = configuration
+        self.ai = AI(self)
 
     def _setup_environment(self):
         """provide environment for rdflib
@@ -114,6 +116,14 @@ class SPARQLEndpointQueryRunner(BaseQueryRunner):
     def type(cls):
         return "sparql_endpoint"
 
+    @property
+    def supports_ai_query(self):
+        return True
+
+    @property
+    def supports_ai_query_type(self):
+        return "nosql"
+
     def remove_comments(self, string):
         return string[string.index("*/") + 2 :].strip()
 
@@ -166,10 +176,11 @@ class SPARQLEndpointQueryRunner(BaseQueryRunner):
                     "title": "Verify SSL certificates for API requests",
                     "default": True,
                 },
+                "ai_prompt": {"type": "textarea", "title": "Data source description"},
             },
             "required": ["SPARQL_BASE_URI"],
             "secret": [],
-            "extra_options": ["SSL_VERIFY"],
+            "extra_options": ["SSL_VERIFY", "ai_prompt"],
         }
 
     def get_schema(self, get_stats=False):

@@ -103,7 +103,8 @@ def get_query_entities(query):
 
 def is_labeled_query(expr):
     return isinstance(expr, sa.sql.elements.Label) and isinstance(
-        list(expr.base_columns)[0], (sa.sql.selectable.Select, sa.sql.selectable.ScalarSelect)
+        list(expr.base_columns)[0],
+        (sa.sql.selectable.Select, sa.sql.selectable.ScalarSelect),
     )
 
 

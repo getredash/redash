@@ -6,6 +6,8 @@ import requests
 from redash.destinations import BaseDestination, register
 from redash.utils import json_dumps
 
+logger = logging.getLogger(__name__)
+
 
 def json_string_substitute(j, substitutions):
     """
@@ -83,7 +85,10 @@ class MicrosoftTeamsWebhook(BaseDestination):
 
             query_url = "{host}/queries/{query_id}".format(host=host, query_id=query.id)
 
-            message_template = options.get("message_template", MicrosoftTeamsWebhook.ALERTS_DEFAULT_MESSAGE_TEMPLATE)
+            message_template = options.get(
+                "message_template",
+                MicrosoftTeamsWebhook.ALERTS_DEFAULT_MESSAGE_TEMPLATE,
+            )
 
             # Doing a string Template substitution here because the template contains braces, which
             # result in keyerrors when attempting string.format
@@ -106,9 +111,9 @@ class MicrosoftTeamsWebhook(BaseDestination):
                 timeout=5.0,
             )
             if resp.status_code != 200:
-                logging.error("MS Teams Webhook send ERROR. status_code => {status}".format(status=resp.status_code))
+                logger.error("MS Teams Webhook send ERROR. status_code => {status}".format(status=resp.status_code))
         except Exception:
-            logging.exception("MS Teams Webhook send ERROR.")
+            logger.exception("MS Teams Webhook send ERROR.")
 
 
 register(MicrosoftTeamsWebhook)

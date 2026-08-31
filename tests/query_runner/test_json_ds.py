@@ -66,7 +66,10 @@ class TestJSON(TestCase):
     def test_token_pagination(self):
         q = {
             "url": "token-test",
-            "pagination": {"type": "token", "fields": ["next_page_token", "page_token"]},
+            "pagination": {
+                "type": "token",
+                "fields": ["next_page_token", "page_token"],
+            },
             "path": "records",
         }
         results, error = self.runner._run_json_query(q)

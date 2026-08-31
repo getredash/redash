@@ -9,6 +9,7 @@ from redash.query_runner import (
     BaseQueryRunner,
     register,
 )
+from redash.query_runner.ai import AI
 
 logger = logging.getLogger(__name__)
 
@@ -52,12 +53,20 @@ TYPES_MAPPING = {
 class Phoenix(BaseQueryRunner):
     noop_query = "select 1"
 
+    def __init__(self, configuration):
+        super(Phoenix, self).__init__(configuration)
+        self.ai = AI(self)
+
     @classmethod
     def configuration_schema(cls):
         return {
             "type": "object",
-            "properties": {"url": {"type": "string"}},
+            "properties": {
+                "url": {"type": "string"},
+                "ai_prompt": {"type": "textarea", "title": "Data source description"},
+            },
             "required": ["url"],
+            "extra_options": ["ai_prompt"],
         }
 
     @classmethod
@@ -67,6 +76,14 @@ class Phoenix(BaseQueryRunner):
     @classmethod
     def type(cls):
         return "phoenix"
+
+    @property
+    def supports_ai_query(self):
+        return True
+
+    @property
+    def supports_ai_query_type(self):
+        return "sql"
 
     def get_schema(self, get_stats=False):
         schema = {}
