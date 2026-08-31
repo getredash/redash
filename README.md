@@ -1,5 +1,5 @@
 <p align="center">
-  <img title="Redash" src='https://github.com/freaker2k7/redash/blob/feat/redash/client/app/assets/images/logo.png?raw=true' width="200px"/>
+  <img title="Redash" src='https://github.com/freaker2k7/redash/blob/master/client/app/assets/images/logo.png?raw=true' width="200px"/>
 </p>
 
 [![Documentation](https://img.shields.io/badge/docs-redash.io/help-brightgreen.svg)](https://redash.io/help/)
