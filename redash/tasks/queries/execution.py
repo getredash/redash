@@ -188,9 +188,11 @@ class QueryExecutor:
             else None
         )  # fmt: skip
 
-        # TODO: Check if this is still needed !!!
-        # # Close DB connection to prevent holding a connection for a long time while the query is executing.
-        # models.db.session.close()
+        if not self.query_id or self.query_id == "adhoc":
+            # Close DB connection to prevent holding a connection
+            # for a long time while the query is executing.
+            models.db.session.close()
+
         self.query_hash = gen_query_hash(self.query)
         self.is_scheduled_query = is_scheduled_query
         self.is_ai_query = metadata.get("apply_ai_query", False)
