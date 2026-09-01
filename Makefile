@@ -73,3 +73,43 @@ redis-cli:
 
 bash:
 	docker compose run --rm server bash
+
+pre_init:
+	CYPRESS_INSTALL_BINARY=0 PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 pnpm install
+
+	if [ "$$(uname)" = "Darwin" ]; then \
+		echo "Detected macOS. Building and running Docker container for macOS installation..." ; \
+		brew install pwgen ; \
+		docker build -t macos-install-helper macos-helper/. ; \
+		docker rm -f ubuntu ; \
+		docker run -it --rm -v /var/run/docker.sock:/var/run/docker.sock -v $$(pwd):/home/redash/redash --name ubuntu macos-install-helper ; \
+	else \
+		echo "Detected non-macOS system. Setting up Python virtual environment..." ; \
+		python3 -m venv .venv ; \
+		. .venv/bin/activate ; \
+		pip install wheel ; \
+		pip install setuptools==80.10.2 ; \
+		pip install --upgrade black ruff launchpadlib pip ; \
+		pip install uv==0.11.6 ; \
+		uv sync --no-default-groups --group all_ds --group dev --link-mode=copy ; \
+	fi
+
+local_init: pre_init build compose_build create_database
+
+local_run: up start
+
+quickstart: local_init
+	if [ $$(grep -c "REDASH_SECRET_KEY=\n" .env) -eq 0 && $$(grep -cE "REDASH_SECRET_KEY=$$" .env) -eq 0 ]; then \
+		echo "REDASH_COOKIE_SECRET=$$RANDOM$$RANDOM$$RANDOM$$RANDOM$$RANDOM" > .env ; \
+		echo "REDASH_SECRET_KEY=$$RANDOM$$RANDOM$$RANDOM$$RANDOM$$RANDOM" >> .env ; \
+	fi
+	echo "HF_TOKEN=$$HF_TOKEN" >> .env
+	@make local_run & \
+	PID=$$! ; \
+	while true; do \
+		STATUS=$$(curl -s -o /dev/null -w "%{http_code}" http://localhost:5001 || echo 000) ; \
+		if [ "$$STATUS" = "200" ] || [ "$$STATUS" = "302" ]; then break; fi ; \
+		sleep 1 ; \
+	done ; \
+	open http://localhost:5001 ; \
+	wait $$PID
