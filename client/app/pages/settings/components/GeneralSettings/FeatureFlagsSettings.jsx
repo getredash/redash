@@ -15,7 +15,7 @@ export default function FeatureFlagsSettings(props) {
         {loading ? (
           <>
             <Row>
-              <Skeleton title={false} paragraph={{ width: [300, 300, 300], rows: 3 }} active />
+              <Skeleton title={false} paragraph={{ width: [300, 300, 300], rows: 4 }} active />
             </Row>
           </>
         ) : (
@@ -47,6 +47,15 @@ export default function FeatureFlagsSettings(props) {
                 onChange={(e) => onChange({ multi_byte_search_enabled: e.target.checked })}
               >
                 Enable multi-byte (Chinese, Japanese, and Korean) search for query names and descriptions (slower)
+              </Checkbox>
+            </Row>
+            <Row>
+              <Checkbox
+                name="tags_sort_by"
+                checked={values.tags_sort_by === "count"}
+                onChange={(e) => onChange({ tags_sort_by: e.target.checked ? "count" : "name" })}
+              >
+                Sort tags by usage count (default: alphabetical)
               </Checkbox>
             </Row>
           </>

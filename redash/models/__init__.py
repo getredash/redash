@@ -555,17 +555,19 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         ).filter(Favorite.user_id == user.id)
 
     @classmethod
-    def all_tags(cls, user, include_drafts=False):
+    def all_tags(cls, user, include_drafts=False, sort_by="name"):
         queries = cls.all_queries(group_ids=user.group_ids, user_id=user.id, include_drafts=include_drafts)
 
         tag_column = func.unnest(cls.tags).label("tag")
         usage_count = func.count(1).label("usage_count")
 
+        order = tag_column.asc() if sort_by == "name" else usage_count.desc()
+
         query = (
             db.session.query(tag_column, usage_count)
             .group_by(tag_column)
             .filter(Query.id.in_(queries.options(load_only("id"))))
-            .order_by(tag_column)
+            .order_by(order)
         )
         return query
 
@@ -1171,17 +1173,19 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
         return cls.by_user(user).filter(cls.name.ilike("%{}%".format(term))).limit(limit)
 
     @classmethod
-    def all_tags(cls, org, user):
+    def all_tags(cls, org, user, sort_by="name"):
         dashboards = cls.all(org, user.group_ids, user.id)
 
         tag_column = func.unnest(cls.tags).label("tag")
         usage_count = func.count(1).label("usage_count")
 
+        order = tag_column.asc() if sort_by == "name" else usage_count.desc()
+
         query = (
             db.session.query(tag_column, usage_count)
             .group_by(tag_column)
             .filter(Dashboard.id.in_(dashboards.options(load_only("id"))))
-            .order_by(tag_column)
+            .order_by(order)
         )
         return query
 
