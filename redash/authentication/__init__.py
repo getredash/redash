@@ -4,9 +4,9 @@ import logging
 import time
 import unicodedata
 from datetime import timedelta
-from urllib.parse import urlparse, urlsplit, urlunsplit
+from urllib.parse import unquote, urlparse, urlsplit, urlunsplit
 
-from flask import jsonify, redirect, request, session, url_for
+from flask import current_app, jsonify, redirect, request, session, url_for
 from flask_login import LoginManager, login_user, logout_user, user_logged_in
 from sqlalchemy.orm.exc import NoResultFound
 from werkzeug.exceptions import Unauthorized
@@ -239,10 +239,23 @@ def logout_and_redirect_to_index():
 
 
 def init_app(app):
+    from flask import g
+
     from redash.authentication import ldap_auth, remote_user_auth, saml_auth
     from redash.authentication.google_oauth import (
         create_google_oauth_blueprint,
     )
+
+    # Flask clears `g` when the application context ends. Unit tests keep a
+    # single app context for the whole case while issuing many requests via
+    # the test client, so per-request values must be reset here. Otherwise
+    # Flask-Login's `g._login_user` and `current_org`'s `g.org` leak across
+    # requests and auth/org resolution breaks.
+    @app.before_request
+    def reset_request_g_cache():
+        if current_app.config.get("TESTING"):
+            g.pop("_login_user", None)
+            g.pop("org", None)
 
     login_manager.init_app(app)
     login_manager.anonymous_user = models.AnonymousUser
@@ -308,13 +321,17 @@ def _is_safe_next_url(url):
     if not url:
         return False
 
-    url = url.strip()
+    # Decode percent-encoding so %5C is treated like \ (Werkzeug 3 encodes
+    # backslashes in Location as %5C; browsers still treat \ as /).
+    url = unquote(url.strip())
     if not url:
         return False
 
     # Reject URLs with leading control characters (browsers silently strip them)
     if unicodedata.category(url[0])[0] == "C":
         return False
+
+    # Leading-\ / /\ forms are host-like once browsers map \ → / (e.g. \evil.com).
 
     # Chrome treats \ as / in URLs, so check both the original and
     # backslash-normalized versions to prevent bypasses like \/evil.com
