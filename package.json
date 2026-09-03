@@ -46,7 +46,7 @@
     "@redash/viz": "workspace:*",
     "ace-builds": "^1.43.3",
     "antd": "4.4.3",
-    "axios": "0.27.2",
+    "axios": "1.16.0",
     "axios-auth-refresh": "3.3.6",
     "bootstrap": "^3.4.1",
     "classnames": "^2.2.6",
@@ -105,6 +105,7 @@
     "babel-plugin-istanbul": "^6.1.1",
     "babel-plugin-transform-builtin-extend": "^1.1.2",
     "copy-webpack-plugin": "^13.0.1",
+    "core-js": "^2.6.12",
     "css-loader": "^7.1.4",
     "cypress": "^11.2.0",
     "dayjs": "^1.11.9",
@@ -203,6 +204,7 @@
     "overrides": {
       "@types/react": "^17.0.0",
       "@types/react-dom": "^17.0.0",
+      "axios": "1.16.0",
       "cheerio": "1.0.0-rc.12",
       "form-data@2": "~2.5.4"
     }
