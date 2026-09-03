@@ -412,7 +412,6 @@ query_runners = {}
 
 
 def register(query_runner_class):
-    global query_runners
     if query_runner_class.enabled():
         logger.debug(
             "Registering %s (%s) query runner.",
