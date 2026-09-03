@@ -28,14 +28,16 @@ export const Columns = {
     formatTitle = isFunction(formatTitle) ? formatTitle : identity;
     return extend(
       {
-        width: "1%",
         render: (user, item) => (
-          <img
-            src={item.user.profile_image_url}
-            className="profile__image_thumb"
-            alt={formatTitle(user.name, item)}
-            title={formatTitle(user.name, item)}
-          />
+          <figure className="profile__figure_thumb">
+            <img
+              src={item.user.profile_image_url}
+              className="profile__image_thumb"
+              alt={formatTitle(user.name, item)}
+              title={formatTitle(user.name, item)}
+            />
+            <figcaption className="profile__figcaption_thumb">{user.name}</figcaption>
+          </figure>
         ),
       },
       overrides
@@ -86,6 +88,7 @@ export const Columns = {
 };
 
 Columns.date.sortable = sortable;
+Columns.avatar.sortable = sortable;
 Columns.dateTime.sortable = sortable;
 Columns.duration.sortable = sortable;
 Columns.timeAgo.sortable = sortable;
