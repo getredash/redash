@@ -53,10 +53,14 @@ export default class QueryBasedParameterInput extends React.Component {
       this.setState({ value: validValues });
       return validValues;
     }
-    const found = find(options, (option) => option.value === this.props.value) !== undefined;
-    value = found ? value : get(first(options), "value");
-    this.setState({ value });
-    return value;
+    if (value == null || value === "") {
+      this.setState({ value: undefined });
+      return null;
+    }
+    const found = find(options, (option) => option.value === value) !== undefined;
+    const nextValue = found ? value : get(first(options), "value");
+    this.setState({ value: nextValue });
+    return nextValue;
   }
 
   async _loadOptions(queryId) {
