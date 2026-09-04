@@ -5,7 +5,6 @@ from base64 import b64decode
 from tempfile import NamedTemporaryFile
 
 from redash.query_runner import BaseQueryRunner, register
-from redash.query_runner.ai import AI
 
 logger = logging.getLogger(__name__)
 
@@ -29,10 +28,6 @@ def generate_ssl_options_dict(protocol, cert_path=None):
 
 class Cassandra(BaseQueryRunner):
     noop_query = "SELECT dateof(now()) FROM system.local"
-
-    def __init__(self, configuration):
-        super(Cassandra, self).__init__(configuration)
-        self.ai = AI(self)
 
     @classmethod
     def enabled(cls):
@@ -108,18 +103,14 @@ class Cassandra(BaseQueryRunner):
         SELECT table_name, column_name
         FROM system_schema.columns
         WHERE keyspace_name ='{}';
-        """.format(
-            self.configuration["keyspace"]
-        )
+        """.format(self.configuration["keyspace"])
 
         if release_version.startswith("2"):
             query = """
                 SELECT columnfamily_name AS table_name, column_name
                 FROM system.schema_columns
                 WHERE keyspace_name ='{}';
-                """.format(
-                self.configuration["keyspace"]
-            )
+                """.format(self.configuration["keyspace"])
 
         results, error = self.run_query(query, None)
 

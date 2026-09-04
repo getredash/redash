@@ -92,6 +92,7 @@ dependencies = [
     "deepseek==1.0.0",
     "openrouter==0.10.8",
     "google-genai==2.20.0",
+    "pymemcache==4.0.0",
 ]
 
 [tool.black]

@@ -13,7 +13,6 @@ from redash.query_runner import (
     JobTimeoutException,
     register,
 )
-from redash.query_runner.ai import AI
 from redash.settings import parse_boolean
 
 try:
@@ -51,10 +50,6 @@ class Result:
 
 class Mysql(BaseSQLQueryRunner):
     noop_query = "SELECT 1"
-
-    def __init__(self, configuration):
-        super(Mysql, self).__init__(configuration)
-        self.ai = AI(self)
 
     @classmethod
     def configuration_schema(cls):

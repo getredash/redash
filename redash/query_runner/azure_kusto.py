@@ -8,7 +8,6 @@ from redash.query_runner import (
     BaseQueryRunner,
     register,
 )
-from redash.query_runner.ai import AI
 from redash.utils import json_loads
 
 try:
@@ -73,7 +72,6 @@ class AzureKusto(BaseQueryRunner):
     def __init__(self, configuration):
         super(AzureKusto, self).__init__(configuration)
         self.syntax = "custom"
-        self.ai = AI(self)
 
     @classmethod
     def configuration_schema(cls):

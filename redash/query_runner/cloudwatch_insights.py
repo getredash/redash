@@ -4,7 +4,6 @@ import time
 import yaml
 
 from redash.query_runner import BaseQueryRunner, register
-from redash.query_runner.ai import AI
 from redash.utils import parse_human_time
 
 try:
@@ -105,7 +104,6 @@ class CloudWatchInsights(BaseQueryRunner):
     def __init__(self, configuration):
         super(CloudWatchInsights, self).__init__(configuration)
         self.syntax = "yaml"
-        self.ai = AI(self)
 
     def test_connection(self):
         self.get_schema()

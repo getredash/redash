@@ -15,7 +15,6 @@ from redash.query_runner import (
     register,
     split_sql_statements,
 )
-from redash.query_runner.ai import AI
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +28,6 @@ class ClickHouse(BaseSQLQueryRunner):
 
     def __init__(self, configuration):
         super(ClickHouse, self).__init__(configuration)
-        self.ai = AI(self)
 
     @classmethod
     def configuration_schema(cls):

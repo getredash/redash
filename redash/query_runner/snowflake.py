@@ -20,7 +20,6 @@ from redash.query_runner import (
     BaseSQLQueryRunner,
     register,
 )
-from redash.query_runner.ai import AI
 
 TYPES_MAP = {
     0: TYPE_INTEGER,
@@ -38,10 +37,6 @@ TYPES_MAP = {
 
 class Snowflake(BaseSQLQueryRunner):
     noop_query = "SELECT 1"
-
-    def __init__(self, configuration):
-        super(Snowflake, self).__init__(configuration)
-        self.ai = AI(self)
 
     @classmethod
     def configuration_schema(cls):

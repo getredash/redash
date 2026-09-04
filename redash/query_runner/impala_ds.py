@@ -10,7 +10,6 @@ from redash.query_runner import (
     JobTimeoutException,
     register,
 )
-from redash.query_runner.ai import AI
 
 logger = logging.getLogger(__name__)
 
@@ -44,10 +43,6 @@ types_map = {
 
 class Impala(BaseSQLQueryRunner):
     noop_query = "show schemas"
-
-    def __init__(self, configuration):
-        super(Impala, self).__init__(configuration)
-        self.ai = AI(self)
 
     @classmethod
     def configuration_schema(cls):

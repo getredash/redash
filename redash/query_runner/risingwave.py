@@ -1,13 +1,8 @@
 from redash.query_runner import register
-from redash.query_runner.ai import AI
 from redash.query_runner.pg import PostgreSQL
 
 
 class RisingWave(PostgreSQL):
-    def __init__(self, configuration):
-        super(RisingWave, self).__init__(configuration)
-        self.ai = AI(self)
-
     @classmethod
     def type(cls):
         return "risingwave"

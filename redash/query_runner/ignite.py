@@ -12,7 +12,6 @@ from redash.query_runner import (
     JobTimeoutException,
     register,
 )
-from redash.query_runner.ai import AI
 
 ignite_available = importlib.util.find_spec("pyignite") is not None
 gridgain_available = importlib.util.find_spec("pygridgain") is not None
@@ -37,10 +36,6 @@ types_map = {
 class Ignite(BaseSQLQueryRunner):
     should_annotate_query = False
     noop_query = "SELECT 1"
-
-    def __init__(self, configuration):
-        super(Ignite, self).__init__(configuration)
-        self.ai = AI(self)
 
     @classmethod
     def configuration_schema(cls):

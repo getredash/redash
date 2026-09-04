@@ -185,14 +185,12 @@ def test_asana_notify_calls_requests_post():
 
         destination.notify(alert, query, user, new_state, app, host, metadata, options)
 
-        notes = textwrap.dedent(
-            f"""
+        notes = textwrap.dedent(f"""
         {alert.name} has TRIGGERED.
 
         Query: {host}/queries/{query.id}
         Alert: {host}/alerts/{alert.id}
-        """
-        ).strip()
+        """).strip()
 
         expected_payload = {
             "name": f"[Redash Alert] TRIGGERED: {alert.name}",

@@ -161,6 +161,14 @@ class JiraJQL(BaseHTTPQueryRunner):
     def name(cls):
         return "JIRA (JQL)"
 
+    @property
+    def supports_ai_query(self):
+        return True
+
+    @property
+    def supports_ai_query_type(self):
+        return "sql"
+
     def __init__(self, configuration):
         super(JiraJQL, self).__init__(configuration)
         self.syntax = "json"

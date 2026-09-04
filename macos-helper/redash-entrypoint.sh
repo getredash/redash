@@ -21,7 +21,7 @@ then
   pnpm install
 fi
 
-if [ ! -d .venv ]; then
+if [[ ! -d .venv ]]; then
   python3 -m venv .venv
 
   source .venv/bin/activate
@@ -38,11 +38,12 @@ fi
 # make compose_build
 # make create_database
 # make up
+# make format
 
 set +x
 "
 
-if [[ "$1" == "rdp" || "$2" == "rdp" ]]
+if [ "$1" = "rdp" ] || [ "$2" = "rdp" ]
 then
 	rm -f /var/run/xrdp/xrdp*.pid >/dev/null 2>&1
 	service dbus restart >/dev/null 2>&1

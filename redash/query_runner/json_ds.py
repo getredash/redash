@@ -155,6 +155,14 @@ class JSON(BaseHTTPQueryRunner):
         super(JSON, self).__init__(configuration)
         self.syntax = "yaml"
 
+    @property
+    def supports_ai_query(self):
+        return True
+
+    @property
+    def supports_ai_query_type(self):
+        return "json"
+
     def test_connection(self):
         pass
 

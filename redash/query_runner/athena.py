@@ -11,7 +11,6 @@ from redash.query_runner import (
     BaseQueryRunner,
     register,
 )
-from redash.query_runner.ai import AI
 from redash.settings import parse_boolean
 
 logger = logging.getLogger(__name__)
@@ -54,10 +53,6 @@ class SimpleFormatter:
 
 class Athena(BaseQueryRunner):
     noop_query = "SELECT 1"
-
-    def __init__(self, configuration):
-        super(Athena, self).__init__(configuration)
-        self.ai = AI(self)
 
     @classmethod
     def name(cls):

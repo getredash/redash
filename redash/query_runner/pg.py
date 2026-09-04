@@ -20,7 +20,6 @@ from redash.query_runner import (
     JobTimeoutException,
     register,
 )
-from redash.query_runner.ai import AI
 
 logger = logging.getLogger(__name__)
 
@@ -150,10 +149,6 @@ def _parse_dsn(configuration):
 
 class PostgreSQL(BaseSQLQueryRunner):
     noop_query = "SELECT 1"
-
-    def __init__(self, configuration):
-        super(PostgreSQL, self).__init__(configuration)
-        self.ai = AI(self)
 
     @classmethod
     def configuration_schema(cls):
@@ -323,10 +318,6 @@ class PostgreSQL(BaseSQLQueryRunner):
 
 
 class Redshift(PostgreSQL):
-    def __init__(self, configuration):
-        super(Redshift, self).__init__(configuration)
-        self.ai = AI(self)
-
     @classmethod
     def type(cls):
         return "redshift"
@@ -453,10 +444,6 @@ class RedshiftIAM(Redshift):
     def enabled(cls):
         return IAM_ENABLED
 
-    def __init__(self, configuration):
-        super(RedshiftIAM, self).__init__(configuration)
-        self.ai = AI(self)
-
     def _login_method_selection(self):
         if self.configuration.get("rolename"):
             if not self.configuration.get("aws_access_key_id") or not self.configuration.get("aws_secret_access_key"):
@@ -579,10 +566,6 @@ class CockroachDB(PostgreSQL):
     @classmethod
     def type(cls):
         return "cockroach"
-
-    def __init__(self, configuration):
-        super(CockroachDB, self).__init__(configuration)
-        self.ai = AI(self)
 
 
 register(PostgreSQL)

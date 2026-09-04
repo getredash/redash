@@ -12,7 +12,6 @@ from redash.query_runner import (
     JobTimeoutException,
     register,
 )
-from redash.query_runner.ai import AI
 
 logger = logging.getLogger(__name__)
 
@@ -49,10 +48,6 @@ types_map = {
 class Hive(BaseSQLQueryRunner):
     should_annotate_query = False
     noop_query = "SELECT 1"
-
-    def __init__(self, configuration):
-        super(Hive, self).__init__(configuration)
-        self.ai = AI(self)
 
     @classmethod
     def configuration_schema(cls):

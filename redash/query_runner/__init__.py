@@ -121,10 +121,12 @@ class BaseQueryRunner:
     limit_query = " LIMIT 1000"
     limit_keywords = ["LIMIT", "OFFSET"]
     limit_after_select = False
+    ai = AI()
 
     def __init__(self, configuration):
         self.syntax = "sql"
         self.configuration = configuration
+        self.ai = AI(self)
 
     @classmethod
     def name(cls):
@@ -276,8 +278,6 @@ class BaseQueryRunner:
 
 
 class BaseSQLQueryRunner(BaseQueryRunner):
-    ai = AI()
-
     def get_schema(self, get_stats=False):
         schema_dict = {}
         self._get_tables(schema_dict)
@@ -419,6 +419,54 @@ class BaseHTTPQueryRunner(BaseQueryRunner):
 
         # Return response and error.
         return response, error
+
+
+class BaseCacheQueryRunner(BaseQueryRunner):
+    @property
+    def supports_ai_query(self):
+        return True
+
+    @property
+    def supports_ai_query_type(self):
+        return "cache"
+
+    def _get_db(self):
+        raise NotImplementedError("Subclasses must implement this method.")
+
+    def run_query(self, query, user=None):
+        client = self._get_db()
+
+        cmd = [part.strip() for part in query.split() if part.strip()]
+
+        if not cmd:
+            return {
+                "cmd": "",
+                "key": "",
+                "value": None,
+                "error": "No command provided",
+            }
+
+        try:
+            op = getattr(client, cmd[0].lower())
+            value = op(*cmd[1:])
+            error = None
+        except Exception as e:
+            error = str(e)
+            value = None
+
+        return {
+            "cmd": cmd[0].upper(),
+            "key": cmd[1] if len(cmd) > 1 else "",
+            "value": value,
+            "error": error,
+        }
+
+    def get_schema(self, get_stats=False):
+        return [{"name": "default", "columns": ["key", "value"]}]
+
+    def test_connection(self):
+        if self._get_db() is None:
+            raise Exception(f"Failed to connect to {self.__class__.__name__} client")
 
 
 query_runners = {}

@@ -1,7 +1,5 @@
 import json
 
-from redash.query_runner.ai import AI
-
 try:
     import pydgraph
 
@@ -38,10 +36,6 @@ class Dgraph(BaseQueryRunner):
       }
     }
     """
-
-    def __init__(self, configuration):
-        super(Dgraph, self).__init__(configuration)
-        self.ai = AI(self)
 
     @classmethod
     def configuration_schema(cls):

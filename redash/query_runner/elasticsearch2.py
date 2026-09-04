@@ -11,7 +11,6 @@ from redash.query_runner import (
     BaseHTTPQueryRunner,
     register,
 )
-from redash.query_runner.ai import AI
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +52,6 @@ class ElasticSearch2(BaseHTTPQueryRunner):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.syntax = "json"
-        self.ai = AI(self)
 
     def get_response(self, url, auth=None, http_method="get", **kwargs):
         url = "{}{}".format(self.configuration["url"], url)

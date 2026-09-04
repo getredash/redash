@@ -2673,6 +2673,15 @@ crypto = [
 ]
 
 [[package]]
+name = "pymemcache"
+version = "4.0.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/d9/b6/4541b664aeaad025dfb8e851dcddf8e25ab22607e674dd2b562ea3e3586f/pymemcache-4.0.0.tar.gz", hash = "sha256:27bf9bd1bbc1e20f83633208620d56de50f14185055e49504f4f5e94e94aff94", size = 70176, upload-time = "2022-10-17T16:53:07.726Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/41/ba/2f7b22d8135b51c4fefb041461f8431e1908778e6539ff5af6eeaaee367a/pymemcache-4.0.0-py2.py3-none-any.whl", hash = "sha256:f507bc20e0dc8d562f8df9d872107a278df049fa496805c1431b926f3ddd0eab", size = 60772, upload-time = "2022-10-17T16:53:04.388Z" },
+]
+
+[[package]]
 name = "pymongo"
 version = "4.6.3"
 source = { registry = "https://pypi.org/simple" }
@@ -2999,6 +3008,7 @@ dependencies = [
     { name = "pyasynchat" },
     { name = "pydantic" },
     { name = "pyjwt" },
+    { name = "pymemcache" },
     { name = "pyodbc" },
     { name = "pyopenssl" },
     { name = "pypd" },
@@ -3156,6 +3166,7 @@ requires-dist = [
     { name = "pyasynchat", specifier = "==1.0.5" },
     { name = "pydantic", specifier = "==2.13.4" },
     { name = "pyjwt", specifier = "==2.12.0" },
+    { name = "pymemcache", specifier = "==4.0.0" },
     { name = "pyodbc", specifier = "==5.3.0" },
     { name = "pyopenssl", specifier = "==26.2.0" },
     { name = "pypd", specifier = "==1.1.0" },

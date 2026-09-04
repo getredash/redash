@@ -1,7 +1,5 @@
 import logging
-import urllib.error
 import urllib.parse
-import urllib.request
 
 import requests
 from requests.auth import HTTPBasicAuth
@@ -16,7 +14,6 @@ from redash.query_runner import (
     JobTimeoutException,
     register,
 )
-from redash.query_runner.ai import AI
 from redash.utils import json_loads
 
 try:
@@ -111,8 +108,6 @@ class BaseElasticSearch(BaseQueryRunner):
         self.auth = None
         if basic_auth_user and basic_auth_password:
             self.auth = HTTPBasicAuth(basic_auth_user, basic_auth_password)
-
-        self.ai = AI(self)
 
     def _get_mappings(self, url):
         mappings = {}

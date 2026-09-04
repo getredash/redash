@@ -13,7 +13,6 @@ from redash.query_runner import (
     BaseQueryRunner,
     register,
 )
-from redash.query_runner.ai import AI
 from redash.utils import json_loads, parse_human_time
 
 logger = logging.getLogger(__name__)
@@ -206,8 +205,6 @@ class MongoDB(BaseQueryRunner):
             "T",
         ]
         logger.debug("flatten: {}".format(self.flatten))
-
-        self.ai = AI(self)
 
     @classmethod
     def custom_json_encoder(cls, dec, o):

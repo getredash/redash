@@ -16,15 +16,10 @@ from redash.query_runner import (
     BaseQueryRunner,
     register,
 )
-from redash.query_runner.ai import AI
 
 
 class Databend(BaseQueryRunner):
     noop_query = "SELECT 1"
-
-    def __init__(self, configuration):
-        super(Databend, self).__init__(configuration)
-        self.ai = AI(self)
 
     @classmethod
     def configuration_schema(cls):

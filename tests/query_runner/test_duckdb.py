@@ -90,8 +90,7 @@ class TestDuckDBSchema(TestCase):
 
     def test_nested_struct_expansion(self) -> None:
         runner = DuckDB({"dbpath": ":memory:"})
-        runner.con.execute(
-            """
+        runner.con.execute("""
             CREATE TABLE sample_struct_table (
                 id INTEGER,
                 info STRUCT(
@@ -100,8 +99,7 @@ class TestDuckDBSchema(TestCase):
                     tags STRUCT(primary_tag VARCHAR, secondary_tag VARCHAR)
                 )
             );
-        """
-        )
+        """)
 
         schema = runner.get_schema()
         table = next(t for t in schema if t["name"] == "main.sample_struct_table")

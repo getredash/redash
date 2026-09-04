@@ -10,7 +10,6 @@ from redash.query_runner import (
     JobTimeoutException,
     register,
 )
-from redash.query_runner.ai import AI
 
 try:
     import oracledb
@@ -43,10 +42,6 @@ class Oracle(BaseSQLQueryRunner):
     noop_query = "SELECT 1 FROM dual"
     limit_query = " FETCH NEXT 1000 ROWS ONLY"
     limit_keywords = ["ROW", "ROWS", "ONLY", "TIES"]
-
-    def __init__(self, configuration):
-        super(Oracle, self).__init__(configuration)
-        self.ai = AI(self)
 
     @classmethod
     def get_col_type(cls, col_type, scale):

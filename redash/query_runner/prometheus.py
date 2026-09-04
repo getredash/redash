@@ -14,7 +14,6 @@ from redash.query_runner import (
     BaseQueryRunner,
     register,
 )
-from redash.query_runner.ai import AI
 
 
 def get_instant_rows(metrics_data):
@@ -75,10 +74,6 @@ def convert_query_range(payload):
 
 class Prometheus(BaseQueryRunner):
     should_annotate_query = False
-
-    def __init__(self, configuration):
-        super(Prometheus, self).__init__(configuration)
-        self.ai = AI(self)
 
     def _get_datetime_now(self):
         return datetime.now()

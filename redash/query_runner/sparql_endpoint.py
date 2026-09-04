@@ -8,7 +8,6 @@ import logging
 from os import environ
 
 from redash.query_runner import BaseQueryRunner
-from redash.query_runner.ai import AI
 
 from . import register
 
@@ -35,13 +34,6 @@ class SPARQLEndpointQueryRunner(BaseQueryRunner):
 
     # This allows for an easy connection test
     noop_query = "SELECT ?noop WHERE {BIND('noop' as ?noop)}"
-
-    def __init__(self, configuration):
-        """init the class and configuration"""
-        super(SPARQLEndpointQueryRunner, self).__init__(configuration)
-
-        self.configuration = configuration
-        self.ai = AI(self)
 
     def _setup_environment(self):
         """provide environment for rdflib

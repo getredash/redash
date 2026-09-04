@@ -14,7 +14,6 @@ from redash.query_runner import (
     JobTimeoutException,
     register,
 )
-from redash.query_runner.ai import AI
 from redash.settings import parse_boolean
 
 logger = logging.getLogger(__name__)
@@ -66,10 +65,6 @@ TRINO_TYPES_MAPPING = {
 class Trino(BaseSQLQueryRunner):
     noop_query = "SELECT 1"
     should_annotate_query = ANNOTATE_QUERY
-
-    def __init__(self, configuration):
-        super(Trino, self).__init__(configuration)
-        self.ai = AI(self)
 
     @classmethod
     def configuration_schema(cls):

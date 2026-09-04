@@ -34,14 +34,12 @@ class Asana(BaseDestination):
         # Documentation: https://developers.asana.com/docs/tasks
         state = "TRIGGERED" if new_state == Alert.TRIGGERED_STATE else "RECOVERED"
 
-        notes = textwrap.dedent(
-            f"""
+        notes = textwrap.dedent(f"""
         {alert.name} has {state}.
 
         Query: {host}/queries/{query.id}
         Alert: {host}/alerts/{alert.id}
-        """
-        ).strip()
+        """).strip()
 
         data = {
             "name": f"[Redash Alert] {state}: {alert.name}",

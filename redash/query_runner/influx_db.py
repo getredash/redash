@@ -7,7 +7,6 @@ from redash.query_runner import (
     BaseQueryRunner,
     register,
 )
-from redash.query_runner.ai import AI
 
 logger = logging.getLogger(__name__)
 
@@ -70,10 +69,6 @@ def _transform_result(results):
 class InfluxDB(BaseQueryRunner):
     should_annotate_query = False
     noop_query = "show measurements limit 1"
-
-    def __init__(self, configuration):
-        super(InfluxDB, self).__init__(configuration)
-        self.ai = AI(self)
 
     @classmethod
     def configuration_schema(cls):

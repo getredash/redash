@@ -17,7 +17,6 @@ from redash.query_runner import (
     JobTimeoutException,
     register,
 )
-from redash.query_runner.ai import AI
 from redash.utils import json_loads
 
 logger = logging.getLogger(__name__)
@@ -105,7 +104,6 @@ class BigQuery(BaseSQLQueryRunner):
     def __init__(self, configuration):
         super(BigQuery, self).__init__(configuration)
         self.should_annotate_query = configuration.get("useQueryAnnotation", False)
-        self.ai = AI(self)
 
     @classmethod
     def enabled(cls):

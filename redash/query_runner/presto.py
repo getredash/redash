@@ -11,7 +11,6 @@ from redash.query_runner import (
     JobTimeoutException,
     register,
 )
-from redash.query_runner.ai import AI
 
 logger = logging.getLogger(__name__)
 
@@ -42,10 +41,6 @@ PRESTO_TYPES_MAPPING = {
 
 class Presto(BaseQueryRunner):
     noop_query = "SHOW TABLES"
-
-    def __init__(self, configuration):
-        super(Presto, self).__init__(configuration)
-        self.ai = AI(self)
 
     @classmethod
     def configuration_schema(cls):
