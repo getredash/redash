@@ -18,6 +18,7 @@ For more information, please visit [Redash GitHub repository](https://github.com
 4. **Auto Alerts**: Use AI to generate alert suggestions from your data and queries.
 5. **Name To Dashboard**: Use AI to generate dashboards from your queries and visualizations.
 6. **MacOS Support**: Now it runs on MacOS as well as on Linux.
+7. **Memcached Support**: Added Memcached as a supported data source.
 
 ### Demo video
 
