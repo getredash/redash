@@ -1,5 +1,6 @@
 .venv
 venv/
+.pr-assets/
 .cache
 .coverage.*
 .coveralls.yml
