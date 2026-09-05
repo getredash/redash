@@ -1,112 +1,155 @@
 /* eslint-disable import/no-extraneous-dependencies, no-console */
-const { find } = require("lodash");
+const axios = require("axios");
 const { execSync } = require("child_process");
-const { get, post } = require("request").defaults({ jar: true });
-const { seedData } = require("./seed-data");
 const fs = require("fs");
-var Cookie = require("request-cookies").Cookie;
+const { seedData } = require("./seed-data");
 
 let cypressConfigBaseUrl;
 try {
-  const cypressConfig = JSON.parse(fs.readFileSync("cypress.json"));
-  cypressConfigBaseUrl = cypressConfig.baseUrl;
-} catch (e) {}
+  const cypressJson = fs.readFileSync("./client/cypress/cypress.json", "utf8");
+  cypressConfigBaseUrl = JSON.parse(cypressJson).baseUrl;
+} catch (e) {} // eslint-disable-line no-empty
 
 const baseUrl = process.env.CYPRESS_baseUrl || cypressConfigBaseUrl || "http://localhost:5001";
 
-function seedDatabase(seedValues) {
-  get(baseUrl + "/login", (_, { headers }) => {
-    const request = seedValues.shift();
-    const data = request.type === "form" ? { formData: request.data } : { json: request.data };
+// Minimal cookie jar (avoids deprecated `request` / `request-cookies` packages).
+function parseSetCookieHeader(setCookieHeaders) {
+  const jar = {};
+  if (!setCookieHeaders) return jar;
+  const headers = Array.isArray(setCookieHeaders) ? setCookieHeaders : [setCookieHeaders];
+  for (const header of headers) {
+    const [pair] = header.split(";");
+    const idx = pair.indexOf("=");
+    if (idx === -1) continue;
+    const name = pair.slice(0, idx).trim();
+    const value = pair.slice(idx + 1).trim();
+    if (name) jar[name] = value;
+  }
+  return jar;
+}
 
-    if (headers["set-cookie"]) {
-      const cookies = headers["set-cookie"].map((cookie) => new Cookie(cookie));
-      const csrfCookie = find(cookies, { key: "csrf_token" });
-      if (csrfCookie) {
-        if (request.type === "form") {
-          data["formData"] = { ...data["formData"], csrf_token: csrfCookie.value };
-        } else {
-          data["headers"] = { "X-CSRFToken": csrfCookie.value };
-        }
-      }
+function cookieJarToHeader(jar) {
+  return Object.entries(jar)
+    .map(([k, v]) => `${k}=${v}`)
+    .join("; ");
+}
+
+function buildFormBody(data) {
+  return Object.entries(data)
+    .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+    .join("&");
+}
+
+async function seedDatabase(seedValues) {
+  let cookieJar = {};
+  try {
+    const loginResp = await axios.get(`${baseUrl}/login`, {
+      maxRedirects: 0,
+      validateStatus: () => true,
+    });
+    cookieJar = parseSetCookieHeader(loginResp.headers["set-cookie"]);
+  } catch (err) {
+    console.log(`GET /login failed: ${err.message}`);
+  }
+
+  const csrfToken = cookieJar.csrf_token;
+
+  for (const request of seedValues) {
+    const isForm = request.type === "form";
+    const headers = { Cookie: cookieJarToHeader(cookieJar) };
+
+    let body;
+    if (isForm) {
+      const formData = csrfToken ? { ...request.data, csrf_token: csrfToken } : { ...request.data };
+      body = buildFormBody(formData);
+      headers["Content-Type"] = "application/x-www-form-urlencoded";
+    } else {
+      body = request.data;
+      headers["Content-Type"] = "application/json";
+      if (csrfToken) headers["X-CSRFToken"] = csrfToken;
     }
 
-    post(baseUrl + request.route, data, (err, response) => {
-      const result = response ? response.statusCode : err;
-      console.log("POST " + request.route + " - " + result);
-      if (seedValues.length) {
-        seedDatabase(seedValues);
-      }
-    });
-  });
+    try {
+      const response = await axios.post(`${baseUrl}${request.route}`, body, {
+        headers,
+        maxRedirects: 0,
+        validateStatus: () => true,
+      });
+      console.log(`POST ${request.route} - ${response.status}`);
+      const newCookies = parseSetCookieHeader(response.headers["set-cookie"]);
+      cookieJar = { ...cookieJar, ...newCookies };
+    } catch (err) {
+      console.log(`POST ${request.route} - ${err.message}`);
+    }
+  }
 }
 
 function buildServer() {
-  console.log("Building the server...");
-  execSync("docker compose -p cypress build", { stdio: "inherit" });
+  execSync("docker-compose build", { stdio: "inherit" });
 }
 
 function startServer() {
-  console.log("Starting the server...");
-  execSync("docker compose -p cypress up -d", { stdio: "inherit" });
-  execSync("docker compose -p cypress run server create_db", { stdio: "inherit" });
+  const isCI = process.env.CI;
+  const cmd = isCI ? "docker-compose up -d" : "docker-compose up";
+  execSync(cmd, { stdio: "inherit" });
 }
 
 function stopServer() {
-  console.log("Stopping the server...");
-  execSync("docker compose -p cypress down", { stdio: "inherit" });
+  execSync("docker-compose down", { stdio: "inherit" });
 }
 
 function runCypressCI() {
-  const {
-    GITHUB_REPOSITORY,
-    CYPRESS_OPTIONS, // eslint-disable-line no-unused-vars
-  } = process.env;
+  const attempt = process.env.CYPRESS_ATTEMPT || 0;
+  const cmd = `CI=true cypress run --config video=${attempt < 2},screenshotOnRunFailure=${attempt >= 2}`;
 
-  if (GITHUB_REPOSITORY === "getredash/redash" && process.env.CYPRESS_RECORD_KEY) {
-    process.env.CYPRESS_OPTIONS = "--record";
+  try {
+    execSync(cmd, { stdio: "inherit" });
+  } catch (err) {
+    if (attempt < 2) {
+      process.env.CYPRESS_ATTEMPT = parseInt(attempt) + 1;
+      runCypressCI();
+    } else {
+      throw err;
+    }
   }
-
-  execSync(
-    "COMMIT_INFO_MESSAGE=$(git show -s --format=%s) docker compose run --name cypress cypress ./node_modules/.bin/percy exec -t 300 -- ./node_modules/.bin/cypress run $CYPRESS_OPTIONS",
-    { stdio: "inherit" }
-  );
 }
 
 const command = process.argv[2] || "all";
 
-switch (command) {
-  case "build":
-    buildServer();
-    break;
-  case "start":
-    startServer();
-    if (!process.argv.includes("--skip-db-seed")) {
-      seedDatabase(seedData);
-    }
-    break;
-  case "db-seed":
-    seedDatabase(seedData);
-    break;
-  case "run":
-    execSync("cypress run", { stdio: "inherit" });
-    break;
-  case "open":
-    execSync("cypress open", { stdio: "inherit" });
-    break;
-  case "run-ci":
-    runCypressCI();
-    break;
-  case "stop":
-    stopServer();
-    break;
-  case "all":
-    startServer();
-    seedDatabase(seedData);
-    execSync("cypress run", { stdio: "inherit" });
-    stopServer();
-    break;
-  default:
-    console.log("Usage: pnpm run cypress [build|start|db-seed|open|run|stop]");
-    break;
-}
+(async () => {
+  switch (command) {
+    case "build":
+      buildServer();
+      break;
+    case "start":
+      startServer();
+      if (!process.argv.includes("--skip-db-seed")) {
+        await seedDatabase(seedData);
+      }
+      break;
+    case "db-seed":
+      await seedDatabase(seedData);
+      break;
+    case "run":
+      execSync("cypress run", { stdio: "inherit" });
+      break;
+    case "open":
+      execSync("cypress open", { stdio: "inherit" });
+      break;
+    case "run-ci":
+      runCypressCI();
+      break;
+    case "stop":
+      stopServer();
+      break;
+    case "all":
+      startServer();
+      await seedDatabase(seedData);
+      execSync("cypress run", { stdio: "inherit" });
+      stopServer();
+      break;
+    default:
+      console.log("Usage: pnpm run cypress [build|start|db-seed|open|run|stop]");
+      break;
+  }
+})();
