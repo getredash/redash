@@ -12,7 +12,6 @@ maintainers = [
 readme = "README.md"
 requires-python = ">=3.13,<3.14"
 dependencies = [
-    "advocate==1.0.0",
     "aniso8601==8.0.0",
     "authlib==1.7.2",
     "backoff==2.2.1",
@@ -69,7 +68,7 @@ dependencies = [
     "supervisor==4.1.0",
     "supervisor-checks==0.8.1",
     "ua-parser==0.18.0",
-    "urllib3==1.26.19",
+    "urllib3==2.7.0",
     "user-agents==2.0",
     "werkzeug==2.3.8",
     "wtforms==2.2.1",
@@ -96,8 +95,8 @@ all_ds = [
     "atsd-client==3.0.5",
     "azure-core>=1.38.0",
     "azure-kusto-data==5.0.1",
-    "boto3==1.28.8",
-    "botocore==1.31.8",
+    "boto3==1.43.7",
+    "botocore==1.43.7",
     "cassandra-driver==3.29.3",
     "certifi>=2019.9.11",
     "cmem-cmempy==21.2.3",
@@ -149,6 +148,14 @@ all_ds = [
 ]
 ldap3 = [
     "ldap3==2.9.1",
+]
+# Optional SSRF protection (enables REDASH_ENFORCE_PRIVATE_IP_BLOCK).
+# Install via `uv sync --group ssrf` or add `ssrf` to the install_groups
+# build arg in the Dockerfile.
+ssrf = [
+    # Pinned to an immutable commit (champion has no PyPI release and no tags yet).
+    # Bump deliberately when reviewing upstream changes.
+    "champion @ git+https://github.com/Gee19/champion.git@74cf301bf89a88b8a55459fd8439766a11eb16f0",
 ]
 dev = [
     "pytest==7.4.0",

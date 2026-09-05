@@ -1,22 +1,27 @@
-import warnings
-
 from redash import settings
 
-with warnings.catch_warnings():
-    # Supress advocate warning below
-    #   /usr/local/lib/python3.13/site-packages/advocate/api.py:102: SyntaxWarning: invalid escape sequence '\*'
-    #   server-1     |   :param \*\*kwargs: Optional arguments that ``request`` takes.
-    warnings.filterwarnings("ignore", category=SyntaxWarning, module=r".*advocate.*")
+if settings.ENFORCE_PRIVATE_ADDRESS_BLOCK:
+    try:
+        import champion as requests_or_champion
+        from champion.exceptions import (
+            UnacceptableAddressException,  # noqa: F401, E402
+        )
+    except ImportError as e:
+        raise RuntimeError(
+            "ENFORCE_PRIVATE_ADDRESS_BLOCK requires the champion package. "
+            "Install it in your environment (e.g. pip install "
+            "git+https://github.com/Gee19/champion.git)."
+        ) from e
+else:
+    import requests as requests_or_champion
 
-    from advocate.exceptions import UnacceptableAddressException  # noqa: F401, E402
+    class UnacceptableAddressException(Exception):
+        """Only raised when champion is used (ENFORCE_PRIVATE_ADDRESS_BLOCK)."""
 
-    if settings.ENFORCE_PRIVATE_ADDRESS_BLOCK:
-        import advocate as requests_or_advocate
-    else:
-        import requests as requests_or_advocate
+        pass
 
 
-class ConfiguredSession(requests_or_advocate.Session):
+class ConfiguredSession(requests_or_champion.Session):
     def request(self, *args, **kwargs):
         if not settings.REQUESTS_ALLOW_REDIRECTS:
             kwargs.update({"allow_redirects": False})
