@@ -59,7 +59,7 @@ def _transform_result(results):
                         result_row[column] = value
                     else:
                         continue
-                    if column not in column_types:
+                    if column not in column_types and result_row[column] is not None:
                         column_types[column] = _get_type(result_row[column])
                 result_rows.append(result_row)
 
