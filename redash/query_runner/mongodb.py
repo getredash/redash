@@ -188,7 +188,7 @@ class MongoDB(BaseQueryRunner):
 
         self.syntax = "json"
 
-        self.db_name = self.configuration["dbName"]
+        self.db_name = self.configuration.get("dbName", "")
 
         self.is_replica_set = (
             True if "replicaSetName" in self.configuration and self.configuration["replicaSetName"] else False
@@ -215,10 +215,10 @@ class MongoDB(BaseQueryRunner):
             if readPreference:
                 kwargs["readPreference"] = readPreference
 
-        if "username" in self.configuration:
+        if self.configuration.get("username"):
             kwargs["username"] = self.configuration["username"]
 
-        if "password" in self.configuration:
+        if self.configuration.get("password"):
             kwargs["password"] = self.configuration["password"]
 
         db_connection = pymongo.MongoClient(self.configuration["connectionString"], **kwargs)

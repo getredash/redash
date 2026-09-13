@@ -25,12 +25,12 @@ function UserProfile({ userId, onError }) {
   useEffect(() => {
     let isCancelled = false;
     User.get({ id: userId || currentUser.id })
-      .then(user => {
+      .then((user) => {
         if (!isCancelled) {
           setUser(User.convertUserInfo(user));
         }
       })
-      .catch(error => {
+      .catch((error) => {
         if (!isCancelled) {
           handleError(error);
         }
@@ -83,7 +83,7 @@ routes.register(
   routeWithUserSession({
     path: "/users/me",
     title: "Account",
-    render: pageProps => <UserProfilePage {...pageProps} />,
+    render: (pageProps) => <UserProfilePage {...pageProps} />,
   })
 );
 routes.register(
@@ -91,6 +91,6 @@ routes.register(
   routeWithUserSession({
     path: "/users/:userId",
     title: "Users",
-    render: pageProps => <UserProfilePage {...pageProps} />,
+    render: (pageProps) => <UserProfilePage {...pageProps} />,
   })
 );

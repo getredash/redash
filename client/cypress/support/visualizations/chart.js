@@ -3,36 +3,26 @@
  * @param should Passed to should expression after plot points are captured
  */
 export function assertPlotPreview(should = "exist") {
-  cy.getByTestId("VisualizationPreview")
-    .find("g.plot")
-    .should("exist")
-    .find("g.points")
-    .should(should);
+  cy.getByTestId("VisualizationPreview").find("g.overplot").should("exist").find("g.points").should(should);
 }
 
 export function createChartThroughUI(chartName, chartSpecificAssertionFn = () => {}) {
   cy.getByTestId("NewVisualization").click();
   cy.getByTestId("VisualizationType").selectAntdOption("VisualizationType.CHART");
-  cy.getByTestId("VisualizationName")
-    .clear()
-    .type(chartName);
+  cy.getByTestId("VisualizationName").clear().type(chartName);
 
   chartSpecificAssertionFn();
 
   cy.server();
   cy.route("POST", "**/api/visualizations").as("SaveVisualization");
 
-  cy.getByTestId("EditVisualizationDialog")
-    .contains("button", "Save")
-    .click();
+  cy.getByTestId("EditVisualizationDialog").contains("button", "Save").click();
 
-  cy.getByTestId("QueryPageVisualizationTabs")
-    .contains("span", chartName)
-    .should("exist");
+  cy.getByTestId("QueryPageVisualizationTabs").contains("span", chartName).should("exist");
 
   cy.wait("@SaveVisualization").should("have.property", "status", 200);
 
-  return cy.get("@SaveVisualization").then(xhr => {
+  return cy.get("@SaveVisualization").then((xhr) => {
     const { id, name, options } = xhr.response.body;
     return cy.wrap({ id, name, options });
   });
@@ -42,19 +32,13 @@ export function assertTabbedEditor(chartSpecificTabbedEditorAssertionFn = () => 
   cy.getByTestId("Chart.GlobalSeriesType").should("exist");
 
   cy.getByTestId("VisualizationEditor.Tabs.Series").click();
-  cy.getByTestId("VisualizationEditor")
-    .find("table")
-    .should("exist");
+  cy.getByTestId("VisualizationEditor").find("table").should("exist");
 
   cy.getByTestId("VisualizationEditor.Tabs.Colors").click();
-  cy.getByTestId("VisualizationEditor")
-    .find("table")
-    .should("exist");
+  cy.getByTestId("VisualizationEditor").find("table").should("exist");
 
   cy.getByTestId("VisualizationEditor.Tabs.DataLabels").click();
-  cy.getByTestId("VisualizationEditor")
-    .getByTestId("Chart.DataLabels.ShowDataLabels")
-    .should("exist");
+  cy.getByTestId("VisualizationEditor").getByTestId("Chart.DataLabels.ShowDataLabels").should("exist");
 
   chartSpecificTabbedEditorAssertionFn();
 
@@ -63,39 +47,29 @@ export function assertTabbedEditor(chartSpecificTabbedEditorAssertionFn = () => 
 
 export function assertAxesAndAddLabels(xaxisLabel, yaxisLabel) {
   cy.getByTestId("VisualizationEditor.Tabs.XAxis").click();
-  cy.getByTestId("Chart.XAxis.Type")
-    .contains(".ant-select-selection-item", "Auto Detect")
-    .should("exist");
+  cy.getByTestId("Chart.XAxis.Type").contains(".ant-select-selection-item", "Auto Detect").should("exist");
 
-  cy.getByTestId("Chart.XAxis.Name")
-    .clear()
-    .type(xaxisLabel);
+  cy.getByTestId("Chart.XAxis.Name").clear().type(xaxisLabel);
 
   cy.getByTestId("VisualizationEditor.Tabs.YAxis").click();
-  cy.getByTestId("Chart.LeftYAxis.Type")
-    .contains(".ant-select-selection-item", "Linear")
-    .should("exist");
+  cy.getByTestId("Chart.LeftYAxis.Type").contains(".ant-select-selection-item", "Linear").should("exist");
 
-  cy.getByTestId("Chart.LeftYAxis.Name")
-    .clear()
-    .type(yaxisLabel);
+  cy.getByTestId("Chart.LeftYAxis.Name").clear().type(yaxisLabel);
 
-  cy.getByTestId("Chart.LeftYAxis.TickFormat")
-    .clear()
-    .type("+");
+  cy.getByTestId("Chart.LeftYAxis.TickFormat").clear().type("+");
 
   cy.getByTestId("VisualizationEditor.Tabs.General").click();
 }
 
 export function createDashboardWithCharts(title, chartGetters, widgetsAssertionFn = () => {}) {
-  cy.createDashboard(title).then(dashboard => {
+  cy.createDashboard(title).then((dashboard) => {
     const dashboardUrl = `/dashboards/${dashboard.id}`;
-    const widgetGetters = chartGetters.map(chartGetter => `${chartGetter}Widget`);
+    const widgetGetters = chartGetters.map((chartGetter) => `${chartGetter}Widget`);
 
     chartGetters.forEach((chartGetter, i) => {
       const position = { autoHeight: false, sizeY: 8, sizeX: 3, col: (i % 2) * 3 };
       cy.get(`@${chartGetter}`)
-        .then(chart => cy.addWidget(dashboard.id, chart.id, { position }))
+        .then((chart) => cy.addWidget(dashboard.id, chart.id, { position }))
         .as(widgetGetters[i]);
     });
 

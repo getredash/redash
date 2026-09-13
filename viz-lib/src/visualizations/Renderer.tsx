@@ -52,7 +52,8 @@ export default function Renderer({
       {/* @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call. */}
       <ErrorBoundary
         ref={errorHandlerRef}
-        renderError={() => <ErrorMessage>Error while rendering visualization.</ErrorMessage>}>
+        renderError={() => <ErrorMessage>Error while rendering visualization.</ErrorMessage>}
+      >
         <div className="visualization-renderer-wrapper">
           <Renderer options={options} data={data} visualizationName={visualizationName} {...otherProps} />
         </div>

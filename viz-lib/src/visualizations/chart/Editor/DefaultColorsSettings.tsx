@@ -50,7 +50,6 @@ export default function DefaultColorsSettings({ options, data, onOptionsChange }
       width: "1%",
       render: (unused: any, item: any) => (
         <ColorPicker
-          // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
           data-test={`Chart.Series.${item.key}.Color`}
           // @ts-expect-error ts-migrate(2322) FIXME: Type 'boolean' is not assignable to type 'never'.
           interactive
@@ -73,21 +72,24 @@ export default function DefaultColorsSettings({ options, data, onOptionsChange }
     <React.Fragment>
       {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
-          <Select
-            label="Color Scheme"
-            defaultValue={options.color_scheme}
-            data-test="ColorScheme"
-            onChange={(val : any) => onOptionsChange({ color_scheme: val })}>
-            {Object.keys(AllColorPalettes).map(option => (
-             // @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message
-              <Select.Option data-test={`ColorOption${option}`} key={option} value={option}>{option}</Select.Option>
-            ))}
-          </Select>
-        </Section>
-      {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'boolean[]' is not assignable to type 'object... Remove this comment to see the full error message */}
+        <Select
+          label="Color Scheme"
+          defaultValue={options.color_scheme}
+          data-test="ColorScheme"
+          onChange={(val: any) => onOptionsChange({ color_scheme: val })}
+        >
+          {Object.keys(AllColorPalettes).map((option) => (
+            // @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message
+            <Select.Option data-test={`ColorOption${option}`} key={option} value={option}>
+              {option}
+              {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
+            </Select.Option>
+          ))}
+        </Select>
+      </Section>
       <Table showHeader={false} dataSource={series} columns={columns} pagination={false} />
     </React.Fragment>
-  )
+  );
 }
 
 DefaultColorsSettings.propTypes = EditorPropTypes;

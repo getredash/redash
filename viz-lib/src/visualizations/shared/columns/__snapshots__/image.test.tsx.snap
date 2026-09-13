@@ -1,0 +1,25 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`Visualizations -> Table -> Columns -> Image Editor Changes URL template 1`] = `
+{
+  "imageUrlTemplate": "http://{{ @ }}.jpeg",
+}
+`;
+
+exports[`Visualizations -> Table -> Columns -> Image Editor Changes height 1`] = `
+{
+  "imageHeight": "300",
+}
+`;
+
+exports[`Visualizations -> Table -> Columns -> Image Editor Changes title template 1`] = `
+{
+  "imageTitleTemplate": "Image {{ @ }}",
+}
+`;
+
+exports[`Visualizations -> Table -> Columns -> Image Editor Changes width 1`] = `
+{
+  "imageWidth": "400",
+}
+`;

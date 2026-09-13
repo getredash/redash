@@ -1,17 +1,18 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`Visualizations -> Table -> Editor -> Columns Settings Changes column alignment 1`] = `
-Object {
-  "columns": Array [
-    Object {
+{
+  "columns": [
+    {
       "alignContent": "right",
-      "allowHTML": true,
+      "allowHTML": false,
       "allowSearch": false,
-      "booleanValues": Array [
+      "booleanValues": [
         "false",
         "true",
       ],
       "dateTimeFormat": undefined,
+      "description": "",
       "displayAs": "string",
       "highlightLinks": false,
       "imageHeight": "",
@@ -23,6 +24,7 @@ Object {
       "linkTitleTemplate": "{{ @ }}",
       "linkUrlTemplate": "{{ @ }}",
       "name": "a",
+      "nullValue": "null",
       "numberFormat": undefined,
       "order": 100000,
       "title": "a",
@@ -34,17 +36,18 @@ Object {
 `;
 
 exports[`Visualizations -> Table -> Editor -> Columns Settings Changes column display type 1`] = `
-Object {
-  "columns": Array [
-    Object {
+{
+  "columns": [
+    {
       "alignContent": "left",
-      "allowHTML": true,
+      "allowHTML": false,
       "allowSearch": false,
-      "booleanValues": Array [
+      "booleanValues": [
         "false",
         "true",
       ],
       "dateTimeFormat": undefined,
+      "description": "",
       "displayAs": "number",
       "highlightLinks": false,
       "imageHeight": "",
@@ -56,6 +59,7 @@ Object {
       "linkTitleTemplate": "{{ @ }}",
       "linkUrlTemplate": "{{ @ }}",
       "name": "a",
+      "nullValue": "null",
       "numberFormat": undefined,
       "order": 100000,
       "title": "a",
@@ -67,17 +71,18 @@ Object {
 `;
 
 exports[`Visualizations -> Table -> Editor -> Columns Settings Changes column title 1`] = `
-Object {
-  "columns": Array [
-    Object {
+{
+  "columns": [
+    {
       "alignContent": "left",
-      "allowHTML": true,
+      "allowHTML": false,
       "allowSearch": false,
-      "booleanValues": Array [
+      "booleanValues": [
         "false",
         "true",
       ],
       "dateTimeFormat": undefined,
+      "description": "",
       "displayAs": "string",
       "highlightLinks": false,
       "imageHeight": "",
@@ -89,6 +94,7 @@ Object {
       "linkTitleTemplate": "{{ @ }}",
       "linkUrlTemplate": "{{ @ }}",
       "name": "a",
+      "nullValue": "null",
       "numberFormat": undefined,
       "order": 100000,
       "title": "test",
@@ -100,17 +106,18 @@ Object {
 `;
 
 exports[`Visualizations -> Table -> Editor -> Columns Settings Enables search by column data 1`] = `
-Object {
-  "columns": Array [
-    Object {
+{
+  "columns": [
+    {
       "alignContent": "left",
-      "allowHTML": true,
+      "allowHTML": false,
       "allowSearch": true,
-      "booleanValues": Array [
+      "booleanValues": [
         "false",
         "true",
       ],
       "dateTimeFormat": undefined,
+      "description": "",
       "displayAs": "string",
       "highlightLinks": false,
       "imageHeight": "",
@@ -122,6 +129,7 @@ Object {
       "linkTitleTemplate": "{{ @ }}",
       "linkUrlTemplate": "{{ @ }}",
       "name": "a",
+      "nullValue": "null",
       "numberFormat": undefined,
       "order": 100000,
       "title": "a",
@@ -133,17 +141,18 @@ Object {
 `;
 
 exports[`Visualizations -> Table -> Editor -> Columns Settings Toggles column visibility 1`] = `
-Object {
-  "columns": Array [
-    Object {
+{
+  "columns": [
+    {
       "alignContent": "left",
-      "allowHTML": true,
+      "allowHTML": false,
       "allowSearch": false,
-      "booleanValues": Array [
+      "booleanValues": [
         "false",
         "true",
       ],
       "dateTimeFormat": undefined,
+      "description": "",
       "displayAs": "string",
       "highlightLinks": false,
       "imageHeight": "",
@@ -155,6 +164,7 @@ Object {
       "linkTitleTemplate": "{{ @ }}",
       "linkUrlTemplate": "{{ @ }}",
       "name": "a",
+      "nullValue": "null",
       "numberFormat": undefined,
       "order": 100000,
       "title": "a",

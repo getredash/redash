@@ -20,7 +20,7 @@ function seedDatabase(seedValues) {
     const data = request.type === "form" ? { formData: request.data } : { json: request.data };
 
     if (headers["set-cookie"]) {
-      const cookies = headers["set-cookie"].map(cookie => new Cookie(cookie));
+      const cookies = headers["set-cookie"].map((cookie) => new Cookie(cookie));
       const csrfCookie = find(cookies, { key: "csrf_token" });
       if (csrfCookie) {
         if (request.type === "form") {
@@ -63,7 +63,7 @@ function runCypressCI() {
     CYPRESS_OPTIONS, // eslint-disable-line no-unused-vars
   } = process.env;
 
-  if (GITHUB_REPOSITORY === "getredash/redash") {
+  if (GITHUB_REPOSITORY === "getredash/redash" && process.env.CYPRESS_RECORD_KEY) {
     process.env.CYPRESS_OPTIONS = "--record";
   }
 
@@ -107,6 +107,6 @@ switch (command) {
     stopServer();
     break;
   default:
-    console.log("Usage: yarn cypress [build|start|db-seed|open|run|stop]");
+    console.log("Usage: pnpm run cypress [build|start|db-seed|open|run|stop]");
     break;
 }

@@ -100,16 +100,13 @@ export default registeredVisualizations;
 export function getDefaultVisualization() {
   // return any visualization explicitly marked as default, or any non-deprecated otherwise
   return (
-    // @ts-expect-error ts-migrate(2339) FIXME: Property 'isDefault' does not exist on type 'never... Remove this comment to see the full error message
-    find(registeredVisualizations, visualization => visualization.isDefault) ||
-    // @ts-expect-error ts-migrate(2339) FIXME: Property 'isDeprecated' does not exist on type 'ne... Remove this comment to see the full error message
-    find(registeredVisualizations, visualization => !visualization.isDeprecated)
+    find(registeredVisualizations, (visualization: any) => visualization.isDefault) ||
+    find(registeredVisualizations, (visualization: any) => !visualization.isDeprecated)
   );
 }
 
 export function newVisualization(type = null, options = {}) {
-  // @ts-expect-error ts-migrate(2538) FIXME: Type 'null' cannot be used as an index type.
-  const visualization = type ? registeredVisualizations[type] : getDefaultVisualization();
+  const visualization: any = type ? registeredVisualizations[type] : getDefaultVisualization();
   return {
     type: visualization.type,
     name: visualization.name,

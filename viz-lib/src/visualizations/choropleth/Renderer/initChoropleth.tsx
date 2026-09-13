@@ -123,7 +123,7 @@ export default function initChoropleth(container: any, onBoundsChange: any) {
   });
 
   function updateLayers(geoJson: any, data: any, options: any) {
-    _map.eachLayer(layer => _map.removeLayer(layer));
+    _map.eachLayer((layer) => _map.removeLayer(layer));
     _map.removeControl(_legend);
 
     // @ts-expect-error ts-migrate(2339) FIXME: Property 'features' does not exist on type 'object... Remove this comment to see the full error message
@@ -161,7 +161,7 @@ export default function initChoropleth(container: any, onBoundsChange: any) {
         // @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call.
         <Legend
           // @ts-expect-error ts-migrate(2322) FIXME: Type '{ text: any; color: any; limit: any; }[]' is... Remove this comment to see the full error message
-          items={map(legend, item => ({ ...item, text: formatValue(item.limit) }))}
+          items={map(legend, (item) => ({ ...item, text: formatValue(item.limit) }))}
           alignText={options.legend.alignText}
         />,
         _legend.getContainer()

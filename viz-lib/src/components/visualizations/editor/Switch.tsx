@@ -10,17 +10,17 @@ type OwnProps = {
   children?: React.ReactNode;
 };
 
-type Props = OwnProps & typeof Switch.defaultProps;
+const switchDefaultProps = {
+  id: null,
+  disabled: false,
+  children: null,
+};
+
+type Props = OwnProps & typeof switchDefaultProps;
 
 // @ts-expect-error ts-migrate(2700) FIXME: Rest types may only be created from object types.
 export default function Switch({ id, children, disabled, ...props }: Props) {
-  const fallbackId = useMemo(
-    () =>
-      `visualization-editor-control-${Math.random()
-        .toString(36)
-        .substr(2, 10)}`,
-    []
-  );
+  const fallbackId = useMemo(() => `visualization-editor-control-${Math.random().toString(36).substr(2, 10)}`, []);
   id = id || fallbackId;
 
   if (children) {
@@ -37,8 +37,4 @@ export default function Switch({ id, children, disabled, ...props }: Props) {
   return <AntSwitch {...props} />;
 }
 
-Switch.defaultProps = {
-  id: null,
-  disabled: false,
-  children: null,
-};
+Switch.defaultProps = switchDefaultProps;

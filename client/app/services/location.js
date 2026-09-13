@@ -9,7 +9,7 @@ function normalizeLocation(rawLocation) {
   const result = {};
 
   result.path = pathname;
-  result.search = mapValues(qs.parse(search), value => (isNil(value) ? true : value));
+  result.search = mapValues(qs.parse(search), (value) => (isNil(value) ? true : value));
   result.hash = trimStart(hash, "#");
   result.url = `${pathname}${search}${hash}`;
 
@@ -27,7 +27,7 @@ const location = {
 
   confirmChange(handler) {
     if (isFunction(handler)) {
-      return history.block(nextLocation => {
+      return history.block((nextLocation) => {
         return handler(normalizeLocation(nextLocation), location);
       });
     } else {
@@ -60,12 +60,18 @@ const location = {
       // serialize search and keep existing search parameters (!)
       if (isObject(newLocation.search)) {
         newLocation.search = omitBy(extend({}, location.search, newLocation.search), isNil);
-        newLocation.search = mapValues(newLocation.search, value => (value === true ? null : value));
+        newLocation.search = mapValues(newLocation.search, (value) => (value === true ? null : value));
         newLocation.search = qs.stringify(newLocation.search);
       }
     }
     if (replace) {
-      history.replace(newLocation);
+      if (
+        newLocation.pathname !== location.path ||
+        newLocation.search !== qs.stringify(location.search) ||
+        newLocation.hash !== location.hash
+      ) {
+        history.replace(newLocation);
+      }
     } else {
       history.push(newLocation);
     }

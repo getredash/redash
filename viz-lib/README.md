@@ -18,10 +18,10 @@ Using npm:
 npm install @redash/viz
 ```
 
-Using yarn:
+Using pnpm:
 
 ```bash
-yarn add @redash/viz
+pnpm add @redash/viz
 ```
 
 ## Usage

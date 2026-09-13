@@ -45,7 +45,20 @@ type OwnProps = {
   onChange?: (...args: any[]) => any;
 };
 
-type Props = OwnProps & typeof ColorPicker.defaultProps;
+const colorPickerDefaultProps = {
+  color: "#FFFFFF",
+  placement: "top",
+  presetColors: null,
+  presetColumns: 8,
+  interactive: false,
+  triggerProps: {} as Record<string, any>,
+  children: null,
+  addonBefore: null,
+  addonAfter: null,
+  onChange: () => {},
+};
+
+type Props = OwnProps & typeof colorPickerDefaultProps;
 
 export default function ColorPicker({
   color,
@@ -123,7 +136,8 @@ export default function ColorPicker({
               // @ts-expect-error ts-migrate(2322) FIXME: Type 'string | null | undefined' is not assignable... Remove this comment to see the full error message
               color: chooseTextColorForBackground(currentColor),
             }}
-            actions={actions}>
+            actions={actions}
+          >
             <ColorInput
               // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
               color={currentColor}
@@ -139,14 +153,14 @@ export default function ColorPicker({
         trigger="click"
         placement={placement}
         visible={visible}
-        onVisibleChange={setVisible}>
+        onVisibleChange={setVisible}
+      >
         {children || (
           <Swatch
             color={validatedColor}
             size={30}
-            {...triggerProps}
-            // @ts-expect-error ts-migrate(2339) FIXME: Property 'className' does not exist on type 'never... Remove this comment to see the full error message
-            className={cx("color-picker-trigger", triggerProps.className)}
+            {...((triggerProps as any) || {})}
+            className={cx("color-picker-trigger", (triggerProps as any)?.className)}
           />
         )}
       </Popover>
@@ -155,18 +169,7 @@ export default function ColorPicker({
   );
 }
 
-ColorPicker.defaultProps = {
-  color: "#FFFFFF",
-  placement: "top",
-  presetColors: null,
-  presetColumns: 8,
-  interactive: false,
-  triggerProps: {},
-  children: null,
-  addonBefore: null,
-  addonAfter: null,
-  onChange: () => {},
-};
+ColorPicker.defaultProps = colorPickerDefaultProps;
 
 ColorPicker.Input = ColorInput;
 ColorPicker.Swatch = Swatch;

@@ -6,7 +6,7 @@ export default {
   save: (data, message = "Settings changes saved.") =>
     axios
       .post("api/settings/organization", data)
-      .then(data => {
+      .then((data) => {
         notification.success(message);
         return data;
       })

@@ -83,7 +83,7 @@ export default function updateAxes(plotlyElement: any, seriesList: any, layout: 
 
       // Swap Axes
       if (options.swappedAxes) {
-        each(seriesList, series => {
+        each(seriesList, (series) => {
           series.orientation = "h";
           const { x, y } = series;
           series.x = y;

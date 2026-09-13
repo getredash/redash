@@ -67,9 +67,9 @@ export default class AlertNew extends React.Component {
                       columnNames={queryResult.getColumnNames()}
                       resultValues={queryResult.getData()}
                       subject={options.custom_subject}
-                      setSubject={subject => onNotificationTemplateChange({ custom_subject: subject })}
+                      setSubject={(subject) => onNotificationTemplateChange({ custom_subject: subject })}
                       body={options.custom_body}
-                      setBody={body => onNotificationTemplateChange({ custom_body: body })}
+                      setBody={(body) => onNotificationTemplateChange({ custom_body: body })}
                     />
                   </HorizontalFormItem>
                 </>

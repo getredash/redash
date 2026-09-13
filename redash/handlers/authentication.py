@@ -15,6 +15,7 @@ from redash.authentication.account import (
 )
 from redash.handlers import routes
 from redash.handlers.base import json_response, org_scoped_rule
+from redash.version_check import get_latest_version
 
 logger = logging.getLogger(__name__)
 
@@ -251,22 +252,35 @@ def number_format_config():
     return {
         "integerFormat": current_org.get_setting("integer_format"),
         "floatFormat": current_org.get_setting("float_format"),
+        "thousandsSeparator": current_org.get_setting("thousands_separator"),
+        "decimalSeparator": current_org.get_setting("decimal_separator"),
+    }
+
+
+def null_value_config():
+    return {
+        "nullValue": current_org.get_setting("null_value"),
     }
 
 
 def client_config():
     if not current_user.is_api_user() and current_user.is_authenticated:
-        client_config_inner = {
+        client_config = {
+            "newVersionAvailable": bool(get_latest_version()),
             "version": __version__,
         }
     else:
-        client_config_inner = {}
+        client_config = {}
+
+    if current_user.has_permission("admin") and current_org.get_setting("beacon_consent") is None:
+        client_config["showBeaconConsentMessage"] = True
 
     defaults = {
         "allowScriptsInUserInput": settings.ALLOW_SCRIPTS_IN_USER_INPUT,
         "showPermissionsControl": current_org.get_setting("feature_show_permissions_control"),
         "hidePlotlyModeBar": current_org.get_setting("hide_plotly_mode_bar"),
         "disablePublicUrls": current_org.get_setting("disable_public_urls"),
+        "multiByteSearchEnabled": current_org.get_setting("multi_byte_search_enabled"),
         "allowCustomJSVisualizations": settings.FEATURE_ALLOW_CUSTOM_JS_VISUALIZATIONS,
         "autoPublishNamedQueries": settings.FEATURE_AUTO_PUBLISH_NAMED_QUERIES,
         "extendedAlertOptions": settings.FEATURE_EXTENDED_ALERT_OPTIONS,
@@ -280,12 +294,13 @@ def client_config():
         "tableCellMaxJSONSize": settings.TABLE_CELL_MAX_JSON_SIZE,
     }
 
-    client_config_inner.update(defaults)
-    client_config_inner.update({"basePath": base_href()})
-    client_config_inner.update(date_time_format_config())
-    client_config_inner.update(number_format_config())
+    client_config.update(defaults)
+    client_config.update({"basePath": base_href()})
+    client_config.update(date_time_format_config())
+    client_config.update(number_format_config())
+    client_config.update(null_value_config())
 
-    return client_config_inner
+    return client_config
 
 
 def messages():

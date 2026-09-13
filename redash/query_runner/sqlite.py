@@ -28,7 +28,7 @@ class Sqlite(BaseSQLQueryRunner):
     def __init__(self, configuration):
         super(Sqlite, self).__init__(configuration)
 
-        self._dbpath = self.configuration["dbpath"]
+        self._dbpath = self.configuration.get("dbpath", "")
 
     def _get_tables(self, schema):
         query_table = "select tbl_name from sqlite_master where type='table'"

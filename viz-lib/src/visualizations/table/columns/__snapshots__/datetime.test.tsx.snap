@@ -1,7 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`Visualizations -> Table -> Columns -> Date/Time Editor Changes format 1`] = `
-Object {
-  "dateTimeFormat": "YYYY/MM/DD HH:ss",
-}
-`;

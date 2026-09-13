@@ -13,7 +13,8 @@ export default function ColumnsSettings({ options, data, onOptionsChange }: any)
           label="Date (Bucket)"
           data-test="Cohort.DateColumn"
           value={options.dateColumn}
-          onChange={(dateColumn: any) => onOptionsChange({ dateColumn })}>
+          onChange={(dateColumn: any) => onOptionsChange({ dateColumn })}
+        >
           {map(data.columns, ({ name }) => (
             // @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message
             <Select.Option key={name} data-test={"Cohort.DateColumn." + name}>
@@ -31,7 +32,8 @@ export default function ColumnsSettings({ options, data, onOptionsChange }: any)
           label="Stage"
           data-test="Cohort.StageColumn"
           value={options.stageColumn}
-          onChange={(stageColumn: any) => onOptionsChange({ stageColumn })}>
+          onChange={(stageColumn: any) => onOptionsChange({ stageColumn })}
+        >
           {map(data.columns, ({ name }) => (
             // @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message
             <Select.Option key={name} data-test={"Cohort.StageColumn." + name}>
@@ -49,7 +51,8 @@ export default function ColumnsSettings({ options, data, onOptionsChange }: any)
           label="Bucket Population Size"
           data-test="Cohort.TotalColumn"
           value={options.totalColumn}
-          onChange={(totalColumn: any) => onOptionsChange({ totalColumn })}>
+          onChange={(totalColumn: any) => onOptionsChange({ totalColumn })}
+        >
           {map(data.columns, ({ name }) => (
             // @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message
             <Select.Option key={name} data-test={"Cohort.TotalColumn." + name}>
@@ -67,7 +70,8 @@ export default function ColumnsSettings({ options, data, onOptionsChange }: any)
           label="Stage Value"
           data-test="Cohort.ValueColumn"
           value={options.valueColumn}
-          onChange={(valueColumn: any) => onOptionsChange({ valueColumn })}>
+          onChange={(valueColumn: any) => onOptionsChange({ valueColumn })}
+        >
           {map(data.columns, ({ name }) => (
             // @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message
             <Select.Option key={name} data-test={"Cohort.ValueColumn." + name}>

@@ -21,7 +21,7 @@ export default function Title({ alert, editMode, name, onChange, children }) {
               placeholder={defaultName}
               value={name}
               aria-label="Alert title"
-              onChange={e => onChange(e.target.value)}
+              onChange={(e) => onChange(e.target.value)}
             />
           ) : (
             name || defaultName

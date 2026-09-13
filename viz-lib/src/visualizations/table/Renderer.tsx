@@ -28,8 +28,8 @@ function joinColumns(array: any, separator = ", ") {
 }
 
 function getSearchColumns(columns: any, { limit = Infinity, renderColumn = (col: any) => col.title } = {}) {
-  const firstColumns = map(columns.slice(0, limit), col => renderColumn(col));
-  const restColumns = map(columns.slice(limit), col => col.title);
+  const firstColumns = map(columns.slice(0, limit), (col) => renderColumn(col));
+  const restColumns = map(columns.slice(limit), (col) => col.title);
   if (restColumns.length > 0) {
     return [...joinColumns(firstColumns), ` and ${restColumns.length} others`];
   }
@@ -46,9 +46,10 @@ function SearchInputInfoIcon({ searchColumns }: any) {
       placement="topRight"
       content={
         <div className="table-visualization-search-info-content">
-          Search {getSearchColumns(searchColumns, { renderColumn: col => <code key={col.name}>{col.title}</code> })}
+          Search {getSearchColumns(searchColumns, { renderColumn: (col) => <code key={col.name}>{col.title}</code> })}
         </div>
-      }>
+      }
+    >
       <InfoCircleFilledIcon className="table-visualization-search-info-icon" />
     </Popover>
   );
@@ -58,7 +59,11 @@ type OwnSearchInputProps = {
   onChange?: (...args: any[]) => any;
 };
 
-type SearchInputProps = OwnSearchInputProps & typeof SearchInput.defaultProps;
+const searchInputDefaultProps = {
+  onChange: () => {},
+};
+
+type SearchInputProps = OwnSearchInputProps & typeof searchInputDefaultProps;
 
 // @ts-expect-error ts-migrate(2339) FIXME: Property 'searchColumns' does not exist on type 'S... Remove this comment to see the full error message
 function SearchInput({ searchColumns, ...props }: SearchInputProps) {
@@ -76,9 +81,7 @@ function SearchInput({ searchColumns, ...props }: SearchInputProps) {
   );
 }
 
-SearchInput.defaultProps = {
-  onChange: () => {},
-};
+SearchInput.defaultProps = searchInputDefaultProps;
 
 export default function Renderer({ options, data }: any) {
   const [searchTerm, setSearchTerm] = useState("");
@@ -100,12 +103,10 @@ export default function Renderer({ options, data }: any) {
     });
   }, [options.columns, searchColumns, orderBy]);
 
-  const preparedRows = useMemo(() => sortRows(filterRows(initRows(data.rows), searchTerm, searchColumns), orderBy), [
-    data.rows,
-    searchTerm,
-    searchColumns,
-    orderBy,
-  ]);
+  const preparedRows = useMemo(
+    () => sortRows(filterRows(initRows(data.rows), searchTerm, searchColumns), orderBy),
+    [data.rows, searchTerm, searchColumns, orderBy]
+  );
 
   // If data or config columns change - reset sorting
   useEffect(() => {

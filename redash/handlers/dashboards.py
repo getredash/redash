@@ -26,6 +26,8 @@ order_map = {
     "-name": "-lowercase_name",
     "created_at": "created_at",
     "-created_at": "-created_at",
+    "starred_at": "favorites-created_at",
+    "-starred_at": "-favorites-created_at",
 }
 
 order_results = partial(_order_results, default_order="-created_at", allowed_orders=order_map)

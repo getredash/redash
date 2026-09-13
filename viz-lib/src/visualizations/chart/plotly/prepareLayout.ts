@@ -1,8 +1,9 @@
 import { isObject, isUndefined, filter, map } from "lodash";
 import { getPieDimensions } from "./preparePieData";
 
-function getAxisTitle(axis: any) {
-  return isObject(axis.title) ? axis.title.text : null;
+function getAxisTitleText(axis: any): string | null {
+  if (!axis || !axis.title) return null;
+  return isObject(axis.title) ? axis.title.text : axis.title;
 }
 
 function getAxisScaleType(axis: any) {
@@ -17,25 +18,23 @@ function getAxisScaleType(axis: any) {
 }
 
 function prepareXAxis(axisOptions: any, additionalOptions: any) {
-  const axis = {
-    title: getAxisTitle(axisOptions),
+  const titleText = getAxisTitleText(axisOptions);
+  const axis: any = {
+    title: titleText ? { text: titleText } : null,
     type: getAxisScaleType(axisOptions),
     automargin: true,
-    tickformat: axisOptions.tickFormat,
+    tickformat: axisOptions.tickFormat ?? null,
   };
 
   if (additionalOptions.sortX && axis.type === "category") {
     if (additionalOptions.reverseX) {
-      // @ts-expect-error ts-migrate(2339) FIXME: Property 'categoryorder' does not exist on type '{... Remove this comment to see the full error message
       axis.categoryorder = "category descending";
     } else {
-      // @ts-expect-error ts-migrate(2339) FIXME: Property 'categoryorder' does not exist on type '{... Remove this comment to see the full error message
       axis.categoryorder = "category ascending";
     }
   }
 
   if (!isUndefined(axisOptions.labels)) {
-    // @ts-expect-error ts-migrate(2339) FIXME: Property 'showticklabels' does not exist on type '... Remove this comment to see the full error message
     axis.showticklabels = axisOptions.labels.enabled;
   }
 
@@ -43,13 +42,14 @@ function prepareXAxis(axisOptions: any, additionalOptions: any) {
 }
 
 function prepareYAxis(axisOptions: any) {
+  const titleText = getAxisTitleText(axisOptions);
   return {
-    title: getAxisTitle(axisOptions),
+    title: titleText ? { text: titleText } : null,
     type: getAxisScaleType(axisOptions),
     automargin: true,
     autorange: true,
     range: null,
-    tickformat: axisOptions.tickFormat,
+    tickformat: axisOptions.tickFormat ?? null,
   };
 }
 
@@ -63,10 +63,8 @@ function preparePieLayout(layout: any, options: any, data: any) {
   } else {
     layout.annotations = filter(
       map(data, (series, index) => {
-        // @ts-expect-error ts-migrate(2362) FIXME: The left-hand side of an arithmetic operation must... Remove this comment to see the full error message
-        const xPosition = (index % cellsInRow) * cellWidth;
-        // @ts-expect-error ts-migrate(2362) FIXME: The left-hand side of an arithmetic operation must... Remove this comment to see the full error message
-        const yPosition = Math.floor(index / cellsInRow) * cellHeight;
+        const xPosition = ((index as number) % cellsInRow) * cellWidth;
+        const yPosition = Math.floor((index as number) / cellsInRow) * cellHeight;
         return {
           x: xPosition + (cellWidth - xPadding) / 2,
           y: yPosition + cellHeight - 0.015,
@@ -109,7 +107,7 @@ function prepareBoxLayout(layout: any, options: any, data: any) {
 }
 
 export default function prepareLayout(element: any, options: any, data: any) {
-  const layout = {
+  const layout: any = {
     margin: { l: 10, r: 10, b: 5, t: 20, pad: 4 },
     // plot size should be at least 5x5px
     width: Math.max(5, Math.floor(element.offsetWidth)),
@@ -123,6 +121,10 @@ export default function prepareLayout(element: any, options: any, data: any) {
       namelength: -1,
     },
   };
+
+  if (["line", "area", "column"].includes(options.globalSeriesType)) {
+    layout.hovermode = options.swappedAxes ? "y" : "x";
+  }
 
   switch (options.globalSeriesType) {
     case "pie":

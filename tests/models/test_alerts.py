@@ -1,6 +1,7 @@
 import textwrap
 from unittest import TestCase
 
+from redash import settings
 from redash.models import OPERATORS, Alert, db, next_state
 from tests import BaseTestCase
 
@@ -111,6 +112,17 @@ class TestAlertEvaluate(BaseTestCase):
         alert.options["selector"] = "max"
         self.assertEqual(alert.evaluate(), Alert.UNKNOWN_STATE)
 
+    def test_evaluate_alerts_without_query_rel(self):
+        query = self.factory.create_query(latest_query_data_id=None)
+        alert = self.factory.create_alert(
+            query_rel=query, options={"selector": "first", "op": "equals", "column": "foo", "value": "1"}
+        )
+        self.assertEqual(alert.evaluate(), Alert.UNKNOWN_STATE)
+
+    def test_evaluate_return_unknown_when_value_is_none(self):
+        alert = self.create_alert(get_results(None))
+        self.assertEqual(alert.evaluate(), Alert.UNKNOWN_STATE)
+
 
 class TestNextState(TestCase):
     def test_numeric_value(self):
@@ -165,16 +177,18 @@ class TestAlertRenderTemplate(BaseTestCase):
         ALERT_CONDITION     equals
         ALERT_THRESHOLD     5
         ALERT_NAME          %s
-        ALERT_URL           https:///default/alerts/%d
+        ALERT_URL           %s/default/alerts/%d
         QUERY_NAME          Query
-        QUERY_URL           https:///default/queries/%d
+        QUERY_URL           %s/default/queries/%d
         QUERY_RESULT_VALUE  1
         QUERY_RESULT_ROWS   [{'foo': 1}]
         QUERY_RESULT_COLS   [{'name': 'foo', 'type': 'STRING'}]
         </pre>
         """ % (
             alert.name,
+            settings.HOST,
             alert.id,
+            settings.HOST,
             alert.query_id,
         )
         result = alert.render_template(textwrap.dedent(custom_alert))

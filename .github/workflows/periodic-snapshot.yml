@@ -2,7 +2,7 @@ name: Periodic Snapshot
 
 on:
   schedule:
-    - cron: '10 0 1 * *'  # 10 minutes after midnight on the first of every month
+    - cron: '10 0 1 * *'  # 10 minutes after midnight on the first day of every month
   workflow_dispatch:
     inputs:
       bump:
@@ -24,6 +24,7 @@ permissions:
 jobs:
   bump-version-and-tag:
     runs-on: ubuntu-latest
+    if: github.ref_name == github.event.repository.default_branch
     steps:
       - uses: actions/checkout@v4
         with:

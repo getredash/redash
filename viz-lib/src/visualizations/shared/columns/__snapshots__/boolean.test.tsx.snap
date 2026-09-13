@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`Visualizations -> Table -> Columns -> Boolean Editor Changes value for FALSE 1`] = `
+{
+  "booleanValues": [
+    "no",
+    "true",
+  ],
+}
+`;
+
+exports[`Visualizations -> Table -> Columns -> Boolean Editor Changes value for TRUE 1`] = `
+{
+  "booleanValues": [
+    "false",
+    "yes",
+  ],
+}
+`;

@@ -8,7 +8,7 @@ import Swatch from "./Swatch";
 import "./input.less";
 
 function preparePresets(presetColors: any, presetColumns: any) {
-  presetColors = isArray(presetColors) ? map(presetColors, v => [null, v]) : toPairs(presetColors);
+  presetColors = isArray(presetColors) ? map(presetColors, (v) => [null, v]) : toPairs(presetColors);
   presetColors = map(presetColors, ([title, value]) => {
     if (isNil(value)) {
       return [title, null];
@@ -44,7 +44,15 @@ type OwnProps = {
   onPressEnter?: (...args: any[]) => any;
 };
 
-type Props = OwnProps & typeof Input.defaultProps;
+const inputDefaultProps = {
+  color: "#FFFFFF",
+  presetColors: null,
+  presetColumns: 8,
+  onChange: () => {},
+  onPressEnter: () => {},
+};
+
+type Props = OwnProps & typeof inputDefaultProps;
 
 export default function Input({ color, presetColors, presetColumns, onChange, onPressEnter }: Props) {
   const [inputValue, setInputValue] = useState("");
@@ -78,7 +86,7 @@ export default function Input({ color, presetColors, presetColumns, onChange, on
           data-test="ColorPicker.CustomColor"
           addonBefore={<Typography.Text type="secondary">#</Typography.Text>}
           value={inputValue}
-          onChange={e => handleInputChange(e.target.value)}
+          onChange={(e) => handleInputChange(e.target.value)}
           onFocus={() => setIsInputFocused(true)}
           onBlur={() => setIsInputFocused(false)}
           onPressEnter={onPressEnter}
@@ -88,10 +96,4 @@ export default function Input({ color, presetColors, presetColumns, onChange, on
   );
 }
 
-Input.defaultProps = {
-  color: "#FFFFFF",
-  presetColors: null,
-  presetColumns: 8,
-  onChange: () => {},
-  onPressEnter: () => {},
-};
+Input.defaultProps = inputDefaultProps;

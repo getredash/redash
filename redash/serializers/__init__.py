@@ -82,9 +82,19 @@ class QuerySerializer(Serializer):
         else:
             result = [serialize_query(query, **self.options) for query in self.object_or_list]
             if self.options.get("with_favorite_state", True):
-                favorite_ids = models.Favorite.are_favorites(current_user.id, self.object_or_list)
+                queries = list(self.object_or_list)
+                favorites = models.Favorite.query.filter(
+                    models.Favorite.object_id.in_([o.id for o in queries]),
+                    models.Favorite.object_type == "Query",
+                    models.Favorite.user_id == current_user.id,
+                )
+                favorites_dict = {fav.object_id: fav for fav in favorites}
+
                 for query in result:
-                    query["is_favorite"] = query["id"] in favorite_ids
+                    favorite = favorites_dict.get(query["id"])
+                    query["is_favorite"] = favorite is not None
+                    if favorite:
+                        query["starred_at"] = favorite.created_at
 
         return result
 
@@ -263,9 +273,19 @@ class DashboardSerializer(Serializer):
         else:
             result = [serialize_dashboard(obj, **self.options) for obj in self.object_or_list]
             if self.options.get("with_favorite_state", True):
-                favorite_ids = models.Favorite.are_favorites(current_user.id, self.object_or_list)
-                for obj in result:
-                    obj["is_favorite"] = obj["id"] in favorite_ids
+                dashboards = list(self.object_or_list)
+                favorites = models.Favorite.query.filter(
+                    models.Favorite.object_id.in_([o.id for o in dashboards]),
+                    models.Favorite.object_type == "Dashboard",
+                    models.Favorite.user_id == current_user.id,
+                )
+                favorites_dict = {fav.object_id: fav for fav in favorites}
+
+                for query in result:
+                    favorite = favorites_dict.get(query["id"])
+                    query["is_favorite"] = favorite is not None
+                    if favorite:
+                        query["starred_at"] = favorite.created_at
 
         return result
 

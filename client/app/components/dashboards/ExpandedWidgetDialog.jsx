@@ -17,7 +17,8 @@ function ExpandedWidgetDialog({ dialog, widget, filters }) {
         </>
       }
       width="95%"
-      footer={<Button onClick={dialog.dismiss}>Close</Button>}>
+      footer={<Button onClick={dialog.dismiss}>Close</Button>}
+    >
       <VisualizationRenderer
         visualization={widget.visualization}
         queryResult={widget.getQueryResult()}

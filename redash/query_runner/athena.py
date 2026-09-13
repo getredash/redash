@@ -90,15 +90,26 @@ class Athena(BaseQueryRunner):
                     "title": "Athena cost per Tb scanned (USD)",
                     "default": 5,
                 },
+                "result_reuse_enable": {
+                    "type": "boolean",
+                    "title": "Reuse Athena query results",
+                },
+                "result_reuse_minutes": {
+                    "type": "number",
+                    "title": "Minutes to reuse Athena query results",
+                    "default": 60,
+                },
             },
             "required": ["region", "s3_staging_dir"],
-            "extra_options": ["glue", "catalog_ids", "cost_per_tb"],
+            "extra_options": ["glue", "catalog_ids", "cost_per_tb", "result_reuse_enable", "result_reuse_minutes"],
             "order": [
                 "region",
                 "s3_staging_dir",
                 "schema",
                 "work_group",
                 "cost_per_tb",
+                "result_reuse_enable",
+                "result_reuse_minutes",
             ],
             "secret": ["aws_secret_key"],
         }
@@ -247,6 +258,8 @@ class Athena(BaseQueryRunner):
             kms_key=self.configuration.get("kms_key", None),
             work_group=self.configuration.get("work_group", "primary"),
             formatter=SimpleFormatter(),
+            result_reuse_enable=self.configuration.get("result_reuse_enable", False),
+            result_reuse_minutes=self.configuration.get("result_reuse_minutes", 60),
             **self._get_iam_credentials(user=user),
         ).cursor()
 
