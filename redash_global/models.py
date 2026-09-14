@@ -118,12 +118,14 @@ class DeploymentRun(TimestampMixin, db.Model):
         db.Integer, db.ForeignKey("global_admin_users.id", ondelete="RESTRICT"), nullable=False
     )
     succeeded = Column(db.Boolean, nullable=False)
+    comment = Column(db.Text, nullable=True)
 
     results = db.relationship(
         "DeploymentRunResult",
         backref="deployment_run",
         cascade="all, delete-orphan",
     )
+    global_admin_user = db.relationship("GlobalAdminUser")
 
 
 @generic_repr("id", "deployment_run_id", "organization_id")

@@ -7,8 +7,10 @@ import handleNavigationIntent from "@/components/ApplicationArea/handleNavigatio
 import { registerComponent } from "@/components/DynamicComponent";
 
 import GlobalDesktopNavbar from "./GlobalDesktopNavbar";
+import DeploymentGuide from "./DeploymentGuide";
 import ComposedDashboardListPage from "./ComposedDashboardList";
 import ComposedDashboardEdit from "./ComposedDashboardEdit";
+import ComposedDashboardDeploymentsPage from "./ComposedDashboardDeployments";
 import SubDashboardListPage from "./SubDashboardList";
 import SubDashboardAssignments from "./SubDashboardAssignments";
 
@@ -21,7 +23,7 @@ const routes = [
     id: "Home",
     path: "/",
     title: "Global Admin",
-    render: () => <div>Work in progress</div>,
+    render: () => <DeploymentGuide />,
   },
   {
     id: "ComposedDashboards.List",
@@ -35,6 +37,14 @@ const routes = [
     title: "Edit Composed Dashboard",
     render: (currentRoute) => (
       <ComposedDashboardEdit composedDashboardId={currentRoute.routeParams.composedDashboardId} />
+    ),
+  },
+  {
+    id: "ComposedDashboards.Deployments",
+    path: "/composed-dashboards/:composedDashboardId/deployments",
+    title: "Deployment History",
+    render: (currentRoute) => (
+      <ComposedDashboardDeploymentsPage composedDashboardId={currentRoute.routeParams.composedDashboardId} />
     ),
   },
   {

@@ -1,0 +1,100 @@
+.deployment-guide {
+  padding-bottom: 30px;
+
+  .deployment-guide-steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 15px;
+    margin-bottom: 25px;
+  }
+
+  .deployment-guide-step {
+    position: relative;
+    display: block;
+    padding: 20px;
+    background: #fff;
+    border: 1px solid #e8e8e8;
+    border-radius: 4px;
+    color: inherit;
+  }
+
+  // The chevron between cards. Hidden on the last one, and on narrow screens where the
+  // grid wraps to a single column and the flow reads top-to-bottom instead.
+  .deployment-guide-step::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: -11px;
+    width: 8px;
+    height: 8px;
+    border-top: 2px solid #d9d9d9;
+    border-right: 2px solid #d9d9d9;
+    transform: translateY(-50%) rotate(45deg);
+  }
+
+  .deployment-guide-step:last-child::after {
+    display: none;
+  }
+
+  @media (max-width: 991px) {
+    .deployment-guide-step::after {
+      display: none;
+    }
+  }
+
+  a.deployment-guide-step-clickable:hover {
+    border-color: #2ab1ff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    text-decoration: none;
+  }
+
+  .deployment-guide-step-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    margin-bottom: 10px;
+    border-radius: 50%;
+    background: #2ab1ff;
+    color: #fff;
+    font-weight: 600;
+  }
+
+  .deployment-guide-step-title {
+    margin: 0 0 8px;
+    font-size: 15px;
+  }
+
+  .deployment-guide-step-body {
+    color: #767676;
+    font-size: 13px;
+  }
+
+  .deployment-guide-step-link {
+    font-size: 13px;
+    font-weight: 600;
+    color: #2ab1ff;
+  }
+
+  .deployment-guide-step-note {
+    font-size: 12px;
+    font-style: italic;
+    color: #a0a0a0;
+  }
+
+  .deployment-guide-notes {
+    padding: 20px;
+
+    h4 {
+      margin-top: 0;
+    }
+
+    ul {
+      margin-bottom: 0;
+      padding-left: 20px;
+      color: #767676;
+      font-size: 13px;
+    }
+  }
+}

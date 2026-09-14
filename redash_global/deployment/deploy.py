@@ -79,7 +79,7 @@ def clear_fixed_from_url_values(options, fixed_param_names):
             parameter["value"] = None
 
 
-def deploy_composed_dashboard(composed_dashboard, target_orgs, deployed_by):
+def deploy_composed_dashboard(composed_dashboard, target_orgs, deployed_by, comment=None):
     """Deploy/redeploy one composed dashboard to every target org, all or nothing."""
     composed_dashboard_id = composed_dashboard.id
     deployed_by_id = deployed_by.id
@@ -94,13 +94,6 @@ def deploy_composed_dashboard(composed_dashboard, target_orgs, deployed_by):
             # does not stop the remaining ones from being attempted and reported.
             with db.session.begin_nested():
                 deployed = deploy_to_target_org(composed_dashboard, target_org)
-            if deployed is None:
-                logger.info(
-                    "Skipping org %s for composed dashboard %s: no sub-dashboards assigned",
-                    org_id,
-                    composed_dashboard_id,
-                )
-                continue
             deployed_dashboards.append(deployed)
             results.append(OrgResult(org_id, []))
         except DeploymentError as error:
@@ -122,7 +115,7 @@ def deploy_composed_dashboard(composed_dashboard, target_orgs, deployed_by):
     else:
         db.session.rollback()
 
-    run = record_deployment_run(composed_dashboard_id, deployed_by_id, results, succeeded)
+    run = record_deployment_run(composed_dashboard_id, deployed_by_id, results, succeeded, comment)
     db.session.commit()
 
     if succeeded:
@@ -146,15 +139,13 @@ def ordered_org_assigned_subdashboard(composed_dashboard, target_org):
 def deploy_to_target_org(composed_dashboard, target_org):
     """Stage one org's dashboard and return it with its allowed-widgets query.
 
-    Returns None when the org has no sub-dashboard of this composed dashboard assigned:
-    there is nothing to deploy, which is not a failure.
+    The caller only passes orgs that have at least one of the composed dashboard's
+    sub-dashboards assigned (that is what ``deployment_target_orgs`` selects on), so there is
+    always something here to deploy.
 
     Raises on failure; the caller owns the transaction.
     """
     sub_dashboards = ordered_org_assigned_subdashboard(composed_dashboard, target_org)
-    if not sub_dashboards:
-        return None
-
     validate_composed_dashboard(sub_dashboards, target_org)
 
     deploy_user = get_deploy_user(target_org)
@@ -447,11 +438,12 @@ def record_deployment(composed_dashboard, target_org):
     deployment.last_deployed_at = datetime.now(timezone.utc)
 
 
-def record_deployment_run(composed_dashboard_id, deployed_by_id, results, succeeded):
+def record_deployment_run(composed_dashboard_id, deployed_by_id, results, succeeded, comment):
     run = DeploymentRun(
         composed_dashboard_id=composed_dashboard_id,
         global_admin_user_id=deployed_by_id,
         succeeded=succeeded,
+        comment=comment,
         results=[DeploymentRunResult(organization_id=result.org_id, errors=result.errors) for result in results],
     )
     db.session.add(run)

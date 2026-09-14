@@ -3,6 +3,8 @@ from redash_global.models import (
     ComposedDashboard,
     ComposedDashboardDeployment,
     ComposedDashboardEntry,
+    DeploymentRun,
+    DeploymentRunResult,
     SubDashboardAssignment,
 )
 from tests.factories import Factory as RedashFactory
@@ -19,6 +21,10 @@ composed_dashboard_factory = ModelFactory(
 composed_dashboard_entry_factory = ModelFactory(ComposedDashboardEntry, order_index=0)
 
 composed_dashboard_deployment_factory = ModelFactory(ComposedDashboardDeployment)
+
+deployment_run_factory = ModelFactory(DeploymentRun, succeeded=True)
+
+deployment_run_result_factory = ModelFactory(DeploymentRunResult, errors=[])
 
 metr_data_source_factory = ModelFactory(MetrDataSource)
 
@@ -59,6 +65,16 @@ class Factory(RedashFactory):
         }
         args.update(kwargs)
         return composed_dashboard_deployment_factory.create(**args)
+
+    def create_deployment_run(self, **kwargs):
+        args = {"composed_dashboard_id": lambda: self.create_composed_dashboard().id}
+        args.update(kwargs)
+        return deployment_run_factory.create(**args)
+
+    def create_deployment_run_result(self, **kwargs):
+        args = {"organization_id": self.org.id}
+        args.update(kwargs)
+        return deployment_run_result_factory.create(**args)
 
     def create_metr_data_source(self, **kwargs):
         return metr_data_source_factory.create(**kwargs)

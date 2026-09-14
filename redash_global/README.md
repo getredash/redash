@@ -15,6 +15,13 @@ Two environment variables are **required** — the app refuses to start without 
   templates (e.g. `se_template`). Read into `redash_global/settings.py`, which
   holds the config only Redash Global consumes.
 
+One is **optional**:
+
+- `ORG_SLUGS_EXCLUDED_FROM_DEPLOYMENT` — comma-separated slugs of organizations that
+  must never receive a deployed composed dashboard, e.g. internal companies holding
+  no customer-facing dashboards. Defaults to `operations`. `TEMPLATE_ORG_SLUG` is
+  always excluded on top of this, so it doesn't need repeating here.
+
 The database connection is inherited from Redash's settings
 (`SQLALCHEMY_DATABASE_URI`), so no separate DB config is needed.
 

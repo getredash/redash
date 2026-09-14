@@ -1,4 +1,3 @@
-import logging
 from unittest.mock import patch
 
 import pytest
@@ -1126,41 +1125,6 @@ class TestDeployComposedDashboard:
         # Not one of the three healthy orgs kept a dashboard, including the ones
         # before the first failure.
         assert MetrDashboard.query.filter_by(url_identifier=composed_dashboard.url_identifier).count() == 0
-
-    def test_skips_orgs_with_no_sub_dashboard_assigned(self, factory, sub_dashboard, admin, caplog):
-        factory.create_widget(
-            dashboard=sub_dashboard, options={"position": {"row": 0, "col": 0, "sizeX": 1, "sizeY": 1}}
-        )
-        query = sub_dashboard.widgets[0].visualization.query_rel
-        factory.create_metr_data_source_for(query.data_source, "postgres")
-
-        assigned_org = factory.create_org()
-        factory.create_metr_data_source_for(factory.create_data_source(org=assigned_org), "postgres")
-        factory.create_sub_dashboard_assignment(dashboard_id=sub_dashboard.id, organization_id=assigned_org.id)
-        factory.create_deploy_user(assigned_org)
-
-        # Every org is targeted by default, and this one has nothing of the composed
-        # dashboard assigned, so it has nothing to deploy.
-        unassigned_org = factory.create_org()
-        factory.create_deploy_user(unassigned_org)
-
-        composed_dashboard = factory.create_composed_dashboard()
-        factory.create_composed_dashboard_entry(
-            composed_dashboard_id=composed_dashboard.id, template_dashboard_id=sub_dashboard.id
-        )
-
-        caplog.set_level(logging.INFO)
-        run = deploy_composed_dashboard(composed_dashboard, [assigned_org, unassigned_org], admin)
-
-        assert run.succeeded
-        assert [result.organization_id for result in run.results] == [assigned_org.id]
-        assert (
-            MetrDashboard.query.filter_by(
-                url_identifier=composed_dashboard.url_identifier, org_id=unassigned_org.id
-            ).count()
-            == 0
-        )
-        assert "no sub-dashboards assigned" in caplog.text
 
     def test_records_unexpected_errors_instead_of_raising(self, factory, caplog, admin):
         target_org = factory.create_org()
