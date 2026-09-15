@@ -587,3 +587,32 @@ class TestWorkerStartupDelay(TestCase):
             delays = {worker_startup_delay() for _ in range(200)}
 
         self.assertGreater(len(delays), 1)
+
+
+class MetrStandardGroupCommandTests(BaseTestCase):
+    def standard_groups(self, org):
+        return Group.query.filter(Group.org == org, Group.type == "standard").all()
+
+    def test_it_creates_the_group_the_hand_off_provisions_into(self):
+        result = CliRunner().invoke(manager, ["metr", "create_standard_group", self.factory.org.slug])
+
+        assert 0 == result.exit_code
+        created = self.standard_groups(self.factory.org)
+        assert 1 == len(created)
+        assert "standard" == created[0].name
+        assert ["list_dashboards", "execute_query"] == created[0].permissions
+
+    def test_running_it_again_leaves_the_group_it_already_made(self):
+        runner = CliRunner()
+        runner.invoke(manager, ["metr", "create_standard_group", self.factory.org.slug])
+
+        result = runner.invoke(manager, ["metr", "create_standard_group", self.factory.org.slug])
+
+        assert 0 == result.exit_code
+        assert 1 == len(self.standard_groups(self.factory.org))
+
+    def test_it_refuses_an_organization_that_is_not_there(self):
+        result = CliRunner().invoke(manager, ["metr", "create_standard_group", "nobody"])
+
+        assert 1 == result.exit_code
+        assert "no organization called nobody" in result.output
