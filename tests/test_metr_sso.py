@@ -1,5 +1,6 @@
 import datetime
 import json
+import logging
 import os
 import shutil
 import tempfile
@@ -471,3 +472,24 @@ class TestArrivingOverSomebodyElse(HandOffTestCase):
         response = self.spend(self.a_token(user.email))
 
         assert [] == self.remember_cookie_headers(response)
+
+
+class TestSayingWhatTheHandOffDid(HandOffTestCase):
+    def setUp(self):
+        super(TestSayingWhatTheHandOffDid, self).setUp()
+        logging.disable(logging.NOTSET)
+        self.addCleanup(logging.disable, logging.INFO)
+
+    def test_it_names_the_person_it_signed_in(self):
+        user = self.factory.create_user()
+
+        with self.assertLogs("redash.authentication.metr_sso", level="INFO") as logged:
+            self.spend(self.a_token(user.email))
+
+        assert any(user.email in line for line in logged.output)
+
+    def test_it_says_when_no_token_arrived_at_all(self):
+        with self.assertLogs("redash.authentication.metr_sso", level="INFO") as logged:
+            self.client.get("/{}/metr/callback".format(self.slug))
+
+        assert any("no hand-off token" in line.lower() for line in logged.output)

@@ -137,6 +137,9 @@ def callback(org_slug=None):
     org = current_org._get_current_object()
     next_path = get_next_path(request.args.get("next"))
     token = request.cookies.get(metr_settings.SSO_COOKIE_NAME)
+    if not token:
+        logger.info("No hand-off token on the request, sending %r to the login page", org.slug)
+        return clear_the_token(redirect(get_login_url(next=next_path or None)))
 
     try:
         user = read_the_token(org, token)
@@ -154,6 +157,14 @@ def callback(org_slug=None):
         if signed_in_before is not None:
             logout_user()
         login_user(user)
+        logger.info(
+            "Spent a hand-off token for %r in %r, replacing session %r",
+            user.email,
+            org.slug,
+            signed_in_before,
+        )
+    else:
+        logger.info("Hand-off token for %r in %r names the session already here", user.email, org.slug)
 
     destination = next_path or url_for("redash.index", org_slug=org_slug)
     return clear_the_token(redirect(destination))
