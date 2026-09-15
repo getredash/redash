@@ -1,3 +1,4 @@
+import datetime
 import json
 import os
 import shutil
@@ -392,3 +393,13 @@ class TestTheStandardGroupHasToExist(HandOffTestCase):
         self.spend(self.a_token(user.email))
 
         assert user.email == self.signed_in_email()
+
+
+class TestSomebodyDisabledHere(HandOffTestCase):
+    def test_a_token_for_somebody_disabled_here_is_refused(self):
+        user = self.factory.create_user(disabled_at=datetime.datetime.utcnow())
+
+        response = self.spend(self.a_token(user.email))
+
+        assert self.login_path() == response.headers["Location"]
+        assert self.signed_in_email() is None

@@ -113,9 +113,15 @@ def read_the_token(org, token):
         return None
 
     try:
-        return models.User.get_by_email_and_org(claims["email"], org)
+        user = models.User.get_by_email_and_org(claims["email"], org)
     except models.NoResultFound:
         return provision(org, claims["email"])
+
+    if user.is_disabled:
+        logger.info("Refusing a hand-off token for %r, who is disabled here", user.email)
+        return None
+
+    return user
 
 
 def clear_the_token(response):
