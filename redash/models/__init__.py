@@ -1686,6 +1686,14 @@ class QuerySnippet(TimestampMixin, db.Model, BelongsToOrgMixin):
         return d
 
 
+db.Index(
+    "ix_groups_one_standard_per_org",
+    Group.org_id,
+    unique=True,
+    postgresql_where=db.text("type = 'standard'"),
+)
+
+
 def init_db():
     default_org = Organization(name="Default", slug="default", settings={})
     admin_group = Group(

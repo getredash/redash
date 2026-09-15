@@ -9,6 +9,7 @@ import jwt
 import pytest
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
+from sqlalchemy.exc import IntegrityError
 
 from redash.app import create_app
 from redash.authentication import jwt_auth, metr_sso
@@ -340,6 +341,12 @@ class TestProvisioning(HandOffTestCase):
         self.spend(self.a_token("newcomer@example.com"))
 
         assert [group.id] == self.signed_in_groups()
+
+    def test_an_organization_cannot_have_two_standard_groups(self):
+        self.a_standard_group()
+
+        with pytest.raises(IntegrityError):
+            self.a_standard_group()
 
     def test_a_newcomer_stays_out_of_the_default_group(self):
         self.a_standard_group()
