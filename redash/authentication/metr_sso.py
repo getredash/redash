@@ -1,10 +1,11 @@
 import logging
 
+import jwt
 from flask import Blueprint, redirect, request, url_for
 from flask_login import login_user
 
 from redash import models
-from redash.authentication import get_next_path, jwt_auth
+from redash.authentication import get_login_url, get_next_path, jwt_auth
 from redash.authentication.org_resolving import current_org
 from redash.handlers.base import org_scoped_rule
 from redash.settings import metr as metr_settings
@@ -33,13 +34,29 @@ def login(org_slug=None):
 
 
 def read_the_token(org, token):
-    claims, token_is_valid = jwt_auth.verify_jwt_token(
-        token,
-        expected_issuer=metr_settings.SSO_ISSUER,
-        expected_audience=metr_settings.SSO_AUDIENCE,
-        algorithms=metr_settings.SSO_ALGORITHMS,
-        public_certs_url=metr_settings.SSO_CALLBACK_JWKS_URL,
-    )
+    try:
+        claims, token_is_valid = jwt_auth.verify_jwt_token(
+            token,
+            expected_issuer=metr_settings.SSO_ISSUER,
+            expected_audience=metr_settings.SSO_AUDIENCE,
+            algorithms=metr_settings.SSO_ALGORITHMS,
+            public_certs_url=metr_settings.SSO_CALLBACK_JWKS_URL,
+        )
+    except OSError as error:
+        logger.warning("Could not read the signing keys for %r: %s", org.slug, error)
+        return None
+    except jwt.PyJWTError as error:
+        logger.info("Could not read the hand-off token: %s", error)
+        return None
+
+    if not token_is_valid or not claims:
+        logger.info("Refusing a hand-off token that does not verify")
+        return None
+
+    if "email" not in claims:
+        logger.info("Refusing a hand-off token that names no email")
+        return None
+
     return models.User.get_by_email_and_org(claims["email"], org)
 
 
@@ -54,12 +71,16 @@ def clear_the_token(response):
 @blueprint.route(org_scoped_rule("/metr/callback"))
 def callback(org_slug=None):
     org = current_org._get_current_object()
+    next_path = get_next_path(request.args.get("next"))
     token = request.cookies.get(metr_settings.SSO_COOKIE_NAME)
 
     user = read_the_token(org, token)
+    if user is None:
+        return clear_the_token(redirect(get_login_url(next=next_path or None)))
+
     login_user(user)
 
-    destination = get_next_path(request.args.get("next")) or url_for("redash.index", org_slug=org_slug)
+    destination = next_path or url_for("redash.index", org_slug=org_slug)
     return clear_the_token(redirect(destination))
 
 

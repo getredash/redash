@@ -62,7 +62,7 @@ class HandOffTestCase(BaseTestCase):
         self.addCleanup(os.remove, path)
         return path
 
-    def a_token(self, email, key=None, **overrides):
+    def a_token(self, email=None, key=None, **overrides):
         issued_at = int(time.time())
         claims = {
             "iss": self.issuer,
@@ -86,6 +86,9 @@ class HandOffTestCase(BaseTestCase):
         return [
             header for header in response.headers.getlist("Set-Cookie") if header.startswith(self.cookie_name + "=")
         ]
+
+    def login_path(self):
+        return "/{}/login".format(self.slug)
 
     def signed_in_email(self):
         response = self.client.get("/{}/api/session".format(self.slug))
@@ -190,3 +193,54 @@ class TestSpendingAToken(HandOffTestCase):
         self.client.get("/{}/logout".format(self.slug))
 
         assert self.signed_in_email() is None
+
+
+class TestRefusingAToken(HandOffTestCase):
+    def test_a_token_nobody_signed_is_refused(self):
+        response = self.spend("this-is-not-a-token")
+
+        assert self.login_path() == response.headers["Location"]
+        assert self.signed_in_email() is None
+
+    def test_arriving_with_no_token_at_all_is_refused(self):
+        response = self.client.get("/{}/metr/callback".format(self.slug))
+
+        assert self.login_path() == response.headers["Location"]
+        assert self.signed_in_email() is None
+
+    def test_a_token_signed_by_somewhere_else_is_refused(self):
+        user = self.factory.create_user()
+
+        response = self.spend(self.a_token(user.email, key=a_signing_key()))
+
+        assert self.login_path() == response.headers["Location"]
+        assert self.signed_in_email() is None
+
+    def test_keys_that_cannot_be_read_refuse_the_login(self):
+        user = self.factory.create_user()
+        self.configure(SSO_CALLBACK_JWKS_URL="file:///nowhere/at/all.pem")
+
+        response = self.spend(self.a_token(user.email))
+
+        assert self.login_path() == response.headers["Location"]
+        assert self.signed_in_email() is None
+
+    def test_a_token_naming_no_email_is_refused(self):
+        response = self.spend(self.a_token())
+
+        assert self.login_path() == response.headers["Location"]
+        assert self.signed_in_email() is None
+
+    def test_a_refused_token_is_thrown_away_too(self):
+        response = self.spend("this-is-not-a-token")
+
+        cleared = self.hand_off_cookie_headers(response)
+        assert 1 == len(cleared)
+        assert "Expires=Thu, 01 Jan 1970" in cleared[0]
+
+    def test_the_login_page_stays_reachable_with_a_token_from_elsewhere(self):
+        self.client.set_cookie(self.cookie_name, "a-token-minted-somewhere-else")
+
+        response = self.client.get(self.login_path())
+
+        assert 200 == response.status_code
