@@ -6,10 +6,12 @@ import time
 from unittest.mock import patch
 
 import jwt
+import pytest
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 
-from redash.authentication import jwt_auth
+from redash.app import create_app
+from redash.authentication import jwt_auth, metr_sso
 from redash.settings import metr as metr_settings
 from tests import BaseTestCase
 
@@ -299,3 +301,23 @@ class TestTheTenantClaim(HandOffTestCase):
 
         assert self.login_path() == response.headers["Location"]
         assert self.signed_in_email() is None
+
+
+class TestConfiguration(HandOffTestCase):
+    def test_a_hand_off_without_a_tenant_claim_is_refused(self):
+        self.configure(SSO_TENANT_CLAIM="")
+
+        with pytest.raises(metr_sso.MisconfiguredError):
+            create_app()
+
+    def test_naming_the_tenant_claim_is_accepted(self):
+        app = create_app()
+
+        assert "metr_sso" in app.blueprints
+
+    def test_an_installation_not_using_the_hand_off_needs_no_configuration(self):
+        self.configure(SSO_LOGIN_URL="", SSO_TENANT_CLAIM="")
+
+        app = create_app()
+
+        assert "metr_sso" in app.blueprints

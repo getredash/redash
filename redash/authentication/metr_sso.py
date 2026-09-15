@@ -15,6 +15,10 @@ logger = logging.getLogger(__name__)
 blueprint = Blueprint("metr_sso", __name__)
 
 
+class MisconfiguredError(Exception):
+    pass
+
+
 def is_enabled():
     return bool(metr_settings.SSO_LOGIN_URL)
 
@@ -109,5 +113,12 @@ def login_url_for_the_login_page():
 
 
 def init_app(app):
+    if is_enabled() and not metr_settings.SSO_TENANT_CLAIM:
+        raise MisconfiguredError(
+            "REDASH_METR_SSO_LOGIN_URL is set but REDASH_METR_SSO_TENANT_CLAIM is not. A token "
+            "issued for one organization would be accepted at every other one. Set "
+            "REDASH_METR_SSO_TENANT_CLAIM to the claim naming the tenant, e.g. 'tenant'."
+        )
+
     app.register_blueprint(blueprint)
     app.jinja_env.globals["metr_sso_login_url"] = login_url_for_the_login_page
