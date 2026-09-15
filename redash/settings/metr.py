@@ -1,3 +1,9 @@
 import os
 
 SSO_LOGIN_URL = os.environ.get("REDASH_METR_SSO_LOGIN_URL", "")
+SSO_CALLBACK_JWKS_URL = os.environ.get("REDASH_METR_SSO_JWKS_URL", "")
+SSO_ISSUER = os.environ.get("REDASH_METR_SSO_ISSUER", "")
+SSO_AUDIENCE = os.environ.get("REDASH_METR_SSO_AUDIENCE", "")
+SSO_ALGORITHMS = os.environ.get("REDASH_METR_SSO_ALGORITHMS", "RS256").split(",")
+SSO_COOKIE_NAME = os.environ.get("REDASH_METR_SSO_COOKIE_NAME", "")
+SSO_COOKIE_DOMAIN = os.environ.get("REDASH_METR_SSO_COOKIE_DOMAIN", "")
