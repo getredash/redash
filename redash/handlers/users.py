@@ -8,6 +8,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import NoResultFound
 
 from redash import limiter, models, settings
+from redash.authentication import metr_sso
 from redash.authentication.account import (
     invite_link_for_user,
     send_invite_email,
@@ -244,6 +245,15 @@ class UserResource(BaseResource):
             require_allowed_email(params["email"])
 
         email_address_changed = "email" in params and params["email"] != user.email
+        if email_address_changed and metr_sso.is_enabled():
+            abort(
+                403,
+                message=_(
+                    "Email addresses are managed by single sign-on and cannot be changed here. "
+                    "Change it in core-backend instead."
+                ),
+            )
+
         needs_to_verify_email = email_address_changed and settings.email_server_is_configured()
         if needs_to_verify_email:
             user.is_email_verified = False

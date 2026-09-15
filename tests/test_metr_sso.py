@@ -493,3 +493,46 @@ class TestSayingWhatTheHandOffDid(HandOffTestCase):
             self.client.get("/{}/metr/callback".format(self.slug))
 
         assert any("no hand-off token" in line.lower() for line in logged.output)
+
+
+class TestEmailAddressesCannotBeChangedHere(HandOffTestCase):
+    def change(self, user, **params):
+        return self.make_request("post", "/api/users/{}".format(user.id), user=user, data=params)
+
+    def test_changing_an_email_is_refused(self):
+        user = self.factory.create_user()
+
+        response = self.change(user, email="somewhere-else@example.com")
+
+        assert 403 == response.status_code
+
+    def test_it_says_why(self):
+        user = self.factory.create_user()
+
+        response = self.change(user, email="somewhere-else@example.com")
+
+        assert "single sign-on" in json.loads(response.data)["message"]
+
+    def test_sending_the_email_it_already_has_is_not_a_change(self):
+        user = self.factory.create_user()
+
+        response = self.change(user, email=user.email, name="A New Name")
+
+        assert 200 == response.status_code
+        assert "A New Name" == user.name
+
+    def test_everything_else_about_a_user_still_changes(self):
+        user = self.factory.create_user()
+
+        response = self.change(user, name="A New Name")
+
+        assert 200 == response.status_code
+        assert "A New Name" == user.name
+
+    def test_an_installation_without_the_hand_off_is_left_alone(self):
+        self.configure(SSO_LOGIN_URL="")
+        user = self.factory.create_user()
+
+        response = self.change(user, email="somewhere-else@example.com")
+
+        assert 200 == response.status_code

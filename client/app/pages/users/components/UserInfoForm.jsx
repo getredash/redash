@@ -58,6 +58,7 @@ export default function UserInfoForm(props) {
             title: t("Users:Email"),
             type: "email",
             initialValue: user.email,
+            readOnly: true,
           },
           !user.isDisabled && currentUser.id !== user.id
             ? {
