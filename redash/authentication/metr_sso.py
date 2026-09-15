@@ -30,5 +30,17 @@ def login(org_slug=None):
     return redirect("{}?next={}".format(login_url_for(current_org), next_path))
 
 
+def login_url_for_the_login_page():
+    if not is_enabled():
+        return None
+
+    return url_for(
+        "metr_sso.login",
+        org_slug=current_org.slug,
+        next=get_next_path(request.args.get("next")) or None,
+    )
+
+
 def init_app(app):
     app.register_blueprint(blueprint)
+    app.jinja_env.globals["metr_sso_login_url"] = login_url_for_the_login_page

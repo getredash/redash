@@ -45,3 +45,23 @@ class TestTheWayOutToCoreBackend(HandOffTestCase):
         response = self.client.get("/{}/metr/login".format(self.slug))
 
         assert "/{}/".format(self.slug) == response.headers["Location"]
+
+
+class TestTheLoginButton(HandOffTestCase):
+    def test_the_login_page_offers_our_provider(self):
+        response = self.client.get("/{}/login".format(self.slug))
+
+        assert "/{}/metr/login".format(self.slug) in response.data.decode()
+
+    def test_the_requested_page_travels_along(self):
+        response = self.client.get("/{}/login?next=/{}/dashboard/heating".format(self.slug, self.slug))
+
+        expected = "/{}/metr/login?next=/{}/dashboard/heating".format(self.slug, self.slug)
+        assert expected in response.data.decode()
+
+    def test_an_installation_without_the_hand_off_is_offered_nothing(self):
+        self.configure(SSO_LOGIN_URL="")
+
+        response = self.client.get("/{}/login".format(self.slug))
+
+        assert "/metr/login" not in response.data.decode()

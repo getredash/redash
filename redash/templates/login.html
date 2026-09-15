@@ -24,6 +24,11 @@
       <a href="{{ url_for('saml_auth.sp_initiated', org_slug=org_slug, next=next) }}" class="login-button btn btn-default btn-block">{{_('SAML Login')}}</a>
     {% endif %}
 
+    {% set metr_login_url = metr_sso_login_url() %}
+    {% if metr_login_url %}
+      <a href="{{ metr_login_url }}" class="login-button btn btn-default btn-block">{{_('Login with metr')}}</a>
+    {% endif %}
+
     {% if show_remote_user_login %}
       <a href="{{ url_for('remote_user_auth.login', org_slug=org_slug, next=next) }}" class="login-button btn btn-default btn-block">{{_('Remote User Login')}}</a>
     {% endif %}
@@ -33,7 +38,7 @@
     {% endif %}
 
     {% if show_password_login %}
-    {% if show_google_openid or show_saml_login or show_remote_user_login or show_ldap_login %}
+    {% if show_google_openid or show_saml_login or metr_login_url or show_remote_user_login or show_ldap_login %}
       <hr>
     {% endif %}
 
