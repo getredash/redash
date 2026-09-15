@@ -403,3 +403,71 @@ class TestSomebodyDisabledHere(HandOffTestCase):
 
         assert self.login_path() == response.headers["Location"]
         assert self.signed_in_email() is None
+
+
+class TestArrivingOverSomebodyElse(HandOffTestCase):
+    def remember_cookie_headers(self, response):
+        return [header for header in response.headers.getlist("Set-Cookie") if header.startswith("remember_token=")]
+
+    def sign_in_through_the_form(self, user):
+        user.hash_password("a-password")
+        db.session.add(user)
+        db.session.commit()
+        return self.client.post(
+            self.login_path(),
+            data={"email": user.email, "password": "a-password", "remember": "y"},
+        )
+
+    def test_it_switches_identity(self):
+        self.sign_in_through_the_form(self.factory.create_user())
+        arriving = self.factory.create_user(email="arriving@example.com")
+
+        self.spend(self.a_token(arriving.email))
+
+        assert arriving.email == self.signed_in_email()
+
+    def test_it_takes_the_previous_visitors_credentials_with_them(self):
+        self.sign_in_through_the_form(self.factory.create_user())
+        arriving = self.factory.create_user(email="arriving@example.com")
+
+        response = self.spend(self.a_token(arriving.email))
+
+        cleared = self.remember_cookie_headers(response)
+        assert 1 == len(cleared), "the previous visitor was left remembered"
+        assert "Expires=Thu, 01 Jan 1970" in cleared[0]
+
+    def test_the_switch_survives_the_next_request(self):
+        self.sign_in_through_the_form(self.factory.create_user())
+        arriving = self.factory.create_user(email="arriving@example.com")
+
+        self.spend(self.a_token(arriving.email))
+        self.client.get("/{}/".format(self.slug))
+
+        assert arriving.email == self.signed_in_email()
+
+    def test_a_newcomer_displaces_them_too(self):
+        self.a_standard_group()
+        self.sign_in_through_the_form(self.factory.create_user())
+
+        response = self.spend(self.a_token("newcomer@example.com"))
+
+        cleared = self.remember_cookie_headers(response)
+        assert 1 == len(cleared), "the previous visitor was left remembered"
+        assert "newcomer@example.com" == self.signed_in_email()
+
+    def test_a_token_naming_whoever_is_here_signs_nobody_out(self):
+        user = self.factory.create_user()
+        self.spend(self.a_token(user.email))
+        self.client.delete_cookie(self.cookie_name)
+
+        response = self.spend(self.a_token(user.email))
+
+        assert [] == self.remember_cookie_headers(response)
+        assert user.email == self.signed_in_email()
+
+    def test_a_handed_off_session_is_not_remembered(self):
+        user = self.factory.create_user()
+
+        response = self.spend(self.a_token(user.email))
+
+        assert [] == self.remember_cookie_headers(response)

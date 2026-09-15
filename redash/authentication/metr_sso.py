@@ -1,9 +1,9 @@
 import logging
 
 import jwt
-from flask import Blueprint, flash, redirect, request, url_for
+from flask import Blueprint, flash, redirect, request, session, url_for
 from flask_babel import gettext as _
-from flask_login import login_user
+from flask_login import login_user, logout_user
 
 from redash import models
 from redash.authentication import get_login_url, get_next_path, jwt_auth
@@ -149,7 +149,11 @@ def callback(org_slug=None):
     if user is None:
         return clear_the_token(redirect(get_login_url(next=next_path or None)))
 
-    login_user(user)
+    signed_in_before = session.get("_user_id")
+    if signed_in_before != user.get_id():
+        if signed_in_before is not None:
+            logout_user()
+        login_user(user)
 
     destination = next_path or url_for("redash.index", org_slug=org_slug)
     return clear_the_token(redirect(destination))
