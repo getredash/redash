@@ -355,3 +355,33 @@ class TestProvisioning(HandOffTestCase):
         self.spend(self.a_token(user.email))
 
         assert user.group_ids == self.signed_in_groups()
+
+
+class TestTheStandardGroupHasToExist(HandOffTestCase):
+    def test_a_newcomer_is_refused_when_the_organization_has_none(self):
+        response = self.spend(self.a_token("newcomer@example.com"))
+
+        assert self.login_path() == response.headers["Location"]
+        assert self.signed_in_email() is None
+
+    def test_the_login_page_says_something_went_wrong(self):
+        self.spend(self.a_token("newcomer@example.com"))
+
+        response = self.client.get(self.login_path())
+
+        assert "Your account could not be set up" in response.data.decode()
+
+    def test_it_reports_the_organization_and_how_to_fix_it(self):
+        with patch("redash.authentication.metr_sso.sentry.capture_exception") as reported:
+            self.spend(self.a_token("newcomer@example.com"))
+
+        reported_error = str(reported.call_args[0][0])
+        assert self.slug in reported_error
+        assert "create_standard_group" in reported_error
+
+    def test_somebody_already_here_signs_in_although_the_group_is_missing(self):
+        user = self.factory.create_user()
+
+        self.spend(self.a_token(user.email))
+
+        assert user.email == self.signed_in_email()

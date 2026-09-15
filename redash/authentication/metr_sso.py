@@ -1,7 +1,8 @@
 import logging
 
 import jwt
-from flask import Blueprint, redirect, request, url_for
+from flask import Blueprint, flash, redirect, request, url_for
+from flask_babel import gettext as _
 from flask_login import login_user
 
 from redash import models
@@ -9,6 +10,7 @@ from redash.authentication import get_login_url, get_next_path, jwt_auth
 from redash.authentication.org_resolving import current_org
 from redash.handlers.base import org_scoped_rule
 from redash.settings import metr as metr_settings
+from redash.utils import sentry
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +20,10 @@ blueprint = Blueprint("metr_sso", __name__)
 
 
 class MisconfiguredError(Exception):
+    pass
+
+
+class NoStandardGroup(Exception):
     pass
 
 
@@ -44,10 +50,19 @@ def login(org_slug=None):
 
 
 def standard_group_for(org):
-    return models.Group.query.filter(
+    group = models.Group.query.filter(
         models.Group.org == org,
         models.Group.type == STANDARD_GROUP_TYPE,
-    ).one()
+    ).first()
+
+    if group is None:
+        raise NoStandardGroup(
+            "No group of type {!r} in organization {!r}, so a new single sign-on user cannot be "
+            "provisioned there. Create one with `./manage.py metr create_standard_group {}`; new "
+            "organizations get one from toolbox.".format(STANDARD_GROUP_TYPE, org.slug, org.slug)
+        )
+
+    return group
 
 
 def provision(org, email):
@@ -117,7 +132,14 @@ def callback(org_slug=None):
     next_path = get_next_path(request.args.get("next"))
     token = request.cookies.get(metr_settings.SSO_COOKIE_NAME)
 
-    user = read_the_token(org, token)
+    try:
+        user = read_the_token(org, token)
+    except NoStandardGroup as error:
+        sentry.capture_exception(error)
+        logger.error("%s", error)
+        flash(_("Your account could not be set up. Please contact support."))
+        user = None
+
     if user is None:
         return clear_the_token(redirect(get_login_url(next=next_path or None)))
 
