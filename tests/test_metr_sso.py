@@ -12,6 +12,7 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 
 from redash.app import create_app
 from redash.authentication import jwt_auth, metr_sso
+from redash.models import db
 from redash.settings import metr as metr_settings
 from tests import BaseTestCase
 
@@ -102,6 +103,15 @@ class HandOffTestCase(BaseTestCase):
 
     def login_path(self, org=None):
         return "/{}/login".format((org or self.factory.org).slug)
+
+    def a_standard_group(self, org=None):
+        group = self.factory.create_group(org=org or self.factory.org, name="standard", type="standard")
+        db.session.commit()
+        return group
+
+    def signed_in_groups(self, org=None):
+        response = self.client.get("/{}/api/session".format((org or self.factory.org).slug))
+        return json.loads(response.data)["user"]["groups"]
 
     def signed_in_email(self, org=None):
         response = self.client.get("/{}/api/session".format((org or self.factory.org).slug))
@@ -321,3 +331,27 @@ class TestConfiguration(HandOffTestCase):
         app = create_app()
 
         assert "metr_sso" in app.blueprints
+
+
+class TestProvisioning(HandOffTestCase):
+    def test_a_newcomer_lands_in_the_standard_group(self):
+        group = self.a_standard_group()
+
+        self.spend(self.a_token("newcomer@example.com"))
+
+        assert [group.id] == self.signed_in_groups()
+
+    def test_a_newcomer_stays_out_of_the_default_group(self):
+        self.a_standard_group()
+
+        self.spend(self.a_token("newcomer@example.com"))
+
+        assert self.factory.default_group.id not in self.signed_in_groups()
+
+    def test_somebody_already_here_keeps_the_groups_they_have(self):
+        self.a_standard_group()
+        user = self.factory.create_user()
+
+        self.spend(self.a_token(user.email))
+
+        assert user.group_ids == self.signed_in_groups()

@@ -12,6 +12,8 @@ from redash.settings import metr as metr_settings
 
 logger = logging.getLogger(__name__)
 
+STANDARD_GROUP_TYPE = "standard"
+
 blueprint = Blueprint("metr_sso", __name__)
 
 
@@ -39,6 +41,27 @@ def login(org_slug=None):
         return redirect(next_path)
 
     return redirect("{}?next={}".format(login_url_for(current_org), next_path))
+
+
+def standard_group_for(org):
+    return models.Group.query.filter(
+        models.Group.org == org,
+        models.Group.type == STANDARD_GROUP_TYPE,
+    ).one()
+
+
+def provision(org, email):
+    user = models.User(
+        org=org,
+        name=email,
+        email=email,
+        is_invitation_pending=False,
+        group_ids=[standard_group_for(org).id],
+    )
+    models.db.session.add(user)
+    models.db.session.commit()
+    logger.info("Provisioned %r into the standard group of %r", email, org.slug)
+    return user
 
 
 def read_the_token(org, token):
@@ -74,7 +97,10 @@ def read_the_token(org, token):
         )
         return None
 
-    return models.User.get_by_email_and_org(claims["email"], org)
+    try:
+        return models.User.get_by_email_and_org(claims["email"], org)
+    except models.NoResultFound:
+        return provision(org, claims["email"])
 
 
 def clear_the_token(response):
