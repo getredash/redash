@@ -239,7 +239,7 @@ def logout_and_redirect_to_index():
 
 
 def init_app(app):
-    from redash.authentication import ldap_auth, remote_user_auth, saml_auth
+    from redash.authentication import ldap_auth, metr_sso, remote_user_auth, saml_auth
     from redash.authentication.google_oauth import (
         create_google_oauth_blueprint,
     )
@@ -267,6 +267,8 @@ def init_app(app):
 
     user_logged_in.connect(log_user_logged_in)
     login_manager.request_loader(request_loader)
+
+    metr_sso.init_app(app)
 
 
 def create_and_login_user(org, name, email, picture=None):
