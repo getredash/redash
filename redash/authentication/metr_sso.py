@@ -61,6 +61,15 @@ def read_the_token(org, token):
         logger.info("Refusing a hand-off token that names no email")
         return None
 
+    named_tenant = claims.get(metr_settings.SSO_TENANT_CLAIM)
+    if named_tenant != org.slug:
+        logger.info(
+            "Hand-off token was issued for %r, not for organization %r, refusing it",
+            named_tenant,
+            org.slug,
+        )
+        return None
+
     return models.User.get_by_email_and_org(claims["email"], org)
 
 

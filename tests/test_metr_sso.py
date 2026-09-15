@@ -52,6 +52,7 @@ class HandOffTestCase(BaseTestCase):
             SSO_ALGORITHMS=["RS256"],
             SSO_COOKIE_NAME=self.cookie_name,
             SSO_COOKIE_DOMAIN="",
+            SSO_TENANT_CLAIM="tenant",
         )
         jwt_auth.get_public_keys.key_cache.clear()
         self.addCleanup(jwt_auth.get_public_keys.key_cache.clear)
@@ -71,12 +72,13 @@ class HandOffTestCase(BaseTestCase):
                 key_file.write(public_pem(key))
         return directory
 
-    def a_token(self, email=None, key=None, **overrides):
+    def a_token(self, email=None, key=None, org=None, **overrides):
         issued_at = int(time.time())
         claims = {
             "iss": self.issuer,
             "aud": self.audience,
             "email": email,
+            "tenant": (org or self.factory.org).slug,
             "iat": issued_at,
             "exp": issued_at + 300,
         }
@@ -267,7 +269,7 @@ class TestWhereTheKeysAreFetchedFrom(HandOffTestCase):
         other_org, other_key = self.an_organization_served_from_its_own_url()
         arriving = self.factory.create_user(org=other_org)
 
-        self.spend(self.a_token(arriving.email, key=other_key), org=other_org)
+        self.spend(self.a_token(arriving.email, key=other_key, org=other_org), org=other_org)
 
         assert arriving.email == self.signed_in_email(org=other_org)
 
@@ -278,3 +280,22 @@ class TestWhereTheKeysAreFetchedFrom(HandOffTestCase):
         self.spend(self.a_token(user.email))
 
         assert user.email == self.signed_in_email()
+
+
+class TestTheTenantClaim(HandOffTestCase):
+    def test_a_token_issued_for_another_organization_is_refused(self):
+        other_org = self.factory.create_org()
+        arriving = self.factory.create_user(org=other_org)
+
+        response = self.spend(self.a_token(arriving.email, org=other_org))
+
+        assert self.login_path() == response.headers["Location"]
+        assert self.signed_in_email() is None
+
+    def test_a_token_naming_no_tenant_is_refused(self):
+        user = self.factory.create_user()
+
+        response = self.spend(self.a_token(user.email, tenant=None))
+
+        assert self.login_path() == response.headers["Location"]
+        assert self.signed_in_email() is None
