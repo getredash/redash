@@ -23,6 +23,10 @@ def login_url_for(org):
     return metr_settings.SSO_LOGIN_URL.replace("{org_slug}", org.slug)
 
 
+def jwks_url_for(org):
+    return metr_settings.SSO_CALLBACK_JWKS_URL.replace("{org_slug}", org.slug)
+
+
 @blueprint.route(org_scoped_rule("/metr/login"))
 def login(org_slug=None):
     next_path = get_next_path(request.args.get("next")) or url_for("redash.index", org_slug=org_slug)
@@ -40,7 +44,7 @@ def read_the_token(org, token):
             expected_issuer=metr_settings.SSO_ISSUER,
             expected_audience=metr_settings.SSO_AUDIENCE,
             algorithms=metr_settings.SSO_ALGORITHMS,
-            public_certs_url=metr_settings.SSO_CALLBACK_JWKS_URL,
+            public_certs_url=jwks_url_for(org),
         )
     except OSError as error:
         logger.warning("Could not read the signing keys for %r: %s", org.slug, error)

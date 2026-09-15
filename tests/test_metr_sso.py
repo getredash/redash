@@ -1,5 +1,6 @@
 import json
 import os
+import shutil
 import tempfile
 import time
 from unittest.mock import patch
@@ -62,6 +63,14 @@ class HandOffTestCase(BaseTestCase):
         self.addCleanup(os.remove, path)
         return path
 
+    def a_key_directory(self, keys_by_slug):
+        directory = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, directory)
+        for slug, key in keys_by_slug.items():
+            with open(os.path.join(directory, "{}.pem".format(slug)), "w") as key_file:
+                key_file.write(public_pem(key))
+        return directory
+
     def a_token(self, email=None, key=None, **overrides):
         issued_at = int(time.time())
         claims = {
@@ -75,9 +84,9 @@ class HandOffTestCase(BaseTestCase):
         claims = {name: value for name, value in claims.items() if value is not None}
         return jwt.encode(claims, private_pem(key or SIGNING_KEY), algorithm="RS256")
 
-    def spend(self, token, next_path=None):
+    def spend(self, token, next_path=None, org=None):
         self.client.set_cookie(self.cookie_name, token)
-        path = "/{}/metr/callback".format(self.slug)
+        path = "/{}/metr/callback".format((org or self.factory.org).slug)
         if next_path:
             path = "{}?next={}".format(path, next_path)
         return self.client.get(path)
@@ -87,11 +96,11 @@ class HandOffTestCase(BaseTestCase):
             header for header in response.headers.getlist("Set-Cookie") if header.startswith(self.cookie_name + "=")
         ]
 
-    def login_path(self):
-        return "/{}/login".format(self.slug)
+    def login_path(self, org=None):
+        return "/{}/login".format((org or self.factory.org).slug)
 
-    def signed_in_email(self):
-        response = self.client.get("/{}/api/session".format(self.slug))
+    def signed_in_email(self, org=None):
+        response = self.client.get("/{}/api/session".format((org or self.factory.org).slug))
         if response.status_code != 200:
             return None
         return json.loads(response.data)["user"]["email"]
@@ -244,3 +253,28 @@ class TestRefusingAToken(HandOffTestCase):
         response = self.client.get(self.login_path())
 
         assert 200 == response.status_code
+
+
+class TestWhereTheKeysAreFetchedFrom(HandOffTestCase):
+    def an_organization_served_from_its_own_url(self):
+        key = a_signing_key()
+        org = self.factory.create_org()
+        directory = self.a_key_directory({self.slug: SIGNING_KEY, org.slug: key})
+        self.configure(SSO_CALLBACK_JWKS_URL="file://" + directory + "/{org_slug}.pem")
+        return org, key
+
+    def test_each_organization_fetches_them_from_its_own_url(self):
+        other_org, other_key = self.an_organization_served_from_its_own_url()
+        arriving = self.factory.create_user(org=other_org)
+
+        self.spend(self.a_token(arriving.email, key=other_key), org=other_org)
+
+        assert arriving.email == self.signed_in_email(org=other_org)
+
+    def test_a_url_naming_no_organization_is_used_as_it_stands(self):
+        user = self.factory.create_user()
+        self.configure(SSO_CALLBACK_JWKS_URL="file://" + self.a_key_file(SIGNING_KEY))
+
+        self.spend(self.a_token(user.email))
+
+        assert user.email == self.signed_in_email()
