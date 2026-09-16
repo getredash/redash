@@ -23,7 +23,19 @@ class MisconfiguredError(Exception):
     pass
 
 
-class NoStandardGroup(Exception):
+class CannotProvision(Exception):
+    """
+    Raised when a token names somebody we are willing to admit but cannot make an account for.
+
+    Subclasses are caught together in the callback, which reports the instance to Sentry and
+    sends the visitor to the login page with a message that says nothing about our
+    configuration. Every subclass message must therefore name the organization and say what
+    would fix it, because the report is all anybody gets. Each subclass groups as its own
+    Sentry issue, so raise a new one rather than reusing another's message.
+    """
+
+
+class NoStandardGroup(CannotProvision):
     pass
 
 
@@ -143,7 +155,7 @@ def callback(org_slug=None):
 
     try:
         user = read_the_token(org, token)
-    except NoStandardGroup as error:
+    except CannotProvision as error:
         sentry.capture_exception(error)
         logger.error("%s", error)
         flash(_("Your account could not be set up. Please contact support."))
