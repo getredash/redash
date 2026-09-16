@@ -62,7 +62,7 @@ def login(org_slug=None):
         logger.error("Cannot start a login without REDASH_METR_SSO_LOGIN_URL being set")
         return redirect(next_path)
 
-    return redirect("{}?next={}".format(login_url_for(current_org), next_path))
+    return redirect(f"{login_url_for(current_org)}?next={next_path}")
 
 
 def standard_group_for(org):
@@ -73,9 +73,9 @@ def standard_group_for(org):
 
     if group is None:
         raise NoStandardGroup(
-            "No group of type {!r} in organization {!r}, so a new single sign-on user cannot be "
-            "provisioned there. Create one with `./manage.py metr create_standard_group {}`; new "
-            "organizations get one from toolbox.".format(STANDARD_GROUP_TYPE, org.slug, org.slug)
+            f"No group of type {STANDARD_GROUP_TYPE!r} here, so a new single sign-on user cannot "
+            f"be provisioned. Create one with `./manage.py metr create_standard_group {org.slug}`; "
+            "new organizations get one from toolbox."
         )
 
     return group

@@ -16,7 +16,7 @@ STANDARD_GROUP_PERMISSIONS = ["list_dashboards", "execute_query"]
 def create_standard_group(organization):
     org = models.Organization.get_by_slug(organization)
     if org is None:
-        print("There is no organization called %s." % organization)
+        print(f"There is no organization called {organization}.")
         exit(1)
 
     existing = models.Group.query.filter(
@@ -24,7 +24,7 @@ def create_standard_group(organization):
         models.Group.type == STANDARD_GROUP_TYPE,
     ).first()
     if existing is not None:
-        print("%s already has a standard group (%s)." % (organization, existing.name))
+        print(f"{organization} already has a standard group ({existing.name}).")
         return
 
     group = models.Group(
@@ -35,4 +35,4 @@ def create_standard_group(organization):
     )
     models.db.session.add(group)
     models.db.session.commit()
-    print("Created the standard group for %s. It grants no data source or dashboard yet." % organization)
+    print(f"Created the standard group for {organization}. It grants no data source or dashboard yet.")

@@ -74,7 +74,7 @@ class HandOffTestCase(BaseTestCase):
         directory = tempfile.mkdtemp()
         self.addCleanup(shutil.rmtree, directory)
         for slug, key in keys_by_slug.items():
-            with open(os.path.join(directory, "{}.pem".format(slug)), "w") as key_file:
+            with open(os.path.join(directory, f"{slug}.pem"), "w") as key_file:
                 key_file.write(public_pem(key))
         return directory
 
@@ -96,9 +96,9 @@ class HandOffTestCase(BaseTestCase):
 
     def spend(self, token, next_path=None, org=None):
         self.client.set_cookie(self.cookie_name, token)
-        path = "/{}/metr/callback".format((org or self.factory.org).slug)
+        path = f"/{(org or self.factory.org).slug}/metr/callback"
         if next_path:
-            path = "{}?next={}".format(path, next_path)
+            path = f"{path}?next={next_path}"
         return self.client.get(path)
 
     def hand_off_cookie_headers(self, response):
@@ -107,7 +107,7 @@ class HandOffTestCase(BaseTestCase):
         ]
 
     def login_path(self, org=None):
-        return "/{}/login".format((org or self.factory.org).slug)
+        return f"/{(org or self.factory.org).slug}/login"
 
     def a_standard_group(self, org=None):
         group = self.factory.create_group(org=org or self.factory.org, name="standard", type="standard")
@@ -115,11 +115,11 @@ class HandOffTestCase(BaseTestCase):
         return group
 
     def signed_in_groups(self, org=None):
-        response = self.client.get("/{}/api/session".format((org or self.factory.org).slug))
+        response = self.client.get(f"/{(org or self.factory.org).slug}/api/session")
         return json.loads(response.data)["user"]["groups"]
 
     def signed_in_email(self, org=None):
-        response = self.client.get("/{}/api/session".format((org or self.factory.org).slug))
+        response = self.client.get(f"/{(org or self.factory.org).slug}/api/session")
         if response.status_code != 200:
             return None
         return json.loads(response.data)["user"]["email"]
@@ -137,47 +137,47 @@ class HandOffTestCase(BaseTestCase):
 
 class TestTheWayOutToCoreBackend(HandOffTestCase):
     def test_it_sends_the_visitor_to_their_own_tenant(self):
-        response = self.client.get("/{}/metr/login".format(self.slug))
+        response = self.client.get(f"/{self.slug}/metr/login")
 
-        expected = "https://{}.metr.test/sso/dashboards/?next=/{}/".format(self.slug, self.slug)
+        expected = f"https://{self.slug}.metr.test/sso/dashboards/?next=/{self.slug}/"
         assert expected == response.headers["Location"]
 
     def test_the_requested_page_travels_along(self):
-        response = self.client.get("/{}/metr/login?next=/{}/dashboard/heating".format(self.slug, self.slug))
+        response = self.client.get(f"/{self.slug}/metr/login?next=/{self.slug}/dashboard/heating")
 
-        expected = "https://{}.metr.test/sso/dashboards/?next=/{}/dashboard/heating".format(self.slug, self.slug)
+        expected = f"https://{self.slug}.metr.test/sso/dashboards/?next=/{self.slug}/dashboard/heating"
         assert expected == response.headers["Location"]
 
     def test_it_refuses_a_return_path_leaving_the_dashboards(self):
-        response = self.client.get("/{}/metr/login?next=https://elsewhere.example.com/".format(self.slug))
+        response = self.client.get(f"/{self.slug}/metr/login?next=https://elsewhere.example.com/")
 
-        expected = "https://{}.metr.test/sso/dashboards/?next=/".format(self.slug)
+        expected = f"https://{self.slug}.metr.test/sso/dashboards/?next=/"
         assert expected == response.headers["Location"]
 
     def test_it_stays_put_when_no_identity_provider_is_configured(self):
         self.configure(SSO_LOGIN_URL="")
 
-        response = self.client.get("/{}/metr/login".format(self.slug))
+        response = self.client.get(f"/{self.slug}/metr/login")
 
-        assert "/{}/".format(self.slug) == response.headers["Location"]
+        assert f"/{self.slug}/" == response.headers["Location"]
 
 
 class TestTheLoginButton(HandOffTestCase):
     def test_the_login_page_offers_our_provider(self):
-        response = self.client.get("/{}/login".format(self.slug))
+        response = self.client.get(f"/{self.slug}/login")
 
-        assert "/{}/metr/login".format(self.slug) in response.data.decode()
+        assert f"/{self.slug}/metr/login" in response.data.decode()
 
     def test_the_requested_page_travels_along(self):
-        response = self.client.get("/{}/login?next=/{}/dashboard/heating".format(self.slug, self.slug))
+        response = self.client.get(f"/{self.slug}/login?next=/{self.slug}/dashboard/heating")
 
-        expected = "/{}/metr/login?next=/{}/dashboard/heating".format(self.slug, self.slug)
+        expected = f"/{self.slug}/metr/login?next=/{self.slug}/dashboard/heating"
         assert expected in response.data.decode()
 
     def test_an_installation_without_the_hand_off_is_offered_nothing(self):
         self.configure(SSO_LOGIN_URL="")
 
-        response = self.client.get("/{}/login".format(self.slug))
+        response = self.client.get(f"/{self.slug}/login")
 
         assert "/metr/login" not in response.data.decode()
 
@@ -210,15 +210,15 @@ class TestSpendingAToken(HandOffTestCase):
     def test_it_returns_the_visitor_to_the_page_they_asked_for(self):
         user = self.factory.create_user()
 
-        response = self.spend(self.a_token(user.email), next_path="/{}/dashboard/heating".format(self.slug))
+        response = self.spend(self.a_token(user.email), next_path=f"/{self.slug}/dashboard/heating")
 
-        assert "/{}/dashboard/heating".format(self.slug) == response.headers["Location"]
+        assert f"/{self.slug}/dashboard/heating" == response.headers["Location"]
 
     def test_logging_out_afterwards_stays_logged_out(self):
         user = self.factory.create_user()
         self.spend(self.a_token(user.email))
 
-        self.client.get("/{}/logout".format(self.slug))
+        self.client.get(f"/{self.slug}/logout")
 
         assert self.signed_in_email() is None
 
@@ -231,7 +231,7 @@ class TestRefusingAToken(HandOffTestCase):
         assert self.signed_in_email() is None
 
     def test_arriving_with_no_token_at_all_is_refused(self):
-        response = self.client.get("/{}/metr/callback".format(self.slug))
+        response = self.client.get(f"/{self.slug}/metr/callback")
 
         assert self.login_path() == response.headers["Location"]
         assert self.signed_in_email() is None
@@ -452,7 +452,7 @@ class TestArrivingOverSomebodyElse(HandOffTestCase):
         arriving = self.factory.create_user(email="arriving@example.com")
 
         self.spend(self.a_token(arriving.email))
-        self.client.get("/{}/".format(self.slug))
+        self.client.get(f"/{self.slug}/")
 
         assert arriving.email == self.signed_in_email()
 
@@ -508,14 +508,14 @@ class TestSayingWhatTheHandOffDid(HandOffTestCase):
 
     def test_it_says_when_no_token_arrived_at_all(self):
         with self.assertLogs("redash.authentication.metr_sso", level="INFO") as logged:
-            self.client.get("/{}/metr/callback".format(self.slug))
+            self.client.get(f"/{self.slug}/metr/callback")
 
         assert any("no hand-off token" in line.lower() for line in logged.output)
 
 
 class TestEmailAddressesCannotBeChangedHere(HandOffTestCase):
     def change(self, user, **params):
-        return self.make_request("post", "/api/users/{}".format(user.id), user=user, data=params)
+        return self.make_request("post", f"/api/users/{user.id}", user=user, data=params)
 
     def test_changing_an_email_is_refused(self):
         user = self.factory.create_user()
