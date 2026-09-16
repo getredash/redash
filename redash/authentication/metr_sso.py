@@ -39,6 +39,10 @@ class NoStandardGroup(CannotProvision):
     pass
 
 
+class NoNameInTheToken(CannotProvision):
+    pass
+
+
 def is_enabled():
     return bool(metr_settings.SSO_LOGIN_URL)
 
@@ -77,10 +81,24 @@ def standard_group_for(org):
     return group
 
 
-def provision(org, email):
+def full_name_from(org, claims):
+    first_name = (claims.get("first_name") or "").strip()
+    last_name = (claims.get("last_name") or "").strip()
+
+    if not first_name or not last_name:
+        raise NoNameInTheToken(
+            "The hand-off token for {!r} in organization {!r} carries no first_name and "
+            "last_name, so a new single sign-on user cannot be provisioned. Set the person's "
+            "first and last name in core-backend.".format(claims["email"], org.slug)
+        )
+
+    return "{} {}".format(first_name, last_name)
+
+
+def provision(org, email, name):
     user = models.User(
         org=org,
-        name=email,
+        name=name,
         email=email,
         is_invitation_pending=False,
         group_ids=[standard_group_for(org).id],
@@ -127,7 +145,7 @@ def read_the_token(org, token):
     try:
         user = models.User.get_by_email_and_org(claims["email"], org)
     except models.NoResultFound:
-        return provision(org, claims["email"])
+        return provision(org, claims["email"], full_name_from(org, claims))
 
     if user.is_disabled:
         logger.info("Refusing a hand-off token for %r, who is disabled here", user.email)

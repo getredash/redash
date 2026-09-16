@@ -36,9 +36,17 @@ Refusing instead means the one person affected is told to ask, and we are paged 
 
 `./manage.py metr create_standard_group <org_slug>` creates the group. toolbox runs it when an organization is created; somebody runs it against an existing organization when its client is about to be switched on. Running it twice is harmless.
 
+## What a Provisioned User Is Called
+
+The token carries `first_name` and `last_name` — Django's own field names, because core-backend is where they come from — and the account is named by joining them. Both are mandatory there.
+
+A token missing either one is refused exactly as a missing standard group is: nothing is written, the visitor is told to contact support, and Sentry is told who it was and that the name needs setting in core-backend. Guessing a name, or falling back to the email address, would create an account that looks deliberate and is wrong, and nothing would ever correct it — the name is written once, at provisioning, and an existing user's name is never touched again.
+
+One consequence worth knowing: somebody with a single legal name cannot be provisioned. core-backend requires both fields, so they cannot exist there either; if that ever changes, this is the line to loosen.
+
 ## Why the Refusal Is Scoped to Provisioning
 
-The group is only read when somebody new arrives. An organization without one still serves everybody who already has an account. Failing every login over a missing group would turn a setup step nobody has done yet into an outage for people it has nothing to do with — the exact failure this module is built to avoid.
+Neither the group nor the name is read unless somebody new arrives. An organization without one still serves everybody who already has an account. Failing every login over a missing group would turn a setup step nobody has done yet into an outage for people it has nothing to do with — the exact failure this module is built to avoid.
 
 ---
 

@@ -15,7 +15,7 @@ from sqlalchemy.exc import IntegrityError
 
 from redash.app import create_app
 from redash.authentication import jwt_auth, metr_sso
-from redash.models import db
+from redash.models import User, db
 from redash.settings import metr as metr_settings
 from tests import BaseTestCase
 
@@ -84,6 +84,8 @@ class HandOffTestCase(BaseTestCase):
             "iss": self.issuer,
             "aud": self.audience,
             "email": email,
+            "first_name": "Anna",
+            "last_name": "Schmidt",
             "tenant": (org or self.factory.org).slug,
             "iat": issued_at,
             "exp": issued_at + 300,
@@ -350,6 +352,14 @@ class TestProvisioning(HandOffTestCase):
         with pytest.raises(IntegrityError):
             self.a_standard_group()
 
+    def test_a_newcomer_is_named_by_the_token(self):
+        self.a_standard_group()
+
+        self.spend(self.a_token("newcomer@example.com"))
+
+        provisioned = User.query.filter(User.email == "newcomer@example.com").one()
+        assert "Anna Schmidt" == provisioned.name
+
     def test_a_newcomer_stays_out_of_the_default_group(self):
         self.a_standard_group()
 
@@ -536,3 +546,55 @@ class TestEmailAddressesCannotBeChangedHere(HandOffTestCase):
         response = self.change(user, email="somewhere-else@example.com")
 
         assert 200 == response.status_code
+
+
+class TestATokenThatNamesNobody(HandOffTestCase):
+    def setUp(self):
+        super(TestATokenThatNamesNobody, self).setUp()
+        self.a_standard_group()
+
+    def test_a_newcomer_with_no_name_is_refused(self):
+        response = self.spend(self.a_token("newcomer@example.com", first_name=None, last_name=None))
+
+        assert self.login_path() == response.headers["Location"]
+        assert self.signed_in_email() is None
+
+    def test_a_newcomer_with_only_a_first_name_is_refused(self):
+        response = self.spend(self.a_token("newcomer@example.com", last_name=None))
+
+        assert self.login_path() == response.headers["Location"]
+        assert self.signed_in_email() is None
+
+    def test_a_blank_name_counts_as_no_name(self):
+        response = self.spend(self.a_token("newcomer@example.com", first_name="   ", last_name="  "))
+
+        assert self.login_path() == response.headers["Location"]
+        assert self.signed_in_email() is None
+
+    def test_nobody_is_provisioned_when_the_token_names_nobody(self):
+        self.spend(self.a_token("newcomer@example.com", first_name=None, last_name=None))
+
+        assert 0 == User.query.filter(User.email == "newcomer@example.com").count()
+
+    def test_the_login_page_says_something_went_wrong(self):
+        self.spend(self.a_token("newcomer@example.com", first_name=None, last_name=None))
+
+        response = self.client.get(self.login_path())
+
+        assert "Your account could not be set up" in response.data.decode()
+
+    def test_it_reports_who_it_was_and_how_to_fix_it(self):
+        with patch("redash.authentication.metr_sso.sentry.capture_exception") as reported:
+            self.spend(self.a_token("newcomer@example.com", first_name=None, last_name=None))
+
+        reported_error = str(reported.call_args[0][0])
+        assert "newcomer@example.com" in reported_error
+        assert self.slug in reported_error
+        assert "core-backend" in reported_error
+
+    def test_somebody_already_here_signs_in_without_a_name_in_the_token(self):
+        user = self.factory.create_user()
+
+        self.spend(self.a_token(user.email, first_name=None, last_name=None))
+
+        assert user.email == self.signed_in_email()
