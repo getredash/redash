@@ -498,6 +498,14 @@ class TestSayingWhatTheHandOffDid(HandOffTestCase):
 
         assert any(user.email in line for line in logged.output)
 
+    def test_it_names_the_organization_it_could_not_provision_into(self):
+        self.a_standard_group()
+
+        with self.assertLogs("redash.authentication.metr_sso", level="INFO") as logged:
+            self.spend(self.a_token("newcomer@example.com", first_name=None, last_name=None))
+
+        assert any(self.slug in line and "Cannot provision" in line for line in logged.output)
+
     def test_it_says_when_no_token_arrived_at_all(self):
         with self.assertLogs("redash.authentication.metr_sso", level="INFO") as logged:
             self.client.get("/{}/metr/callback".format(self.slug))
@@ -589,7 +597,6 @@ class TestATokenThatNamesNobody(HandOffTestCase):
 
         reported_error = str(reported.call_args[0][0])
         assert "newcomer@example.com" in reported_error
-        assert self.slug in reported_error
         assert "core-backend" in reported_error
 
     def test_somebody_already_here_signs_in_without_a_name_in_the_token(self):

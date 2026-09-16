@@ -81,18 +81,18 @@ def standard_group_for(org):
     return group
 
 
-def full_name_from(org, claims):
+def full_name_from(claims):
     first_name = (claims.get("first_name") or "").strip()
     last_name = (claims.get("last_name") or "").strip()
 
     if not first_name or not last_name:
         raise NoNameInTheToken(
-            "The hand-off token for {!r} in organization {!r} carries no first_name and "
-            "last_name, so a new single sign-on user cannot be provisioned. Set the person's "
-            "first and last name in core-backend.".format(claims["email"], org.slug)
+            f"The hand-off token for {claims['email']!r} carries no first_name and last_name, so "
+            "a new single sign-on user cannot be provisioned. Set the person's first and last "
+            "name in core-backend."
         )
 
-    return "{} {}".format(first_name, last_name)
+    return f"{first_name} {last_name}"
 
 
 def provision(org, email, name):
@@ -145,7 +145,7 @@ def read_the_token(org, token):
     try:
         user = models.User.get_by_email_and_org(claims["email"], org)
     except models.NoResultFound:
-        return provision(org, claims["email"], full_name_from(org, claims))
+        return provision(org, claims["email"], full_name_from(claims))
 
     if user.is_disabled:
         logger.info("Refusing a hand-off token for %r, who is disabled here", user.email)
@@ -175,7 +175,7 @@ def callback(org_slug=None):
         user = read_the_token(org, token)
     except CannotProvision as error:
         sentry.capture_exception(error)
-        logger.error("%s", error)
+        logger.error("Cannot provision into %r: %s", org.slug, error)
         flash(_("Your account could not be set up. Please contact support."))
         user = None
 
