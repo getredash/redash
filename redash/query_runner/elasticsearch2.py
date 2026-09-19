@@ -90,12 +90,15 @@ class ElasticSearch2(BaseHTTPQueryRunner):
 
         for index_name in mappings_data:
             mappings[index_name] = {}
-            index_mappings = mappings_data[index_name]
-            try:
-                for m in index_mappings.get("mappings", {}):
-                    _parse_properties("", index_mappings["mappings"][m]["properties"])
-            except KeyError:
-                _parse_properties("", index_mappings["mappings"]["properties"])
+            index_mappings = mappings_data[index_name].get("mappings", {})
+            if "properties" in index_mappings:
+                # ES 7+ typeless mapping
+                _parse_properties("", index_mappings["properties"])
+            else:
+                # ES 6 and older: one entry per doc type
+                for type_mapping in index_mappings.values():
+                    if isinstance(type_mapping, dict) and "properties" in type_mapping:
+                        _parse_properties("", type_mapping["properties"])
 
         return mappings
 

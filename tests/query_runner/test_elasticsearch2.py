@@ -31,6 +31,43 @@ class TestElasticSearch(TestCase):
         }
         self.assertDictEqual(ElasticSearch2._parse_mappings(mapping_data), expected)
 
+    def test_parse_mappings_with_metadata_keys(self):
+        # ES 7+ puts metadata next to "properties" under "mappings": strings ("dynamic"),
+        # booleans ("subobjects", "date_detection"), lists ("dynamic_templates") and dicts
+        # without "properties" ("_data_stream_timestamp", "_meta"). Key order is not guaranteed.
+        mapping_data = {
+            ".ds-traces-apm-default-2026.09.19-000211": {
+                "mappings": {
+                    "dynamic": "false",
+                    "_data_stream_timestamp": {"enabled": True},
+                    "_meta": {"managed": True},
+                    "date_detection": False,
+                    "subobjects": False,
+                    "dynamic_templates": [
+                        {"strings": {"match_mapping_type": "string", "mapping": {"type": "keyword"}}}
+                    ],
+                    "properties": {
+                        "@timestamp": {"type": "date"},
+                        "service": {"properties": {"name": {"type": "keyword"}}},
+                    },
+                }
+            },
+            "metadata-only": {"mappings": {"dynamic": "strict", "_meta": {"managed": True}}},
+            "empty": {"mappings": {}},
+        }
+        expected = {
+            ".ds-traces-apm-default-2026.09.19-000211": {"@timestamp": "date", "service.name": "string"},
+            "metadata-only": {},
+            "empty": {},
+        }
+        self.assertDictEqual(ElasticSearch2._parse_mappings(mapping_data), expected)
+
+    def test_parse_mappings_with_doc_types(self):
+        # ES 6 and older: one entry per doc type under "mappings"
+        mapping_data = {"bank": {"mappings": {"account": {"properties": {"balance": {"type": "long"}}}}}}
+        expected = {"bank": {"balance": "integer"}}
+        self.assertDictEqual(ElasticSearch2._parse_mappings(mapping_data), expected)
+
     def test_parse_aggregation(self):
         response = {
             "took": 3,
