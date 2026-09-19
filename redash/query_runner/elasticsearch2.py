@@ -105,9 +105,11 @@ class ElasticSearch2(BaseHTTPQueryRunner):
             if not mappings[index_name]:
                 # ES 6 and older: one entry per doc type. Also reached when the typeless branch
                 # found nothing, which is the case for a doc type named "properties". Doc type
-                # names cannot start with "_", so those keys are metadata rather than doc types.
+                # names cannot start with "_", so those keys are metadata rather than doc types,
+                # except for "_doc", which 6.2+ accepts as the conventional name ahead of types
+                # being removed in 7.0.
                 for type_name, type_mapping in index_mappings.items():
-                    if type_name.startswith("_") or not isinstance(type_mapping, dict):
+                    if (type_name.startswith("_") and type_name != "_doc") or not isinstance(type_mapping, dict):
                         continue
                     field_map = _field_map(type_mapping)
                     if field_map:

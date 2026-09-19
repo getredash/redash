@@ -94,6 +94,14 @@ class TestElasticSearch(TestCase):
         expected = {"bank": {"balance": "integer", "city": "string"}}
         self.assertDictEqual(ElasticSearch2._parse_mappings(mapping_data), expected)
 
+    def test_parse_mappings_with_doc_type_named_doc(self):
+        # ES 6.2+ accepts "_doc" as the conventional type name, despite the "_" prefix
+        mapping_data = {
+            "bank": {"mappings": {"_doc": {"properties": {"balance": {"type": "long"}, "city": {"type": "text"}}}}}
+        }
+        expected = {"bank": {"balance": "integer", "city": "string"}}
+        self.assertDictEqual(ElasticSearch2._parse_mappings(mapping_data), expected)
+
     def test_parse_mappings_with_doc_type_named_properties(self):
         # A pre-7.x doc type may itself be named "properties", which looks like a typeless mapping
         mapping_data = {"bank": {"mappings": {"properties": {"properties": {"balance": {"type": "long"}}}}}}
