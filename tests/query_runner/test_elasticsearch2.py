@@ -53,9 +53,16 @@ class TestElasticSearch(TestCase):
                 }
             },
             "metadata-only": {"mappings": {"dynamic": "strict", "_meta": {"managed": True}}},
-            # "_meta" is free-form, so it can hold a "properties" key of its own
+            # "_meta" is free-form, so it can hold a "properties" key of its own, whose contents
+            # may look like a field map at any depth but are not fields of the index
             "meta-properties": {
                 "mappings": {"dynamic": "true", "_meta": {"properties": {"owner": "platform", "retention": "30d"}}}
+            },
+            "meta-properties-well-formed": {
+                "mappings": {"dynamic": "true", "_meta": {"properties": {"owner": {"type": "keyword"}}}}
+            },
+            "meta-properties-nested": {
+                "mappings": {"_meta": {"properties": {"owner": {"properties": {"name": "platform"}}}}}
             },
             "empty": {"mappings": {}},
         }
@@ -63,6 +70,8 @@ class TestElasticSearch(TestCase):
             ".ds-traces-apm-default-2026.09.19-000211": {"@timestamp": "date", "service.name": "string"},
             "metadata-only": {},
             "meta-properties": {},
+            "meta-properties-well-formed": {},
+            "meta-properties-nested": {},
             "empty": {},
         }
         self.assertDictEqual(ElasticSearch2._parse_mappings(mapping_data), expected)

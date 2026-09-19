@@ -77,35 +77,41 @@ class ElasticSearch2(BaseHTTPQueryRunner):
 
         def _parse_properties(prefix: str, properties: dict):
             for property_name, property_data in properties.items():
-                if property_name not in mappings:
+                # A field map nested in metadata can hold values of any shape
+                if property_name not in mappings and isinstance(property_data, dict):
                     property_type = property_data.get("type", None)
                     nested_properties = property_data.get("properties", None)
                     if property_type:
                         mappings[index_name][prefix + property_name] = ELASTICSEARCH_TYPES_MAPPING.get(
                             property_type, TYPE_STRING
                         )
-                    elif nested_properties:
+                    elif isinstance(nested_properties, dict):
                         new_prefix = prefix + property_name + "."
                         _parse_properties(new_prefix, nested_properties)
 
-        def _has_field_map(mapping: dict) -> bool:
-            # "properties" also occurs inside metadata such as "_meta", where its contents are
-            # arbitrary; a real field map holds nothing but mapping definitions.
+        def _field_map(mapping: dict) -> Optional[dict]:
             field_map = mapping.get("properties")
-            return isinstance(field_map, dict) and all(isinstance(field, dict) for field in field_map.values())
+            return field_map if isinstance(field_map, dict) else None
 
         for index_name in mappings_data:
             mappings[index_name] = {}
             index_mappings = mappings_data[index_name].get("mappings", {})
-            if _has_field_map(index_mappings):
-                # ES 7+ typeless mapping
-                _parse_properties("", index_mappings["properties"])
+
+            # ES 7+ typeless mapping
+            field_map = _field_map(index_mappings)
+            if field_map:
+                _parse_properties("", field_map)
+
             if not mappings[index_name]:
-                # ES 6 and older: one entry per doc type. Also reached when the typeless
-                # branch found nothing, which is the case for a doc type named "properties".
-                for type_mapping in index_mappings.values():
-                    if isinstance(type_mapping, dict) and _has_field_map(type_mapping):
-                        _parse_properties("", type_mapping["properties"])
+                # ES 6 and older: one entry per doc type. Also reached when the typeless branch
+                # found nothing, which is the case for a doc type named "properties". Doc type
+                # names cannot start with "_", so those keys are metadata rather than doc types.
+                for type_name, type_mapping in index_mappings.items():
+                    if type_name.startswith("_") or not isinstance(type_mapping, dict):
+                        continue
+                    field_map = _field_map(type_mapping)
+                    if field_map:
+                        _parse_properties("", field_map)
 
         return mappings
 
