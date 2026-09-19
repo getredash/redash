@@ -88,16 +88,23 @@ class ElasticSearch2(BaseHTTPQueryRunner):
                         new_prefix = prefix + property_name + "."
                         _parse_properties(new_prefix, nested_properties)
 
+        def _has_field_map(mapping: dict) -> bool:
+            # "properties" also occurs inside metadata such as "_meta", where its contents are
+            # arbitrary; a real field map holds nothing but mapping definitions.
+            field_map = mapping.get("properties")
+            return isinstance(field_map, dict) and all(isinstance(field, dict) for field in field_map.values())
+
         for index_name in mappings_data:
             mappings[index_name] = {}
             index_mappings = mappings_data[index_name].get("mappings", {})
-            if "properties" in index_mappings:
+            if _has_field_map(index_mappings):
                 # ES 7+ typeless mapping
                 _parse_properties("", index_mappings["properties"])
-            else:
-                # ES 6 and older: one entry per doc type
+            if not mappings[index_name]:
+                # ES 6 and older: one entry per doc type. Also reached when the typeless
+                # branch found nothing, which is the case for a doc type named "properties".
                 for type_mapping in index_mappings.values():
-                    if isinstance(type_mapping, dict) and "properties" in type_mapping:
+                    if isinstance(type_mapping, dict) and _has_field_map(type_mapping):
                         _parse_properties("", type_mapping["properties"])
 
         return mappings

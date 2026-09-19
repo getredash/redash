@@ -53,18 +53,41 @@ class TestElasticSearch(TestCase):
                 }
             },
             "metadata-only": {"mappings": {"dynamic": "strict", "_meta": {"managed": True}}},
+            # "_meta" is free-form, so it can hold a "properties" key of its own
+            "meta-properties": {
+                "mappings": {"dynamic": "true", "_meta": {"properties": {"owner": "platform", "retention": "30d"}}}
+            },
             "empty": {"mappings": {}},
         }
         expected = {
             ".ds-traces-apm-default-2026.09.19-000211": {"@timestamp": "date", "service.name": "string"},
             "metadata-only": {},
+            "meta-properties": {},
             "empty": {},
         }
         self.assertDictEqual(ElasticSearch2._parse_mappings(mapping_data), expected)
 
     def test_parse_mappings_with_doc_types(self):
-        # ES 6 and older: one entry per doc type under "mappings"
-        mapping_data = {"bank": {"mappings": {"account": {"properties": {"balance": {"type": "long"}}}}}}
+        # ES 6 and older: one entry per doc type under "mappings", possibly several of them
+        # and mixed with root metadata keys
+        mapping_data = {
+            "bank": {
+                "mappings": {
+                    "dynamic_templates": [
+                        {"strings": {"match_mapping_type": "string", "mapping": {"type": "keyword"}}}
+                    ],
+                    "_meta": {"managed": False},
+                    "account": {"properties": {"balance": {"type": "long"}}},
+                    "branch": {"properties": {"city": {"type": "text"}}},
+                }
+            }
+        }
+        expected = {"bank": {"balance": "integer", "city": "string"}}
+        self.assertDictEqual(ElasticSearch2._parse_mappings(mapping_data), expected)
+
+    def test_parse_mappings_with_doc_type_named_properties(self):
+        # A pre-7.x doc type may itself be named "properties", which looks like a typeless mapping
+        mapping_data = {"bank": {"mappings": {"properties": {"properties": {"balance": {"type": "long"}}}}}}
         expected = {"bank": {"balance": "integer"}}
         self.assertDictEqual(ElasticSearch2._parse_mappings(mapping_data), expected)
 
