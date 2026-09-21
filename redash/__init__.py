@@ -42,7 +42,21 @@ def setup_logging():
             logging.getLogger(name).setLevel("ERROR")
 
 
+def configure_sqlparse():
+    """Apply Redash's sqlparse grouping limits.
+
+    sqlparse caps how much work grouping will do on a single statement and
+    raises SQLParseError past the cap. Operators who need the cap raised (or
+    removed, with 0) can do so without patching sqlparse itself.
+    """
+    from sqlparse.engine import grouping
+
+    grouping.MAX_GROUPING_TOKENS = settings.SQLPARSE_MAX_GROUPING_TOKENS or None
+    grouping.MAX_GROUPING_DEPTH = settings.SQLPARSE_MAX_GROUPING_DEPTH or None
+
+
 setup_logging()
+configure_sqlparse()
 
 redis_connection = redis.from_url(settings.REDIS_URL)
 rq_redis_connection = redis.from_url(settings.RQ_REDIS_URL)

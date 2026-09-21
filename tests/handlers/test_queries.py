@@ -499,3 +499,21 @@ WHERE x=1
         rv = self.make_request("post", "/api/queries/format", user=admin, data={"query": query})
 
         self.assertEqual(rv.json["query"], expected)
+
+    def test_format_sql_query_too_large_to_group(self):
+        admin = self.factory.create_admin()
+        # sqlparse raises SQLParseError past its grouping limits rather than spending
+        # unbounded CPU on a single statement. Answer 400 instead of failing the request.
+        query = "SELECT * FROM events WHERE id IN ({})".format(",".join(str(i) for i in range(10000)))
+
+        rv = self.make_request("post", "/api/queries/format", user=admin, data={"query": query})
+
+        self.assertEqual(rv.status_code, 400)
+
+    def test_format_sql_query_too_deeply_nested(self):
+        admin = self.factory.create_admin()
+        query = "SELECT {}1{}".format("(" * 200, ")" * 200)
+
+        rv = self.make_request("post", "/api/queries/format", user=admin, data={"query": query})
+
+        self.assertEqual(rv.status_code, 400)
