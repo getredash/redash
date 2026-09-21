@@ -27,11 +27,11 @@ importers:
         specifier: 4.4.3
         version: 4.4.3(dayjs@1.11.19)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)
       axios:
-        specifier: 0.27.2
-        version: 0.27.2(debug@3.2.7)
+        specifier: 0.33.0
+        version: 0.33.0(debug@3.2.7)
       axios-auth-refresh:
         specifier: 3.3.6
-        version: 3.3.6(axios@0.27.2(debug@3.2.7))
+        version: 3.3.6(axios@0.33.0(debug@3.2.7))
       bootstrap:
         specifier: ^3.4.1
         version: 3.4.1
@@ -353,11 +353,11 @@ importers:
         specifier: '>=4.0.0'
         version: 4.4.3(dayjs@1.11.19)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)
       axios:
-        specifier: 0.28.0
-        version: 0.28.0(debug@3.2.7)
+        specifier: 0.33.0
+        version: 0.33.0(debug@3.2.7)
       axios-auth-refresh:
         specifier: 3.3.6
-        version: 3.3.6(axios@0.28.0(debug@3.2.7))
+        version: 3.3.6(axios@0.33.0(debug@3.2.7))
       beautifymarker:
         specifier: ^1.0.7
         version: 1.0.9
@@ -2923,11 +2923,8 @@ packages:
   axios@0.21.4:
     resolution: {integrity: sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==}
 
-  axios@0.27.2:
-    resolution: {integrity: sha512-t+yRIyySRTp/wua5xEr+z1q60QmLq8ABsS5O9Me1AsE5dfKqgnCFzwiCZZ/cGNd1lq4/7akDWMxdhVlucjmnOQ==}
-
-  axios@0.28.0:
-    resolution: {integrity: sha512-Tu7NYoGY4Yoc7I+Npf9HhUMtEEpV7ZiLH9yndTCoNhcpBH0kwcvFbzYN9/u5QKI5A6uefjsNNWaz5olJVYS62Q==}
+  axios@0.33.0:
+    resolution: {integrity: sha512-juz19g7B3UWT9r3+tgRFQf2Bdy6IKDVroiyuVOUrkILVKHpqHL++K1l8ybvfdEP9B/VE72vk8vllbnedVCm/og==}
 
   axobject-query@4.1.0:
     resolution: {integrity: sha512-qIj0G9wZbMGNLjLmg1PT6v2mE9AH2zlnADJD/2tC6E00hgmhUOfEB6greHPAfLRSufHqROIUTkw6E+M3lH0PTQ==}
@@ -11729,13 +11726,9 @@ snapshots:
 
   axe-core@4.11.1: {}
 
-  axios-auth-refresh@3.3.6(axios@0.27.2(debug@3.2.7)):
+  axios-auth-refresh@3.3.6(axios@0.33.0(debug@3.2.7)):
     dependencies:
-      axios: 0.27.2(debug@3.2.7)
-
-  axios-auth-refresh@3.3.6(axios@0.28.0(debug@3.2.7)):
-    dependencies:
-      axios: 0.28.0(debug@3.2.7)
+      axios: 0.33.0(debug@3.2.7)
 
   axios@0.21.4(debug@3.2.7):
     dependencies:
@@ -11743,14 +11736,7 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
-  axios@0.27.2(debug@3.2.7):
-    dependencies:
-      follow-redirects: 1.15.11(debug@3.2.7)
-      form-data: 4.0.5
-    transitivePeerDependencies:
-      - debug
-
-  axios@0.28.0(debug@3.2.7):
+  axios@0.33.0(debug@3.2.7):
     dependencies:
       follow-redirects: 1.15.11(debug@3.2.7)
       form-data: 4.0.5
