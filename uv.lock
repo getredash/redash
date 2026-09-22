@@ -1980,11 +1980,11 @@ sdist = { url = "https://files.pythonhosted.org/packages/d7/14/291078723056d19d5
 
 [[package]]
 name = "pyjwt"
-version = "2.12.0"
+version = "2.14.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/a8/10/e8192be5f38f3e8e7e046716de4cae33d56fd5ae08927a823bb916be36c1/pyjwt-2.12.0.tar.gz", hash = "sha256:2f62390b667cd8257de560b850bb5a883102a388829274147f1d724453f8fb02", size = 102511, upload-time = "2026-03-12T17:15:30.831Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/af/c3/8a3b59c25070cc61dc517fbdfa5dc0904670c96f605cc69759dc09166b99/pyjwt-2.14.0.tar.gz", hash = "sha256:77283c83fb56ecf566a886c757a714bc83668e38156de2cce8263302f42e0b86", size = 113177, upload-time = "2026-09-11T13:11:54.638Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/15/70/70f895f404d363d291dcf62c12c85fdd47619ad9674ac0f53364d035925a/pyjwt-2.12.0-py3-none-any.whl", hash = "sha256:9bb459d1bdd0387967d287f5656bf7ec2b9a26645d1961628cda1764e087fd6e", size = 29700, upload-time = "2026-03-12T17:15:29.257Z" },
+    { url = "https://files.pythonhosted.org/packages/9c/97/672cb32ce0dfea44b740cb7b4f97038463b9cf7c0ead1aacf595572851d6/pyjwt-2.14.0-py3-none-any.whl", hash = "sha256:ad0cef71c756a56e74863c2919cf0985f72decbcfcb550ee2f422e7c62b5eedc", size = 32896, upload-time = "2026-09-11T13:11:53.409Z" },
 ]
 
 [package.optional-dependencies]
@@ -2259,7 +2259,7 @@ wheels = [
 
 [[package]]
 name = "redash"
-version = "26.7.0.dev0"
+version = "26.9.0.dev0"
 source = { virtual = "." }
 dependencies = [
     { name = "advocate" },
@@ -2441,7 +2441,7 @@ requires-dist = [
     { name = "passlib", specifier = "==1.7.3" },
     { name = "psycopg2-binary", specifier = "==2.9.11" },
     { name = "pyasynchat", specifier = "==1.0.5" },
-    { name = "pyjwt", specifier = "==2.12.0" },
+    { name = "pyjwt", specifier = "==2.14.0" },
     { name = "pyodbc", specifier = "==5.3.0" },
     { name = "pyopenssl", specifier = "==26.2.0" },
     { name = "pypd", specifier = "==1.1.0" },
