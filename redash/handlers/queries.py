@@ -474,7 +474,11 @@ class QueryTagsResource(BaseResource):
         """
         Returns all query tags including those for drafts.
         """
-        tags = models.Query.all_tags(self.current_user, include_drafts=True)
+        tags = models.Query.all_tags(
+            self.current_user,
+            include_drafts=True,
+            sort_by=current_org.get_setting("tags_sort_by"),
+        )
         return {"tags": [{"name": name, "count": count} for name, count in tags]}
 
 
