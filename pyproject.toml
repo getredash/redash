@@ -103,6 +103,7 @@ all_ds = [
     "cmem-cmempy==21.2.3",
     "databend-py==0.4.6",
     "databend-sqlalchemy==0.2.4",
+    "databricks-sql-connector>=4.0.0,<5",
     "duckdb==1.3.2",
     "google-api-python-client==2.190.0",
     "grpcio>=1.80.0,<2",
