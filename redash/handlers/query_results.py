@@ -105,13 +105,14 @@ def run_query(query, parameters, data_source, query_id, should_apply_auto_limit,
     if query_result:
         return {"query_result": serialize_query_result(query_result, current_user.is_api_user())}
     else:
+        # SQL annotations must use numeric IDs or server-generated API labels, never user generated content.
         job = enqueue_query(
             query_text,
             data_source,
             current_user.id,
             current_user.is_api_user(),
             metadata={
-                "Username": current_user.get_actual_user(),
+                "user_id": current_user.get_actual_user() if current_user.is_api_user() else current_user.id,
                 "query_id": query_id,
             },
         )

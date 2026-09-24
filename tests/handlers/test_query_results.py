@@ -1,7 +1,9 @@
 from mock import patch
 
+from redash import rq_redis_connection
 from redash.handlers.query_results import error_messages, run_query
 from redash.models import DataSourceGroup, db
+from redash.tasks import Job
 from tests import BaseTestCase
 
 
@@ -198,6 +200,36 @@ class TestQueryResultListAPI(BaseTestCase):
 
 
 class TestQueryResultAPI(BaseTestCase):
+    def test_view_only_query_execution_uses_user_id(self):
+        ds = self.factory.create_data_source(group=self.factory.org.default_group, view_only=True)
+        query = self.factory.create_query(data_source=ds, query_text="SELECT 1")
+        user = self.factory.user
+        email = "*/ SELECT 999; --@example.org"
+        rv = self.make_request("post", "/api/users/{}".format(user.id), data={"email": email})
+        self.assertEqual(rv.status_code, 200)
+
+        rv = self.make_request(
+            "post", "/api/query_results", data={"data_source_id": ds.id, "query": "SELECT 999", "max_age": 0}
+        )
+        self.assertEqual(rv.status_code, 403)
+
+        rv = self.make_request("post", "/api/queries/{}/results".format(query.id), data={"max_age": 0})
+        self.assertEqual(rv.status_code, 200)
+        metadata = Job.fetch(rv.json["job"]["id"], connection=rq_redis_connection).args[2]
+        self.assertEqual(metadata["user_id"], user.id)
+
+    def test_query_api_execution_uses_query_identity_label(self):
+        query = self.factory.create_query(query_text="SELECT 1")
+        rv = self.make_request(
+            "post",
+            "/api/queries/{}/results?api_key={}".format(query.id, query.api_key),
+            data={"max_age": 0},
+            user=False,
+        )
+        self.assertEqual(rv.status_code, 200)
+        metadata = Job.fetch(rv.json["job"]["id"], connection=rq_redis_connection).args[2]
+        self.assertEqual(metadata["user_id"], "<ApiKey: Query {}>".format(query.id))
+
     def test_has_no_access_to_data_source(self):
         ds = self.factory.create_data_source(group=self.factory.create_group())
         query_result = self.factory.create_query_result(data_source=ds)
@@ -227,9 +259,7 @@ class TestQueryResultAPI(BaseTestCase):
         sensitive_query = self.factory.create_query(data_source=sensitive_ds)
 
         # Create a "Query Results" data source the default user DOES have access to
-        qr_ds = self.factory.create_data_source(
-            group=self.factory.org.default_group, type="results"
-        )
+        qr_ds = self.factory.create_data_source(group=self.factory.org.default_group, type="results")
 
         # Simulate a cached result produced via the Query Results data source
         # whose SQL references the sensitive query
@@ -248,9 +278,7 @@ class TestQueryResultAPI(BaseTestCase):
         underlying_ds = self.factory.create_data_source(group=self.factory.org.default_group, type="pg")
         underlying_query = self.factory.create_query(data_source=underlying_ds)
 
-        qr_ds = self.factory.create_data_source(
-            group=self.factory.org.default_group, type="results"
-        )
+        qr_ds = self.factory.create_data_source(group=self.factory.org.default_group, type="results")
 
         query_result = self.factory.create_query_result(
             data_source=qr_ds,
