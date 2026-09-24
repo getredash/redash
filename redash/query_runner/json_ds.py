@@ -1,6 +1,6 @@
 import datetime
 import logging
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
 
 import yaml
 from funcy import compact, project
@@ -197,6 +197,28 @@ class JSON(BaseHTTPQueryRunner):
         results, error = self._get_all_results(query["url"], method, path, pagination, **request_options)
         return parse_json(results, fields), error
 
+    @staticmethod
+    def _origin(parsed_url):
+        default_port = {"http": 80, "https": 443}.get(parsed_url.scheme)
+        return (parsed_url.scheme, parsed_url.hostname, parsed_url.port or default_port)
+
+    @staticmethod
+    def _validate_url_within_base(url, base_url):
+        """Validate that the resolved URL stays within the base URL's origin.
+
+        Raises QueryParseError if the URL points to a different origin than the base URL.
+        """
+        if not base_url:
+            return
+
+        base_parsed = urlparse(base_url)
+        url_parsed = urlparse(url)
+
+        if JSON._origin(base_parsed) != JSON._origin(url_parsed):
+            raise QueryParseError(
+                "Query URL must reference the same origin as the data source base URL."
+            )
+
     def _get_all_results(self, url, method, result_path, pagination, **request_options):
         """Get all results from a paginated endpoint."""
         base_url = self.configuration.get("base_url")
@@ -205,6 +227,7 @@ class JSON(BaseHTTPQueryRunner):
         results = []
         has_more = True
         while has_more:
+            self._validate_url_within_base(url, base_url)
             response, error = self._get_json_response(url, method, **request_options)
             has_more = False
 
