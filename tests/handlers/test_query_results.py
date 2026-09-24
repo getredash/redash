@@ -217,6 +217,47 @@ class TestQueryResultAPI(BaseTestCase):
         rv = self.make_request("get", "/api/query_results/{}".format(query_result.id))
         self.assertEqual(rv.status_code, 200)
 
+    def test_query_results_ds_denies_access_to_underlying_data_source(self):
+        """When a result was produced via the Query Results data source, users
+        without access to the underlying data source should be denied."""
+        # Create a sensitive data source the default user does NOT have access to
+        sensitive_ds = self.factory.create_data_source(group=self.factory.create_group(), type="pg")
+        sensitive_query = self.factory.create_query(data_source=sensitive_ds)
+
+        # Create a "Query Results" data source the default user DOES have access to
+        qr_ds = self.factory.create_data_source(
+            group=self.factory.org.default_group, type="results"
+        )
+
+        # Simulate a cached result produced via the Query Results data source
+        # whose SQL references the sensitive query
+        query_result = self.factory.create_query_result(
+            data_source=qr_ds,
+            query_text="SELECT * FROM query_{}".format(sensitive_query.id),
+        )
+
+        rv = self.make_request("get", "/api/query_results/{}".format(query_result.id))
+        self.assertEqual(rv.status_code, 403)
+
+    def test_query_results_ds_allows_access_when_user_has_underlying_access(self):
+        """When a result was produced via the Query Results data source and the
+        user has access to all underlying data sources, access should be allowed."""
+        # Both data sources accessible to the default user
+        underlying_ds = self.factory.create_data_source(group=self.factory.org.default_group, type="pg")
+        underlying_query = self.factory.create_query(data_source=underlying_ds)
+
+        qr_ds = self.factory.create_data_source(
+            group=self.factory.org.default_group, type="results"
+        )
+
+        query_result = self.factory.create_query_result(
+            data_source=qr_ds,
+            query_text="SELECT * FROM query_{}".format(underlying_query.id),
+        )
+
+        rv = self.make_request("get", "/api/query_results/{}".format(query_result.id))
+        self.assertEqual(rv.status_code, 200)
+
     def test_execute_new_query(self):
         query = self.factory.create_query()
 
