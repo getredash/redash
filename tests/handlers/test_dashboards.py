@@ -159,6 +159,17 @@ class TestDashboardForkResourcePost(BaseTestCase):
 
         self.assertEqual(rv.status_code, 200)
 
+    def test_returns_403_when_user_cannot_access_a_widget_query(self):
+        data_source = self.factory.create_data_source(group=self.factory.create_group())
+        query = self.factory.create_query(data_source=data_source)
+        visualization = self.factory.create_visualization(query_rel=query)
+        widget = self.factory.create_widget(visualization=visualization)
+        other_user = self.factory.create_user()
+
+        rv = self.make_request("post", "/api/dashboards/{}/fork".format(widget.dashboard.id), user=other_user)
+
+        self.assertEqual(rv.status_code, 403)
+
 
 class TestDashboardResourceDelete(BaseTestCase):
     def test_delete_dashboard(self):
