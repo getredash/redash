@@ -1,3 +1,5 @@
+from mock import patch
+
 from redash.handlers.query_results import error_messages, run_query
 from redash.models import db
 from tests import BaseTestCase
@@ -296,6 +298,50 @@ class TestQueryResultAPI(BaseTestCase):
 
         rv = self.make_request("post", "/api/queries/{}/results".format(query.id), data={"parameters": {}})
         self.assertEqual(rv.status_code, 200)
+
+    def test_prevents_execution_of_undeclared_mustache_parameters(self):
+        ds = self.factory.create_data_source(group=self.factory.org.default_group, view_only=True)
+        for template in ("SELECT {{{value}}}", "SELECT {{&value}}", "SELECT {{^flag}}{{value}}{{/flag}}"):
+            query = self.factory.create_query(data_source=ds, query_text=template, options={"parameters": []})
+            for use_api_key in (False, True):
+                with self.subTest(template=template, use_api_key=use_api_key):
+                    url = "/api/queries/{}/results".format(query.id)
+                    if use_api_key:
+                        url += "?api_key={}".format(query.api_key)
+                    with patch("redash.handlers.query_results.enqueue_query") as enqueue:
+                        with patch("redash.handlers.query_results.serialize_job", return_value={"job": {}}):
+                            rv = self.make_request(
+                                "post", url, data={"parameters": {"value": "1 UNION SELECT 2"}, "max_age": 0}
+                            )
+                    self.assertEqual(rv.status_code, 403)
+                    enqueue.assert_not_called()
+
+    def test_allows_declared_range_parameters_with_view_only_access(self):
+        ds = self.factory.create_data_source(group=self.factory.org.default_group, view_only=True)
+        for parameter_type in ("date-range", "datetime-range", "datetime-range-with-seconds"):
+            query = self.factory.create_query(
+                data_source=ds,
+                query_text="SELECT '{{period.start}}', '{{period.end}}'",
+                options={"parameters": [{"name": "period", "type": parameter_type}]},
+            )
+            for use_api_key in (False, True):
+                with self.subTest(parameter_type=parameter_type, use_api_key=use_api_key):
+                    url = "/api/queries/{}/results".format(query.id)
+                    if use_api_key:
+                        url += "?api_key={}".format(query.api_key)
+                    with patch("redash.handlers.query_results.enqueue_query") as enqueue:
+                        with patch("redash.handlers.query_results.serialize_job", return_value={"job": {}}):
+                            rv = self.make_request(
+                                "post",
+                                url,
+                                data={
+                                    "parameters": {"period": {"start": "2026-01-01", "end": "2026-01-31"}},
+                                    "max_age": 0,
+                                },
+                            )
+                    self.assertEqual(rv.status_code, 200)
+                    enqueue.assert_called_once()
+                    self.assertEqual(enqueue.call_args[0][0], "SELECT '2026-01-01', '2026-01-31'")
 
     def test_get_latest_query_result_with_apply_auto_limit(self):
         query = self.factory.create_query(
