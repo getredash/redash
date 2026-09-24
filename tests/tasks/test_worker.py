@@ -1,3 +1,4 @@
+import redis
 from mock import call, patch
 from rq import Connection
 from rq.job import JobStatus
@@ -115,6 +116,14 @@ class TestWorkerIpAddress(BaseTestCase):
 
     def test_sets_unknown_ip_address_when_worker_is_not_in_client_list(self):
         with patch.object(rq_redis_connection, "client_list", return_value=[]):
+            worker = Worker(["queries"], connection=rq_redis_connection)
+
+        self.assertEqual(worker.ip_address, "unknown")
+
+    def test_sets_unknown_ip_address_when_client_list_is_not_supported(self):
+        with patch.object(
+            rq_redis_connection, "client_list", side_effect=redis.exceptions.ResponseError("unknown command")
+        ):
             worker = Worker(["queries"], connection=rq_redis_connection)
 
         self.assertEqual(worker.ip_address, "unknown")

@@ -217,13 +217,18 @@ class RedashWorker(StatsdRecordingWorker, HardLimitingWorker):
             self.ip_address = "unknown"
             return
 
-        client_addresses = [
-            client["addr"] for client in self.connection.client_list() if client.get("name") == self.name
-        ]
+        try:
+            client_list = self.connection.client_list()
+        except redis.exceptions.ResponseError:
+            self.log.warning("CLIENT LIST command not supported, setting ip_address to unknown")
+            self.ip_address = "unknown"
+            return
+
+        client_addresses = [client["addr"] for client in client_list if client.get("name") == self.name]
         if client_addresses:
             self.ip_address = client_addresses[0]
         else:
-            self.log.warning("CLIENT LIST command not supported, setting ip_address to unknown")
+            self.log.warning("Worker not found in CLIENT LIST, setting ip_address to unknown")
             self.ip_address = "unknown"
 
 
