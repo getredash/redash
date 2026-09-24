@@ -1,3 +1,4 @@
+import redis
 from mock import call, patch
 from rq import Connection
 from rq.job import JobStatus
@@ -97,3 +98,40 @@ class TestQueueMetrics(BaseTestCase):
 
         foo.delay()
         incr.assert_called_with("rq.jobs.created.default")
+
+
+class TestWorkerIpAddress(BaseTestCase):
+    def test_tolerates_client_list_entries_without_name(self):
+        # Dragonfly lists HTTP connections to its admin port without a name field
+        nameless_client = {"id": "1", "addr": "10.0.0.1:12345", "http": "true"}
+        client_list = rq_redis_connection.client_list
+
+        with patch.object(rq_redis_connection, "client_list", side_effect=lambda: [nameless_client] + client_list()):
+            worker = Worker(["queries"], connection=rq_redis_connection)
+
+        own_client = next(c for c in rq_redis_connection.client_list() if c.get("name") == worker.name)
+        self.assertEqual(worker.ip_address, own_client["addr"])
+        self.assertIsNotNone(worker.hostname)
+        self.assertIsNotNone(worker.pid)
+
+    def test_sets_unknown_ip_address_when_worker_is_not_in_client_list(self):
+        with patch.object(rq_redis_connection, "client_list", return_value=[]):
+            worker = Worker(["queries"], connection=rq_redis_connection)
+
+        self.assertEqual(worker.ip_address, "unknown")
+
+    def test_sets_unknown_ip_address_when_client_list_is_not_supported(self):
+        with patch.object(
+            rq_redis_connection, "client_list", side_effect=redis.exceptions.ResponseError("unknown command")
+        ):
+            worker = Worker(["queries"], connection=rq_redis_connection)
+
+        self.assertEqual(worker.ip_address, "unknown")
+
+    def test_skips_connection_setup_when_not_preparing_for_work(self):
+        with patch.object(rq_redis_connection, "client_setname") as client_setname:
+            worker = Worker(["queries"], connection=rq_redis_connection, prepare_for_work=False)
+
+        client_setname.assert_not_called()
+        self.assertIsNone(worker.hostname)
+        self.assertEqual(worker.ip_address, "unknown")
