@@ -17,7 +17,6 @@ from redash.query_runner.query_results import (
     fix_column_name,
     get_query_results,
     prepare_parameterized_query,
-    replace_query_parameters,
 )
 from tests import BaseTestCase
 
@@ -220,12 +219,6 @@ class TestPrepareParameterizedQuery(TestCase):
         self.assertEqual("SELECT * FROM query_123_1c5f1acad40f99b968836273d74baa89", result)
 
 
-class TestReplaceQueryParameters(TestCase):
-    def test_replace_query_params(self):
-        result = replace_query_parameters("SELECT '{{token1}}', '{{token2}}'", "token1=test1&token2=test2")
-        self.assertEqual("SELECT 'test1', 'test2'", result)
-
-
 class TestFixColumnName(TestCase):
     def test_fix_column_name(self):
         self.assertEqual('"a_b_c_d"', fix_column_name("a:b.c d"))
@@ -248,3 +241,60 @@ class TestGetQueryResult(BaseTestCase):
             query_result_data = {"columns": [], "rows": []}
             qr.return_value = (query_result_data, None)
             self.assertEqual(query_result_data, get_query_results(self.factory.user, query.id, False))
+
+    def test_parameterized_query_applies_via_parameterized_query(self):
+        """Parameters are applied using ParameterizedQuery which validates against schema."""
+        query = self.factory.create_query(
+            query_text="SELECT {{val}}",
+            options={"parameters": [{"name": "val", "type": "number", "title": "val"}]},
+        )
+
+        from redash.query_runner.pg import PostgreSQL
+
+        with mock.patch.object(PostgreSQL, "run_query") as qr:
+            query_result_data = {"columns": [], "rows": []}
+            qr.return_value = (query_result_data, None)
+            get_query_results(self.factory.user, query.id, False, "val=42")
+            qr.assert_called_once()
+            executed_query = qr.call_args[0][0]
+            self.assertEqual("SELECT 42", executed_query)
+
+    def test_parameterized_query_rejects_invalid_params(self):
+        """Parameters that don't match the schema are rejected."""
+        from redash.models.parameterized_query import InvalidParameterError
+
+        query = self.factory.create_query(
+            query_text="SELECT {{val}}",
+            options={"parameters": [{"name": "val", "type": "number", "title": "val"}]},
+        )
+
+        with self.assertRaises(InvalidParameterError):
+            get_query_results(self.factory.user, query.id, False, "val=1 UNION SELECT version()")
+
+    def test_parameterized_query_blocks_view_only_user_with_text_params(self):
+        """View-only users cannot use queries with text parameters."""
+        ds = self.factory.create_data_source(group=self.factory.org.default_group, view_only=True)
+        query = self.factory.create_query(
+            data_source=ds,
+            query_text="SELECT {{val}}",
+            options={"parameters": [{"name": "val", "type": "text", "title": "val"}]},
+        )
+        user = self.factory.create_user()
+
+        with self.assertRaises(PermissionError):
+            get_query_results(user, query.id, False, "val=test")
+
+    def test_parameterized_query_allows_full_access_user_with_text_params(self):
+        """Users with full access can use queries with text parameters."""
+        query = self.factory.create_query(
+            query_text="SELECT {{val}}",
+            options={"parameters": [{"name": "val", "type": "text", "title": "val"}]},
+        )
+
+        from redash.query_runner.pg import PostgreSQL
+
+        with mock.patch.object(PostgreSQL, "run_query") as qr:
+            query_result_data = {"columns": [], "rows": []}
+            qr.return_value = (query_result_data, None)
+            get_query_results(self.factory.user, query.id, False, "val=test")
+            qr.assert_called_once()

@@ -5,7 +5,7 @@ Some test cases for JSON api runner
 from unittest import TestCase
 from urllib.parse import urlencode, urljoin
 
-from redash.query_runner.json_ds import JSON
+from redash.query_runner.json_ds import JSON, QueryParseError
 
 
 def mock_api(url, method, **request_options):
@@ -87,3 +87,30 @@ class TestJSON(TestCase):
 
         expected = [{"id": 10}, {"id": 11}, {"id": 12}]
         self.assertEqual(results["rows"], expected)
+
+    def test_rejects_absolute_url_outside_base_origin(self):
+        runner = JSON(
+            {
+                "base_url": "https://trusted.example/api/",
+                "username": "user",
+                "password": "secret",
+            }
+        )
+        calls = []
+
+        def record_request(url, method, **request_options):
+            calls.append((url, method, request_options))
+            return [], None
+
+        runner._get_json_response = record_request
+
+        with self.assertRaisesRegex(QueryParseError, "same origin"):
+            runner._run_json_query({"url": "https://attacker.example/capture"})
+
+        self.assertEqual(calls, [])
+
+    def test_rejects_absolute_url_on_same_host_with_different_port(self):
+        runner = JSON({"base_url": "https://trusted.example/api/"})
+
+        with self.assertRaisesRegex(QueryParseError, "same origin"):
+            runner._run_json_query({"url": "https://trusted.example:8443/capture"})

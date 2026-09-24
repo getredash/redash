@@ -140,7 +140,7 @@ def _resolve_user(user_id, is_api_key, query_id):
             else:
                 q = models.Query.by_api_key(api_key)
 
-            return models.ApiUser(api_key, q.org, q.groups)
+            return models.ApiUser(api_key, q.org, q.groups, name="ApiKey: Query {}".format(q.id))
         else:
             return models.User.get_by_id(user_id)
     else:
@@ -263,6 +263,10 @@ class QueryExecutor:
             return result
 
     def _annotate_query(self, query_runner):
+        # Fill in missing identity for older jobs; keep metadata supplied by newer producers.
+        # ApiUser.id contains the secret key; get_actual_user() returns its safe label.
+        if "user_id" not in self.metadata and self.user is not None:
+            self.metadata["user_id"] = self.user.get_actual_user() if self.user.is_api_user() else self.user.id
         self.metadata["Job ID"] = self.job.id
         self.metadata["Query Hash"] = self.query_hash
         self.metadata["Scheduled"] = self.is_scheduled_query
@@ -272,7 +276,7 @@ class QueryExecutor:
     def _log_progress(self, state):
         logger.info(
             "job=execute_query state=%s query_hash=%s type=%s ds_id=%d "
-            "job_id=%s queue=%s query_id=%s username=%s",  # fmt: skip
+            "job_id=%s queue=%s query_id=%s user_id=%s",  # fmt: skip
             state,
             self.query_hash,
             self.data_source.type,
@@ -280,7 +284,7 @@ class QueryExecutor:
             self.job.id,
             self.metadata.get("Queue", "unknown"),
             self.metadata.get("query_id", "unknown"),
-            self.metadata.get("Username", "unknown"),
+            self.metadata.get("user_id", "unknown"),
         )
 
     def _load_data_source(self):

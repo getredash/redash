@@ -1,5 +1,5 @@
 from redash import models
-from redash.models import db
+from redash.models import ApiKey, db
 from redash.permissions import ACCESS_TYPE_MODIFY
 from redash.serializers import serialize_query
 from tests import BaseTestCase
@@ -451,6 +451,20 @@ class TestQueryRegenerateApiKey(BaseTestCase):
 
         updated_query = models.Query.query.get(query.id)
         self.assertNotEqual(orig_api_key, updated_query.api_key)
+
+
+class TestQueryResourceGetWithDashboardApiKey(BaseTestCase):
+    def test_does_not_return_query_api_key(self):
+        query = self.factory.create_query()
+        visualization = self.factory.create_visualization(query_rel=query)
+        widget = self.factory.create_widget(visualization=visualization)
+        api_key = ApiKey.create_for_object(widget.dashboard, self.factory.user)
+        db.session.commit()
+
+        rv = self.make_request("get", "/api/queries/{}?api_key={}".format(query.id, api_key.api_key), user=False)
+
+        self.assertEqual(rv.status_code, 200)
+        self.assertIsNone(rv.json["api_key"])
 
 
 class TestQueryForkResourcePost(BaseTestCase):
