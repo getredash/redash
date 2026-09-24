@@ -56,6 +56,21 @@ class TestDashboardResourceGet(BaseTestCase):
 
         self.assertResponseEqual(expected, actual)
 
+    def test_returns_enabled_sharing_link_to_dashboard_viewers(self):
+        d1 = self.factory.create_dashboard()
+        ApiKey.create_for_object(d1, self.factory.user)
+        db.session.commit()
+
+        rv = self.make_request("get", "/api/dashboards/{0}".format(d1.id))
+        self.assertEqual(rv.status_code, 200)
+        self.assertIn("public_url", rv.json)
+        self.assertIn("api_key", rv.json)
+
+        rv = self.make_request("get", "/api/dashboards/{0}".format(d1.id), user=self.factory.create_user())
+        self.assertEqual(rv.status_code, 200)
+        self.assertIn("public_url", rv.json)
+        self.assertEqual(rv.json["api_key"], ApiKey.get_by_object(d1).api_key)
+
     def test_get_dashboard_with_slug(self):
         d1 = self.factory.create_dashboard()
         rv = self.make_request("get", "/api/dashboards/{0}?legacy".format(d1.slug))
