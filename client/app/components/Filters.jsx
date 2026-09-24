@@ -21,7 +21,7 @@ export const FiltersType = PropTypes.arrayOf(FilterType);
 function createFilterChangeHandler(filters, onChange) {
   return (filter, values) => {
     if (isArray(values)) {
-      values = map(values, value => filter.values[toNumber(value.key)] || value.key);
+      values = map(values, (value) => filter.values[toNumber(value.key)] || value.key);
     } else {
       const _values = filter.values[toNumber(values.key)];
       values = _values !== undefined ? _values : values.key;
@@ -33,7 +33,7 @@ function createFilterChangeHandler(filters, onChange) {
     if (filter.multiple && includes(values, NONE_VALUES)) {
       values = [];
     }
-    filters = map(filters, f => (f.name === filter.name ? { ...filter, current: values } : f));
+    filters = map(filters, (f) => (f.name === filter.name ? { ...filter, current: values } : f));
     onChange(filters);
   };
 }
@@ -47,11 +47,11 @@ export function filterData(rows, filters = []) {
 
   if (isArray(filters) && filters.length > 0) {
     // "every" field's value should match "some" of corresponding filter's values
-    result = result.filter(row =>
-      every(filters, filter => {
+    result = result.filter((row) =>
+      every(filters, (filter) => {
         const rowValue = row[filter.name];
         const filterValues = isArray(filter.current) ? filter.current : [filter.current];
-        return some(filterValues, filterValue => {
+        return some(filterValues, (filterValue) => {
           if (moment.isMoment(rowValue)) {
             return rowValue.isSame(filterValue);
           }
@@ -77,7 +77,7 @@ function Filters({ filters, onChange }) {
     <div className="filters-wrapper" data-test="Filters">
       <div className="container bg-white">
         <div className="row">
-          {map(filters, filter => {
+          {map(filters, (filter) => {
             const options = map(filter.values, (value, index) => (
               <Select.Option key={index}>{formatColumnValue(value, get(filter, "column.type"))}</Select.Option>
             ));
@@ -86,7 +86,8 @@ function Filters({ filters, onChange }) {
               <div
                 key={filter.name}
                 className="col-sm-6 p-l-0 filter-container"
-                data-test={`FilterName-${filter.name}`}>
+                data-test={`FilterName-${filter.name}`}
+              >
                 <label>{filter.friendlyName}</label>
                 {options.length === 0 && <Select className="w-100" disabled value="No values" />}
                 {options.length > 0 && (
@@ -96,7 +97,7 @@ function Filters({ filters, onChange }) {
                     mode={filter.multiple ? "multiple" : "default"}
                     value={
                       isArray(filter.current)
-                        ? map(filter.current, value => ({
+                        ? map(filter.current, (value) => ({
                             key: `${indexOf(filter.values, value)}`,
                             label: formatColumnValue(value),
                           }))
@@ -107,8 +108,9 @@ function Filters({ filters, onChange }) {
                     showSearch
                     maxTagCount={3}
                     maxTagTextLength={10}
-                    maxTagPlaceholder={num => `+${num.length} more`}
-                    onChange={values => onChange(filter, values)}>
+                    maxTagPlaceholder={(num) => `+${num.length} more`}
+                    onChange={(values) => onChange(filter, values)}
+                  >
                     {!filter.multiple && options}
                     {filter.multiple && [
                       <Select.Option key={NONE_VALUES} data-test="ClearOption">

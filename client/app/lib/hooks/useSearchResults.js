@@ -7,12 +7,12 @@ export default function useSearchResults(fetch, { initialResults = null, debounc
   const currentSearchTerm = useRef(null);
   const isDestroyed = useRef(false);
 
-  const [doSearch] = useDebouncedCallback(searchTerm => {
+  const [doSearch] = useDebouncedCallback((searchTerm) => {
     setIsLoading(true);
     currentSearchTerm.current = searchTerm;
     fetch(searchTerm)
       .catch(() => initialResults)
-      .then(data => {
+      .then((data) => {
         if (searchTerm === currentSearchTerm.current && !isDestroyed.current) {
           setResult(data);
           setIsLoading(false);

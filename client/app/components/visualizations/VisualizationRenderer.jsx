@@ -13,8 +13,8 @@ function combineFilters(localFilters, globalFilters) {
     return localFilters;
   }
 
-  return map(localFilters, localFilter => {
-    const globalFilter = find(globalFilters, f => f.name === localFilter.name);
+  return map(localFilters, (localFilter) => {
+    const globalFilter = find(globalFilters, (f) => f.name === localFilter.name);
     if (globalFilter) {
       return {
         ...localFilter,
@@ -30,8 +30,8 @@ function areFiltersEqual(a, b) {
     return false;
   }
 
-  a = fromPairs(map(a, item => [item.name, item]));
-  b = fromPairs(map(b, item => [item.name, item]));
+  a = fromPairs(map(a, (item) => [item.name, item]));
+  b = fromPairs(map(b, (item) => [item.name, item]));
 
   return isEqual(a, b);
 }
@@ -42,7 +42,7 @@ export default function VisualizationRenderer(props) {
   const filtersRef = useRef();
   filtersRef.current = filters;
 
-  const handleFiltersChange = useImmutableCallback(newFilters => {
+  const handleFiltersChange = useImmutableCallback((newFilters) => {
     if (!areFiltersEqual(newFilters, filters)) {
       setFilters(newFilters);
       props.onFiltersChange(newFilters);

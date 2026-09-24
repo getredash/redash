@@ -8,7 +8,8 @@ export default function EditVisualizationButton(props) {
     <Button
       data-test="EditVisualization"
       className="edit-visualization"
-      onClick={() => props.openVisualizationEditor(props.selectedTab)}>
+      onClick={() => props.openVisualizationEditor(props.selectedTab)}
+    >
       <FormOutlinedIcon />
       <span className="hidden-xs hidden-s hidden-m">Edit Visualization</span>
     </Button>

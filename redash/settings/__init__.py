@@ -348,6 +348,7 @@ default_query_runners = [
     "redash.query_runner.oracle",
     "redash.query_runner.e6data",
     "redash.query_runner.risingwave",
+    "redash.query_runner.d1",
     "redash.query_runner.duckdb",
 ]
 

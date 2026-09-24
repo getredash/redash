@@ -23,13 +23,13 @@ export default function prepareData(rows: any, options: any) {
     rows = rows.reverse();
   }
 
-  const data = map(rows, row => ({
+  const data = map(rows, (row) => ({
     step: stepValueToString(row[options.stepCol.colName]),
     value: parseFloat(row[options.valueCol.colName]) || 0.0,
   }));
 
   // @ts-expect-error ts-migrate(2532) FIXME: Object is possibly 'undefined'.
-  const maxVal = maxBy(data, d => d.value).value;
+  const maxVal = maxBy(data, (d) => d.value).value;
   data.forEach((d, i) => {
     // @ts-expect-error ts-migrate(2339) FIXME: Property 'pctMax' does not exist on type '{ step: ... Remove this comment to see the full error message
     d.pctMax = (d.value / maxVal) * 100.0;

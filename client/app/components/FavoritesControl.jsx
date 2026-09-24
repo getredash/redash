@@ -34,7 +34,8 @@ export default class FavoritesControl extends React.Component {
         title={title}
         aria-label={title}
         className="favorites-control btn-favorite"
-        onClick={event => this.toggleItem(event, item, onChange)}>
+        onClick={(event) => this.toggleItem(event, item, onChange)}
+      >
         <i className={icon} aria-hidden="true" />
       </PlainButton>
     );

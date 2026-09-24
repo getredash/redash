@@ -18,9 +18,7 @@ export function wrap<ROk = void, P = {}, RCancel = void>(
   DialogComponent: DialogComponentType<ROk, P, RCancel>
 ): {
   Component: DialogComponentType<ROk, P, RCancel>;
-  showModal: (
-    props?: P
-  ) => {
+  showModal: (props?: P) => {
     update: (props: P) => void;
     onClose: (handler: (result: ROk) => Promise<void> | void) => void;
     onDismiss: (handler: (result: RCancel) => Promise<void> | void) => void;

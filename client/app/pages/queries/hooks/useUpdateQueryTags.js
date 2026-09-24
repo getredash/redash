@@ -6,7 +6,7 @@ export default function useUpdateQueryTags(query, onChange) {
   const updateQuery = useUpdateQuery(query, onChange);
 
   return useCallback(
-    tags => {
+    (tags) => {
       recordEvent("edit_tags", "query", query.id);
       updateQuery({ tags });
     },

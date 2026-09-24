@@ -18,7 +18,7 @@ function CreateUserDialog({ dialog }) {
     recordEvent("view", "page", "users/new");
   }, []);
 
-  const handleSubmit = useCallback(values => dialog.close(values).catch(setError), [dialog]);
+  const handleSubmit = useCallback((values) => dialog.close(values).catch(setError), [dialog]);
   const formId = useUniqueId("userForm");
 
   return (
@@ -35,13 +35,15 @@ function CreateUserDialog({ dialog }) {
           htmlType="submit"
           type="primary"
           form={formId}
-          data-test="SaveUserButton">
+          data-test="SaveUserButton"
+        >
           Create
         </Button>,
       ]}
       wrapProps={{
         "data-test": "CreateUserDialog",
-      }}>
+      }}
+    >
       <DynamicForm id={formId} fields={formFields} onSubmit={handleSubmit} hideSubmitButton />
       {error && <Alert message={error.message} type="error" showIcon data-test="CreateUserErrorAlert" />}
     </Modal>

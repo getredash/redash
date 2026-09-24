@@ -8,7 +8,6 @@ import Tooltip from "antd/lib/tooltip";
 import ColumnTypes from "../shared/columns";
 import "./details.less";
 
-
 export default function Renderer({ data, options }: any) {
   const [page, setPage] = useState(0);
 
@@ -38,7 +37,7 @@ export default function Renderer({ data, options }: any) {
   return (
     <div className="details-viz">
       <Descriptions size="small" column={1} bordered>
-        {map(visibleColumns, column => {
+        {map(visibleColumns, (column) => {
           const { Component } = column;
 
           return (
@@ -71,7 +70,7 @@ export default function Renderer({ data, options }: any) {
             current={page + 1}
             defaultPageSize={1}
             total={data.rows.length}
-            onChange={p => setPage(p - 1)}
+            onChange={(p) => setPage(p - 1)}
           />
         </div>
       )}

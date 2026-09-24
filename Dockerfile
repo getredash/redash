@@ -97,21 +97,33 @@ EOF
 
 WORKDIR /app
 
-ENV POETRY_VERSION=2.1.4
-ENV POETRY_HOME=/etc/poetry
-ENV POETRY_VIRTUALENVS_CREATE=false
-RUN curl -sSL --retry 3 --retry-delay 5 https://install.python-poetry.org | python3 -
+# Install uv (pinned) from the official distroless image for a reproducible build.
+COPY --from=ghcr.io/astral-sh/uv:0.11.6 /uv /usr/local/bin/uv
 
-# Avoid crashes, including corrupted cache artifacts, when building multi-platform images with GitHub Actions.
-RUN /etc/poetry/bin/poetry cache clear pypi --all
+# Install into the system environment rather than a project-local virtualenv,
+# so console scripts (gunicorn, supervisord, rq, ...) are on PATH.
+ENV UV_PROJECT_ENVIRONMENT=/usr/local
+ENV UV_COMPILE_BYTECODE=1
+ENV UV_LINK_MODE=copy
 
-COPY pyproject.toml poetry.lock ./
+COPY pyproject.toml uv.lock ./
 
-ARG POETRY_OPTIONS="--no-root --no-interaction --no-ansi"
-# for LDAP authentication, install with `ldap3` group
+ARG UV_OPTIONS="--frozen --no-install-project --no-default-groups"
+# for LDAP authentication, install with the `ldap3` group
 # disabled by default due to GPL license conflict
 ARG install_groups="main,all_ds,dev"
-RUN /etc/poetry/bin/poetry install --only $install_groups $POETRY_OPTIONS
+# Translate the comma-separated install_groups list into uv flags. "main"
+# refers to the project's base dependencies (always installed); every other
+# entry maps to a uv dependency group.
+RUN --mount=type=cache,target=/root/.cache/uv <<EOF
+  group_flags=""
+  for group in $(echo "$install_groups" | tr ',' ' '); do
+    if [ "$group" != "main" ]; then
+      group_flags="$group_flags --group $group"
+    fi
+  done
+  uv sync $UV_OPTIONS $group_flags
+EOF
 
 COPY --chown=redash . /app
 COPY --from=frontend-builder --chown=redash /frontend/client/dist /app/client/dist

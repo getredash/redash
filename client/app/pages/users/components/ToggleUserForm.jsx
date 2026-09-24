@@ -17,7 +17,7 @@ export default function ToggleUserForm(props) {
     const action = user.isDisabled ? User.enableUser : User.disableUser;
     setLoading(true);
     action(user)
-      .then(data => {
+      .then((data) => {
         if (data) {
           handleChange(User.convertUserInfo(data));
         }
