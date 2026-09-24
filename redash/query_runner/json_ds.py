@@ -215,9 +215,7 @@ class JSON(BaseHTTPQueryRunner):
         url_parsed = urlparse(url)
 
         if JSON._origin(base_parsed) != JSON._origin(url_parsed):
-            raise QueryParseError(
-                "Query URL must reference the same origin as the data source base URL."
-            )
+            raise QueryParseError("Query URL must reference the same origin as the data source base URL.")
 
     def _get_all_results(self, url, method, result_path, pagination, **request_options):
         """Get all results from a paginated endpoint."""
