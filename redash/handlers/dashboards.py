@@ -263,6 +263,7 @@ class DashboardResource(BaseResource):
         Responds with the archived :ref:`dashboard <dashboard-response-label>`.
         """
         dashboard = models.Dashboard.get_by_id_and_org(dashboard_id, self.current_org)
+        require_object_modify_permission(dashboard, self.current_user)
         dashboard.is_archived = True
         dashboard.record_changes(changed_by=self.current_user)
         models.db.session.add(dashboard)

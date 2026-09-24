@@ -181,6 +181,16 @@ class TestDashboardResourceDelete(BaseTestCase):
         d = Dashboard.get_by_id_and_org(d.id, d.org)
         self.assertTrue(d.is_archived)
 
+    def test_returns_403_for_non_owner(self):
+        d = self.factory.create_dashboard()
+        other_user = self.factory.create_user()
+
+        rv = self.make_request("delete", "/api/dashboards/{0}".format(d.id), user=other_user)
+        self.assertEqual(rv.status_code, 403)
+
+        d = Dashboard.get_by_id_and_org(d.id, d.org)
+        self.assertFalse(d.is_archived)
+
 
 class TestDashboardShareResourcePost(BaseTestCase):
     def test_creates_api_key(self):
