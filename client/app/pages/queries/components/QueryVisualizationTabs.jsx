@@ -6,6 +6,7 @@ import useMedia from "use-media";
 import Tabs from "antd/lib/tabs";
 import Button from "antd/lib/button";
 import Modal from "antd/lib/modal";
+import { SortableContainerWrapper, SortableElement } from "@redash/viz/lib/components/sortable";
 import VisualizationRenderer from "@/components/visualizations/VisualizationRenderer";
 import PlainButton from "@/components/PlainButton";
 
@@ -88,9 +89,11 @@ export default function QueryVisualizationTabs({
   selectedTab,
   showNewVisualizationButton,
   canDeleteVisualizations,
+  canReorderVisualizations,
   onChangeTab,
   onAddVisualization,
   onDeleteVisualization,
+  onReorderVisualizations,
   refreshButton,
   canRefresh,
   ...props
@@ -119,9 +122,48 @@ export default function QueryVisualizationTabs({
     );
   }
 
-  const orderedVisualizations = useMemo(() => orderBy(visualizations, ["id"]), [visualizations]);
+  const orderedVisualizations = useMemo(() => orderBy(visualizations, ["position", "id"]), [visualizations]);
   const isFirstVisualization = useCallback((visId) => visId === orderedVisualizations[0].id, [orderedVisualizations]);
   const isMobile = useMedia({ maxWidth: 768 });
+
+  const canReorderTabs = canReorderVisualizations && !isMobile && orderedVisualizations.length > 1;
+
+  const handleSortEnd = useCallback(
+    ({ oldIndex, newIndex }) => {
+      if (oldIndex === newIndex) {
+        return;
+      }
+      const visualizationIds = orderedVisualizations.map((visualization) => visualization.id);
+      // move the dragged id from oldIndex to newIndex
+      // e.g. [A,B,C,D] with oldIndex 3, newIndex 1 becomes [A,D,B,C]
+      visualizationIds.splice(newIndex, 0, visualizationIds.splice(oldIndex, 1)[0]);
+      onReorderVisualizations(visualizationIds);
+    },
+    [orderedVisualizations, onReorderVisualizations]
+  );
+
+  if (canReorderTabs) {
+    // `renderTabBar` lets us wrap every tab of the default tab bar into a sortable element,
+    // so tabs can be dragged horizontally to change their order.
+    const tabKeys = orderedVisualizations.map((visualization) => `${visualization.id}`);
+    tabsProps.renderTabBar = (tabBarProps, DefaultTabBar) => (
+      <SortableContainerWrapper
+        axis="x"
+        lockAxis="x"
+        distance={5}
+        helperClass="query-visualization-tab-dragging"
+        onSortEnd={handleSortEnd}
+      >
+        <DefaultTabBar {...tabBarProps}>
+          {(node) => (
+            <SortableElement key={node.key} index={tabKeys.indexOf(node.key)}>
+              {node}
+            </SortableElement>
+          )}
+        </DefaultTabBar>
+      </SortableContainerWrapper>
+    );
+  }
 
   const [filters, setFilters] = useState([]);
 
@@ -129,7 +171,9 @@ export default function QueryVisualizationTabs({
     <Tabs
       {...tabsProps}
       type="card"
-      className={cx("query-visualization-tabs card-style")}
+      className={cx("query-visualization-tabs card-style", {
+        "query-visualization-tabs-reorderable": canReorderTabs,
+      })}
       data-test="QueryPageVisualizationTabs"
       animated={false}
       tabBarGutter={0}
@@ -179,9 +223,11 @@ QueryVisualizationTabs.propTypes = {
   selectedTab: PropTypes.number,
   showNewVisualizationButton: PropTypes.bool,
   canDeleteVisualizations: PropTypes.bool,
+  canReorderVisualizations: PropTypes.bool,
   onChangeTab: PropTypes.func,
   onAddVisualization: PropTypes.func,
   onDeleteVisualization: PropTypes.func,
+  onReorderVisualizations: PropTypes.func,
   refreshButton: PropTypes.node,
   canRefresh: PropTypes.bool,
 };
@@ -192,9 +238,11 @@ QueryVisualizationTabs.defaultProps = {
   selectedTab: null,
   showNewVisualizationButton: false,
   canDeleteVisualizations: false,
+  canReorderVisualizations: false,
   onChangeTab: () => {},
   onAddVisualization: () => {},
   onDeleteVisualization: () => {},
+  onReorderVisualizations: () => {},
   refreshButton: null,
   canRefresh: true,
 };
