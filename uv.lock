@@ -2529,7 +2529,7 @@ all-ds = [
     { name = "thrift", specifier = ">=0.8.0" },
     { name = "thrift-sasl", specifier = ">=0.1.0" },
     { name = "trino", specifier = ">=0.305,<1.0" },
-    { name = "vertica-python", specifier = "==1.1.1" },
+    { name = "vertica-python", specifier = "==1.4.0" },
     { name = "xlrd", specifier = "==2.0.1" },
 ]
 dev = [
@@ -3093,15 +3093,15 @@ wheels = [
 
 [[package]]
 name = "vertica-python"
-version = "1.1.1"
+version = "1.4.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "python-dateutil" },
     { name = "six" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/8b/7d/b3bfd9f29c1621d85623e2988384d6767a72f9a4b0340eddf0699faa5ebe/vertica-python-1.1.1.tar.gz", hash = "sha256:dedf56d76b67673b4d57a13f7f96ebdc57b39ea650b93ebf0c05eb6d1d2c0c05", size = 88252, upload-time = "2022-07-08T09:19:57.438Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/29/25/a86f25e00bfeccf0cf22ac9a727d055d061d49e757dabadc37710f9b567c/vertica-python-1.4.0.tar.gz", hash = "sha256:542078ae2fedee694adedb04d81c6edc277b87ed7440302942107d86a0bcd445", size = 110416, upload-time = "2024-07-22T07:02:34.22Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/8a/3d/647e5080a791ac4d5e6515e42f2ecf7931f3be0cbea85f833fb40e4dc858/vertica_python-1.1.1-py2.py3-none-any.whl", hash = "sha256:63d300832d6fe471987880f06a9590eafc46a1f896860881270f6b6645f3bec6", size = 175543, upload-time = "2022-07-08T09:19:54.563Z" },
+    { url = "https://files.pythonhosted.org/packages/96/7e/adc6a46263a48e0270b0bc6ddab60c6a70766103f37ec4591ef78f0221db/vertica_python-1.4.0-py3-none-any.whl", hash = "sha256:50fecd7687f4b0b9f6dee6e2b35c195af2a4f702ece01bd12e080b51756e000b", size = 191824, upload-time = "2024-07-22T07:02:32.184Z" },
 ]
 
 [[package]]
