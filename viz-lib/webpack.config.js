@@ -45,7 +45,8 @@ module.exports = {
             loader: "less-loader",
             options: {
               lessOptions: {
-                plugins: [new LessPluginAutoPrefix({ browsers: ["last 3 versions"] })],
+                // Uses browserslist from root package.json (Autoprefixer 10+ no longer accepts `browsers`).
+                plugins: [new LessPluginAutoPrefix()],
                 javascriptEnabled: true,
 	      },
             },
