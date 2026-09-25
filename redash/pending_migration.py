@@ -22,7 +22,8 @@ STATEMENT_TIMEOUT_MS = 2000
 
 # Requests that must keep working even while migrations are pending: health
 # checks used by orchestrators, and the static assets the error page itself needs.
-EXEMPT_PATH_PREFIXES = ("/ping", "/static/")
+EXEMPT_PATHS = ("/ping",)
+EXEMPT_PATH_PREFIXES = ("/static/",)
 
 
 def get_head_revision():
@@ -55,6 +56,9 @@ class PendingMigrationCheck:
 
     def __init__(self):
         self._up_to_date = False
+        # Whether the last completed check found pending migrations. Kept separate
+        # from `_up_to_date` so a check that errored doesn't count as "pending".
+        self._pending = False
         self._last_checked_at = 0.0
 
     def init_app(self, app, db):
@@ -70,12 +74,12 @@ class PendingMigrationCheck:
             # it on after create_app() has already registered this hook.
             return None
 
-        if self._up_to_date or request.path.startswith(EXEMPT_PATH_PREFIXES):
+        if self._up_to_date or request.path in EXEMPT_PATHS or request.path.startswith(EXEMPT_PATH_PREFIXES):
             return None
 
         now = time.monotonic()
         if now - self._last_checked_at < RECHECK_INTERVAL_SECONDS:
-            return self._pending_response()
+            return self._pending_response() if self._pending else None
         self._last_checked_at = now
 
         try:
@@ -83,9 +87,11 @@ class PendingMigrationCheck:
         except Exception:
             # If we can't tell, don't take down the whole app over it.
             logger.exception("Unable to check migration status")
+            self._pending = False
             return None
 
-        return None if self._up_to_date else self._pending_response()
+        self._pending = not self._up_to_date
+        return self._pending_response() if self._pending else None
 
     @staticmethod
     def _pending_response():
