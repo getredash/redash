@@ -55,16 +55,20 @@ class TestPendingMigrationCheck(BaseTestCase):
         rv = self.client.get("/pingfoo")
         self.assertEqual(rv.status_code, 503)
 
+    # Freeze the clock so both requests land in the same recheck interval.
+    @mock.patch("redash.pending_migration.time", monotonic=mock.Mock(return_value=1000.0))
     @mock.patch("redash.pending_migration.is_database_up_to_date")
-    def test_keeps_blocking_within_the_recheck_interval(self, mocked_check):
+    def test_keeps_blocking_within_the_recheck_interval(self, mocked_check, _):
         mocked_check.return_value = False
         self.client.get("/status.json")
         rv = self.client.get("/status.json")
         self.assertEqual(rv.status_code, 503)
         self.assertEqual(mocked_check.call_count, 1)
 
+    # Freeze the clock so both requests land in the same recheck interval.
+    @mock.patch("redash.pending_migration.time", monotonic=mock.Mock(return_value=1000.0))
     @mock.patch("redash.pending_migration.is_database_up_to_date")
-    def test_stays_open_within_the_recheck_interval_after_an_error(self, mocked_check):
+    def test_stays_open_within_the_recheck_interval_after_an_error(self, mocked_check, _):
         mocked_check.side_effect = Exception("boom")
         self.client.get("/status.json")
         rv = self.client.get("/status.json")
