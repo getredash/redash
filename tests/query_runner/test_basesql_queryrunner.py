@@ -122,15 +122,19 @@ class TestBaseSQLQueryRunner(unittest.TestCase):
         query_text = self.query_runner.apply_auto_limit(origin_query_text, True)
         self.assertEqual("select * from raw_events LIMIT 1000", query_text)
 
+    # Pin the limits so these tests do not depend on SQLPARSE_MAX_GROUPING_* in the
+    # environment running them.
+    @patch.multiple(grouping, MAX_GROUPING_TOKENS=100, MAX_GROUPING_DEPTH=10)
     def test_apply_auto_limit_statement_too_large_to_group(self):
         # sqlparse raises SQLParseError past its grouping limits. Run the query as the
         # user wrote it rather than failing it.
-        origin_query_text = "select * from events where id in ({})".format(",".join(str(i) for i in range(10000)))
+        origin_query_text = "select * from events where id in ({})".format(",".join(str(i) for i in range(100)))
         query_text = self.query_runner.apply_auto_limit(origin_query_text, True)
         self.assertEqual(origin_query_text, query_text)
 
+    @patch.multiple(grouping, MAX_GROUPING_TOKENS=100, MAX_GROUPING_DEPTH=10)
     def test_apply_auto_limit_statement_too_deeply_nested(self):
-        origin_query_text = "select {}1{}".format("(" * 200, ")" * 200)
+        origin_query_text = "select {}1{}".format("(" * 20, ")" * 20)
         query_text = self.query_runner.apply_auto_limit(origin_query_text, True)
         self.assertEqual(origin_query_text, query_text)
 
