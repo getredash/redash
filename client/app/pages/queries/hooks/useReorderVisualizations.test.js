@@ -18,8 +18,10 @@ const visualization = (id, position) => ({ id, name: `V${id}`, position, type: "
 
 function setup() {
   let query = new Query({ id: 1, options: {}, visualizations: [1, 2, 3].map((id) => visualization(id, id - 1)) });
-  const onChange = (updated) => {
-    query = updated;
+  // Mimics React's setState: onChange may receive either the next value, or an updater
+  // function that computes it from the current value (as the real setQuery supports).
+  const onChange = (updatedOrUpdater) => {
+    query = typeof updatedOrUpdater === "function" ? updatedOrUpdater(query) : updatedOrUpdater;
   };
   mount(<Harness query={query} onChange={onChange} />);
   return { ids: () => query.visualizations.map((v) => v.id) };
@@ -45,5 +47,25 @@ describe("useReorderVisualizations", () => {
     await reorderVisualizations([3, 1, 2]);
     expect(ids()).toEqual([1, 2, 3]);
     expect(notification.error).toHaveBeenCalled();
+  });
+
+  test("a late failure from a superseded reorder doesn't roll back a newer one", async () => {
+    const { ids } = setup();
+
+    let rejectFirst;
+    Visualization.reorder.mockReturnValueOnce(new Promise((_resolve, reject) => (rejectFirst = reject)));
+    reorderVisualizations([3, 1, 2]);
+    expect(ids()).toEqual([3, 1, 2]);
+
+    Visualization.reorder.mockReturnValueOnce(new Promise(() => {}));
+    reorderVisualizations([2, 3, 1]);
+    expect(ids()).toEqual([2, 3, 1]);
+
+    rejectFirst(new Error("nope"));
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(ids()).toEqual([2, 3, 1]);
+    expect(notification.error).not.toHaveBeenCalled();
   });
 });

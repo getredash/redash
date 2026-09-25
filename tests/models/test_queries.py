@@ -429,6 +429,30 @@ class TestQueryFork(BaseTestCase):
         self.assertEqual(forked_table.description, "")
         self.assertEqual(forked_table.options, {})
 
+    def test_fork_preserves_visualization_order(self):
+        data_source = self.factory.create_data_source(group=self.factory.create_group())
+        query = self.factory.create_query(data_source=data_source)
+
+        # Created in id order first, third, second -- but positioned second, third, first,
+        # so a fork that fell back to id order would get this wrong.
+        first = self.factory.create_visualization(query_rel=query, description="first", position=1)
+        third = self.factory.create_visualization(query_rel=query, description="third", position=2)
+        second = self.factory.create_visualization(query_rel=query, description="second", position=0)
+        self.assertLess(first.id, third.id)
+        self.assertLess(third.id, second.id)
+
+        forked_query = query.fork(self.factory.create_user())
+        db.session.flush()
+
+        self.assertEqual(
+            [v.description for v in forked_query.visualizations],
+            ["second", "first", "third"],
+        )
+        self.assertEqual(
+            [v.position for v in forked_query.visualizations],
+            [second.position, first.position, third.position],
+        )
+
     def test_fork_from_query_that_has_no_visualization(self):
         # prepare original query and visualizations
         data_source = self.factory.create_data_source(group=self.factory.create_group())
