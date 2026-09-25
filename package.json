@@ -46,7 +46,7 @@
     "@redash/viz": "workspace:*",
     "ace-builds": "^1.43.3",
     "antd": "4.4.3",
-    "axios": "0.27.2",
+    "axios": "0.33.0",
     "axios-auth-refresh": "3.3.6",
     "bootstrap": "^3.4.1",
     "classnames": "^2.2.6",

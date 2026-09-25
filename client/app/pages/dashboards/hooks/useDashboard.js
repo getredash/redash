@@ -182,10 +182,11 @@ function useDashboard(dashboardData) {
     ShareDashboardDialog.showModal({
       dashboard,
       hasOnlySafeQueries,
+      canManageSharing: isDashboardOwnerOrAdmin,
     })
       .onClose(handleDialogClose)
       .onDismiss(handleDialogClose);
-  }, [dashboard, hasOnlySafeQueries]);
+  }, [dashboard, hasOnlySafeQueries, isDashboardOwnerOrAdmin]);
 
   const showAddTextboxDialog = useCallback(() => {
     TextboxDialog.showModal({

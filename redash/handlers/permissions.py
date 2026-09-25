@@ -6,7 +6,11 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from redash.handlers.base import BaseResource, get_object_or_404
 from redash.models import AccessPermission, Dashboard, Query, User, db
-from redash.permissions import ACCESS_TYPES, require_admin_or_owner
+from redash.permissions import (
+    ACCESS_TYPES,
+    require_admin_or_owner,
+    require_object_modify_permission,
+)
 
 model_to_types = {"queries": Query, "dashboards": Dashboard}
 
@@ -22,6 +26,8 @@ class ObjectPermissionsListResource(BaseResource):
     def get(self, object_type, object_id):
         model = get_model_from_type(object_type)
         obj = get_object_or_404(model.get_by_id_and_org, object_id, self.current_org)
+
+        require_object_modify_permission(obj, self.current_user)
 
         # TODO: include grantees in search to avoid N+1 queries
         permissions = AccessPermission.find(obj)
