@@ -30,6 +30,16 @@ from redash.permissions import (
 from redash.serializers import QuerySerializer
 from redash.utils import collect_parameters_from_request
 
+
+def require_valid_field_lengths(query_def):
+    """Reject values that would overflow the query's varchar columns with a 400 instead of a 500."""
+    for field in ("name", "description"):
+        value = query_def.get(field)
+        max_length = models.Query.__table__.c[field].type.length
+        if isinstance(value, str) and len(value) > max_length:
+            abort(400, message="Query {} must be at most {} characters long.".format(field, max_length))
+
+
 # Ordering map for relationships
 order_map = {
     "name": "lowercase_name",
@@ -222,6 +232,7 @@ class QueryListResource(BaseQueryListResource):
         data_source = models.DataSource.get_by_id_and_org(query_def.pop("data_source_id"), self.current_org)
         require_access(data_source, self.current_user, not_view_only)
         require_access_to_dropdown_queries(self.current_user, query_def)
+        require_valid_field_lengths(query_def)
 
         for field in [
             "id",
@@ -332,6 +343,7 @@ class QueryResource(BaseResource):
 
         require_object_modify_permission(query, self.current_user)
         require_access_to_dropdown_queries(self.current_user, query_def)
+        require_valid_field_lengths(query_def)
 
         for field in [
             "id",

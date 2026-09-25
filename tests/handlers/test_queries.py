@@ -97,6 +97,14 @@ class TestQueryResourcePost(BaseTestCase):
         self.assertEqual(rv.json["data_source_id"], data["data_source_id"])
         self.assertEqual(rv.json["latest_query_data_id"], data["latest_query_data_id"])
 
+    def test_update_query_rejects_too_long_name(self):
+        query = self.factory.create_query()
+
+        rv = self.make_request("post", "/api/queries/{0}".format(query.id), data={"name": "x" * 256})
+
+        self.assertEqual(rv.status_code, 400)
+        self.assertIn("name", rv.json["message"])
+
     def test_raises_error_in_case_of_conflict(self):
         q = self.factory.create_query()
         q.name = "Another Name"
@@ -272,6 +280,31 @@ class TestQueryListResourcePost(BaseTestCase):
         query = models.Query.query.get(rv.json["id"])
         self.assertEqual(len(list(query.visualizations)), 1)
         self.assertTrue(query.is_draft)
+
+    def test_rejects_too_long_name(self):
+        query_data = {
+            "name": "x" * 256,
+            "query": "SELECT 1",
+            "data_source_id": self.factory.data_source.id,
+        }
+
+        rv = self.make_request("post", "/api/queries", data=query_data)
+
+        self.assertEqual(rv.status_code, 400)
+        self.assertIn("name", rv.json["message"])
+
+    def test_rejects_too_long_description(self):
+        query_data = {
+            "name": "Testing",
+            "description": "x" * 4097,
+            "query": "SELECT 1",
+            "data_source_id": self.factory.data_source.id,
+        }
+
+        rv = self.make_request("post", "/api/queries", data=query_data)
+
+        self.assertEqual(rv.status_code, 400)
+        self.assertIn("description", rv.json["message"])
 
     def test_allows_association_with_authorized_dropdown_queries(self):
         data_source = self.factory.create_data_source(group=self.factory.default_group)
