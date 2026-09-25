@@ -56,6 +56,21 @@ class WidgetAPITest(BaseTestCase):
         self.assertEqual(rv.status_code, 200)
         self.assertEqual(rv.json["text"], "Sample text.")
 
+    def test_create_text_widget_without_visualization_id_key(self):
+        dashboard = self.factory.create_dashboard()
+
+        data = {
+            "text": "Sample text.",
+            "dashboard_id": dashboard.id,
+            "options": {},
+            "width": 2,
+        }
+
+        rv = self.make_request("post", "/api/widgets", data=data)
+
+        self.assertEqual(rv.status_code, 200)
+        self.assertEqual(rv.json["text"], "Sample text.")
+
     def test_delete_widget(self):
         widget = self.factory.create_widget()
 
