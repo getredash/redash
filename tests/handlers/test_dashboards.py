@@ -56,6 +56,21 @@ class TestDashboardResourceGet(BaseTestCase):
 
         self.assertResponseEqual(expected, actual)
 
+    def test_returns_enabled_sharing_link_to_dashboard_viewers(self):
+        d1 = self.factory.create_dashboard()
+        ApiKey.create_for_object(d1, self.factory.user)
+        db.session.commit()
+
+        rv = self.make_request("get", "/api/dashboards/{0}".format(d1.id))
+        self.assertEqual(rv.status_code, 200)
+        self.assertIn("public_url", rv.json)
+        self.assertIn("api_key", rv.json)
+
+        rv = self.make_request("get", "/api/dashboards/{0}".format(d1.id), user=self.factory.create_user())
+        self.assertEqual(rv.status_code, 200)
+        self.assertIn("public_url", rv.json)
+        self.assertEqual(rv.json["api_key"], ApiKey.get_by_object(d1).api_key)
+
     def test_get_dashboard_with_slug(self):
         d1 = self.factory.create_dashboard()
         rv = self.make_request("get", "/api/dashboards/{0}?legacy".format(d1.slug))
@@ -159,6 +174,17 @@ class TestDashboardForkResourcePost(BaseTestCase):
 
         self.assertEqual(rv.status_code, 200)
 
+    def test_returns_403_when_user_cannot_access_a_widget_query(self):
+        data_source = self.factory.create_data_source(group=self.factory.create_group())
+        query = self.factory.create_query(data_source=data_source)
+        visualization = self.factory.create_visualization(query_rel=query)
+        widget = self.factory.create_widget(visualization=visualization)
+        other_user = self.factory.create_user()
+
+        rv = self.make_request("post", "/api/dashboards/{}/fork".format(widget.dashboard.id), user=other_user)
+
+        self.assertEqual(rv.status_code, 403)
+
 
 class TestDashboardResourceDelete(BaseTestCase):
     def test_delete_dashboard(self):
@@ -169,6 +195,16 @@ class TestDashboardResourceDelete(BaseTestCase):
 
         d = Dashboard.get_by_id_and_org(d.id, d.org)
         self.assertTrue(d.is_archived)
+
+    def test_returns_403_for_non_owner(self):
+        d = self.factory.create_dashboard()
+        other_user = self.factory.create_user()
+
+        rv = self.make_request("delete", "/api/dashboards/{0}".format(d.id), user=other_user)
+        self.assertEqual(rv.status_code, 403)
+
+        d = Dashboard.get_by_id_and_org(d.id, d.org)
+        self.assertFalse(d.is_archived)
 
 
 class TestDashboardShareResourcePost(BaseTestCase):

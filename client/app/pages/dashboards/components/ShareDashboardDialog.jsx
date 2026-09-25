@@ -17,6 +17,7 @@ class ShareDashboardDialog extends React.Component {
   static propTypes = {
     dashboard: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
     hasOnlySafeQueries: PropTypes.bool.isRequired,
+    canManageSharing: PropTypes.bool.isRequired,
     dialog: DialogPropType.isRequired,
   };
 
@@ -94,7 +95,7 @@ class ShareDashboardDialog extends React.Component {
   };
 
   render() {
-    const { dialog, dashboard, hasOnlySafeQueries } = this.props;
+    const { dialog, dashboard, hasOnlySafeQueries, canManageSharing } = this.props;
     const headerContent = this.constructor.headerContent;
     return (
       <Modal {...dialog.props} title={headerContent} footer={null}>
@@ -113,7 +114,7 @@ class ShareDashboardDialog extends React.Component {
               checked={dashboard.publicAccessEnabled}
               onChange={this.onChange}
               loading={this.state.saving}
-              disabled={!this.enabled}
+              disabled={!canManageSharing || !this.enabled}
               data-test="PublicAccessEnabled"
             />
           </Form.Item>

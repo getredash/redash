@@ -1,4 +1,5 @@
 import logging
+import re
 from collections import defaultdict
 from contextlib import ExitStack
 from functools import wraps
@@ -16,6 +17,16 @@ from redash.utils.requests_session import (
 )
 
 logger = logging.getLogger(__name__)
+
+# Only identifiers and fixed values belong in SQL comments. Never interpolate
+# free-form metadata (including legacy Username or queue names) into query text.
+_QUERY_ANNOTATION_FIELDS = {
+    "user_id": r"(?:[0-9]+|api|<ApiKey: (?:Query )?[0-9]+>)",
+    "query_id": r"(?:[0-9]+|adhoc)",
+    "Job ID": r"[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}",
+    "Query Hash": r"[0-9a-fA-F]{32}",
+    "Scheduled": r"(?:True|False)",
+}
 
 __all__ = [
     "BaseQueryRunner",
@@ -197,7 +208,16 @@ class BaseQueryRunner:
         if not self.should_annotate_query:
             return query
 
-        annotation = ", ".join(["{}: {}".format(k, v) for k, v in metadata.items()])
+        fields = []
+        for key, pattern in _QUERY_ANNOTATION_FIELDS.items():
+            value = metadata.get(key)
+            if type(value) in (str, int, bool) and re.fullmatch(pattern, str(value)):
+                fields.append("{}: {}".format(key, value))
+
+        if not fields:
+            return query
+
+        annotation = ", ".join(fields)
         annotated_query = "/* {} */ {}".format(annotation, query)
         return annotated_query
 
