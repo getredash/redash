@@ -452,6 +452,13 @@ class TestQueryFork(BaseTestCase):
             [v.position for v in forked_query.visualizations],
             [second.position, first.position, third.position],
         )
+        # The assertions above go through the `visualizations` relationship, which
+        # re-sorts by (position, id) -- so they'd pass even if fork() fell back to
+        # iterating in id order, as long as position itself survives the copy. Pin
+        # down fork()'s own iteration order via the ids it assigned while inserting.
+        forked_by_description = {v.description: v for v in forked_query.visualizations}
+        self.assertLess(forked_by_description["second"].id, forked_by_description["first"].id)
+        self.assertLess(forked_by_description["first"].id, forked_by_description["third"].id)
 
     def test_fork_from_query_that_has_no_visualization(self):
         # prepare original query and visualizations
