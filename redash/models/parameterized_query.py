@@ -1,12 +1,136 @@
+import datetime
 import re
 from functools import partial
 from numbers import Number
 
 import pystache
 from dateutil.parser import parse
+from dateutil.relativedelta import relativedelta
 from funcy import distinct
 
-from redash.utils import mustache_render
+from redash.utils import mustache_render, utcnow
+
+# Dynamic ("d_*") values offered by the frontend for date and date range
+# parameters. The browser resolves them right before running a query, so they
+# have to be resolved here as well for everything that doesn't go through the
+# browser: scheduled refreshes, API calls and the query hash. The definitions
+# mirror client/app/services/parameters/DateParameter.js and
+# DateRangeParameter.js (with moment's default locale, weeks start on Sunday).
+# They are evaluated in UTC.
+DYNAMIC_PREFIX = "d_"
+
+DATE_TYPES = ("date", "datetime-local", "datetime-with-seconds")
+DATE_RANGE_TYPES = ("date-range", "datetime-range", "datetime-range-with-seconds")
+
+DATETIME_FORMATS = {
+    "date": "%Y-%m-%d",
+    "datetime-local": "%Y-%m-%d %H:%M",
+    "datetime-with-seconds": "%Y-%m-%d %H:%M:%S",
+    "date-range": "%Y-%m-%d",
+    "datetime-range": "%Y-%m-%d %H:%M",
+    "datetime-range-with-seconds": "%Y-%m-%d %H:%M:%S",
+}
+
+
+def _start_of_day(dt):
+    return dt.replace(hour=0, minute=0, second=0, microsecond=0)
+
+
+def _end_of_day(dt):
+    return dt.replace(hour=23, minute=59, second=59, microsecond=999999)
+
+
+def _start_of_week(dt):
+    return _start_of_day(dt - datetime.timedelta(days=(dt.weekday() + 1) % 7))
+
+
+def _end_of_week(dt):
+    return _end_of_day(_start_of_week(dt) + datetime.timedelta(days=6))
+
+
+def _start_of_month(dt):
+    return _start_of_day(dt.replace(day=1))
+
+
+def _end_of_month(dt):
+    return _end_of_day(_start_of_month(dt) + relativedelta(months=1, days=-1))
+
+
+def _start_of_year(dt):
+    return _start_of_day(dt.replace(month=1, day=1))
+
+
+def _end_of_year(dt):
+    return _end_of_day(dt.replace(month=12, day=31))
+
+
+def _period(start_of, end_of, **ago):
+    """The whole day/week/month/year that contains ``now - ago``."""
+
+    def resolve(now):
+        reference = now - relativedelta(**ago)
+        return start_of(reference), end_of(reference)
+
+    return resolve
+
+
+def _until_now(start_of_day=True, **ago):
+    """From ``now - ago`` (the beginning of that day unless told otherwise) until now."""
+
+    def resolve(now):
+        start = now - relativedelta(**ago)
+        return (_start_of_day(start) if start_of_day else start), now
+
+    return resolve
+
+
+DYNAMIC_DATES = {
+    "d_now": lambda now: now,
+    "d_yesterday": lambda now: now - datetime.timedelta(days=1),
+}
+
+DYNAMIC_DATE_RANGES = {
+    "d_today": _period(_start_of_day, _end_of_day),
+    "d_yesterday": _period(_start_of_day, _end_of_day, days=1),
+    "d_this_week": _period(_start_of_week, _end_of_week),
+    "d_this_month": _period(_start_of_month, _end_of_month),
+    "d_this_year": _period(_start_of_year, _end_of_year),
+    "d_last_week": _period(_start_of_week, _end_of_week, weeks=1),
+    "d_last_month": _period(_start_of_month, _end_of_month, months=1),
+    "d_last_year": _period(_start_of_year, _end_of_year, years=1),
+    "d_last_hour": _until_now(start_of_day=False, hours=1),
+    "d_last_8_hours": _until_now(start_of_day=False, hours=8),
+    "d_last_24_hours": _until_now(start_of_day=False, hours=24),
+    "d_last_7_days": _until_now(days=7),
+    "d_last_14_days": _until_now(days=14),
+    "d_last_30_days": _until_now(days=30),
+    "d_last_60_days": _until_now(days=60),
+    "d_last_90_days": _until_now(days=90),
+    "d_last_12_months": _until_now(months=12),
+    "d_last_2_years": _until_now(years=2),
+    "d_last_3_years": _until_now(years=3),
+    "d_last_10_years": _until_now(years=10),
+}
+
+
+def resolve_dynamic_value(value, parameter_type, now=None):
+    """Replace a dynamic date or date range value with the concrete value the
+    frontend would send when running the query. Anything else is returned as is,
+    so unknown dynamic values are still rejected by the regular validation."""
+    if not isinstance(value, str) or not value.startswith(DYNAMIC_PREFIX):
+        return value
+
+    now = now or utcnow()
+    date_format = DATETIME_FORMATS.get(parameter_type)
+
+    if parameter_type in DATE_TYPES and value in DYNAMIC_DATES:
+        return DYNAMIC_DATES[value](now).strftime(date_format)
+
+    if parameter_type in DATE_RANGE_TYPES and value in DYNAMIC_DATE_RANGES:
+        start, end = DYNAMIC_DATE_RANGES[value](now)
+        return {"start": start.strftime(date_format), "end": end.strftime(date_format)}
+
+    return value
 
 
 def _pluck_name_and_value(default_column, row):
@@ -126,6 +250,7 @@ class ParameterizedQuery:
         self.parameters = {}
 
     def apply(self, parameters):
+        parameters = self._resolve_dynamic_values(parameters)
         invalid_parameter_names = [key for (key, value) in parameters.items() if not self._valid(key, value)]
         if invalid_parameter_names:
             raise InvalidParameterError(invalid_parameter_names)
@@ -134,6 +259,15 @@ class ParameterizedQuery:
             self.query = mustache_render(self.template, join_parameter_list_values(parameters, self.schema))
 
         return self
+
+    def _resolve_dynamic_values(self, parameters):
+        if not self.schema:
+            return parameters
+
+        types = {definition["name"]: definition.get("type") for definition in self.schema}
+        now = utcnow()
+
+        return {name: resolve_dynamic_value(value, types.get(name), now) for name, value in parameters.items()}
 
     def _valid(self, name, value):
         if not self.schema:
