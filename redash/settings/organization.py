@@ -81,3 +81,13 @@ settings = {
     "hide_plotly_mode_bar": HIDE_PLOTLY_MODE_BAR,
     "disable_public_urls": DISABLE_PUBLIC_URLS,
 }
+
+# Settings whose environment variable, when explicitly set, takes precedence over
+# a value stored in the organizations table. disable_public_urls is not editable
+# from the admin UI, but the admin settings form posts back every setting it
+# receives, so an env-derived value can end up persisted in the database; without
+# this override, that stored copy would silently shadow the environment variable
+# forever (#7630). When the environment variable is not set, the stored value
+# keeps working as before.
+_ENV_OVERRIDABLE = {"disable_public_urls": "REDASH_DISABLE_PUBLIC_URLS"}
+env_overrides = frozenset(key for key, var in _ENV_OVERRIDABLE.items() if var in os.environ)
