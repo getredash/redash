@@ -2462,7 +2462,7 @@ requires-dist = [
     { name = "sqlalchemy", specifier = "==1.3.24" },
     { name = "sqlalchemy-searchable", specifier = "==1.2.0" },
     { name = "sqlalchemy-utils", specifier = "==0.38.3" },
-    { name = "sqlparse", specifier = "==0.5.0" },
+    { name = "sqlparse", specifier = "==0.6.0" },
     { name = "sshtunnel", specifier = "==0.1.5" },
     { name = "statsd", specifier = "==3.3.0" },
     { name = "supervisor", specifier = "==4.1.0" },
@@ -2899,11 +2899,11 @@ wheels = [
 
 [[package]]
 name = "sqlparse"
-version = "0.5.0"
+version = "0.6.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/50/26/5da251cd090ccd580f5cfaa7d36cdd8b2471e49fffce60ed520afc27f4bc/sqlparse-0.5.0.tar.gz", hash = "sha256:714d0a4932c059d16189f58ef5411ec2287a4360f17cdd0edd2d09d4c5087c93", size = 83475, upload-time = "2024-04-13T12:37:09.316Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/5f/d3/3f06a1006f2261d1342aefb3c71eed02f5d4ca5bdbecd86ebc12ad38306e/sqlparse-0.6.0.tar.gz", hash = "sha256:113c35c75365ab9cc9c7231d68c6428fb11c085fc8e9eb1ad659b7ddbf6cd2b9", size = 178477, upload-time = "2026-08-13T19:16:06.396Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/43/5d/a0fdd88fd486b39ae1fd1a75ff75b4e29a0df96c0304d462fd407b82efe0/sqlparse-0.5.0-py3-none-any.whl", hash = "sha256:c204494cd97479d0e39f28c93d46c0b2d5959c7b9ab904762ea6c7af211c8663", size = 43971, upload-time = "2024-04-13T12:37:11.177Z" },
+    { url = "https://files.pythonhosted.org/packages/d9/50/f00935da0ec7cbf325f8dc4f772ae46fbc7b672dd62876e73f0a94adda57/sqlparse-0.6.0-py3-none-any.whl", hash = "sha256:b861c0288ce2fa56209a9a6412d2e066ac664b3873b89c26c9d8415e8e32996f", size = 50070, upload-time = "2026-08-13T19:16:04.062Z" },
 ]
 
 [[package]]
