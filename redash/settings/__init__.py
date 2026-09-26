@@ -66,6 +66,19 @@ if SECRET_KEY is None:
 # The secret key to use when encrypting data source options
 DATASOURCE_SECRET_KEY = os.environ.get("REDASH_SECRET_KEY", SECRET_KEY)
 
+# Which group to automatically assign new data sources to.
+# Valid values: "admin", "default", "none"
+# "admin"   - add to admin group only (recommended, follows principle of least privilege)
+# "default" - add to default group (legacy behavior, all users can access)
+# "none"    - do not add to any group (manual assignment required)
+_DATASOURCE_AUTO_ASSIGN_GROUP_RAW = os.environ.get("REDASH_DATASOURCE_AUTO_ASSIGN_GROUP", "default").lower().strip()
+if _DATASOURCE_AUTO_ASSIGN_GROUP_RAW not in ("admin", "default", "none"):
+    raise ValueError(
+        f"Invalid value for REDASH_DATASOURCE_AUTO_ASSIGN_GROUP: '{_DATASOURCE_AUTO_ASSIGN_GROUP_RAW}'. "
+        "Valid values are: 'admin', 'default', 'none'."
+    )
+DATASOURCE_AUTO_ASSIGN_GROUP = _DATASOURCE_AUTO_ASSIGN_GROUP_RAW
+
 # Whether and how to redirect non-HTTP requests to HTTPS. Disabled by default.
 ENFORCE_HTTPS = parse_boolean(os.environ.get("REDASH_ENFORCE_HTTPS", "false"))
 ENFORCE_HTTPS_PERMANENT = parse_boolean(os.environ.get("REDASH_ENFORCE_HTTPS_PERMANENT", "false"))
