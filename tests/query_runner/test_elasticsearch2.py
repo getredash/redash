@@ -31,6 +31,83 @@ class TestElasticSearch(TestCase):
         }
         self.assertDictEqual(ElasticSearch2._parse_mappings(mapping_data), expected)
 
+    def test_parse_mappings_with_metadata_keys(self):
+        # ES 7+ puts metadata next to "properties" under "mappings": strings ("dynamic"),
+        # booleans ("subobjects", "date_detection"), lists ("dynamic_templates") and dicts
+        # without "properties" ("_data_stream_timestamp", "_meta"). Key order is not guaranteed.
+        mapping_data = {
+            ".ds-traces-apm-default-2026.09.19-000211": {
+                "mappings": {
+                    "dynamic": "false",
+                    "_data_stream_timestamp": {"enabled": True},
+                    "_meta": {"managed": True},
+                    "date_detection": False,
+                    "subobjects": False,
+                    "dynamic_templates": [
+                        {"strings": {"match_mapping_type": "string", "mapping": {"type": "keyword"}}}
+                    ],
+                    "properties": {
+                        "@timestamp": {"type": "date"},
+                        "service": {"properties": {"name": {"type": "keyword"}}},
+                    },
+                }
+            },
+            "metadata-only": {"mappings": {"dynamic": "strict", "_meta": {"managed": True}}},
+            # "_meta" is free-form, so it can hold a "properties" key of its own, whose contents
+            # may look like a field map at any depth but are not fields of the index
+            "meta-properties": {
+                "mappings": {"dynamic": "true", "_meta": {"properties": {"owner": "platform", "retention": "30d"}}}
+            },
+            "meta-properties-well-formed": {
+                "mappings": {"dynamic": "true", "_meta": {"properties": {"owner": {"type": "keyword"}}}}
+            },
+            "meta-properties-nested": {
+                "mappings": {"_meta": {"properties": {"owner": {"properties": {"name": "platform"}}}}}
+            },
+            "empty": {"mappings": {}},
+        }
+        expected = {
+            ".ds-traces-apm-default-2026.09.19-000211": {"@timestamp": "date", "service.name": "string"},
+            "metadata-only": {},
+            "meta-properties": {},
+            "meta-properties-well-formed": {},
+            "meta-properties-nested": {},
+            "empty": {},
+        }
+        self.assertDictEqual(ElasticSearch2._parse_mappings(mapping_data), expected)
+
+    def test_parse_mappings_with_doc_types(self):
+        # ES 6 and older: one entry per doc type under "mappings", possibly several of them
+        # and mixed with root metadata keys
+        mapping_data = {
+            "bank": {
+                "mappings": {
+                    "dynamic_templates": [
+                        {"strings": {"match_mapping_type": "string", "mapping": {"type": "keyword"}}}
+                    ],
+                    "_meta": {"managed": False},
+                    "account": {"properties": {"balance": {"type": "long"}}},
+                    "branch": {"properties": {"city": {"type": "text"}}},
+                }
+            }
+        }
+        expected = {"bank": {"balance": "integer", "city": "string"}}
+        self.assertDictEqual(ElasticSearch2._parse_mappings(mapping_data), expected)
+
+    def test_parse_mappings_with_doc_type_named_doc(self):
+        # ES 6.2+ accepts "_doc" as the conventional type name, despite the "_" prefix
+        mapping_data = {
+            "bank": {"mappings": {"_doc": {"properties": {"balance": {"type": "long"}, "city": {"type": "text"}}}}}
+        }
+        expected = {"bank": {"balance": "integer", "city": "string"}}
+        self.assertDictEqual(ElasticSearch2._parse_mappings(mapping_data), expected)
+
+    def test_parse_mappings_with_doc_type_named_properties(self):
+        # A pre-7.x doc type may itself be named "properties", which looks like a typeless mapping
+        mapping_data = {"bank": {"mappings": {"properties": {"properties": {"balance": {"type": "long"}}}}}}
+        expected = {"bank": {"balance": "integer"}}
+        self.assertDictEqual(ElasticSearch2._parse_mappings(mapping_data), expected)
+
     def test_parse_aggregation(self):
         response = {
             "took": 3,
