@@ -1,5 +1,79 @@
 # Change Log
 
+## 26.9.0
+
+Redash v26.9.0 includes important security fixes, a new Cloudflare D1 data source, improvements to number formatting and query runners, and updated dependencies and build tooling.
+
+We recommend upgrading all installations, particularly those shared by users with different data source permissions. Review the compatibility notes below before upgrading.
+
+### Security
+
+This release addresses 13 security advisories:
+
+| Severity | Change | Advisory |
+|---|---|---|
+| High | Prevent SQL injection through user email addresses included in query annotations. | [GHSA-vf3c-8663-w8pf](https://github.com/getredash/redash/security/advisories/GHSA-vf3c-8663-w8pf) |
+| High | Restrict query API keys and dashboard share keys to declared query-based dropdown dependencies. | [GHSA-gcw6-vrqh-rpfg](https://github.com/getredash/redash/security/advisories/GHSA-gcw6-vrqh-rpfg) |
+| High | Disable custom JavaScript visualizations by default. | [GHSA-g5q6-jghf-254r](https://github.com/getredash/redash/security/advisories/GHSA-g5q6-jghf-254r) |
+| High | Prevent view-only users from bypassing query execution restrictions through text-pattern parameters and undeclared placeholders. | [GHSA-v5m6-3vvm-h6gc](https://github.com/getredash/redash/security/advisories/GHSA-v5m6-3vvm-h6gc) |
+| High | Enforce access to underlying widget queries when duplicating dashboards. | [GHSA-vv3x-p6f3-rh5m](https://github.com/getredash/redash/security/advisories/GHSA-vv3x-p6f3-rh5m) |
+| High | Validate parameters and enforce data source permissions for parameterized queries executed through Query Results. | [GHSA-v43x-rgcc-wh77](https://github.com/getredash/redash/security/advisories/GHSA-v43x-rgcc-wh77) |
+| Medium | Verify query access and organization boundaries when updating alerts, and recheck access before manual evaluation. | [GHSA-5x53-q87f-qhvq](https://github.com/getredash/redash/security/advisories/GHSA-5x53-q87f-qhvq) |
+| Medium | Prevent disclosure of permanent query API keys through shared dashboards and align sharing controls with owner/admin permissions. | [GHSA-c56c-w395-v939](https://github.com/getredash/redash/security/advisories/GHSA-c56c-w395-v939) |
+| Medium | Require object modification permission to archive dashboards. | [GHSA-r536-vx74-p226](https://github.com/getredash/redash/security/advisories/GHSA-r536-vx74-p226) |
+| Medium | Block local filesystem access from DuckDB queries and prevent queries from changing the locked configuration. | [GHSA-cr68-3xxj-cg9f](https://github.com/getredash/redash/security/advisories/GHSA-cr68-3xxj-cg9f) |
+| Low | Require modification permission to list a query or dashboard's access control list. | [GHSA-rpvq-m6v3-4qx3](https://github.com/getredash/redash/security/advisories/GHSA-rpvq-m6v3-4qx3) |
+| Low | Require JSON query URLs to remain within the configured base URL's origin, preventing credentials from being forwarded to a different origin. | [GHSA-m723-r867-wfgw](https://github.com/getredash/redash/security/advisories/GHSA-m723-r867-wfgw) |
+| Low | Check access to underlying data sources when serving cached Query Results data. | [GHSA-8fm9-9p2c-9f37](https://github.com/getredash/redash/security/advisories/GHSA-8fm9-9p2c-9f37) |
+
+This release also includes:
+
+- Harden post-login redirects against external redirect bypasses ([CVE-2026-33213](https://github.com/getredash/redash/security/advisories/GHSA-rfgc-hc86-pxrv)).
+- Enforce user permissions and organization boundaries in Python query helpers, and strengthen restricted Python attribute and write guards ([#7759](https://github.com/getredash/redash/pull/7759), [#7757](https://github.com/getredash/redash/pull/7757)).
+- Update security-sensitive dependencies, including Authlib, cryptography, PyOpenSSL, Requests, PyJWT, Axios, and form-data ([#7768](https://github.com/getredash/redash/pull/7768), [#7816](https://github.com/getredash/redash/pull/7816), [#7817](https://github.com/getredash/redash/pull/7817), [#7717](https://github.com/getredash/redash/pull/7717)).
+
+### Features and improvements
+
+- **Cloudflare D1:** Add a query runner with API-token authentication and schema browsing ([#7550](https://github.com/getredash/redash/pull/7550)).
+- **Number formatting:** Configure thousands and decimal separators in organization settings. Deployment defaults can be set with `REDASH_THOUSANDS_SEPARATOR` and `REDASH_DECIMAL_SEPARATOR` ([#7749](https://github.com/getredash/redash/pull/7749)).
+- **Trino:** Add automatic query limits and query annotations. Annotations are enabled by default and can be disabled with `TRINO_ANNOTATE_QUERY=false` ([#7750](https://github.com/getredash/redash/pull/7750), [#7657](https://github.com/getredash/redash/pull/7657)).
+- **Databricks:** Add an optional "Use Query Annotation" setting, disabled by default. Annotations omit the job ID to preserve result-cache compatibility ([#7795](https://github.com/getredash/redash/pull/7795)).
+- **Charts:** Fix missing X- and Y-axis names ([#7701](https://github.com/getredash/redash/pull/7701)).
+- **Deployment:** Allow configuring the server's bind address with `REDASH_GUNICORN_BIND`. The default remains `[::]:5000` ([#7647](https://github.com/getredash/redash/pull/7647)).
+
+### Build and development
+
+- Migrate frontend dependency management from Yarn to pnpm, use Node.js 24 for frontend builds, and update TypeScript and frontend tooling ([#7651](https://github.com/getredash/redash/pull/7651)).
+- Migrate Python dependency management from Poetry to uv ([#7755](https://github.com/getredash/redash/pull/7755)).
+- Fix pnpm installation and update frontend formatting and build configuration ([#7670](https://github.com/getredash/redash/pull/7670), [#7786](https://github.com/getredash/redash/pull/7786)).
+- Add a release management script and fix backend formatting ([#7671](https://github.com/getredash/redash/pull/7671), [#7820](https://github.com/getredash/redash/pull/7820)).
+
+### Upgrading and compatibility
+
+Docker image: `redash/redash:26.9.0` (Linux amd64 and arm64).
+
+Back up your Redash metadata database and upgrade the web application, scheduler, and all workers together.
+
+**Custom JavaScript charts:** `REDASH_FEATURE_ALLOW_CUSTOM_JS_VISUALIZATIONS` now defaults to `false`. Existing custom charts stop executing unless the feature is explicitly enabled; saved definitions remain intact. An explicit `true` setting remains effective. Enable this only when chart authors are trusted to run code with viewers' session privileges. Reload open Redash pages after the upgrade.
+
+**Query permissions:** Queries using text-pattern parameters or undeclared placeholders now require full data source access. Python helpers and Query Results enforce access to referenced data sources. Query and dashboard keys can access only declared dropdown dependencies. Workflows that depended on the previous permission bypasses will fail authorization.
+
+**SQL annotations and execution logs:** User identity changes from `Username: <email>` to `user_id: <id>`, and execution logs use `user_id` instead of `username`. API-key execution uses safe server-generated identity labels rather than secret keys. SQL comments include only supported fields with validated values. Update integrations that parse database query logs or execution logs.
+
+**Dashboard sharing:** Owners and administrators can enable or disable public sharing. Viewers can still copy an already-enabled public sharing link. API users no longer receive a query's permanent API key in query responses.
+
+**DuckDB:** Queries that read or write local files are blocked. A new "Enable External Access" option controls broader external access and remains enabled by default; disabling it also restricts network access.
+
+**JSON data sources:** When a base URL is configured, query and pagination URLs must use the same scheme, hostname, and effective port. Review queries that intentionally call another origin.
+
+**Previously exposed credentials:** Upgrading does not revoke previously disclosed query API keys. Regenerate potentially exposed keys, including those obtained through shared dashboards; revoking a dashboard share alone does not revoke query keys. Review existing alert query assignments and subscriptions—the alert patch does not automatically clean up existing subscriptions or reauthorize scheduled notifications.
+
+**Database migrations:** No new migrations are included relative to v26.3.0. Installations upgrading from older versions should apply outstanding migrations using `docker compose run --rm server manage db upgrade`.
+
+Thanks to all contributors and security researchers who helped improve this release.
+
+[Full changelog](https://github.com/getredash/redash/compare/v26.3.0...v26.9.0)
+
 ## 26.03.0
 
 * Fix regular expression warning ([#7650](https://github.com/getredash/redash/pull/7650))
