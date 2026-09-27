@@ -23,7 +23,7 @@ export const csrfRefreshInterceptor = createAuthRefreshInterceptor(
       return Promise.reject(error);
     }
   },
-  { statusCodes: [400] }
+  { statusCodes: [400], deduplicateRefresh: false }
 );
 
 export const sessionRefreshInterceptor = createAuthRefreshInterceptor(
@@ -40,7 +40,7 @@ export const sessionRefreshInterceptor = createAuthRefreshInterceptor(
   },
   {
     statusCodes: [401, 404],
-    pauseInstanceWhileRefreshing: false, // According to docs, `false` is default value, but in fact it's not :-)
+    deduplicateRefresh: false,
   }
 );
 
