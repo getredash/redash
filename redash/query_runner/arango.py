@@ -65,7 +65,12 @@ class Arango(BaseQueryRunner):
         return "arangodb"
 
     def run_query(self, query, user):
-        client = ArangoClient(hosts="{}:{}".format(self.configuration["host"], self.configuration.get("port", 8529)))
+        # python-arango 7+ times out HTTP requests after 60 seconds by default. Query
+        # duration is bounded by the AQL timeout (max_runtime) instead.
+        client = ArangoClient(
+            hosts="{}:{}".format(self.configuration["host"], self.configuration.get("port", 8529)),
+            request_timeout=None,
+        )
         db = client.db(
             self.configuration["dbname"], username=self.configuration["user"], password=self.configuration["password"]
         )
