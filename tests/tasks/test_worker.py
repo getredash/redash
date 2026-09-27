@@ -17,6 +17,7 @@ class TestWorkerMetrics(BaseTestCase):
     def tearDown(self):
         for queue_name in default_queues:
             Queue(queue_name, connection=rq_redis_connection).empty()
+        super().tearDown()
 
     def test_worker_records_success_metrics(self, incr):
         query = self.factory.create_query()
@@ -92,6 +93,7 @@ class TestQueueMetrics(BaseTestCase):
     def tearDown(self):
         for queue_name in default_queues:
             Queue(queue_name, connection=rq_redis_connection).empty()
+        super().tearDown()
 
     def test_enqueue_query_records_created_metric(self, incr):
         query = self.factory.create_query()

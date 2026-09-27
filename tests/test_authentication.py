@@ -505,6 +505,7 @@ class TestJWTAuthentication(BaseTestCase):
         org_settings["auth_jwt_auth_issuer"] = ""
         org_settings["auth_jwt_auth_audience"] = ""
         org_settings["auth_jwt_auth_header_name"] = ""
+        super().tearDown()
 
     def test_jwt_no_token(self):
         response = self.get_request("/data_sources", org=self.factory.org)
