@@ -6,7 +6,7 @@ import yaml
 from redash.query_runner import BaseQueryRunner, NotSupported, register
 from redash.utils.requests_session import (
     UnacceptableAddressException,
-    requests_or_advocate,
+    requests_or_ssrf,
 )
 
 logger = logging.getLogger(__name__)
@@ -58,7 +58,7 @@ class Excel(BaseQueryRunner):
             pass
 
         try:
-            response = requests_or_advocate.get(url=path, headers={"User-agent": ua})
+            response = requests_or_ssrf.get(url=path, headers={"User-agent": ua})
             workbook = pd.read_excel(io.BytesIO(response.content), **args)
 
             df = workbook.copy()
