@@ -37,7 +37,7 @@
     "@babel/preset-react": "^8.0.1",
     "@babel/preset-typescript": "^8.0.1",
     "@types/chroma-js": "^3.1.2",
-    "@types/d3": "^6.2.0",
+    "@types/d3": "^7.4.3",
     "@types/d3-cloud": "^1.2.3",
     "@types/debug": "^4.1.13",
     "@types/enzyme": "^3.10.8",
@@ -79,7 +79,7 @@
     "beautifymarker": "^1.0.7",
     "chroma-js": "^3.2.0",
     "classnames": "^2.2.6",
-    "d3": "^3.5.17",
+    "d3": "^7.9.0",
     "d3-cloud": "^1.2.9",
     "debug": "^4.4.3",
     "dompurify": "^3.4.16",
@@ -102,8 +102,27 @@
     "rootDir": "./src",
     "testEnvironment": "jsdom",
     "transform": {
+      "[\\\\/]node_modules[\\\\/].+\\.m?js$": [
+        "<rootDir>/../node_modules/babel-jest",
+        {
+          "presets": [
+            [
+              "@babel/preset-env",
+              {
+                "targets": {
+                  "node": "current"
+                }
+              }
+            ]
+          ]
+        }
+      ],
       "\\.[jt]sx?$": "<rootDir>/../node_modules/babel-jest"
     },
+    "transformIgnorePatterns": [
+      "/node_modules/(?!\\.pnpm/|(d3|d3-[a-z-]+|internmap|delaunator|robust-predicates)/)",
+      "/node_modules/\\.pnpm/(?!(d3|d3-[a-z-]+|internmap|delaunator|robust-predicates)@)"
+    ],
     "setupFiles": [
       "../__tests__/enzyme_setup.js",
       "../__tests__/mocks.js"
