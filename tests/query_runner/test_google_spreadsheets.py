@@ -184,7 +184,7 @@ class TestConnection(TestCase):
         try:
             qr_gspread = GoogleSpreadsheet({})
             qr_gspread.test_connection()
-            mock_client().login.assert_called_once_with()
+            mock_client().set_timeout.assert_called_once_with(300)
             mock_client().open_by_key.assert_called_once()
         except Exception:
             self.fail("test_connection failed")
@@ -199,7 +199,7 @@ class TestConnection(TestCase):
     @patch("redash.query_runner.google_spreadsheets.google.auth.default")
     def test_connect_fail_with_api_error(self, mock_auth_default):
         mock_response = MagicMock()
-        mock_response.json.return_value = {"error": {"message": "Sheet API is disabled"}}
+        mock_response.json.return_value = {"error": {"code": 403, "message": "Sheet API is disabled"}}
         mock_auth_default.side_effect = APIError(mock_response)
         qr_gspread = GoogleSpreadsheet({})
         with pytest.raises(Exception):

@@ -105,12 +105,18 @@ class DuckDB(BaseSQLQueryRunner):
         self.con.execute("SET disabled_filesystems = 'LocalFileSystem'")
         self.con.execute("SET lock_configuration = true")
 
+    @staticmethod
+    def _base_type(type_code) -> str:
+        # cursor.description holds a DuckDBPyType (not a str) since duckdb 1.4. Strip
+        # parameters so e.g. DECIMAL(18,3) and STRUCT(a INTEGER) match TYPES_MAP.
+        return str(type_code).upper().split("(", 1)[0]
+
     def run_query(self, query, user) -> tuple:
         try:
             cursor = self.con.cursor()
             cursor.execute(query)
             columns = self.fetch_columns(
-                [(d[0], TYPES_MAP.get(d[1].upper(), TYPE_STRING)) for d in cursor.description]
+                [(d[0], TYPES_MAP.get(self._base_type(d[1]), TYPE_STRING)) for d in cursor.description]
             )
             rows = [dict(zip((col["name"] for col in columns), row)) for row in cursor.fetchall()]
             data = {"columns": columns, "rows": rows}
