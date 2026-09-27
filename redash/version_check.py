@@ -2,6 +2,7 @@ import logging
 
 import requests
 import semver
+from sqlalchemy import text
 
 from redash import __version__ as current_version
 from redash import redis_connection
@@ -50,10 +51,10 @@ def usage_data():
     visualizations_query = "SELECT type, count(0) FROM visualizations GROUP by 1"
     destinations_query = "SELECT type, count(0) FROM notification_destinations GROUP by 1"
 
-    data = {name: value for (name, value) in db.session.execute(counts_query)}
-    data["data_sources"] = {name: value for (name, value) in db.session.execute(data_sources_query)}
-    data["visualization_types"] = {name: value for (name, value) in db.session.execute(visualizations_query)}
-    data["destination_types"] = {name: value for (name, value) in db.session.execute(destinations_query)}
+    data = {name: value for (name, value) in db.session.execute(text(counts_query))}
+    data["data_sources"] = {name: value for (name, value) in db.session.execute(text(data_sources_query))}
+    data["visualization_types"] = {name: value for (name, value) in db.session.execute(text(visualizations_query))}
+    data["destination_types"] = {name: value for (name, value) in db.session.execute(text(destinations_query))}
 
     return data
 
