@@ -72,6 +72,10 @@
     "lib"
   ],
   "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/modifiers": "^9.0.0",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
     "axios": "1.20.0",
     "axios-auth-refresh": "5.0.2",
     "beautifymarker": "^1.0.7",
@@ -91,7 +95,6 @@
     "plotly.js": "3.3.1",
     "react-pivottable": "^0.11.1",
     "react-plotly.js": "^2.6.0",
-    "react-sortable-hoc": "^1.10.1",
     "tinycolor2": "^1.4.1",
     "use-debounce": "^10.1.1",
     "use-media": "^1.4.0"
