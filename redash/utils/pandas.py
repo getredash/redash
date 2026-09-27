@@ -31,7 +31,7 @@ if pandas_installed:
             elif pd.api.types.is_datetime64_dtype(column_type):
                 if df.empty:
                     redash_type = TYPE_DATETIME
-                elif len(df[column_name].head(1).astype(str).loc[0]) > 10:
+                elif len(df[column_name].head(1).astype(str).iloc[0]) > 10:
                     redash_type = TYPE_DATETIME
                 else:
                     redash_type = TYPE_DATE
