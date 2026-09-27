@@ -30,6 +30,7 @@
     "react-dom": ">=16.14.0"
   },
   "devDependencies": {
+    "@ant-design/icons": "^4.8.3",
     "@babel/cli": "^8.0.6",
     "@babel/core": "^8.0.6",
     "@babel/plugin-transform-class-properties": "^8.0.1",
@@ -51,6 +52,7 @@
     "@types/react-pivottable": "^0.11.6",
     "@types/react-plotly.js": "^2.6.4",
     "@types/tinycolor2": "^1.4.2",
+    "antd": "4.24.16",
     "babel-jest": "^30.5.2",
     "babel-loader": "^10.1.1",
     "babel-plugin-istanbul": "^8.0.0",
@@ -90,7 +92,7 @@
     "leaflet": "~1.9.4",
     "leaflet-fullscreen": "^1.0.2",
     "leaflet.markercluster": "^1.1.0",
-    "lodash": "^4.17.10",
+    "lodash": "^4.18.1",
     "numeral": "^2.0.6",
     "plotly.js": "3.3.1",
     "react-pivottable": "^0.11.1",

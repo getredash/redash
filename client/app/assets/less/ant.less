@@ -205,6 +205,11 @@
 
   &-thead > tr > th {
     padding: @table-padding-vertical * 2 @table-padding-horizontal;
+
+    // antd 4.4 padded sortable headers less (on the sorter inside them); keep them the same height
+    &.@{table-prefix-cls}-column-has-sorters {
+      padding: @table-padding-vertical @table-padding-horizontal;
+    }
   }
 
   .@{table-prefix-cls}-column-sorters {
@@ -212,6 +217,11 @@
     &:hover:before {
       content: none;
     }
+  }
+
+  // antd 4.24 halved the gap before the sort icon; keep columns as wide as with antd 4.4
+  .@{table-prefix-cls}-column-sorter {
+    margin-left: @padding-xs;
   }
 
   &-thead > tr > th {
