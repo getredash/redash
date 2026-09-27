@@ -4,7 +4,7 @@ import time
 from flask import g, has_request_context
 from sqlalchemy.engine import Engine
 from sqlalchemy.event import listens_for
-from sqlalchemy.sql.selectable import AliasedReturnsRows, Join, Select
+from sqlalchemy.sql.selectable import AliasedReturnsRows, CompoundSelect, Join, Select
 
 from redash import statsd_client
 
@@ -21,6 +21,8 @@ def _table_name_from_select_element(elt):
             t = t.element
         elif isinstance(t, Select):
             t = t.get_final_froms()[0]
+        elif isinstance(t, CompoundSelect):  # UNION etc.
+            t = t.selects[0]
         else:
             return t.name
 
