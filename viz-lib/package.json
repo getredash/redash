@@ -30,12 +30,12 @@
     "react-dom": ">=16.14.0"
   },
   "devDependencies": {
-    "@babel/cli": "^7.28.6",
-    "@babel/core": "^7.29.0",
-    "@babel/plugin-transform-class-properties": "^7.28.5",
-    "@babel/preset-env": "^7.29.0",
-    "@babel/preset-react": "^7.28.5",
-    "@babel/preset-typescript": "^7.28.5",
+    "@babel/cli": "^8.0.6",
+    "@babel/core": "^8.0.6",
+    "@babel/plugin-transform-class-properties": "^8.0.1",
+    "@babel/preset-env": "^8.0.6",
+    "@babel/preset-react": "^8.0.1",
+    "@babel/preset-typescript": "^8.0.1",
     "@types/chroma-js": "^2.1.2",
     "@types/d3": "^6.2.0",
     "@types/d3-cloud": "^1.2.3",
@@ -52,7 +52,7 @@
     "@types/tinycolor2": "^1.4.2",
     "babel-jest": "^30.5.2",
     "babel-loader": "^10.1.1",
-    "babel-plugin-istanbul": "^6.1.1",
+    "babel-plugin-istanbul": "^8.0.0",
     "babel-plugin-module-resolver": "^5.0.3",
     "css-loader": "^7.1.5",
     "enzyme": "^3.8.0",
@@ -102,7 +102,7 @@
     "rootDir": "./src",
     "testEnvironment": "jsdom",
     "transform": {
-      "\\.[jt]sx?$": "babel-jest"
+      "\\.[jt]sx?$": "<rootDir>/../node_modules/babel-jest"
     },
     "setupFiles": [
       "../__tests__/enzyme_setup.js",
@@ -119,5 +119,8 @@
   "browser": {
     "fs": false,
     "path": false
-  }
+  },
+  "browserslist": [
+    "defaults"
+  ]
 }
