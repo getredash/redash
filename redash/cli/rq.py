@@ -1,10 +1,9 @@
-import datetime
 import socket
 from itertools import chain
 
 from click import argument
 from flask.cli import AppGroup
-from rq import Connection
+from rq.utils import now
 from rq.worker import WorkerStatus
 from sqlalchemy.orm import configure_mappers
 from supervisor_checks import check_runner
@@ -42,9 +41,8 @@ def worker(queues):
     else:
         queues = chain(*[queue.split(",") for queue in queues])
 
-    with Connection(rq_redis_connection):
-        w = Worker(queues, log_job_description=False, job_monitoring_interval=5)
-        w.work()
+    w = Worker(queues, connection=rq_redis_connection, log_job_description=False, job_monitoring_interval=5)
+    w.work()
 
 
 class WorkerHealthcheck(base.BaseCheck):
@@ -63,7 +61,7 @@ class WorkerHealthcheck(base.BaseCheck):
 
         is_busy = worker.get_state() == WorkerStatus.BUSY
 
-        time_since_seen = datetime.datetime.utcnow() - worker.last_heartbeat
+        time_since_seen = now() - worker.last_heartbeat
         seen_lately = time_since_seen.seconds < 60
 
         total_jobs_in_watched_queues = sum([len(q.jobs) for q in worker.queues])
