@@ -1,25 +1,12 @@
 {
   "presets": [
-    [
-      "@babel/preset-env",
-      {
-        "exclude": ["@babel/plugin-transform-async-to-generator", "@babel/plugin-transform-arrow-functions"],
-        "corejs": "2",
-        "useBuiltIns": "usage"
-      }
-    ],
-    "@babel/preset-react",
-    "@babel/preset-typescript"
+    "@babel/preset-env",
+    ["@babel/preset-react", { "runtime": "classic" }],
+    ["@babel/preset-typescript", { "onlyRemoveTypeImports": false }]
   ],
   "plugins": [
     "@babel/plugin-transform-class-properties",
-    "@babel/plugin-transform-object-assign",
-    [
-      "babel-plugin-transform-builtin-extend",
-      {
-        "globals": ["Error"]
-      }
-    ]
+    ["polyfill-corejs3", { "method": "usage-global", "version": "3.50" }]
   ],
   "env": {
     "test": {

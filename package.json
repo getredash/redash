@@ -34,7 +34,7 @@
   },
   "packageManager": "pnpm@10.30.3",
   "engines": {
-    "node": ">=22.18.0 <26.0.0"
+    "node": "^22.18.0 || >=24.11.0 <26.0.0"
   },
   "author": "Redash Contributors",
   "license": "BSD-2-Clause",
@@ -51,6 +51,7 @@
     "axios-auth-refresh": "5.0.2",
     "bootstrap": "^3.4.1",
     "classnames": "^2.2.6",
+    "core-js": "^3.50.0",
     "d3": "^3.5.17",
     "debug": "^4.4.3",
     "dompurify": "^3.4.16",
@@ -77,13 +78,12 @@
     "use-media": "^1.4.0"
   },
   "devDependencies": {
-    "@babel/cli": "^7.28.6",
-    "@babel/core": "^7.29.0",
-    "@babel/plugin-transform-class-properties": "^7.28.5",
-    "@babel/plugin-transform-object-assign": "^7.27.1",
-    "@babel/preset-env": "^7.29.0",
-    "@babel/preset-react": "^7.28.5",
-    "@babel/preset-typescript": "^7.28.5",
+    "@babel/cli": "^8.0.6",
+    "@babel/core": "^8.0.6",
+    "@babel/plugin-transform-class-properties": "^8.0.1",
+    "@babel/preset-env": "^8.0.6",
+    "@babel/preset-react": "^8.0.1",
+    "@babel/preset-typescript": "^8.0.1",
     "@biomejs/biome": "2.5.14",
     "@cypress/code-coverage": "^3.11.0",
     "@playwright/test": "1.63.0",
@@ -100,8 +100,8 @@
     "atob": "^2.1.2",
     "babel-jest": "^30.5.2",
     "babel-loader": "^10.1.1",
-    "babel-plugin-istanbul": "^6.1.1",
-    "babel-plugin-transform-builtin-extend": "^1.1.2",
+    "babel-plugin-istanbul": "^8.0.0",
+    "babel-plugin-polyfill-corejs3": "^1.0.0",
     "copy-webpack-plugin": "^14.0.0",
     "css-loader": "^7.1.5",
     "cypress": "^11.2.0",
@@ -143,7 +143,7 @@
     "rootDir": "./client",
     "transform": {
       "[\\\\/]node_modules[\\\\/].+\\.m?js$": [
-        "babel-jest",
+        "<rootDir>/../node_modules/babel-jest",
         {
           "presets": [
             [
@@ -157,7 +157,7 @@
           ]
         }
       ],
-      "\\.[jt]sx?$": "babel-jest"
+      "\\.[jt]sx?$": "<rootDir>/../node_modules/babel-jest"
     },
     "transformIgnorePatterns": [
       "/node_modules/(?!\\.pnpm/|(marked)/)",
@@ -189,20 +189,8 @@
     "fs": false,
     "path": false
   },
-  "//": "browserslist set to 'Async functions' compatibility",
   "browserslist": [
-    "Edge >= 15",
-    "Firefox >= 52",
-    "Chrome >= 55",
-    "Safari >= 10.1",
-    "iOS >= 10.3",
-    "Opera >= 42",
-    "op_mob >= 46",
-    "android >= 67",
-    "and_chr >= 71",
-    "and_ff >= 64",
-    "and_uc >= 11.8",
-    "samsung >= 6.2"
+    "defaults"
   ],
   "pnpm": {
     "overrides": {
