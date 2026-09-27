@@ -8,6 +8,7 @@ import logging
 from os import environ
 
 from redash.query_runner import BaseQueryRunner
+from redash.utils import json_loads
 
 from . import register
 
@@ -80,9 +81,7 @@ class SPARQLEndpointQueryRunner(BaseQueryRunner):
             just string.
         """
         logger.info("results are: {}".format(results))
-        # Not sure why we do not use the json package here but all other
-        # query runner do it the same way :-)
-        sparql_results = results
+        sparql_results = json_loads(results)
         # transform all bindings to redash rows
         rows = []
         for sparql_row in sparql_results["results"]["bindings"]:
