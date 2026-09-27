@@ -10,6 +10,7 @@ from saml2.sigver import get_xmlsec_binary
 from redash import settings
 from redash.authentication import (
     create_and_login_user,
+    get_next_path,
     logout_and_redirect_to_index,
 )
 from redash.authentication.org_resolving import current_org
@@ -141,9 +142,10 @@ def idp_initiated(org_slug=None):
         group_names = authn_response.ava.get("RedashGroups")
         user.update_group_assignments(group_names)
 
-    url = url_for("redash.index", org_slug=org_slug)
+    index_url = url_for("redash.index", org_slug=org_slug)
+    next_path = get_next_path(request.form.get("RelayState", index_url))
 
-    return redirect(url)
+    return redirect(next_path or index_url)
 
 
 @blueprint.route(org_scoped_rule("/saml/login"))
@@ -157,7 +159,10 @@ def sp_initiated(org_slug=None):
     if nameid_format is None or nameid_format == "":
         nameid_format = NAMEID_FORMAT_TRANSIENT
 
-    _, info = saml_client.prepare_for_authenticate(nameid_format=nameid_format)
+    index_url = url_for("redash.index", org_slug=org_slug)
+    next_path = get_next_path(request.args.get("next", index_url))
+
+    _, info = saml_client.prepare_for_authenticate(nameid_format=nameid_format, relay_state=next_path or index_url)
 
     redirect_url = None
     # Select the IdP URL to send the AuthN request to
