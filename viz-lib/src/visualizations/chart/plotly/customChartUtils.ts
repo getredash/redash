@@ -24,10 +24,10 @@ export function createCustomChartRenderer(code: any, logErrorsToConsole = false)
   let render = () => {};
   try {
     // @ts-expect-error ts-migrate(2322) FIXME: Type 'Function' is not assignable to type '() => v... Remove this comment to see the full error message
-    render = new Function("x, ys, element, Plotly", code); // eslint-disable-line no-new-func
+    render = new Function("x, ys, element, Plotly", code);
   } catch (err) {
     if (logErrorsToConsole) {
-      console.log(`Error while executing custom graph: ${err}`); // eslint-disable-line no-console
+      console.log(`Error while executing custom graph: ${err}`);
     }
   }
 
@@ -38,7 +38,7 @@ export function createCustomChartRenderer(code: any, logErrorsToConsole = false)
       render(x, ys, element, Plotly);
     } catch (err) {
       if (logErrorsToConsole) {
-        console.log(`Error while executing custom graph: ${err}`); // eslint-disable-line no-console
+        console.log(`Error while executing custom graph: ${err}`);
       }
     }
   };

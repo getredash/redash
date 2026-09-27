@@ -88,7 +88,6 @@ function formatTimeLabel(options: any, offset: any) {
 }
 
 function CorneliusHeader({ options, maxRowLength }: any) {
-  // eslint-disable-line react/prop-types
   const cells = [];
   for (let i = 1; i < maxRowLength; i += 1) {
     cells.push(
@@ -108,7 +107,6 @@ function CorneliusHeader({ options, maxRowLength }: any) {
 }
 
 function CorneliusRow({ options, data, index, maxRowLength }: any) {
-  // eslint-disable-line react/prop-types
   const baseValue = data[0] || 0;
 
   const cells = [];

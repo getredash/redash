@@ -10,7 +10,7 @@ describe("Counter", () => {
     cy.login();
     cy.createQuery({ query: SQL }).then(({ id }) => {
       cy.visit(`queries/${id}/source`);
-      cy.wait(1500); // eslint-disable-line cypress/no-unnecessary-waiting
+      cy.wait(1500);
       cy.getByTestId("ExecuteButton").click();
     });
     cy.getByTestId("NewVisualization").click();
@@ -26,7 +26,7 @@ describe("Counter", () => {
     cy.getByTestId("VisualizationPreview").find(".counter-visualization-container").should("exist");
 
     // wait a bit before taking snapshot
-    cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
+    cy.wait(500);
   });
 
   it("creates Counter with custom label", () => {
@@ -42,7 +42,7 @@ describe("Counter", () => {
     cy.getByTestId("VisualizationPreview").find(".counter-visualization-container").should("exist");
 
     // wait a bit before taking snapshot
-    cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
+    cy.wait(500);
   });
 
   it("creates Counter with non-numeric value", () => {
@@ -61,7 +61,7 @@ describe("Counter", () => {
     cy.getByTestId("VisualizationPreview").find(".counter-visualization-container").should("exist");
 
     // wait a bit before taking snapshot
-    cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
+    cy.wait(500);
   });
 
   it("creates Counter with target value (trend positive)", () => {
@@ -76,7 +76,7 @@ describe("Counter", () => {
     cy.getByTestId("VisualizationPreview").find(".counter-visualization-container").should("exist");
 
     // wait a bit before taking snapshot
-    cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
+    cy.wait(500);
   });
 
   it("creates Counter with custom row number (trend negative)", () => {
@@ -96,7 +96,7 @@ describe("Counter", () => {
     cy.getByTestId("VisualizationPreview").find(".counter-visualization-container").should("exist");
 
     // wait a bit before taking snapshot
-    cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
+    cy.wait(500);
   });
 
   it("creates Counter with count rows", () => {
@@ -110,7 +110,7 @@ describe("Counter", () => {
     cy.getByTestId("VisualizationPreview").find(".counter-visualization-container").should("exist");
 
     // wait a bit before taking snapshot
-    cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
+    cy.wait(500);
   });
 
   it("creates Counter with formatting", () => {
@@ -135,7 +135,7 @@ describe("Counter", () => {
     cy.getByTestId("VisualizationPreview").find(".counter-visualization-container").should("exist");
 
     // wait a bit before taking snapshot
-    cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
+    cy.wait(500);
   });
 
   it("creates Counter with target value formatting", () => {
@@ -161,6 +161,6 @@ describe("Counter", () => {
     cy.getByTestId("VisualizationPreview").find(".counter-visualization-container").should("exist");
 
     // wait a bit before taking snapshot
-    cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
+    cy.wait(500);
   });
 });

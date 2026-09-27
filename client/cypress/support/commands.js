@@ -77,7 +77,7 @@ Cypress.Commands.add("fillInputs", (elements, { wait = 0 } = {}) => {
   each(elements, (value, testId) => {
     cy.getByTestId(testId).filter(":visible").clear().type(value);
     if (wait > 0) {
-      cy.wait(wait); // eslint-disable-line cypress/no-unnecessary-waiting
+      cy.wait(wait);
     }
   });
 });

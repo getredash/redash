@@ -1,4 +1,3 @@
-/* eslint-disable global-require, import/no-unresolved */
 import getOptions from "../getOptions";
 import prepareLayout from "./prepareLayout";
 

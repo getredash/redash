@@ -27,7 +27,8 @@ export default function EmailSettingsWarning({ featureName, className, mode, adm
   if (mode === "icon") {
     return (
       <Tooltip title={message} placement="topRight" arrowPointAtCenter>
-        {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex */}
+        {/* biome-ignore lint/a11y/noNoninteractiveTabindex: Tooltip trigger, focusable so keyboard users can open the tooltip */}
+        {/* biome-ignore lint/a11y/useAriaPropsSupportedByRole: names the icon-only trigger for screen readers */}
         <span className={className} aria-label="Mail alert" aria-describedby={messageDescriptionId} tabIndex={0}>
           <i className={"fa fa-exclamation-triangle"} aria-hidden="true" />
         </span>

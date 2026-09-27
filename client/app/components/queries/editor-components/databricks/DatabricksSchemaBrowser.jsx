@@ -136,8 +136,8 @@ export default function DatabricksSchemaBrowser({
 }
 
 DatabricksSchemaBrowser.propTypes = {
-  dataSource: PropTypes.object, // eslint-disable-line react/forbid-prop-types
-  options: PropTypes.object, // eslint-disable-line react/forbid-prop-types
+  dataSource: PropTypes.object,
+  options: PropTypes.object,
   onOptionsUpdate: PropTypes.func,
   onSchemaUpdate: PropTypes.func,
   onItemSelect: PropTypes.func,

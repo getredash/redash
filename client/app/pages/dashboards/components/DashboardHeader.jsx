@@ -60,7 +60,7 @@ function DashboardPageTitle({ dashboardConfiguration }) {
 }
 
 DashboardPageTitle.propTypes = {
-  dashboardConfiguration: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  dashboardConfiguration: PropTypes.object.isRequired,
 };
 
 function RefreshButton({ dashboardConfiguration }) {
@@ -108,7 +108,7 @@ function RefreshButton({ dashboardConfiguration }) {
 }
 
 RefreshButton.propTypes = {
-  dashboardConfiguration: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  dashboardConfiguration: PropTypes.object.isRequired,
 };
 
 function DashboardMoreOptionsButton({ dashboardConfiguration }) {
@@ -177,7 +177,7 @@ function DashboardMoreOptionsButton({ dashboardConfiguration }) {
 }
 
 DashboardMoreOptionsButton.propTypes = {
-  dashboardConfiguration: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  dashboardConfiguration: PropTypes.object.isRequired,
 };
 
 function DashboardControl({ dashboardConfiguration, headerExtra }) {
@@ -247,7 +247,7 @@ function DashboardControl({ dashboardConfiguration, headerExtra }) {
 }
 
 DashboardControl.propTypes = {
-  dashboardConfiguration: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  dashboardConfiguration: PropTypes.object.isRequired,
   headerExtra: PropTypes.node,
 };
 
@@ -296,7 +296,7 @@ function DashboardEditControl({ dashboardConfiguration, headerExtra }) {
 }
 
 DashboardEditControl.propTypes = {
-  dashboardConfiguration: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  dashboardConfiguration: PropTypes.object.isRequired,
   headerExtra: PropTypes.node,
 };
 
@@ -313,6 +313,6 @@ export default function DashboardHeader({ dashboardConfiguration, headerExtra })
 }
 
 DashboardHeader.propTypes = {
-  dashboardConfiguration: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  dashboardConfiguration: PropTypes.object.isRequired,
   headerExtra: PropTypes.node,
 };

@@ -42,7 +42,6 @@ export default function initDateTimeColumn(column: any) {
   }
 
   function DateTimeColumn({ row }: any) {
-    // eslint-disable-line react/prop-types
     const { text } = prepareData(row);
     return text;
   }

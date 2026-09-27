@@ -1,5 +1,3 @@
-/* eslint-disable react/prop-types */
-
 import { toPairs } from "lodash";
 import React from "react";
 

@@ -25,8 +25,8 @@ export default function QueryResultsLink(props) {
 }
 
 QueryResultsLink.propTypes = {
-  query: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
-  queryResult: PropTypes.object, // eslint-disable-line react/forbid-prop-types
+  query: PropTypes.object.isRequired,
+  queryResult: PropTypes.object,
   fileType: PropTypes.string,
   disabled: PropTypes.bool.isRequired,
   embed: PropTypes.bool,
