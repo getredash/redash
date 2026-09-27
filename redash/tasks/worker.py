@@ -4,10 +4,11 @@ import signal
 import sys
 
 from rq import Queue as BaseQueue
+from rq.exceptions import InvalidJobOperation
 from rq.job import Job as BaseJob
 from rq.job import JobStatus
 from rq.timeouts import HorseMonitorTimeoutException
-from rq.utils import utcnow
+from rq.utils import now
 from rq.worker import (
     HerokuWorker,  # HerokuWorker implements graceful shutdown on SIGTERM
     Worker,
@@ -65,7 +66,11 @@ class StatsdRecordingWorker(BaseWorker):
             super().execute_job(job, queue)
         finally:
             statsd_client.decr("rq.jobs.running.{}".format(queue.name))
-            if job.get_status() == JobStatus.FINISHED:
+            try:
+                job_status = job.get_status()
+            except InvalidJobOperation:  # The job finished and its result TTL expired
+                job_status = JobStatus.FINISHED
+            if job_status == JobStatus.FINISHED:
                 statsd_client.incr("rq.jobs.finished.{}".format(queue.name))
             else:
                 statsd_client.incr("rq.jobs.failed.{}".format(queue.name))
@@ -98,7 +103,7 @@ class HardLimitingWorker(BaseWorker):
         job_has_time_limit = job.timeout != -1
 
         if job_has_time_limit:
-            seconds_under_monitor = (utcnow() - self.monitor_started).seconds
+            seconds_under_monitor = (now() - self.monitor_started).seconds
             return seconds_under_monitor > job.timeout + self.grace_period
         else:
             return False
@@ -122,9 +127,9 @@ class HardLimitingWorker(BaseWorker):
             job (Job): _description_
             queue (Queue): _description_
         """
-        self.monitor_started = utcnow()
+        self.monitor_started = now()
         retpid = ret_val = rusage = None
-        job.started_at = utcnow()
+        job.started_at = now()
         while True:
             try:
                 with self.death_penalty_class(self.job_monitoring_interval, HorseMonitorTimeoutException):
@@ -133,7 +138,7 @@ class HardLimitingWorker(BaseWorker):
             except HorseMonitorTimeoutException:
                 # Horse has not exited yet and is still running.
                 # Send a heartbeat to keep the worker alive.
-                self.set_current_job_working_time((utcnow() - job.started_at).total_seconds())
+                self.set_current_job_working_time((now() - job.started_at).total_seconds())
 
                 job.refresh()
                 # Kill the job from this side if something is really wrong (interpreter lock/etc).
@@ -168,11 +173,12 @@ class HardLimitingWorker(BaseWorker):
         if ret_val == os.EX_OK:  # The process exited normally.
             return
 
-        job_status = job.get_status()
-
-        if job_status is None:  # Job completed and its ttl has expired
+        try:
+            job_status = job.get_status()
+        except InvalidJobOperation:  # Job completed and its ttl has expired
             return
-        elif self._stopped_job_id == job.id:
+
+        if self._stopped_job_id == job.id:
             # Work-horse killed deliberately
             self.log.warning("Job stopped by user, moving job to FailedJobRegistry")
             if job.stopped_callback:
@@ -180,7 +186,7 @@ class HardLimitingWorker(BaseWorker):
             self.handle_job_failure(job, queue=queue, exc_string="Job stopped by user, work-horse terminated.")
         elif job_status not in [JobStatus.FINISHED, JobStatus.FAILED]:
             if not job.ended_at:
-                job.ended_at = utcnow()
+                job.ended_at = now()
 
             # Unhandled failure: move the job to the failed queue
             signal_msg = f" (signal {os.WTERMSIG(ret_val)})" if ret_val and os.WIFSIGNALED(ret_val) else ""
