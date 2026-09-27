@@ -4,8 +4,7 @@ import time
 from flask import g, has_request_context
 from sqlalchemy.engine import Engine
 from sqlalchemy.event import listens_for
-from sqlalchemy.orm.util import _ORMJoin
-from sqlalchemy.sql.selectable import Alias, Join
+from sqlalchemy.sql.selectable import AliasedReturnsRows, Join, Select
 
 from redash import statsd_client
 
@@ -13,15 +12,17 @@ metrics_logger = logging.getLogger("metrics")
 
 
 def _table_name_from_select_element(elt):
-    t = elt.froms[0]
+    t = elt.get_final_froms()[0]
 
-    if isinstance(t, Alias):
-        t = t.original.froms[0]
-
-    while isinstance(t, _ORMJoin) or isinstance(t, Join):
-        t = t.left
-
-    return t.name
+    while True:
+        if isinstance(t, Join):
+            t = t.left
+        elif isinstance(t, AliasedReturnsRows):  # aliases and subqueries
+            t = t.element
+        elif isinstance(t, Select):
+            t = t.get_final_froms()[0]
+        else:
+            return t.name
 
 
 @listens_for(Engine, "before_execute")
