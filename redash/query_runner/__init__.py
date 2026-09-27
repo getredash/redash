@@ -466,7 +466,14 @@ def get_configuration_schema_for_query_runner_type(query_runner_type):
 
 def import_query_runners(query_runner_imports):
     for runner_import in query_runner_imports:
-        __import__(runner_import)
+        try:
+            __import__(runner_import)
+        except ModuleNotFoundError as e:
+            # Skip runners that no longer exist (e.g. removed ones still listed in
+            # REDASH_ENABLED_QUERY_RUNNERS), but not a runner's own missing dependencies.
+            if e.name != runner_import:
+                raise
+            logger.warning("Query runner module %s not found, skipping.", runner_import)
 
 
 def guess_type(value):
