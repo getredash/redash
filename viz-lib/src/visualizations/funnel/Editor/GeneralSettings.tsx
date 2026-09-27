@@ -7,7 +7,7 @@ import { EditorPropTypes } from "@/visualizations/prop-types";
 export default function GeneralSettings({ options, data, onOptionsChange }: any) {
   const columnNames = useMemo(() => map(data.columns, (c) => c.name), [data]);
 
-  const [onOptionsChangeDebounced] = useDebouncedCallback(onOptionsChange, 200);
+  const onOptionsChangeDebounced = useDebouncedCallback(onOptionsChange, 200);
 
   return (
     <React.Fragment>

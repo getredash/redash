@@ -39,14 +39,14 @@ export default function AxisSettings({ id, options, features, onChange }: Props)
     onChange(merge({}, options, newOptions));
   }
 
-  const [handleNameChange] = useDebouncedCallback((text) => {
+  const handleNameChange = useDebouncedCallback((text) => {
     const title = isString(text) && text !== "" ? { text } : null;
     optionsChanged({ title });
   }, 200);
 
-  const [handleMinMaxChange] = useDebouncedCallback((opts) => optionsChanged(opts), 200);
+  const handleMinMaxChange = useDebouncedCallback((opts) => optionsChanged(opts), 200);
 
-  const [handleTickFormatChange] = useDebouncedCallback((opts) => optionsChanged(opts), 200);
+  const handleTickFormatChange = useDebouncedCallback((opts) => optionsChanged(opts), 200);
 
   return (
     <React.Fragment>

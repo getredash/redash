@@ -3,6 +3,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import "../../leaflet.less";
 import "leaflet-fullscreen";
 import "leaflet-fullscreen/dist/leaflet.fullscreen.css";
 import { formatSimpleTemplate } from "@/lib/value-format";

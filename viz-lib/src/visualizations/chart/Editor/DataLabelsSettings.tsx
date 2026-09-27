@@ -10,7 +10,7 @@ export default function DataLabelsSettings({ options, onOptionsChange }: any) {
     options.globalSeriesType
   );
 
-  const [debouncedOnOptionsChange] = useDebouncedCallback(onOptionsChange, 200);
+  const debouncedOnOptionsChange = useDebouncedCallback(onOptionsChange, 200);
 
   return (
     <React.Fragment>

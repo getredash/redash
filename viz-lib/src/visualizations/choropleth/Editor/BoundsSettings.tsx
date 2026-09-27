@@ -17,7 +17,7 @@ export default function BoundsSettings({ options, onOptionsChange }: any) {
   // but `onOptionsChange` event is debounced and uses last value from internal state.
 
   const [bounds, setBounds] = useState(options.bounds);
-  const [onOptionsChangeDebounced] = useDebouncedCallback(onOptionsChange, 200);
+  const onOptionsChangeDebounced = useDebouncedCallback(onOptionsChange, 200);
 
   const [geoJson] = useLoadGeoJson(options.mapType);
 
