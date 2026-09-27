@@ -1,4 +1,5 @@
 import datetime
+import ssl
 
 from redash.query_runner import (
     TYPE_DATE,
@@ -74,9 +75,10 @@ class Exasol(BaseQueryRunner):
                 "host": {"type": "string"},
                 "port": {"type": "number", "default": 8563},
                 "encrypted": {"type": "boolean", "title": "Enable SSL Encryption"},
+                "verify_ssl": {"type": "boolean", "title": "Verify SSL Certificate", "default": True},
             },
             "required": ["host", "port", "user", "password"],
-            "order": ["host", "port", "user", "password", "encrypted"],
+            "order": ["host", "port", "user", "password", "encrypted", "verify_ssl"],
             "secret": ["password"],
         }
 
@@ -85,11 +87,19 @@ class Exasol(BaseQueryRunner):
             self.configuration.get("host", None),
             self.configuration.get("port", 8563),
         )
+        # pyexasol 1.0+ verifies the server certificate by default. Data sources created
+        # before this option existed didn't verify it, so keep that for them.
+        if self.configuration.get("verify_ssl", False):
+            websocket_sslopt = {"cert_reqs": ssl.CERT_REQUIRED}
+        else:
+            websocket_sslopt = {"cert_reqs": ssl.CERT_NONE}
+
         return pyexasol.connect(
             dsn=exahost,
             user=self.configuration.get("user", None),
             password=self.configuration.get("password", None),
             encryption=self.configuration.get("encrypted", True),
+            websocket_sslopt=websocket_sslopt,
             compression=True,
             json_lib="rapidjson",
             fetch_mapper=_exasol_type_mapper,
