@@ -28,7 +28,7 @@ def _entity_for_table(query, table_name):
         return primary
     # Only sort by tables the query already selects from; ordering by anything else
     # would add a cross join.
-    if table_name not in _joined_table_names(query):
+    if primary is None or table_name not in _joined_table_names(query):
         return None
     for mapper in sa.inspect(primary).registry.mappers:
         if mapper.local_table.name == table_name:

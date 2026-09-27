@@ -98,6 +98,15 @@ class TestOrderResults(BaseTestCase):
             self.assertNotIn("users", str(ordered_results.statement.compile()))
             self.assertEqual(3, ordered_results.count())
 
+    def test_ignores_table_sort_for_column_only_query(self):
+        results = db.session.query(models.Query.__table__.c.name).join(
+            models.User, models.Query.user_id == models.User.id
+        )
+        allowed_orders = {"users-name": "users-name"}
+        with self.app.test_request_context("/items?order=users-name"):
+            ordered_results = order_results(results, "", allowed_orders, fallback=False)
+            self.assertEqual(3, ordered_results.count())
+
     def test_order_by_label(self):
         results = db.session.query(models.User.name, models.User.id.label("user_order"))
         allowed_orders = {"-user_order": "-user_order"}
