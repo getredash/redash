@@ -46,7 +46,7 @@ export function FavoriteList({ title, resource, itemUrl, emptyState }) {
 
 FavoriteList.propTypes = {
   title: PropTypes.string.isRequired,
-  resource: PropTypes.func.isRequired, // eslint-disable-line react/forbid-prop-types
+  resource: PropTypes.func.isRequired,
   itemUrl: PropTypes.func.isRequired,
   emptyState: PropTypes.node,
 };

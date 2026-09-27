@@ -142,6 +142,7 @@ export default class Parameters extends React.Component {
     return (
       <div key={param.name} className="di-block" data-test={`ParameterName-${param.name}`}>
         <div className="parameter-heading">
+          {/* biome-ignore lint/a11y/noLabelWithoutControl: labels the parameter input below */}
           <label>{param.title || toHuman(param.name)}</label>
           {editable && (
             <PlainButton

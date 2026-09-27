@@ -31,7 +31,7 @@ function ExpandedWidgetDialog({ dialog, widget, filters }) {
 
 ExpandedWidgetDialog.propTypes = {
   dialog: DialogPropType.isRequired,
-  widget: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  widget: PropTypes.object.isRequired,
   filters: FiltersType,
 };
 

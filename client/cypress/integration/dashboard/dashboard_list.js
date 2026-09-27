@@ -17,7 +17,7 @@ describe("Dashboard list sort", () => {
     it("sorts", () => {
       cy.visit("/dashboards");
       cy.contains("Name").click();
-      cy.wait(1000); // eslint-disable-line cypress/no-unnecessary-waiting
+      cy.wait(1000);
       cy.getByTestId("ErrorMessage").should("not.exist");
     });
   });

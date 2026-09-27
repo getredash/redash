@@ -7,7 +7,7 @@ const HtmlContent = React.memo(function HtmlContent({ children, ...props }) {
     <div
       {...props}
       // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'ReactNode' is not assignable to ... Remove this comment to see the full error message
-      dangerouslySetInnerHTML={{ __html: sanitize(children) }} // eslint-disable-line react/no-danger
+      dangerouslySetInnerHTML={{ __html: sanitize(children) }}
     />
   );
 });

@@ -120,7 +120,6 @@ describe("ScheduleDialog", () => {
       });
 
       // Disabling this test as the TimePicker wasn't setting values from here after Antd v4
-      // eslint-disable-next-line jest/no-disabled-tests
       test.skip("onChange correct result", () => {
         const onChangeCb = jest.fn((time) => time.format("HH:mm"));
         const editor = mount(<TimeEditor onChange={onChangeCb} />);

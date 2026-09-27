@@ -52,7 +52,7 @@ function PublicDashboard({ dashboard }) {
 }
 
 PublicDashboard.propTypes = {
-  dashboard: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  dashboard: PropTypes.object.isRequired,
 };
 
 class PublicDashboardPage extends React.Component {

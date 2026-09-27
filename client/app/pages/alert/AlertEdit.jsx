@@ -123,7 +123,7 @@ export default class AlertEdit extends React.Component {
 
 AlertEdit.propTypes = {
   alert: AlertType.isRequired,
-  queryResult: PropTypes.object, // eslint-disable-line react/forbid-prop-types,
+  queryResult: PropTypes.object,
   pendingRearm: PropTypes.number,
   menuButton: PropTypes.node.isRequired,
   save: PropTypes.func.isRequired,

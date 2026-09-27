@@ -42,7 +42,6 @@ export default function initNumberColumn(column: any) {
   }
 
   function NumberColumn({ row }: any) {
-    // eslint-disable-line react/prop-types
     const { text } = prepareData(row);
     return text;
   }

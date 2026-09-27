@@ -14,11 +14,10 @@
     "webpack-dev-server": "webpack-dev-server",
     "analyze": "pnpm run clean && BUNDLE_ANALYZER=on webpack",
     "analyze:build": "pnpm run clean && NODE_ENV=production BUNDLE_ANALYZER=on webpack",
-    "lint": "pnpm run lint:base --ext .js --ext .jsx --ext .ts --ext .tsx ./client",
-    "lint:fix": "pnpm run lint:base  --fix --ext .js --ext .jsx --ext .ts --ext .tsx ./client",
-    "lint:base": "eslint --config ./client/.eslintrc.js --ignore-path ./client/.eslintignore",
-    "lint:ci": "pnpm run lint --max-warnings 0 --format junit --output-file /tmp/test-results/eslint/results.xml",
-    "prettier": "prettier --write 'client/app/**/*.{js,jsx,ts,tsx}' 'client/cypress/**/*.{js,jsx,ts,tsx}' 'client/visual-tests/**/*.ts' 'viz-lib/src/**/*.{ts,tsx}'",
+    "lint": "biome check --error-on-warnings",
+    "lint:fix": "biome check --write",
+    "lint:ci": "mkdir -p /tmp/test-results/biome && biome ci --error-on-warnings --reporter=default --reporter=junit --reporter-file=/tmp/test-results/biome/results.xml",
+    "format": "biome format --write",
     "type-check": "tsc --noEmit --project client/tsconfig.json",
     "type-check:watch": "pnpm run type-check --watch",
     "jest": "TZ=Africa/Khartoum jest",
@@ -85,6 +84,7 @@
     "@babel/preset-env": "^7.29.0",
     "@babel/preset-react": "^7.28.5",
     "@babel/preset-typescript": "^7.28.5",
+    "@biomejs/biome": "2.5.14",
     "@cypress/code-coverage": "^3.11.0",
     "@playwright/test": "1.63.0",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.6.3",
@@ -96,8 +96,6 @@
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
     "@types/sql-formatter": "^2.3.0",
-    "@typescript-eslint/eslint-plugin": "^5.62.0",
-    "@typescript-eslint/parser": "^5.62.0",
     "assert": "^2.1.0",
     "atob": "^2.1.2",
     "babel-jest": "^30.5.2",
@@ -111,20 +109,6 @@
     "enzyme": "^3.8.0",
     "enzyme-adapter-react-16": "^1.7.1",
     "enzyme-to-json": "^3.3.5",
-    "eslint": "^8.57.1",
-    "eslint-config-prettier": "^8.10.0",
-    "eslint-config-react-app": "^7.0.1",
-    "eslint-plugin-chai-friendly": "^1.1.0",
-    "eslint-plugin-compat": "^4.2.0",
-    "eslint-plugin-cypress": "^2.15.2",
-    "eslint-plugin-flowtype": "^8.0.3",
-    "eslint-plugin-import": "^2.32.0",
-    "eslint-plugin-jest": "^27.9.0",
-    "eslint-plugin-jsx-a11y": "^6.10.2",
-    "eslint-plugin-no-only-tests": "^3.3.0",
-    "eslint-plugin-react": "^7.37.5",
-    "eslint-plugin-react-hooks": "^4.6.2",
-    "eslint-webpack-plugin": "^4.2.0",
     "html-webpack-plugin": "^5.6.8",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^30.5.2",
@@ -136,7 +120,6 @@
     "mini-css-extract-plugin": "^2.10.2",
     "mockdate": "^3.0.5",
     "npm-run-all": "^4.1.5",
-    "prettier": "3.3.2",
     "process": "^0.11.10",
     "react-refresh": "^0.19.0",
     "react-test-renderer": "^16.14.0",
@@ -161,7 +144,18 @@
     "transform": {
       "[\\\\/]node_modules[\\\\/].+\\.m?js$": [
         "babel-jest",
-        { "presets": [["@babel/preset-env", { "targets": { "node": "current" } }]] }
+        {
+          "presets": [
+            [
+              "@babel/preset-env",
+              {
+                "targets": {
+                  "node": "current"
+                }
+              }
+            ]
+          ]
+        }
       ],
       "\\.[jt]sx?$": "babel-jest"
     },

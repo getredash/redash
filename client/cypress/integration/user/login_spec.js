@@ -6,7 +6,7 @@ describe("Login", () => {
   it("greets the user", () => {
     cy.contains("h3", "Login to Redash");
 
-    cy.wait(1000); // eslint-disable-line cypress/no-unnecessary-waiting
+    cy.wait(1000);
   });
 
   it("shows message on failed login", () => {
@@ -23,6 +23,6 @@ describe("Login", () => {
     cy.title().should("eq", "Redash");
     cy.get(`img.profile__image_thumb[alt="Example Admin"]`).should("exist");
 
-    cy.wait(1000); // eslint-disable-line cypress/no-unnecessary-waiting
+    cy.wait(1000);
   });
 });
