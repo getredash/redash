@@ -1,5 +1,5 @@
 import React from "react";
-import renderer from "react-test-renderer";
+import { render, waitFor } from "@testing-library/react";
 import Group from "@/services/group";
 import ReadOnlyUserProfile from "./ReadOnlyUserProfile";
 
@@ -7,7 +7,7 @@ beforeEach(() => {
   Group.query = jest.fn().mockResolvedValue([]);
 });
 
-test("renders correctly", () => {
+test("renders correctly", async () => {
   const user = {
     id: 2,
     name: "John Doe",
@@ -16,7 +16,8 @@ test("renders correctly", () => {
     profileImageUrl: "http://www.images.com/llama.jpg",
   };
 
-  const component = renderer.create(<ReadOnlyUserProfile user={user} />);
-  const tree = component.toJSON();
-  expect(tree).toMatchSnapshot();
+  const { asFragment, queryByText } = render(<ReadOnlyUserProfile user={user} />);
+  // wait for the user's groups to load
+  await waitFor(() => expect(queryByText("Loading...")).toBeNull());
+  expect(asFragment()).toMatchSnapshot();
 });

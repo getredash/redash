@@ -36,11 +36,12 @@
     "@babel/preset-env": "^8.0.6",
     "@babel/preset-react": "^8.0.1",
     "@babel/preset-typescript": "^8.0.1",
+    "@testing-library/dom": "^8.20.1",
+    "@testing-library/react": "^12.1.5",
     "@types/chroma-js": "^3.1.2",
     "@types/d3": "^7.4.3",
     "@types/d3-cloud": "^1.2.3",
     "@types/debug": "^4.1.13",
-    "@types/enzyme": "^3.10.8",
     "@types/jest": "^30.0.0",
     "@types/leaflet": "^1.9.22",
     "@types/numeral": "0.0.28",
@@ -55,9 +56,6 @@
     "babel-plugin-istanbul": "^8.0.0",
     "babel-plugin-module-resolver": "^5.0.3",
     "css-loader": "^7.1.5",
-    "enzyme": "^3.8.0",
-    "enzyme-adapter-react-16": "^1.15.7",
-    "enzyme-to-json": "^3.3.5",
     "jest": "^30.5.2",
     "less": "^4.9.1",
     "less-loader": "^13.0.0",
@@ -124,11 +122,7 @@
       "/node_modules/\\.pnpm/(?!(d3|d3-[a-z-]+|internmap|delaunator|robust-predicates)@)"
     ],
     "setupFiles": [
-      "../__tests__/enzyme_setup.js",
       "../__tests__/mocks.js"
-    ],
-    "snapshotSerializers": [
-      "enzyme-to-json/serializer"
     ],
     "moduleNameMapper": {
       "^@/(.*)": "<rootDir>/$1",

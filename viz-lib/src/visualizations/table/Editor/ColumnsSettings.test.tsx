@@ -1,12 +1,9 @@
 import React from "react";
-import enzyme from "enzyme";
+import { render, fireEvent } from "@testing-library/react";
 
 import getOptions from "../getOptions";
 import ColumnsSettings from "./ColumnsSettings";
-
-function findByTestID(wrapper: any, testId: any) {
-  return wrapper.find(`[data-test="${testId}"]`);
-}
+import { findByTestID, findInput, setChecked, openSelect } from "@/testUtils";
 
 function mount(options: any, done: any) {
   const data = {
@@ -14,7 +11,7 @@ function mount(options: any, done: any) {
     rows: [{ a: "test" }],
   };
   options = getOptions(options, data);
-  return enzyme.mount(
+  return render(
     <ColumnsSettings
       visualizationName="Test"
       data={data}
@@ -29,45 +26,39 @@ function mount(options: any, done: any) {
 
 describe("Visualizations -> Table -> Editor -> Columns Settings", () => {
   test("Toggles column visibility", (done) => {
-    const el = mount({}, done);
+    mount({}, done);
 
-    findByTestID(el, "Table.Column.a.Visibility").last().simulate("click");
+    fireEvent.click(findByTestID("Table.Column.a.Visibility"));
   });
 
   test("Changes column title", (done) => {
-    const el = mount({}, done);
-    findByTestID(el, "Table.Column.a.Name").last().simulate("click"); // expand settings
+    mount({}, done);
+    fireEvent.click(findByTestID("Table.Column.a.Name")); // expand settings
 
-    findByTestID(el, "Table.Column.a.Title")
-      .last()
-      .simulate("change", { target: { value: "test" } });
+    fireEvent.change(findByTestID("Table.Column.a.Title"), { target: { value: "test" } });
   });
 
   test("Changes column alignment", (done) => {
-    const el = mount({}, done);
-    findByTestID(el, "Table.Column.a.Name").last().simulate("click"); // expand settings
+    mount({}, done);
+    fireEvent.click(findByTestID("Table.Column.a.Name")); // expand settings
 
-    findByTestID(el, "Table.Column.a.TextAlignment")
-      .last()
-      .find('[data-test="TextAlignmentSelect.Right"] input')
-      .simulate("change", { target: { checked: true } });
+    fireEvent.click(
+      findByTestID("Table.Column.a.TextAlignment").querySelector('[data-test="TextAlignmentSelect.Right"]')
+    );
   });
 
   test("Enables search by column data", (done) => {
-    const el = mount({}, done);
-    findByTestID(el, "Table.Column.a.Name").last().simulate("click"); // expand settings
+    mount({}, done);
+    fireEvent.click(findByTestID("Table.Column.a.Name")); // expand settings
 
-    findByTestID(el, "Table.Column.a.UseForSearch")
-      .last()
-      .find("input")
-      .simulate("change", { target: { checked: true } });
+    setChecked(findInput(findByTestID("Table.Column.a.UseForSearch")), true);
   });
 
   test("Changes column display type", (done) => {
-    const el = mount({}, done);
-    findByTestID(el, "Table.Column.a.Name").last().simulate("click"); // expand settings
+    mount({}, done);
+    fireEvent.click(findByTestID("Table.Column.a.Name")); // expand settings
 
-    findByTestID(el, "Table.Column.a.DisplayAs").last().simulate("mouseDown");
-    findByTestID(el, "Table.Column.a.DisplayAs.number").last().simulate("click");
+    openSelect("Table.Column.a.DisplayAs");
+    fireEvent.click(findByTestID("Table.Column.a.DisplayAs.number"));
   });
 });
