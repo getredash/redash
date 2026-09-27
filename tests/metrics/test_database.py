@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from mock import ANY, call, patch
-from sqlalchemy import select
+from sqlalchemy import select, union
 
 from redash.metrics.database import _table_name_from_select_element
 from redash.models import Query, User
@@ -29,6 +29,10 @@ class TestTableNameFromSelect(TestCase):
     def test_join(self):
         statement = select(Query.id).join(User, Query.user_id == User.id)
         self.assertEqual("queries", _table_name_from_select_element(statement))
+
+    def test_union_subquery(self):
+        subquery = union(select(Query.id), select(Query.id)).subquery()
+        self.assertEqual("queries", _table_name_from_select_element(select(subquery.c.id)))
 
     def test_subquery(self):
         subquery = select(Query.id).subquery()
