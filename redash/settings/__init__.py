@@ -457,6 +457,17 @@ SQLPARSE_FORMAT_OPTIONS = {
     "keyword_case": os.environ.get("SQLPARSE_FORMAT_KEYWORD_CASE", "upper"),
 }
 
+# sqlparse refuses to group statements beyond these limits, raising SQLParseError,
+# to bound the CPU it will spend on a single statement. The defaults match
+# sqlparse's own. Raise them if your users run legitimately huge queries (long
+# IN lists, wide SELECTs, many VALUES tuples) and you would rather pay the CPU
+# than lose auto limit and query formatting on them. Set to 0 to disable a limit
+# entirely -- note that formatting cost grows faster than linearly with
+# statement size, so an unbounded limit lets one request occupy a worker for a
+# long time.
+SQLPARSE_MAX_GROUPING_TOKENS = int(os.environ.get("SQLPARSE_MAX_GROUPING_TOKENS", 10000))
+SQLPARSE_MAX_GROUPING_DEPTH = int(os.environ.get("SQLPARSE_MAX_GROUPING_DEPTH", 100))
+
 # requests
 REQUESTS_ALLOW_REDIRECTS = parse_boolean(os.environ.get("REDASH_REQUESTS_ALLOW_REDIRECTS", "false"))
 
