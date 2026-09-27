@@ -112,7 +112,7 @@ function QuerySource(props) {
       if (dataSourceId) {
         try {
           localStorage.setItem("lastSelectedDataSourceId", dataSourceId);
-        } catch (e) {
+        } catch {
           // `localStorage.setItem` may throw exception if there are no enough space - in this case it could be ignored
         }
       }
@@ -423,7 +423,7 @@ function QuerySource(props) {
 }
 
 QuerySource.propTypes = {
-  query: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  query: PropTypes.object.isRequired,
 };
 
 const QuerySourcePage = wrapQueryPage(QuerySource);

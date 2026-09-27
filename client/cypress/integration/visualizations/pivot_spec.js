@@ -39,7 +39,7 @@ describe("Pivot", () => {
 
   it("creates Pivot with controls", function () {
     cy.visit(`queries/${this.queryId}/source`);
-    cy.wait(1500); // eslint-disable-line cypress/no-unnecessary-waiting
+    cy.wait(1500);
     cy.getByTestId("ExecuteButton").click();
 
     const visualizationName = "Pivot";
@@ -50,7 +50,7 @@ describe("Pivot", () => {
 
   it("creates Pivot without controls", function () {
     cy.visit(`queries/${this.queryId}/source`);
-    cy.wait(1500); // eslint-disable-line cypress/no-unnecessary-waiting
+    cy.wait(1500);
     cy.getByTestId("ExecuteButton").click();
 
     const visualizationName = "Pivot";
@@ -80,7 +80,7 @@ describe("Pivot", () => {
 
     cy.createVisualization(this.queryId, "PIVOT", "Pivot", options).then((visualization) => {
       cy.visit(`queries/${this.queryId}/source#${visualization.id}`);
-      cy.wait(1500); // eslint-disable-line cypress/no-unnecessary-waiting
+      cy.wait(1500);
       cy.getByTestId("ExecuteButton").click();
 
       // assert number of rows is 11
@@ -93,7 +93,6 @@ describe("Pivot", () => {
         .type(" UNION ALL {enter}SELECT 'c' AS stage1, 'c5' AS stage2, 55 AS value");
 
       // wait for the query text change to propagate (it's debounced in QuerySource.jsx)
-      // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(200);
 
       cy.getByTestId("SaveButton").click();

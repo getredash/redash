@@ -1,5 +1,3 @@
-/* eslint-disable react/prop-types */
-
 import { isFinite, isString, isArray, isObject, keys, map } from "lodash";
 import React, { useState } from "react";
 import cx from "classnames";

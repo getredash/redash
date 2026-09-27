@@ -188,6 +188,7 @@ function EmptyState({
       <div className="empty-state bg-white tiled">
         <div className="empty-state__summary">
           {header && <h4>{header}</h4>}
+          {/* biome-ignore lint/a11y/useHeadingContent: the heading text follows the icon */}
           <h2>
             <i className={icon} aria-hidden="true" />
           </h2>

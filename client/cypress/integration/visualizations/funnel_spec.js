@@ -23,7 +23,7 @@ describe("Funnel", () => {
     cy.login();
     cy.createQuery({ query: SQL }).then(({ id }) => {
       cy.visit(`queries/${id}/source`);
-      cy.wait(1500); // eslint-disable-line cypress/no-unnecessary-waiting
+      cy.wait(1500);
       cy.getByTestId("ExecuteButton").click();
     });
   });
@@ -57,7 +57,7 @@ describe("Funnel", () => {
     ); // inputs are debounced
 
     // Wait for proper initialization of visualization
-    cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
+    cy.wait(500);
     cy.getByTestId("VisualizationPreview").find("table").should("exist");
 
     cy.clickThrough(`
@@ -76,7 +76,7 @@ describe("Funnel", () => {
     ); // inputs are debounced
 
     // Wait for proper initialization of visualization
-    cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
+    cy.wait(500);
     cy.getByTestId("VisualizationPreview").find("table").should("exist");
   });
 });

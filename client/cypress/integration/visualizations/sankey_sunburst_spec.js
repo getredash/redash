@@ -25,7 +25,7 @@ describe("Sankey and Sunburst", () => {
     beforeEach(() => {
       cy.createQuery({ query: SQL }).then(({ id }) => {
         cy.visit(`queries/${id}/source`);
-        cy.wait(1500); // eslint-disable-line cypress/no-unnecessary-waiting
+        cy.wait(1500);
         cy.getByTestId("ExecuteButton").click();
         cy.getByTestId("NewVisualization").click();
         cy.getByTestId("VisualizationType").selectAntdOption("VisualizationType.SUNBURST_SEQUENCE");
@@ -97,7 +97,7 @@ describe("Sankey and Sunburst", () => {
           });
 
           // wait a bit before taking snapshot
-          cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
+          cy.wait(500);
         });
     });
   });
@@ -122,7 +122,7 @@ describe("Sankey and Sunburst", () => {
           });
 
           // wait a bit before taking snapshot
-          cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
+          cy.wait(500);
         });
     });
   });

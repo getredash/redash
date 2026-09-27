@@ -40,7 +40,7 @@ function DashboardSettings({ dashboardConfiguration }) {
 }
 
 DashboardSettings.propTypes = {
-  dashboardConfiguration: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  dashboardConfiguration: PropTypes.object.isRequired,
 };
 
 function AddWidgetContainer({ dashboardConfiguration, className, ...props }) {
@@ -67,7 +67,7 @@ function AddWidgetContainer({ dashboardConfiguration, className, ...props }) {
 }
 
 AddWidgetContainer.propTypes = {
-  dashboardConfiguration: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  dashboardConfiguration: PropTypes.object.isRequired,
   className: PropTypes.string,
 };
 
@@ -167,7 +167,7 @@ function DashboardComponent(props) {
 }
 
 DashboardComponent.propTypes = {
-  dashboard: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  dashboard: PropTypes.object.isRequired,
 };
 
 function DashboardPage({ dashboardSlug, dashboardId, onError }) {
