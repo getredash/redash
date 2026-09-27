@@ -372,12 +372,15 @@ class QueryResult(db.Model, BelongsToOrgMixin):
             query_hash=query_hash,
             query_text=query,
             runtime=run_time,
-            data_source=data_source,
+            # Set the id rather than the relationship: the caller's data source may be
+            # detached, and cascading it into the session can clash with another copy.
+            data_source_id=data_source.id,
             retrieved_at=retrieved_at,
             data=data,
         )
 
         db.session.add(query_result)
+        db.session.flush()
         logging.info("Inserted query (%s) data; id=%s", query_hash, query_result.id)
 
         return query_result
@@ -564,7 +567,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         query = (
             db.session.query(tag_column, usage_count)
             .group_by(tag_column)
-            .filter(Query.id.in_(queries.options(load_only("id"))))
+            .filter(Query.id.in_(queries.with_entities(Query.id)))
             .order_by(tag_column)
         )
         return query
@@ -775,7 +778,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         # TODO: Investigate how big an impact this select-before-update makes.
         queries = Query.query.filter(
             Query.query_hash == query_result.query_hash,
-            Query.data_source == query_result.data_source,
+            Query.data_source_id == query_result.data_source_id,
             Query.is_archived.is_(False),
         )
 
@@ -1180,7 +1183,7 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
         query = (
             db.session.query(tag_column, usage_count)
             .group_by(tag_column)
-            .filter(Dashboard.id.in_(dashboards.options(load_only("id"))))
+            .filter(Dashboard.id.in_(dashboards.with_entities(Dashboard.id)))
             .order_by(tag_column)
         )
         return query
