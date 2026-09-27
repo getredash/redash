@@ -37,7 +37,7 @@ class RunnerTestMixin:
     query = "url: https://example.com/data"
 
     def run_with_content(self, content):
-        with mock.patch("redash.query_runner.{}.requests_or_advocate.get".format(self.module)) as get:
+        with mock.patch("redash.query_runner.{}.requests_or_ssrf.get".format(self.module)) as get:
             get.return_value.content = content
             return self.runner_class({}).run_query(self.query, None)
 
