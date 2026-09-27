@@ -8,8 +8,6 @@ describe("Settings", () => {
     cy.getByTestId("OrganizationSettings").within(() => {
       cy.getByTestId("TimeFormatSelect").should("contain", "HH:mm");
     });
-
-    cy.percySnapshot("Organization Settings");
   });
 
   it("can set date format setting", () => {

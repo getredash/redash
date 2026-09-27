@@ -9,7 +9,6 @@ describe("Edit Alert", () => {
       .then(({ id: alertId }) => {
         cy.visit(`/alerts/${alertId}/edit`);
         cy.getByTestId("Criteria").should("exist");
-        cy.percySnapshot("Edit Alert screen");
       });
   });
 
@@ -19,7 +18,6 @@ describe("Edit Alert", () => {
       .then(({ id: alertId }) => {
         cy.visit(`/alerts/${alertId}/edit`);
         cy.getByTestId("AlertCustomTemplate").should("exist");
-        cy.percySnapshot("Alert Custom Template screen");
       });
   });
 

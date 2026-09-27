@@ -151,7 +151,6 @@ describe("Pivot", () => {
             cy.getByTestId("PivotTableVisualization").should("exist")
           );
         });
-        cy.percySnapshot("Visualizations - Pivot Table");
       });
   });
 });

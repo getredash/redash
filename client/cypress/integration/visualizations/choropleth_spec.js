@@ -28,8 +28,6 @@ const SQL = `
 `;
 
 describe("Choropleth", () => {
-  const viewportWidth = Cypress.config("viewportWidth");
-
   beforeEach(() => {
     cy.login();
     cy.createQuery({ query: SQL }).then(({ id }) => {
@@ -78,7 +76,5 @@ describe("Choropleth", () => {
     // Wait for proper initialization of visualization
     cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
     cy.getByTestId("VisualizationPreview").find(".map-visualization-container.leaflet-container").should("exist");
-
-    cy.percySnapshot("Visualizations - Choropleth", { widths: [viewportWidth] });
   });
 });

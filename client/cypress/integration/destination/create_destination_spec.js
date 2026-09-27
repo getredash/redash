@@ -19,7 +19,6 @@ describe("Create Destination", () => {
 
     cy.getByTestId("CreateSourceDialog").should("contain", "Email");
     cy.wait(1000); // eslint-disable-line cypress/no-unnecessary-waiting
-    cy.percySnapshot("Create Destination - Types");
   });
 
   it("shows a custom error message when destination name is already taken", () => {

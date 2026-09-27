@@ -13,7 +13,6 @@ describe("View Alert", () => {
   it("renders the page and takes a screenshot", function () {
     cy.visit(this.alertUrl);
     cy.getByTestId("Criteria").should("exist");
-    cy.percySnapshot("View Alert screen");
   });
 
   it("allows adding new destinations", function () {

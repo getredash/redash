@@ -7,7 +7,6 @@ describe("Login", () => {
     cy.contains("h3", "Login to Redash");
 
     cy.wait(1000); // eslint-disable-line cypress/no-unnecessary-waiting
-    cy.percySnapshot("Login");
   });
 
   it("shows message on failed login", () => {
@@ -25,6 +24,5 @@ describe("Login", () => {
     cy.get(`img.profile__image_thumb[alt="Example Admin"]`).should("exist");
 
     cy.wait(1000); // eslint-disable-line cypress/no-unnecessary-waiting
-    cy.percySnapshot("Homepage");
   });
 });

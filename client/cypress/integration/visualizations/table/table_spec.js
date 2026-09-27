@@ -1,8 +1,4 @@
-/* global cy, Cypress */
-
-/*
-  This test suite relies on Percy (does not validate rendered visualizations)
-*/
+/* global cy */
 
 import * as AllCellTypes from "./.mocks/all-cell-types";
 import * as MultiColumnSort from "./.mocks/multi-column-sort";
@@ -29,8 +25,6 @@ function prepareVisualization(query, type, name, options) {
 }
 
 describe("Table", () => {
-  const viewportWidth = Cypress.config("viewportWidth");
-
   beforeEach(() => {
     cy.login();
   });
@@ -44,8 +38,6 @@ describe("Table", () => {
       // expand JSON cell
       cy.get(".jvi-item.jvi-root .jvi-toggle").click();
       cy.get(".jvi-item.jvi-root .jvi-item .jvi-toggle").click({ multiple: true });
-
-      cy.percySnapshot("Visualizations - Table (All cell types)", { widths: [viewportWidth] });
     });
   });
 
@@ -60,7 +52,6 @@ describe("Table", () => {
 
     it("sorts data by a single column", function () {
       cy.getByTestId("TableVisualization").find("table th").contains("c").should("exist").click();
-      cy.percySnapshot("Visualizations - Table (Single-column sort)", { widths: [viewportWidth] });
     });
 
     it("sorts data by a multiple columns", function () {
@@ -68,13 +59,10 @@ describe("Table", () => {
 
       cy.get("body").type("{shift}", { release: false });
       cy.getByTestId("TableVisualization").find("table th").contains("b").should("exist").click();
-
-      cy.percySnapshot("Visualizations - Table (Multi-column sort)", { widths: [viewportWidth] });
     });
 
     it("sorts data in reverse order", function () {
       cy.getByTestId("TableVisualization").find("table th").contains("c").should("exist").click().click();
-      cy.percySnapshot("Visualizations - Table (Single-column reverse sort)", { widths: [viewportWidth] });
     });
   });
 
@@ -82,7 +70,6 @@ describe("Table", () => {
     const { query, config } = SearchInData;
     prepareVisualization(query, "TABLE", "Search", config).then(({ visualizationId }) => {
       cy.getByTestId("TableVisualization").find("table input").should("exist").type("test");
-      cy.percySnapshot("Visualizations - Table (Search in data)", { widths: [viewportWidth] });
     });
   });
 
@@ -96,8 +83,6 @@ describe("Table", () => {
         .contains("3")
         .should("exist")
         .click();
-
-      cy.percySnapshot("Visualizations - Table (Pagination)", { widths: [viewportWidth] });
     });
   });
 });

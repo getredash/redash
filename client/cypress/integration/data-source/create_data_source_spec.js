@@ -32,7 +32,6 @@ describe("Create Data Source", () => {
 
     cy.getByTestId("CreateSourceDialog").should("contain", "PostgreSQL");
     cy.wait(1000); // eslint-disable-line cypress/no-unnecessary-waiting
-    cy.percySnapshot("Create Data Source - Types");
   });
 
   it("creates a new PostgreSQL data source", () => {

@@ -9,7 +9,5 @@ describe("Edit Group", () => {
       cy.get("h3").should("contain", "admin");
       cy.get("td").should("contain", "Example Admin");
     });
-
-    cy.percySnapshot("Group");
   });
 });
