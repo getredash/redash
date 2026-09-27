@@ -89,3 +89,19 @@ class TestOrderResults(BaseTestCase):
             ordered_results = order_results(self.results, self.default_order, self.allowed_orders, fallback=False)
             ordered_results = [entry.name for entry in ordered_results]
             self.assertEqual(ordered_results, ["c", "b", "a"])
+
+    def test_ignores_tables_the_query_does_not_join(self):
+        results = db.session.query(models.Query)
+        allowed_orders = {"users-name": "users-name"}
+        with self.app.test_request_context("/items?order=users-name"):
+            ordered_results = order_results(results, "", allowed_orders, fallback=False)
+            self.assertNotIn("users", str(ordered_results.statement.compile()))
+            self.assertEqual(3, ordered_results.count())
+
+    def test_order_by_label(self):
+        results = db.session.query(models.User.name, models.User.id.label("user_order"))
+        allowed_orders = {"-user_order": "-user_order"}
+        with self.app.test_request_context("/items?order=-user_order"):
+            ordered_results = order_results(results, "", allowed_orders, fallback=False)
+            ids = [row.user_order for row in ordered_results]
+            self.assertEqual(sorted(ids, reverse=True), ids)
