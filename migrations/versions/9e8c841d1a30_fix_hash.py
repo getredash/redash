@@ -26,7 +26,7 @@ def update_query_hash(record):
     query_runner = get_query_runner(record['type'], {}) if record['type'] else BaseQueryRunner({})
     query_text = record['query']
 
-    parameters_dict = {p["name"]: p.get("value") for p in record['options'].get('parameters', [])} if record.options else {}
+    parameters_dict = {p["name"]: p.get("value") for p in record['options'].get('parameters', [])} if record['options'] else {}
     if any(parameters_dict):
         print(f"Query {record['query_id']} has parameters. Hash might be incorrect.")
 
@@ -36,22 +36,22 @@ def update_query_hash(record):
 def upgrade():
     conn = op.get_bind()
 
-    metadata = sa.MetaData(bind=conn)
-    queries = sa.Table("queries", metadata, autoload=True)
-    data_sources = sa.Table("data_sources", metadata, autoload=True)
+    metadata = sa.MetaData()
+    queries = sa.Table("queries", metadata, autoload_with=conn)
+    data_sources = sa.Table("data_sources", metadata, autoload_with=conn)
 
     joined_table = queries.outerjoin(data_sources, queries.c.data_source_id == data_sources.c.id)
 
-    query = select([
+    query = select(
         queries.c.id.label("query_id"),
         queries.c.query,
         queries.c.query_hash,
         queries.c.options,
         data_sources.c.id.label("data_source_id"),
         data_sources.c.type
-    ]).select_from(joined_table)
+    ).select_from(joined_table)
 
-    for record in conn.execute(query):
+    for record in conn.execute(query).mappings().all():
         new_hash = update_query_hash(record)
         print(f"Updating hash for query {record['query_id']} from {record['query_hash']} to {new_hash}")
         conn.execute(
