@@ -388,6 +388,10 @@ class QueryResource(BaseResource):
         result = QuerySerializer(q, with_visualizations=True).serialize()
         result["can_edit"] = can_modify(q, self.current_user)
 
+        if self.current_user.is_api_user():
+            # Dashboard share tokens must not reveal the query's own long-lived API key.
+            result["api_key"] = None
+
         self.record_event({"action": "view", "object_id": query_id, "object_type": "query"})
 
         return result
