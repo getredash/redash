@@ -27,7 +27,8 @@ if pandas_installed:
                 redash_type = TYPE_INTEGER
             elif column_type in (np.float64,):
                 redash_type = TYPE_FLOAT
-            elif column_type in (np.datetime64, np.dtype("<M8[ns]")):
+            # pandas 3 no longer always stores datetimes with nanosecond resolution.
+            elif pd.api.types.is_datetime64_dtype(column_type):
                 if df.empty:
                     redash_type = TYPE_DATETIME
                 elif len(df[column_name].head(1).astype(str).loc[0]) > 10:
