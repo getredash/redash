@@ -2,14 +2,10 @@ import React from "react";
 import PropTypes from "prop-types";
 import sanitize from "@/services/sanitize";
 
-const HtmlContent = React.memo(function HtmlContent({ children, ...props }) {
-  return (
-    <div
-      {...props}
-      // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'ReactNode' is not assignable to ... Remove this comment to see the full error message
-      dangerouslySetInnerHTML={{ __html: sanitize(children) }}
-    />
-  );
+type HtmlContentProps = Omit<React.HTMLAttributes<HTMLDivElement>, "children"> & { children?: string };
+
+const HtmlContent = React.memo(function HtmlContent({ children, ...props }: HtmlContentProps) {
+  return <div {...props} dangerouslySetInnerHTML={{ __html: sanitize(children || "") }} />;
 });
 
 // @ts-expect-error ts-migrate(2339) FIXME: Property 'propTypes' does not exist on type 'Named... Remove this comment to see the full error message
