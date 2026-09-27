@@ -1,4 +1,4 @@
-import d3 from "d3";
+import * as d3 from "d3";
 
 export interface LinkType {
   id: number;
@@ -113,24 +113,19 @@ function Sankey(): D3SankeyType {
     }
 
     moveSinksRight(x);
-    x = Math.max(
-      d3.max(nodes, (n) => n.x),
-      2
-    ); // get new maximum x value (min 2)
+    x = Math.max(d3.max(nodes, (n) => n.x) as number, 2); // get new maximum x value (min 2)
     scaleNodeBreadths((size[0] - nodeWidth) / (x - 1));
   }
 
   function computeNodeDepths(iterations: any) {
     const nodesByBreadth = d3
-      // @ts-expect-error
-      .nest()
-      .key((d: any) => d.x)
-      .sortKeys(d3.ascending)
-      .entries(nodes)
-      .map((d: any) => d.values);
+      .sort(
+        d3.groups(nodes, (d: any) => d.x),
+        ([x]) => x
+      )
+      .map(([, nodesAtBreadth]) => nodesAtBreadth);
 
     function initializeNodeDepth() {
-      // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
       const ky = d3.min(nodesByBreadth, (n) => (size[1] - (n.length - 1) * nodePadding) / d3.sum(n, value));
 
       nodesByBreadth.forEach((n: any) => {
