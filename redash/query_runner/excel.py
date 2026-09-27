@@ -1,3 +1,4 @@
+import io
 import logging
 
 import yaml
@@ -58,7 +59,7 @@ class Excel(BaseQueryRunner):
 
         try:
             response = requests_or_advocate.get(url=path, headers={"User-agent": ua})
-            workbook = pd.read_excel(response.content, **args)
+            workbook = pd.read_excel(io.BytesIO(response.content), **args)
 
             df = workbook.copy()
             data = {"columns": [], "rows": []}
@@ -78,6 +79,8 @@ class Excel(BaseQueryRunner):
                 },
                 {"pandas_type": np.bool_, "redash_type": "boolean"},
                 {"pandas_type": np.object_, "redash_type": "string"},
+                # pandas 3 reads text columns as the `str` dtype rather than object.
+                {"pandas_type": str, "redash_type": "string"},
             ]
             labels = []
             for dtype, label in zip(df.dtypes, df.columns):
