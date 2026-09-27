@@ -33,7 +33,7 @@ def _wait_for_db_connection(db):
 def is_db_empty():
     from redash.models import db
 
-    table_names = sqlalchemy.inspect(db.get_engine()).get_table_names()
+    table_names = sqlalchemy.inspect(db.engine).get_table_names()
     return len(table_names) == 0
 
 
