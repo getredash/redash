@@ -51,7 +51,7 @@ def upgrade():
         data_sources.c.type
     ).select_from(joined_table)
 
-    for record in conn.execute(query).mappings().all():
+    for record in conn.execute(query).mappings():
         new_hash = update_query_hash(record)
         print(f"Updating hash for query {record['query_id']} from {record['query_hash']} to {new_hash}")
         conn.execute(
