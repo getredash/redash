@@ -59,6 +59,13 @@ module.exports = {
       lodash: "lodash",
       react: "react",
       "react-dom": "react-dom",
+      // the client entry point is part of the same global in react-dom's UMD build
+      "react-dom/client": {
+        commonjs: "react-dom/client",
+        commonjs2: "react-dom/client",
+        amd: "react-dom/client",
+        root: "ReactDOM",
+      },
     },
     /^antd/i,
   ],

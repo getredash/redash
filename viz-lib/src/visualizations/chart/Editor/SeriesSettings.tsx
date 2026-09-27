@@ -90,7 +90,7 @@ export default function SeriesSettings({ options, data, onOptionsChange }: any) 
   );
 
   const handleSortEnd = useCallback(
-    ({ oldIndex, newIndex }) => {
+    ({ oldIndex, newIndex }: { oldIndex: number; newIndex: number }) => {
       const seriesOptions = [...series];
       seriesOptions.splice(newIndex, 0, ...seriesOptions.splice(oldIndex, 1));
       // @ts-expect-error ts-migrate(2339) FIXME: Property 'key' does not exist on type 'Boolean'.
@@ -100,7 +100,7 @@ export default function SeriesSettings({ options, data, onOptionsChange }: any) 
   );
 
   const updateSeriesOption = useCallback(
-    (key, prop, value) => {
+    (key: string, prop: string, value: any) => {
       onOptionsChange({
         seriesOptions: {
           [key]: {
