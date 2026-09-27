@@ -1,9 +1,12 @@
+from datetime import timedelta
+
 from mock import call, patch
-from rq import Connection
 from rq.job import JobStatus
+from rq.utils import now
 
 from redash import rq_redis_connection
-from redash.tasks import Queue, Worker
+from redash.cli.rq import WorkerHealthcheck
+from redash.tasks import Job, Queue, Worker
 from redash.tasks.queries.execution import enqueue_query
 from redash.worker import default_queues, job
 from tests import BaseTestCase
@@ -12,24 +15,22 @@ from tests import BaseTestCase
 @patch("statsd.StatsClient.incr")
 class TestWorkerMetrics(BaseTestCase):
     def tearDown(self):
-        with Connection(rq_redis_connection):
-            for queue_name in default_queues:
-                Queue(queue_name).empty()
+        for queue_name in default_queues:
+            Queue(queue_name, connection=rq_redis_connection).empty()
 
     def test_worker_records_success_metrics(self, incr):
         query = self.factory.create_query()
 
-        with Connection(rq_redis_connection):
-            enqueue_query(
-                query.query_text,
-                query.data_source,
-                query.user_id,
-                False,
-                None,
-                {"Username": "Patrick", "query_id": query.id},
-            )
+        enqueue_query(
+            query.query_text,
+            query.data_source,
+            query.user_id,
+            False,
+            None,
+            {"Username": "Patrick", "query_id": query.id},
+        )
 
-            Worker(["queries"]).work(max_jobs=1)
+        Worker(["queries"], connection=rq_redis_connection).work(max_jobs=1)
 
         calls = [
             call("rq.jobs.running.queries"),
@@ -46,18 +47,17 @@ class TestWorkerMetrics(BaseTestCase):
         """
         query = self.factory.create_query()
 
-        with Connection(rq_redis_connection):
-            job = enqueue_query(
-                query.query_text,
-                query.data_source,
-                query.user_id,
-                False,
-                None,
-                {"Username": "Patrick", "query_id": query.id},
-            )
-            job.set_status(JobStatus.FAILED)
+        job = enqueue_query(
+            query.query_text,
+            query.data_source,
+            query.user_id,
+            False,
+            None,
+            {"Username": "Patrick", "query_id": query.id},
+        )
+        job.set_status(JobStatus.FAILED)
 
-            Worker(["queries"]).work(max_jobs=1)
+        Worker(["queries"], connection=rq_redis_connection).work(max_jobs=1)
 
         calls = [
             call("rq.jobs.running.queries"),
@@ -71,22 +71,20 @@ class TestWorkerMetrics(BaseTestCase):
 @patch("statsd.StatsClient.incr")
 class TestQueueMetrics(BaseTestCase):
     def tearDown(self):
-        with Connection(rq_redis_connection):
-            for queue_name in default_queues:
-                Queue(queue_name).empty()
+        for queue_name in default_queues:
+            Queue(queue_name, connection=rq_redis_connection).empty()
 
     def test_enqueue_query_records_created_metric(self, incr):
         query = self.factory.create_query()
 
-        with Connection(rq_redis_connection):
-            enqueue_query(
-                query.query_text,
-                query.data_source,
-                query.user_id,
-                False,
-                None,
-                {"Username": "Patrick", "query_id": query.id},
-            )
+        enqueue_query(
+            query.query_text,
+            query.data_source,
+            query.user_id,
+            False,
+            None,
+            {"Username": "Patrick", "query_id": query.id},
+        )
 
         incr.assert_called_with("rq.jobs.created.queries")
 
@@ -97,3 +95,46 @@ class TestQueueMetrics(BaseTestCase):
 
         foo.delay()
         incr.assert_called_with("rq.jobs.created.default")
+
+
+class TestHardLimitingWorker(BaseTestCase):
+    def setUp(self):
+        super().setUp()
+        self.worker = Worker(["queries"], connection=rq_redis_connection)
+
+    def job_with_timeout(self, timeout):
+        return Job.create(func=print, timeout=timeout, connection=rq_redis_connection)
+
+    def test_soft_limit_not_exceeded(self):
+        self.worker.monitor_started = now() - timedelta(seconds=30)
+        self.assertFalse(self.worker.soft_limit_exceeded(self.job_with_timeout(60)))
+
+    def test_soft_limit_exceeded_after_grace_period(self):
+        self.worker.monitor_started = now() - timedelta(seconds=60 + self.worker.grace_period + 1)
+        self.assertTrue(self.worker.soft_limit_exceeded(self.job_with_timeout(60)))
+
+
+class TestWorkerHealthcheck(BaseTestCase):
+    def setUp(self):
+        super().setUp()
+        self.worker = Worker(["queries"], connection=rq_redis_connection)
+        self.worker.register_birth()
+        self.addCleanup(self.worker.register_death)
+
+    def check(self):
+        log = []
+        with patch("redash.cli.rq.socket.gethostname", return_value=self.worker.hostname):
+            healthy = WorkerHealthcheck({}, log.append)({"pid": self.worker.pid})
+        return healthy, log
+
+    def test_recently_seen_worker_is_healthy(self):
+        self.worker.heartbeat()
+
+        healthy, log = self.check()
+
+        self.assertTrue(healthy)
+        self.assertIn("Seen lately? True", log[0])
+
+    def test_unknown_worker_is_unhealthy(self):
+        with patch("redash.cli.rq.socket.gethostname", return_value="another-host"):
+            self.assertFalse(WorkerHealthcheck({}, lambda _: None)({"pid": self.worker.pid}))
