@@ -60,7 +60,8 @@ def _table_name(row):
 
 
 class Databricks(BaseSQLQueryRunner):
-    noop_query = "SELECT 1"
+    # SHOW DATABASES (unlike SELECT 1) fails when the configured catalog does not exist.
+    noop_query = "SHOW DATABASES"
 
     def __init__(self, configuration):
         super().__init__(configuration)
@@ -81,6 +82,7 @@ class Databricks(BaseSQLQueryRunner):
             "properties": {
                 "host": {"type": "string"},
                 "http_path": {"type": "string", "title": "HTTP Path"},
+                "catalog": {"type": "string", "title": "Catalog"},
                 # We're using `http_password` here for legacy reasons
                 "http_password": {"type": "string", "title": "Access Token"},
                 "useQueryAnnotation": {
@@ -89,7 +91,7 @@ class Databricks(BaseSQLQueryRunner):
                     "default": False,
                 },
             },
-            "order": ["host", "http_path", "http_password", "useQueryAnnotation"],
+            "order": ["host", "http_path", "catalog", "http_password", "useQueryAnnotation"],
             "secret": ["http_password"],
             "required": ["host", "http_path", "http_password"],
         }
@@ -101,12 +103,25 @@ class Databricks(BaseSQLQueryRunner):
         metadata = {k: v for k, v in metadata.items() if k != "Job ID"}
         return super().annotate_query(query, metadata)
 
+    @property
+    def _catalog(self):
+        return (self.configuration.get("catalog") or "").strip() or None
+
+    def _get_schema_catalog(self, cursor):
+        # Metadata calls without a catalog search every catalog, so scope them to
+        # the configured catalog, or to the session's default one.
+        if self._catalog:
+            return self._catalog
+        cursor.execute("SELECT current_catalog()")
+        return cursor.fetchone()[0]
+
     def _get_connection(self):
         user_agent = "Redash/{}".format(__version__.split("-")[0])
         return databricks_sql.connect(
             server_hostname=_normalize_host(self.configuration["host"]),
             http_path=self.configuration["http_path"],
             access_token=self.configuration["http_password"],
+            catalog=self._catalog,
             user_agent_entry=user_agent,
             enable_telemetry=False,
         )
@@ -162,7 +177,8 @@ class Databricks(BaseSQLQueryRunner):
         schema = {}
         with self._get_connection() as connection:
             with connection.cursor() as cursor:
-                for table in cursor.tables(schema_name=database_name).fetchall():
+                catalog = self._get_schema_catalog(cursor)
+                for table in cursor.tables(catalog_name=catalog, schema_name=database_name).fetchall():
                     table_name = _table_name(table)
                     schema.setdefault(table_name, {"name": table_name, "columns": []})
 
@@ -172,12 +188,13 @@ class Databricks(BaseSQLQueryRunner):
         schema = {}
         with self._get_connection() as connection:
             with connection.cursor() as cursor:
+                catalog = self._get_schema_catalog(cursor)
                 # load tables first, otherwise tables without columns are not showed
-                for table in cursor.tables(schema_name=database_name).fetchall():
+                for table in cursor.tables(catalog_name=catalog, schema_name=database_name).fetchall():
                     table_name = _table_name(table)
                     schema.setdefault(table_name, {"name": table_name, "columns": []})
 
-                for column in cursor.columns(schema_name=database_name).fetchall():
+                for column in cursor.columns(catalog_name=catalog, schema_name=database_name).fetchall():
                     table_name = _table_name(column)
                     schema.setdefault(table_name, {"name": table_name, "columns": []})
                     schema[table_name]["columns"].append({"name": column.COLUMN_NAME, "type": column.TYPE_NAME})
@@ -187,7 +204,10 @@ class Databricks(BaseSQLQueryRunner):
     def get_table_columns(self, database_name, table_name):
         with self._get_connection() as connection:
             with connection.cursor() as cursor:
-                columns = cursor.columns(schema_name=database_name, table_name=table_name).fetchall()
+                catalog = self._get_schema_catalog(cursor)
+                columns = cursor.columns(
+                    catalog_name=catalog, schema_name=database_name, table_name=table_name
+                ).fetchall()
                 return [{"name": column.COLUMN_NAME, "type": column.TYPE_NAME} for column in columns]
 
 

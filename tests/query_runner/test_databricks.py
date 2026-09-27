@@ -40,6 +40,15 @@ class TestDatabricksConnection(TestCase):
         self.assertEqual(kwargs["http_path"], "/sql/1.0/warehouses/abc")
         self.assertEqual(kwargs["access_token"], "dapi-token")
         self.assertTrue(kwargs["user_agent_entry"].startswith("Redash/"))
+        self.assertIsNone(kwargs["catalog"])
+
+    def test_connects_with_configured_catalog(self, connect):
+        cursor = _mock_connection(connect)
+        cursor.description = None
+
+        Databricks({**CONFIGURATION, "catalog": " main "}).run_query("SELECT 1", None)
+
+        self.assertEqual(connect.call_args.kwargs["catalog"], "main")
 
     def test_run_query_returns_rows_and_types(self, connect):
         cursor = _mock_connection(connect)
@@ -102,10 +111,11 @@ class TestDatabricksConnection(TestCase):
             ColumnRow("main", "default", "users", "name", 12, "STRING"),
         ]
 
-        schema = Databricks(CONFIGURATION).get_database_tables_with_columns("default")
+        schema = Databricks({**CONFIGURATION, "catalog": "main"}).get_database_tables_with_columns("default")
 
-        cursor.tables.assert_called_once_with(schema_name="default")
-        cursor.columns.assert_called_once_with(schema_name="default")
+        cursor.execute.assert_not_called()
+        cursor.tables.assert_called_once_with(catalog_name="main", schema_name="default")
+        cursor.columns.assert_called_once_with(catalog_name="main", schema_name="default")
         self.assertEqual(
             schema,
             [
@@ -123,10 +133,20 @@ class TestDatabricksConnection(TestCase):
             ColumnRow("main", "default", "users", "id", -5, "BIGINT"),
         ]
 
-        columns = Databricks(CONFIGURATION).get_table_columns("default", "users")
+        columns = Databricks({**CONFIGURATION, "catalog": "main"}).get_table_columns("default", "users")
 
-        cursor.columns.assert_called_once_with(schema_name="default", table_name="users")
+        cursor.columns.assert_called_once_with(catalog_name="main", schema_name="default", table_name="users")
         self.assertEqual(columns, [{"name": "id", "type": "BIGINT"}])
+
+    def test_schema_calls_default_to_current_catalog(self, connect):
+        cursor = _mock_connection(connect)
+        cursor.fetchone.return_value = ("workspace",)
+        cursor.tables.return_value.fetchall.return_value = []
+
+        Databricks(CONFIGURATION).get_database_tables("default")
+
+        cursor.execute.assert_called_once_with("SELECT current_catalog()")
+        cursor.tables.assert_called_once_with(catalog_name="workspace", schema_name="default")
 
 
 class TestNormalizeHost(TestCase):
