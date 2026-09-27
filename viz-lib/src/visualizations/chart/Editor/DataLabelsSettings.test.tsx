@@ -1,16 +1,29 @@
 import React from "react";
-import enzyme from "enzyme";
+import { render, fireEvent } from "@testing-library/react";
 
 import getOptions from "../getOptions";
 import DataLabelsSettings from "./DataLabelsSettings";
 
-function findByTestID(wrapper: any, testId: any) {
-  return wrapper.find(`[data-test="${testId}"]`);
+function findByTestID(testId: string): any {
+  const elements = document.querySelectorAll(`[data-test="${testId}"]`);
+  return elements[elements.length - 1];
+}
+
+// antd passes `data-test` either to a wrapper or to the <input> itself
+function findInput(element: Element, selector = "input"): any {
+  return element.matches(selector) ? element : element.querySelector(selector);
+}
+
+// Checkboxes and switches react to clicks; only click if the state actually needs to change.
+function setChecked(input: HTMLInputElement, checked: boolean) {
+  if (input.checked !== checked) {
+    fireEvent.click(input);
+  }
 }
 
 function mount(options: any, done: any) {
   options = getOptions(options);
-  return enzyme.mount(
+  return render(
     <DataLabelsSettings
       visualizationName="Test"
       data={{ columns: [], rows: [] }}
@@ -25,7 +38,7 @@ function mount(options: any, done: any) {
 
 describe("Visualizations -> Chart -> Editor -> Data Labels Settings", () => {
   test("Sets Show Data Labels option", (done) => {
-    const el = mount(
+    mount(
       {
         globalSeriesType: "column",
         showDataLabels: false,
@@ -33,14 +46,11 @@ describe("Visualizations -> Chart -> Editor -> Data Labels Settings", () => {
       done
     );
 
-    findByTestID(el, "Chart.DataLabels.ShowDataLabels")
-      .last()
-      .find("input")
-      .simulate("change", { target: { checked: true } });
+    setChecked(findInput(findByTestID("Chart.DataLabels.ShowDataLabels")), true);
   });
 
   test("Changes number format", (done) => {
-    const el = mount(
+    mount(
       {
         globalSeriesType: "column",
         numberFormat: "0[.]0000",
@@ -48,13 +58,11 @@ describe("Visualizations -> Chart -> Editor -> Data Labels Settings", () => {
       done
     );
 
-    findByTestID(el, "Chart.DataLabels.NumberFormat")
-      .last()
-      .simulate("change", { target: { value: "0.00" } });
+    fireEvent.change(findByTestID("Chart.DataLabels.NumberFormat"), { target: { value: "0.00" } });
   });
 
   test("Changes percent values format", (done) => {
-    const el = mount(
+    mount(
       {
         globalSeriesType: "column",
         percentFormat: "0[.]00%",
@@ -62,13 +70,11 @@ describe("Visualizations -> Chart -> Editor -> Data Labels Settings", () => {
       done
     );
 
-    findByTestID(el, "Chart.DataLabels.PercentFormat")
-      .last()
-      .simulate("change", { target: { value: "0.0%" } });
+    fireEvent.change(findByTestID("Chart.DataLabels.PercentFormat"), { target: { value: "0.0%" } });
   });
 
   test("Changes date/time format", (done) => {
-    const el = mount(
+    mount(
       {
         globalSeriesType: "column",
         dateTimeFormat: "YYYY-MM-DD HH:mm:ss",
@@ -76,13 +82,11 @@ describe("Visualizations -> Chart -> Editor -> Data Labels Settings", () => {
       done
     );
 
-    findByTestID(el, "Chart.DataLabels.DateTimeFormat")
-      .last()
-      .simulate("change", { target: { value: "YYYY MMM DD" } });
+    fireEvent.change(findByTestID("Chart.DataLabels.DateTimeFormat"), { target: { value: "YYYY MMM DD" } });
   });
 
   test("Changes data labels format", (done) => {
-    const el = mount(
+    mount(
       {
         globalSeriesType: "column",
         textFormat: null,
@@ -90,8 +94,8 @@ describe("Visualizations -> Chart -> Editor -> Data Labels Settings", () => {
       done
     );
 
-    findByTestID(el, "Chart.DataLabels.TextFormat")
-      .last()
-      .simulate("change", { target: { value: "{{ @@x }} :: {{ @@y }} / {{ @@yPercent }}" } });
+    fireEvent.change(findByTestID("Chart.DataLabels.TextFormat"), {
+      target: { value: "{{ @@x }} :: {{ @@y }} / {{ @@yPercent }}" },
+    });
   });
 });
