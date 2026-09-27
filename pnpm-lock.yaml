@@ -283,6 +283,18 @@ importers:
       '@ant-design/icons':
         specifier: '>=4.0.0'
         version: 4.8.3(react-dom@16.14.0(react@16.14.0))(react@16.14.0)
+      '@dnd-kit/core':
+        specifier: ^6.3.1
+        version: 6.3.1(react-dom@16.14.0(react@16.14.0))(react@16.14.0)
+      '@dnd-kit/modifiers':
+        specifier: ^9.0.0
+        version: 9.0.0(@dnd-kit/core@6.3.1(react-dom@16.14.0(react@16.14.0))(react@16.14.0))(react@16.14.0)
+      '@dnd-kit/sortable':
+        specifier: ^10.0.0
+        version: 10.0.0(@dnd-kit/core@6.3.1(react-dom@16.14.0(react@16.14.0))(react@16.14.0))(react@16.14.0)
+      '@dnd-kit/utilities':
+        specifier: ^3.2.2
+        version: 3.2.2(react@16.14.0)
       antd:
         specifier: '>=4.0.0'
         version: 4.4.3(dayjs@1.11.23)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)
@@ -346,9 +358,6 @@ importers:
       react-plotly.js:
         specifier: ^2.6.0
         version: 2.6.0(plotly.js@3.3.1(mapbox-gl@1.13.3))(react@16.14.0)
-      react-sortable-hoc:
-        specifier: ^1.10.1
-        version: 1.11.0(prop-types@15.8.1)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)
       tinycolor2:
         specifier: ^1.4.1
         version: 1.6.0
@@ -1334,6 +1343,34 @@ packages:
   '@discoveryjs/json-ext@1.1.0':
     resolution: {integrity: sha512-Xc3VhU02wqZ1HvHRJUwL09HkZSTvidqY5Ya0NXBSYOxAp+Ln9dcJr9fySI+CkONzP3PekQo9WdzCv0PGER/mOA==}
     engines: {node: '>=14.17.0'}
+
+  '@dnd-kit/accessibility@3.1.1':
+    resolution: {integrity: sha512-2P+YgaXF+gRsIihwwY1gCsQSYnu9Zyj2py8kY5fFvUM1qm2WA2u639R6YNVfU4GWr+ZM5mqEsfHZZLoRONbemw==}
+    peerDependencies:
+      react: '>=16.8.0'
+
+  '@dnd-kit/core@6.3.1':
+    resolution: {integrity: sha512-xkGBRQQab4RLwgXxoqETICr6S5JlogafbhNsidmrkVv2YRs5MLwpjoF2qpiGjQt8S9AoxtIV603s0GIUpY5eYQ==}
+    peerDependencies:
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
+
+  '@dnd-kit/modifiers@9.0.0':
+    resolution: {integrity: sha512-ybiLc66qRGuZoC20wdSSG6pDXFikui/dCNGthxv4Ndy8ylErY0N3KVxY2bgo7AWwIbxDmXDg3ylAFmnrjcbVvw==}
+    peerDependencies:
+      '@dnd-kit/core': ^6.3.0
+      react: '>=16.8.0'
+
+  '@dnd-kit/sortable@10.0.0':
+    resolution: {integrity: sha512-+xqhmIIzvAYMGfBYYnbKuNicfSsk4RksY2XdmJhT+HAC01nix6fHCztU68jooFiMUB01Ky3F0FyOvhG/BZrWkg==}
+    peerDependencies:
+      '@dnd-kit/core': ^6.3.0
+      react: '>=16.8.0'
+
+  '@dnd-kit/utilities@3.2.2':
+    resolution: {integrity: sha512-+MKAJEOfaBe5SmV6t34p80MMKhjvUz0vRrvVJbPT0WElzaOJ/1xs+D+KDv+tD/NE5ujfrChEcshd4fLn0wpiqg==}
+    peerDependencies:
+      react: '>=16.8.0'
 
   '@emnapi/core@1.10.0':
     resolution: {integrity: sha512-yq6OkJ4p82CAfPl0u9mQebQHKPJkY7WrIuk205cTYnYe+k2Z8YBh11FrbRG/H6ihirqcacOgl2BIO8oyMQLeXw==}
@@ -5898,13 +5935,6 @@ packages:
       react: 0.14.x || 15.x || 16.x || 17.x
       react-dom: 0.14.x || 15.x || 16.x || 17.x
 
-  react-sortable-hoc@1.11.0:
-    resolution: {integrity: sha512-v1CDCvdfoR3zLGNp6qsBa4J1BWMEVH25+UKxF/RvQRh+mrB+emqtVHMgZ+WreUiKJoEaiwYoScaueIKhMVBHUg==}
-    peerDependencies:
-      prop-types: ^15.5.7
-      react: ^0.14.0 || ^15.0.0 || ^16.0.0
-      react-dom: ^0.14.0 || ^15.0.0 || ^16.0.0
-
   react-sortablejs@1.5.1:
     resolution: {integrity: sha512-bKIc1UVhjZt55Nb6WZFxZ8Jwyngg8CTt+w+iG1pA5k9LQsg1J0X6nLppHatSSDZDECtRZKp2z47tmmhPRJNj4g==}
     peerDependencies:
@@ -8097,6 +8127,38 @@ snapshots:
   '@discoveryjs/json-ext@0.6.3': {}
 
   '@discoveryjs/json-ext@1.1.0': {}
+
+  '@dnd-kit/accessibility@3.1.1(react@16.14.0)':
+    dependencies:
+      react: 16.14.0
+      tslib: 2.8.1
+
+  '@dnd-kit/core@6.3.1(react-dom@16.14.0(react@16.14.0))(react@16.14.0)':
+    dependencies:
+      '@dnd-kit/accessibility': 3.1.1(react@16.14.0)
+      '@dnd-kit/utilities': 3.2.2(react@16.14.0)
+      react: 16.14.0
+      react-dom: 16.14.0(react@16.14.0)
+      tslib: 2.8.1
+
+  '@dnd-kit/modifiers@9.0.0(@dnd-kit/core@6.3.1(react-dom@16.14.0(react@16.14.0))(react@16.14.0))(react@16.14.0)':
+    dependencies:
+      '@dnd-kit/core': 6.3.1(react-dom@16.14.0(react@16.14.0))(react@16.14.0)
+      '@dnd-kit/utilities': 3.2.2(react@16.14.0)
+      react: 16.14.0
+      tslib: 2.8.1
+
+  '@dnd-kit/sortable@10.0.0(@dnd-kit/core@6.3.1(react-dom@16.14.0(react@16.14.0))(react@16.14.0))(react@16.14.0)':
+    dependencies:
+      '@dnd-kit/core': 6.3.1(react-dom@16.14.0(react@16.14.0))(react@16.14.0)
+      '@dnd-kit/utilities': 3.2.2(react@16.14.0)
+      react: 16.14.0
+      tslib: 2.8.1
+
+  '@dnd-kit/utilities@3.2.2(react@16.14.0)':
+    dependencies:
+      react: 16.14.0
+      tslib: 2.8.1
 
   '@emnapi/core@1.10.0':
     dependencies:
@@ -13622,14 +13684,6 @@ snapshots:
       react: 16.14.0
       react-dom: 16.14.0(react@16.14.0)
       react-draggable: 4.5.0(react-dom@16.14.0(react@16.14.0))(react@16.14.0)
-
-  react-sortable-hoc@1.11.0(prop-types@15.8.1)(react-dom@16.14.0(react@16.14.0))(react@16.14.0):
-    dependencies:
-      '@babel/runtime': 7.28.6
-      invariant: 2.2.4
-      prop-types: 15.8.1
-      react: 16.14.0
-      react-dom: 16.14.0(react@16.14.0)
 
   react-sortablejs@1.5.1(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(sortablejs@1.15.7):
     dependencies:
