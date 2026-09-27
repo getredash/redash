@@ -24,14 +24,14 @@ def upgrade():
     tags_regex = re.compile(r"^([\w\s]+):|#([\w-]+)", re.I | re.U)
     connection = op.get_bind()
 
-    dashboards = connection.execute("SELECT id, name FROM dashboards")
+    dashboards = connection.execute(text("SELECT id, name FROM dashboards"))
 
     update_query = text("UPDATE dashboards SET tags = :tags WHERE id = :id")
 
     for dashboard in dashboards:
-        tags = compact(flatten(tags_regex.findall(dashboard[1])))
+        tags = list(compact(flatten(tags_regex.findall(dashboard[1]))))
         if tags:
-            connection.execute(update_query, tags=tags, id=dashboard[0])
+            connection.execute(update_query, {"tags": tags, "id": dashboard[0]})
 
 
 def downgrade():

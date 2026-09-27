@@ -22,8 +22,8 @@ def upgrade():
 
     conn = op.get_bind()
 
-    metadata = sa.MetaData(bind=conn)
-    queries = sa.Table("queries", metadata, autoload=True)
+    metadata = sa.MetaData()
+    queries = sa.Table("queries", metadata, autoload_with=conn)
 
     @ss.vectorizer(queries.c.id)
     def integer_vectorizer(column):
