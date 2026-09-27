@@ -77,6 +77,11 @@ ENFORCE_PRIVATE_ADDRESS_BLOCK = parse_boolean(os.environ.get("REDASH_ENFORCE_PRI
 
 # Whether to use secure cookies by default.
 COOKIES_SECURE = parse_boolean(os.environ.get("REDASH_COOKIES_SECURE", str(ENFORCE_HTTPS)))
+# Largest non-file form field Flask accepts, in bytes (Flask's own default is 500 kB).
+# Form posts are rare in Redash, but SAML and LDAP login use them; raise this if your
+# identity provider sends very large signed SAML responses.
+MAX_FORM_MEMORY_SIZE = int(os.environ.get("REDASH_MAX_FORM_MEMORY_SIZE", 500_000))
+
 # Whether the session cookie is set to secure.
 SESSION_COOKIE_SECURE = parse_boolean(os.environ.get("REDASH_SESSION_COOKIE_SECURE") or str(COOKIES_SECURE))
 # Whether the session cookie is set HttpOnly.
