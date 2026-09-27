@@ -52,7 +52,7 @@
     "bootstrap": "^3.4.1",
     "classnames": "^2.2.6",
     "core-js": "^3.50.0",
-    "d3": "^3.5.17",
+    "d3": "^7.9.0",
     "debug": "^4.4.3",
     "dompurify": "^3.4.16",
     "font-awesome": "^4.7.0",
@@ -159,8 +159,8 @@
       "\\.[jt]sx?$": "<rootDir>/../node_modules/babel-jest"
     },
     "transformIgnorePatterns": [
-      "/node_modules/(?!\\.pnpm/|(marked|universal-router|query-string|decode-uri-component|split-on-first|filter-obj)/)",
-      "/node_modules/\\.pnpm/(?!(marked|universal-router|query-string|decode-uri-component|split-on-first|filter-obj)@)"
+      "/node_modules/(?!\\.pnpm/|(marked|universal-router|query-string|decode-uri-component|split-on-first|filter-obj|d3|d3-[a-z-]+|internmap|delaunator|robust-predicates)/)",
+      "/node_modules/\\.pnpm/(?!(marked|universal-router|query-string|decode-uri-component|split-on-first|filter-obj|d3|d3-[a-z-]+|internmap|delaunator|robust-predicates)@)"
     ],
     "setupFiles": [
       "./app/__tests__/enzyme_setup.js",
