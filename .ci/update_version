@@ -2,6 +2,11 @@
 VERSION=$(jq -r .version package.json)
 FULL_VERSION=${VERSION}+b${GITHUB_RUN_ID}.${GITHUB_RUN_NUMBER}
 
+if [[ ! "${FULL_VERSION}" =~ ^[0-9][0-9A-Za-z.-]*\+b[0-9]+\.[0-9]+$ ]]; then
+  echo "ERROR: malformed build version '${FULL_VERSION}' (check package.json version, GITHUB_RUN_ID, GITHUB_RUN_NUMBER)" >&2
+  exit 1
+fi
+
 sed -ri "s/^__version__ = ([\"'])[^\"']*[\"']/__version__ = \1${FULL_VERSION}\1/" redash/__init__.py
 if ! grep -F "${FULL_VERSION}" redash/__init__.py | grep -q "^__version__ = "; then
   echo "ERROR: failed to stamp __version__ in redash/__init__.py" >&2
