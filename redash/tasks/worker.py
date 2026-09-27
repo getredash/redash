@@ -68,8 +68,10 @@ class StatsdRecordingWorker(BaseWorker):
             statsd_client.decr("rq.jobs.running.{}".format(queue.name))
             try:
                 job_status = job.get_status()
-            except InvalidJobOperation:  # The job finished and its result TTL expired
-                job_status = JobStatus.FINISHED
+            except InvalidJobOperation:
+                # The job's hash already expired, so its outcome is unknown. rq 1.x returned
+                # None here, which counted as a failure; keep that.
+                job_status = None
             if job_status == JobStatus.FINISHED:
                 statsd_client.incr("rq.jobs.finished.{}".format(queue.name))
             else:
@@ -103,7 +105,7 @@ class HardLimitingWorker(BaseWorker):
         job_has_time_limit = job.timeout != -1
 
         if job_has_time_limit:
-            seconds_under_monitor = (now() - self.monitor_started).seconds
+            seconds_under_monitor = (now() - self.monitor_started).total_seconds()
             return seconds_under_monitor > job.timeout + self.grace_period
         else:
             return False
