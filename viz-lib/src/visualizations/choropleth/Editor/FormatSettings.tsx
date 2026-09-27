@@ -57,7 +57,7 @@ function TemplateFormatHint({ geoJsonProperties }: TemplateFormatHintProps) {
 TemplateFormatHint.defaultProps = templateFormatHintDefaultProps;
 
 export default function GeneralSettings({ options, onOptionsChange }: any) {
-  const [onOptionsChangeDebounced] = useDebouncedCallback(onOptionsChange, 200);
+  const onOptionsChangeDebounced = useDebouncedCallback(onOptionsChange, 200);
   const [geoJson] = useLoadGeoJson(options.mapType);
   const geoJsonFields = useMemo(() => getGeoJsonFields(geoJson), [geoJson]);
 

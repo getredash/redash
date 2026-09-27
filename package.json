@@ -63,9 +63,8 @@
     "mousetrap": "^1.6.1",
     "mustache": "^4.2.0",
     "numeral": "^2.0.6",
-    "path-to-regexp": "^3.3.0",
     "prop-types": "^15.6.1",
-    "query-string": "^6.9.0",
+    "query-string": "^9.5.1",
     "react": "16.14.0",
     "react-ace": "^15.0.0",
     "react-dom": "^16.14.0",
@@ -73,8 +72,8 @@
     "react-resizable": "^1.10.1",
     "react-virtualized": "^9.21.2",
     "sql-formatter": "git+https://github.com/getredash/sql-formatter.git",
-    "universal-router": "^8.3.0",
-    "use-debounce": "^3.1.0",
+    "universal-router": "^10.0.3",
+    "use-debounce": "^10.1.1",
     "use-media": "^1.4.0"
   },
   "devDependencies": {
@@ -160,8 +159,8 @@
       "\\.[jt]sx?$": "<rootDir>/../node_modules/babel-jest"
     },
     "transformIgnorePatterns": [
-      "/node_modules/(?!\\.pnpm/|(marked)/)",
-      "/node_modules/\\.pnpm/(?!(marked)@)"
+      "/node_modules/(?!\\.pnpm/|(marked|query-string|decode-uri-component|split-on-first|filter-obj)/)",
+      "/node_modules/\\.pnpm/(?!(marked|query-string|decode-uri-component|split-on-first|filter-obj)@)"
     ],
     "setupFiles": [
       "./app/__tests__/enzyme_setup.js",

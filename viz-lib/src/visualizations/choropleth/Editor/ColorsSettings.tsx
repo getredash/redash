@@ -5,7 +5,7 @@ import { EditorPropTypes } from "@/visualizations/prop-types";
 import ColorPalette from "../ColorPalette";
 
 export default function ColorsSettings({ options, onOptionsChange }: any) {
-  const [onOptionsChangeDebounced] = useDebouncedCallback(onOptionsChange, 200);
+  const onOptionsChangeDebounced = useDebouncedCallback(onOptionsChange, 200);
 
   return (
     <React.Fragment>
