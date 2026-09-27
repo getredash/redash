@@ -35,7 +35,7 @@ class UnacceptableAddressException(Exception):
     pass
 
 
-class ProxyDisabledException(NotImplementedError):
+class ProxyDisabledException(RequestException):
     pass
 
 
