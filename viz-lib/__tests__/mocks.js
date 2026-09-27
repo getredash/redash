@@ -15,3 +15,7 @@ Object.defineProperty(window, "matchMedia", {
     dispatchEvent: jest.fn(),
   })),
 });
+
+// jsdom doesn't provide TextEncoder, which React 18's react-dom/server needs
+const { TextEncoder, TextDecoder } = require("util");
+Object.assign(global, { TextEncoder, TextDecoder });
