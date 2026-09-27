@@ -1,14 +1,11 @@
 import React from "react";
-import enzyme from "enzyme";
+import { render, fireEvent } from "@testing-library/react";
 
 import Column from "./boolean";
-
-function findByTestID(wrapper: any, testId: any) {
-  return wrapper.find(`[data-test="${testId}"]`);
-}
+import { findByTestID, findInput } from "@/testUtils";
 
 function mount(column: any, done: any) {
-  return enzyme.mount(
+  return render(
     <Column.Editor
       // @ts-expect-error ts-migrate(2322) FIXME: Type '{ visualizationName: string; column: any; on... Remove this comment to see the full error message
       visualizationName="Test"
@@ -24,7 +21,7 @@ function mount(column: any, done: any) {
 describe("Visualizations -> Table -> Columns -> Boolean", () => {
   describe("Editor", () => {
     test("Changes value for FALSE", (done) => {
-      const el = mount(
+      mount(
         {
           name: "a",
           booleanValues: ["false", "true"],
@@ -32,14 +29,11 @@ describe("Visualizations -> Table -> Columns -> Boolean", () => {
         done
       );
 
-      findByTestID(el, "Table.ColumnEditor.Boolean.False")
-        .last()
-        .find("input")
-        .simulate("change", { target: { value: "no" } });
+      fireEvent.change(findInput(findByTestID("Table.ColumnEditor.Boolean.False")), { target: { value: "no" } });
     });
 
     test("Changes value for TRUE", (done) => {
-      const el = mount(
+      mount(
         {
           name: "a",
           booleanValues: ["false", "true"],
@@ -47,10 +41,7 @@ describe("Visualizations -> Table -> Columns -> Boolean", () => {
         done
       );
 
-      findByTestID(el, "Table.ColumnEditor.Boolean.True")
-        .last()
-        .find("input")
-        .simulate("change", { target: { value: "yes" } });
+      fireEvent.change(findInput(findByTestID("Table.ColumnEditor.Boolean.True")), { target: { value: "yes" } });
     });
   });
 });
