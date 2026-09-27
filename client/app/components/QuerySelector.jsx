@@ -18,7 +18,7 @@ function search(term) {
 
   // get recent
   if (!term) {
-    return Query.recent().then(results => results.filter(item => !item.is_draft)); // filter out draft
+    return Query.recent().then((results) => results.filter((item) => !item.is_draft)); // filter out draft
   }
 
   // search by query
@@ -80,13 +80,14 @@ export default function QuerySelector(props) {
 
     return (
       <ul className="list-group">
-        {searchResults.map(q => (
+        {searchResults.map((q) => (
           <PlainButton
             className={cx("query-selector-result", "list-group-item", { inactive: q.is_draft })}
             key={q.id}
             role="listitem"
             onClick={() => selectQuery(q.id)}
-            data-test={`QueryId${q.id}`}>
+            data-test={`QueryId${q.id}`}
+          >
             {q.name} <QueryTagsControl isDraft={q.is_draft} tags={q.tags} className="inline-tags-control" />
           </PlainButton>
         ))}
@@ -117,9 +118,10 @@ export default function QuerySelector(props) {
         filterOption={false}
         defaultActiveFirstOption={false}
         className={props.className}
-        data-test="QuerySelector">
+        data-test="QuerySelector"
+      >
         {searchResults &&
-          searchResults.map(q => {
+          searchResults.map((q) => {
             const disabled = q.is_draft;
             return (
               <Option
@@ -127,7 +129,8 @@ export default function QuerySelector(props) {
                 key={q.id}
                 disabled={disabled}
                 className="query-selector-result"
-                data-test={`QueryId${q.id}`}>
+                data-test={`QueryId${q.id}`}
+              >
                 {q.name}{" "}
                 <QueryTagsControl
                   isDraft={q.is_draft}
@@ -150,7 +153,7 @@ export default function QuerySelector(props) {
           placeholder={placeholder}
           value={searchTerm}
           aria-label="Tied query"
-          onChange={e => setSearchTerm(e.target.value)}
+          onChange={(e) => setSearchTerm(e.target.value)}
           suffix={spinIcon}
         />
       )}

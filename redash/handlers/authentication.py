@@ -252,6 +252,8 @@ def number_format_config():
     return {
         "integerFormat": current_org.get_setting("integer_format"),
         "floatFormat": current_org.get_setting("float_format"),
+        "thousandsSeparator": current_org.get_setting("thousands_separator"),
+        "decimalSeparator": current_org.get_setting("decimal_separator"),
     }
 
 

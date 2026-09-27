@@ -14,7 +14,7 @@ export default function PasswordResetForm(props) {
   const sendPasswordReset = useCallback(() => {
     setLoading(true);
     User.sendPasswordReset(user)
-      .then(passwordLink => {
+      .then((passwordLink) => {
         setPasswordLink(passwordLink);
       })
       .finally(() => {

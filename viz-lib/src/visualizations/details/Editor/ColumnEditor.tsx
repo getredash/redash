@@ -20,14 +20,7 @@ const columnEditorDefaultProps = {
 type Props = OwnProps & typeof columnEditorDefaultProps;
 
 export default function ColumnEditor({ column, onChange }: Props) {
-  return (
-    <SharedColumnEditor
-      column={column}
-      onChange={onChange}
-      variant="details"
-      showSearch={false}
-    />
-  );
+  return <SharedColumnEditor column={column} onChange={onChange} variant="details" showSearch={false} />;
 }
 
 ColumnEditor.defaultProps = columnEditorDefaultProps;

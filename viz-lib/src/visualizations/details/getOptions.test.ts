@@ -126,7 +126,7 @@ describe("Visualizations -> Details -> getOptions", () => {
 
     // Should include all data columns
     expect(result.columns).toHaveLength(5);
-    
+
     // Should preserve settings for existing columns
     const idColumn = result.columns.find((col: any) => col.name === "id");
     expect(idColumn.visible).toBe(false);

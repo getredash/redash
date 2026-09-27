@@ -62,7 +62,15 @@ restylers:
     command:
       - prettier
       - --write
+    # Keep this list in sync with the `prettier` script in package.json.
     include:
       - client/app/**/*.js
       - client/app/**/*.jsx
+      - client/app/**/*.ts
+      - client/app/**/*.tsx
       - client/cypress/**/*.js
+      - client/cypress/**/*.jsx
+      - client/cypress/**/*.ts
+      - client/cypress/**/*.tsx
+      - viz-lib/src/**/*.ts
+      - viz-lib/src/**/*.tsx
