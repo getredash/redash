@@ -143,7 +143,7 @@ all_ds = [
     "thrift>=0.8.0",
     "thrift-sasl>=0.1.0",
     "trino>=0.305,<1.0",
-    "vertica-python==1.1.1",
+    "vertica-python==1.4.0",
     "xlrd==2.0.1",
     "e6data-python-connector==2.2.0",
 ]
