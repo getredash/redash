@@ -14,7 +14,7 @@ from redash.app import create_app  # noqa
 from redash.destinations import import_destinations
 from redash.query_runner import import_query_runners
 
-__version__ = "26.09.0-dev"
+__version__ = "26.9.0-dev"
 
 
 if os.environ.get("REMOTE_DEBUG"):
@@ -61,7 +61,7 @@ configure_sqlparse()
 redis_connection = redis.from_url(settings.REDIS_URL)
 rq_redis_connection = redis.from_url(settings.RQ_REDIS_URL)
 mail = Mail()
-migrate = Migrate(compare_type=True)
+migrate = Migrate(compare_type=True, render_as_batch=False)
 statsd_client = StatsClient(host=settings.STATSD_HOST, port=settings.STATSD_PORT, prefix=settings.STATSD_PREFIX)
 limiter = Limiter(key_func=get_remote_address, storage_uri=settings.LIMITER_STORAGE)
 

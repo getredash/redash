@@ -1,10 +1,9 @@
-import datetime
 import socket
 from itertools import chain
 
 from click import argument
 from flask.cli import AppGroup
-from rq import Connection
+from rq.utils import now
 from rq.worker import WorkerStatus
 from sqlalchemy.orm import configure_mappers
 from supervisor_checks import check_runner
@@ -42,9 +41,8 @@ def worker(queues):
     else:
         queues = chain(*[queue.split(",") for queue in queues])
 
-    with Connection(rq_redis_connection):
-        w = Worker(queues, log_job_description=False, job_monitoring_interval=5)
-        w.work()
+    w = Worker(queues, connection=rq_redis_connection, log_job_description=False, job_monitoring_interval=5)
+    w.work()
 
 
 class WorkerHealthcheck(base.BaseCheck):
@@ -63,8 +61,12 @@ class WorkerHealthcheck(base.BaseCheck):
 
         is_busy = worker.get_state() == WorkerStatus.BUSY
 
-        time_since_seen = datetime.datetime.utcnow() - worker.last_heartbeat
-        seen_lately = time_since_seen.seconds < 60
+        if worker.last_heartbeat is None:
+            seconds_since_seen = None
+            seen_lately = False
+        else:
+            seconds_since_seen = int((now() - worker.last_heartbeat).total_seconds())
+            seen_lately = seconds_since_seen < 60
 
         total_jobs_in_watched_queues = sum([len(q.jobs) for q in worker.queues])
         has_nothing_to_do = total_jobs_in_watched_queues == 0
@@ -73,13 +75,13 @@ class WorkerHealthcheck(base.BaseCheck):
 
         self._log(
             "Worker %s healthcheck: Is busy? %s. "
-            "Seen lately? %s (%d seconds ago). "
+            "Seen lately? %s (%s seconds ago). "
             "Has nothing to do? %s (%d jobs in watched queues). "
             "==> Is healthy? %s",
             worker.key,
             is_busy,
             seen_lately,
-            time_since_seen.seconds,
+            seconds_since_seen,
             has_nothing_to_do,
             total_jobs_in_watched_queues,
             is_healthy,

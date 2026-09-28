@@ -3,7 +3,6 @@ import json
 import click
 from flask import current_app
 from flask.cli import FlaskGroup, run_command, with_appcontext
-from rq import Connection
 
 from redash import __version__, create_app, rq_redis_connection, settings
 from redash.cli import (
@@ -53,8 +52,7 @@ def version():
 
 @manager.command()
 def status():
-    with Connection(rq_redis_connection):
-        print(json.dumps(get_status(), indent=2))
+    print(json.dumps(get_status(), indent=2))
 
 
 @manager.command()
@@ -85,9 +83,8 @@ def send_test_mail(email=None):
 def shell():
     import sys
 
-    from flask.globals import _app_ctx_stack
     from ptpython import repl
 
-    app = _app_ctx_stack.top.app
+    app = current_app._get_current_object()
 
     repl.embed(globals=app.make_shell_context())
