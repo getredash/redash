@@ -25,7 +25,6 @@ Cypress.Commands.add("createQuery", (data, shouldPublish = true) => {
     data
   );
 
-  // eslint-disable-next-line cypress/no-assigning-return-values
   let request = post({ url: "/api/queries", body: merged }).then(({ body }) => body);
   if (shouldPublish) {
     request = request.then((query) =>

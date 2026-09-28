@@ -38,7 +38,7 @@ function TextboxWidget(props) {
 }
 
 TextboxWidget.propTypes = {
-  widget: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  widget: PropTypes.object.isRequired,
   canEdit: PropTypes.bool,
 };
 

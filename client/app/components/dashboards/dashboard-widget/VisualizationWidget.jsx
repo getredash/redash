@@ -128,7 +128,7 @@ function VisualizationWidgetHeader({
 }
 
 VisualizationWidgetHeader.propTypes = {
-  widget: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  widget: PropTypes.object.isRequired,
   refreshStartedAt: Moment,
   parameters: PropTypes.arrayOf(PropTypes.object),
   isEditing: PropTypes.bool,
@@ -202,7 +202,7 @@ function VisualizationWidgetFooter({ widget, isPublic, onRefresh, onExpand }) {
 }
 
 VisualizationWidgetFooter.propTypes = {
-  widget: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  widget: PropTypes.object.isRequired,
   isPublic: PropTypes.bool,
   onRefresh: PropTypes.func.isRequired,
   onExpand: PropTypes.func.isRequired,
@@ -212,8 +212,8 @@ VisualizationWidgetFooter.defaultProps = { isPublic: false };
 
 class VisualizationWidget extends React.Component {
   static propTypes = {
-    widget: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
-    dashboard: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+    widget: PropTypes.object.isRequired,
+    dashboard: PropTypes.object.isRequired,
     filters: FiltersType,
     isPublic: PropTypes.bool,
     isLoading: PropTypes.bool,

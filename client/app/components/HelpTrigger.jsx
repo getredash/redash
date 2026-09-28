@@ -205,7 +205,6 @@ export function helpTriggerWithTypes(types, allowedDomains = [], drawerClassName
               <div className="drawer-menu">
                 {url && (
                   <Tooltip title="Open page in a new window" placement="left">
-                    {/* eslint-disable-next-line react/jsx-no-target-blank */}
                     <Link href={url} target="_blank">
                       <i className="fa fa-external-link" aria-hidden="true" />
                       <span className="sr-only">(opens in a new tab)</span>
@@ -240,7 +239,6 @@ export function helpTriggerWithTypes(types, allowedDomains = [], drawerClassName
                 <BigMessage icon="fa-exclamation-circle" className="help-message">
                   Something went wrong.
                   <br />
-                  {/* eslint-disable-next-line react/jsx-no-target-blank */}
                   <Link href={this.state.error} target="_blank" rel="noopener">
                     Click here
                   </Link>{" "}

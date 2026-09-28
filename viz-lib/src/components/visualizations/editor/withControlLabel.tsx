@@ -60,7 +60,6 @@ export function ControlLabel({ layout, label, labelProps, disabled, children }: 
 ControlLabel.defaultProps = controlLabelDefaultProps;
 
 export default function withControlLabel(WrappedControl: any) {
-  // eslint-disable-next-line react/prop-types
   function ControlWrapper({ className, id, layout, label, labelProps, disabled, ...props }: any) {
     const fallbackId = useMemo(() => `visualization-editor-control-${Math.random().toString(36).substr(2, 10)}`, []);
     labelProps = {
