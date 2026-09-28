@@ -94,6 +94,10 @@ const config = {
       process: require.resolve("process/browser"),
     }
   },
+  ignoreWarnings: [
+    // Less 4 deprecation warnings from antd 4's own Less sources, which we can't change
+    { message: /DEPRECATED WARNING: .* in .*[\\/]node_modules[\\/].*[\\/]antd[\\/]/ },
+  ],
   plugins: [
     new WebpackBuildNotifierPlugin({ title: "Redash" }),
     // bundle only default `moment` locale (`en`)
@@ -211,7 +215,9 @@ const config = {
                 plugins: [
                   new LessPluginAutoPrefix({ browsers: ["last 3 versions"] })
                 ],
-                javascriptEnabled: true
+                javascriptEnabled: true,
+                // antd 4's Less sources rely on Less 3 math, where `a / b` is always evaluated
+                math: "always"
               }
             }
           }
