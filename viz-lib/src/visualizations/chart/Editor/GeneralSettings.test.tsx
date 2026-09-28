@@ -1,20 +1,39 @@
 import React from "react";
-import enzyme from "enzyme";
+import { render, fireEvent } from "@testing-library/react";
 
 import getOptions from "../getOptions";
 import GeneralSettings from "./GeneralSettings";
 
-function findByTestID(wrapper: any, testId: any) {
-  return wrapper.find(`[data-test="${testId}"]`);
+function findByTestID(testId: string): any {
+  const elements = document.querySelectorAll(`[data-test="${testId}"]`);
+  return elements[elements.length - 1];
 }
 
-function elementExists(wrapper: any, testId: any) {
-  return findByTestID(wrapper, testId).length > 0;
+// antd's Select opens on mousedown on its selector element
+function openSelect(testId: string) {
+  const element = findByTestID(testId);
+  fireEvent.mouseDown(element.querySelector(".ant-select-selector") || element);
+}
+
+// antd passes `data-test` either to a wrapper or to the <input> itself
+function findInput(element: Element, selector = "input"): any {
+  return element.matches(selector) ? element : element.querySelector(selector);
+}
+
+// Checkboxes and switches react to clicks; only click if the state actually needs to change.
+function setChecked(input: HTMLInputElement, checked: boolean) {
+  if (input.checked !== checked) {
+    fireEvent.click(input);
+  }
+}
+
+function elementExists(testId: string) {
+  return !!findByTestID(testId);
 }
 
 function mount(options: any, done: any) {
   options = getOptions(options);
-  return enzyme.mount(
+  return render(
     <GeneralSettings
       visualizationName="Test"
       data={{ columns: [], rows: [] }}
@@ -29,7 +48,7 @@ function mount(options: any, done: any) {
 
 describe("Visualizations -> Chart -> Editor -> General Settings", () => {
   test("Changes global series type", (done) => {
-    const el = mount(
+    mount(
       {
         globalSeriesType: "column",
         showDataLabels: false,
@@ -41,12 +60,12 @@ describe("Visualizations -> Chart -> Editor -> General Settings", () => {
       done
     );
 
-    findByTestID(el, "Chart.GlobalSeriesType").last().simulate("mouseDown");
-    findByTestID(el, "Chart.ChartType.pie").last().simulate("click");
+    openSelect("Chart.GlobalSeriesType");
+    fireEvent.click(findByTestID("Chart.ChartType.pie"));
   });
 
   test("Pie: changes direction", (done) => {
-    const el = mount(
+    mount(
       {
         globalSeriesType: "pie",
         direction: { type: "counterclockwise" },
@@ -54,12 +73,12 @@ describe("Visualizations -> Chart -> Editor -> General Settings", () => {
       done
     );
 
-    findByTestID(el, "Chart.PieDirection").last().simulate("mouseDown");
-    findByTestID(el, "Chart.PieDirection.Clockwise").last().simulate("click");
+    openSelect("Chart.PieDirection");
+    fireEvent.click(findByTestID("Chart.PieDirection.Clockwise"));
   });
 
   test("Toggles legend", (done) => {
-    const el = mount(
+    mount(
       {
         globalSeriesType: "column",
         legend: { enabled: true },
@@ -67,12 +86,12 @@ describe("Visualizations -> Chart -> Editor -> General Settings", () => {
       done
     );
 
-    findByTestID(el, "Chart.LegendPlacement").last().simulate("mouseDown");
-    findByTestID(el, "Chart.LegendPlacement.HideLegend").last().simulate("click");
+    openSelect("Chart.LegendPlacement");
+    fireEvent.click(findByTestID("Chart.LegendPlacement.HideLegend"));
   });
 
   test("Box: toggles show points", (done) => {
-    const el = mount(
+    mount(
       {
         globalSeriesType: "box",
         showpoints: false,
@@ -80,14 +99,11 @@ describe("Visualizations -> Chart -> Editor -> General Settings", () => {
       done
     );
 
-    findByTestID(el, "Chart.ShowPoints")
-      .last()
-      .find("input")
-      .simulate("change", { target: { checked: true } });
+    setChecked(findInput(findByTestID("Chart.ShowPoints")), true);
   });
 
   test("Enables stacking", (done) => {
-    const el = mount(
+    mount(
       {
         globalSeriesType: "column",
         series: {},
@@ -95,12 +111,12 @@ describe("Visualizations -> Chart -> Editor -> General Settings", () => {
       done
     );
 
-    findByTestID(el, "Chart.Stacking").last().simulate("mouseDown");
-    findByTestID(el, "Chart.Stacking.Stack").last().simulate("click");
+    openSelect("Chart.Stacking");
+    fireEvent.click(findByTestID("Chart.Stacking.Stack"));
   });
 
   test("Toggles normalize values to percentage", (done) => {
-    const el = mount(
+    mount(
       {
         globalSeriesType: "column",
         series: {},
@@ -108,14 +124,11 @@ describe("Visualizations -> Chart -> Editor -> General Settings", () => {
       done
     );
 
-    findByTestID(el, "Chart.NormalizeValues")
-      .last()
-      .find("input")
-      .simulate("change", { target: { checked: true } });
+    setChecked(findInput(findByTestID("Chart.NormalizeValues")), true);
   });
 
   test("Keep missing/null values", (done) => {
-    const el = mount(
+    mount(
       {
         globalSeriesType: "column",
         missingValuesAsZero: true,
@@ -123,14 +136,14 @@ describe("Visualizations -> Chart -> Editor -> General Settings", () => {
       done
     );
 
-    findByTestID(el, "Chart.MissingValues").last().simulate("mouseDown");
-    findByTestID(el, "Chart.MissingValues.Keep").last().simulate("click");
+    openSelect("Chart.MissingValues");
+    fireEvent.click(findByTestID("Chart.MissingValues.Keep"));
   });
 
   describe("Column mappings should be available", () => {
     test("for bubble", () => {
       // @ts-expect-error ts-migrate(2554) FIXME: Expected 2 arguments, but got 1.
-      const el = mount({
+      mount({
         globalSeriesType: "column",
         seriesOptions: {
           a: { type: "column" },
@@ -139,14 +152,14 @@ describe("Visualizations -> Chart -> Editor -> General Settings", () => {
         },
       });
 
-      expect(elementExists(el, "Chart.ColumnMapping.x")).toBeTruthy();
-      expect(elementExists(el, "Chart.ColumnMapping.y")).toBeTruthy();
-      expect(elementExists(el, "Chart.ColumnMapping.size")).toBeTruthy();
+      expect(elementExists("Chart.ColumnMapping.x")).toBeTruthy();
+      expect(elementExists("Chart.ColumnMapping.y")).toBeTruthy();
+      expect(elementExists("Chart.ColumnMapping.size")).toBeTruthy();
     });
 
     test("for heatmap", () => {
       // @ts-expect-error ts-migrate(2554) FIXME: Expected 2 arguments, but got 1.
-      const el = mount({
+      mount({
         globalSeriesType: "heatmap",
         seriesOptions: {
           a: { type: "column" },
@@ -155,14 +168,14 @@ describe("Visualizations -> Chart -> Editor -> General Settings", () => {
         },
       });
 
-      expect(elementExists(el, "Chart.ColumnMapping.x")).toBeTruthy();
-      expect(elementExists(el, "Chart.ColumnMapping.y")).toBeTruthy();
-      expect(elementExists(el, "Chart.ColumnMapping.zVal")).toBeTruthy();
+      expect(elementExists("Chart.ColumnMapping.x")).toBeTruthy();
+      expect(elementExists("Chart.ColumnMapping.y")).toBeTruthy();
+      expect(elementExists("Chart.ColumnMapping.zVal")).toBeTruthy();
     });
 
     test("for all types except of bubble, heatmap and custom", () => {
       // @ts-expect-error ts-migrate(2554) FIXME: Expected 2 arguments, but got 1.
-      const el = mount({
+      mount({
         globalSeriesType: "column",
         seriesOptions: {
           a: { type: "column" },
@@ -171,15 +184,15 @@ describe("Visualizations -> Chart -> Editor -> General Settings", () => {
         },
       });
 
-      expect(elementExists(el, "Chart.ColumnMapping.x")).toBeTruthy();
-      expect(elementExists(el, "Chart.ColumnMapping.y")).toBeTruthy();
-      expect(elementExists(el, "Chart.ColumnMapping.series")).toBeTruthy();
-      expect(elementExists(el, "Chart.ColumnMapping.yError")).toBeTruthy();
+      expect(elementExists("Chart.ColumnMapping.x")).toBeTruthy();
+      expect(elementExists("Chart.ColumnMapping.y")).toBeTruthy();
+      expect(elementExists("Chart.ColumnMapping.series")).toBeTruthy();
+      expect(elementExists("Chart.ColumnMapping.yError")).toBeTruthy();
     });
   });
 
   test("Toggles horizontal bar chart", (done) => {
-    const el = mount(
+    mount(
       {
         globalSeriesType: "column",
         series: {},
@@ -187,14 +200,11 @@ describe("Visualizations -> Chart -> Editor -> General Settings", () => {
       done
     );
 
-    findByTestID(el, "Chart.SwappedAxes")
-      .last()
-      .find("input")
-      .simulate("change", { target: { checked: true } });
+    setChecked(findInput(findByTestID("Chart.SwappedAxes")), true);
   });
 
   test("Toggles Enable click events", (done) => {
-    const el = mount(
+    mount(
       {
         globalSeriesType: "column",
         series: {},
@@ -202,9 +212,6 @@ describe("Visualizations -> Chart -> Editor -> General Settings", () => {
       done
     );
 
-    findByTestID(el, "Chart.EnableClickEvents")
-      .last()
-      .find("input")
-      .simulate("change", { target: { checked: true } });
+    setChecked(findInput(findByTestID("Chart.EnableClickEvents")), true);
   });
 });

@@ -1,14 +1,20 @@
 import React from "react";
-import enzyme from "enzyme";
+import { render, fireEvent } from "@testing-library/react";
 
 import Column from "./image";
 
-function findByTestID(wrapper: any, testId: any) {
-  return wrapper.find(`[data-test="${testId}"]`);
+function findByTestID(testId: string): any {
+  const elements = document.querySelectorAll(`[data-test="${testId}"]`);
+  return elements[elements.length - 1];
+}
+
+// antd passes `data-test` either to a wrapper or to the <input> itself
+function findInput(element: Element, selector = "input"): any {
+  return element.matches(selector) ? element : element.querySelector(selector);
 }
 
 function mount(column: any, done: any) {
-  return enzyme.mount(
+  return render(
     <Column.Editor
       // @ts-expect-error ts-migrate(2322) FIXME: Type '{ visualizationName: string; column: any; on... Remove this comment to see the full error message
       visualizationName="Test"
@@ -24,7 +30,7 @@ function mount(column: any, done: any) {
 describe("Visualizations -> Table -> Columns -> Image", () => {
   describe("Editor", () => {
     test("Changes URL template", (done) => {
-      const el = mount(
+      mount(
         {
           name: "a",
           imageUrlTemplate: "{{ @ }}",
@@ -32,14 +38,13 @@ describe("Visualizations -> Table -> Columns -> Image", () => {
         done
       );
 
-      findByTestID(el, "Table.ColumnEditor.Image.UrlTemplate")
-        .last()
-        .find("input")
-        .simulate("change", { target: { value: "http://{{ @ }}.jpeg" } });
+      fireEvent.change(findInput(findByTestID("Table.ColumnEditor.Image.UrlTemplate")), {
+        target: { value: "http://{{ @ }}.jpeg" },
+      });
     });
 
     test("Changes width", (done) => {
-      const el = mount(
+      mount(
         {
           name: "a",
           imageWidth: null,
@@ -47,14 +52,11 @@ describe("Visualizations -> Table -> Columns -> Image", () => {
         done
       );
 
-      findByTestID(el, "Table.ColumnEditor.Image.Width")
-        .last()
-        .find("input")
-        .simulate("change", { target: { value: "400" } });
+      fireEvent.change(findInput(findByTestID("Table.ColumnEditor.Image.Width")), { target: { value: "400" } });
     });
 
     test("Changes height", (done) => {
-      const el = mount(
+      mount(
         {
           name: "a",
           imageHeight: null,
@@ -62,14 +64,11 @@ describe("Visualizations -> Table -> Columns -> Image", () => {
         done
       );
 
-      findByTestID(el, "Table.ColumnEditor.Image.Height")
-        .last()
-        .find("input")
-        .simulate("change", { target: { value: "300" } });
+      fireEvent.change(findInput(findByTestID("Table.ColumnEditor.Image.Height")), { target: { value: "300" } });
     });
 
     test("Changes title template", (done) => {
-      const el = mount(
+      mount(
         {
           name: "a",
           imageUrlTemplate: "{{ @ }}",
@@ -77,10 +76,9 @@ describe("Visualizations -> Table -> Columns -> Image", () => {
         done
       );
 
-      findByTestID(el, "Table.ColumnEditor.Image.TitleTemplate")
-        .last()
-        .find("input")
-        .simulate("change", { target: { value: "Image {{ @ }}" } });
+      fireEvent.change(findInput(findByTestID("Table.ColumnEditor.Image.TitleTemplate")), {
+        target: { value: "Image {{ @ }}" },
+      });
     });
   });
 });

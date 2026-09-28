@@ -1,14 +1,20 @@
 import React from "react";
-import enzyme from "enzyme";
+import { render, fireEvent } from "@testing-library/react";
 
 import Column from "./datetime";
 
-function findByTestID(wrapper: any, testId: any) {
-  return wrapper.find(`[data-test="${testId}"]`);
+function findByTestID(testId: string): any {
+  const elements = document.querySelectorAll(`[data-test="${testId}"]`);
+  return elements[elements.length - 1];
+}
+
+// antd passes `data-test` either to a wrapper or to the <input> itself
+function findInput(element: Element, selector = "input"): any {
+  return element.matches(selector) ? element : element.querySelector(selector);
 }
 
 function mount(column: any, done: any) {
-  return enzyme.mount(
+  return render(
     <Column.Editor
       // @ts-expect-error ts-migrate(2322) FIXME: Type '{ visualizationName: string; column: any; on... Remove this comment to see the full error message
       visualizationName="Test"
@@ -24,7 +30,7 @@ function mount(column: any, done: any) {
 describe("Visualizations -> Table -> Columns -> Date/Time", () => {
   describe("Editor", () => {
     test("Changes format", (done) => {
-      const el = mount(
+      mount(
         {
           name: "a",
           dateTimeFormat: "YYYY-MM-DD HH:mm:ss",
@@ -32,10 +38,9 @@ describe("Visualizations -> Table -> Columns -> Date/Time", () => {
         done
       );
 
-      findByTestID(el, "Table.ColumnEditor.DateTime.Format")
-        .last()
-        .find("input")
-        .simulate("change", { target: { value: "YYYY/MM/DD HH:ss" } });
+      fireEvent.change(findInput(findByTestID("Table.ColumnEditor.DateTime.Format")), {
+        target: { value: "YYYY/MM/DD HH:ss" },
+      });
     });
   });
 });
