@@ -106,8 +106,8 @@ async function main(command) {
       stopServer();
       break;
     case "all":
-      startServer();
       try {
+        startServer();
         await seedDatabase(seedData);
         execSync("cypress run", { stdio: "inherit" });
       } finally {
