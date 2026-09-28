@@ -6,7 +6,7 @@ from flask import make_response, request
 from flask_login import current_user
 from flask_restful import abort
 
-from redash import models, settings
+from redash import models, rq_redis_connection, settings
 from redash.handlers.base import BaseResource, get_object_or_404, record_event
 from redash.models.parameterized_query import (
     InvalidParameterError,
@@ -426,12 +426,12 @@ class JobResource(BaseResource):
         """
         Retrieve info about a running query job.
         """
-        job = Job.fetch(job_id)
+        job = Job.fetch(job_id, connection=rq_redis_connection)
         return serialize_job(job)
 
     def delete(self, job_id):
         """
         Cancel a query job in progress.
         """
-        job = Job.fetch(job_id)
+        job = Job.fetch(job_id, connection=rq_redis_connection)
         job.cancel()
