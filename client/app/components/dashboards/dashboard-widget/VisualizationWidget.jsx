@@ -117,7 +117,6 @@ function VisualizationWidgetHeader({
           <Parameters
             parameters={parameters}
             sortable={isEditing}
-            appendSortableToParent={false}
             onValuesChange={onParametersUpdate}
             onParametersEdit={onParametersEdit}
           />

@@ -29,7 +29,6 @@ export default class Parameters extends React.Component {
     onValuesChange: PropTypes.func,
     onPendingValuesChange: PropTypes.func,
     onParametersEdit: PropTypes.func,
-    appendSortableToParent: PropTypes.bool,
   };
 
   static defaultProps = {
@@ -40,7 +39,6 @@ export default class Parameters extends React.Component {
     onValuesChange: () => {},
     onPendingValuesChange: () => {},
     onParametersEdit: () => {},
-    appendSortableToParent: true,
   };
 
   toCamelCase = (str) => {
@@ -172,17 +170,15 @@ export default class Parameters extends React.Component {
 
   render() {
     const { parameters } = this.state;
-    const { sortable, appendSortableToParent } = this.props;
+    const { sortable } = this.props;
     const dirtyParamCount = size(filter(parameters, "hasPendingValue"));
     return (
       <SortableContainer
         disabled={!sortable}
+        itemCount={parameters ? parameters.length : 0}
         axis="xy"
-        useDragHandle
         lockToContainerEdges
         helperClass="parameter-dragged"
-        helperContainer={(containerEl) => (appendSortableToParent ? containerEl : document.body)}
-        updateBeforeSortStart={this.onBeforeSortStart}
         onSortEnd={this.moveParameter}
         containerProps={{
           className: "parameter-container",
