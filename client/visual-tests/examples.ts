@@ -407,6 +407,8 @@ ORDER BY 1, 2
     visualizations: [
       chart("Heatmap", {
         globalSeriesType: "heatmap",
+        // Y values are genre names: heatmaps need a category Y axis (the default scale is linear)
+        yAxis: [{ type: "category" }, { type: "linear", opposite: true }],
         columnMapping: { year: "x", genre: "y", revenue: "zVal" },
       }),
       chart("Heatmap: Viridis, data labels", {
@@ -414,6 +416,8 @@ ORDER BY 1, 2
         colorScheme: "Viridis",
         showDataLabels: true,
         numberFormat: "$0,0",
+        // Y values are genre names: heatmaps need a category Y axis (the default scale is linear)
+        yAxis: [{ type: "category" }, { type: "linear", opposite: true }],
         columnMapping: { year: "x", genre: "y", revenue: "zVal" },
       }),
       chart("Heatmap: custom colors, sorted/reversed Y", {
@@ -422,6 +426,8 @@ ORDER BY 1, 2
         heatMinColor: "#FFF4E0",
         heatMaxColor: "#B8001C",
         reverseY: true,
+        // Y values are genre names: heatmaps need a category Y axis (the default scale is linear)
+        yAxis: [{ type: "category" }, { type: "linear", opposite: true }],
         columnMapping: { year: "x", genre: "y", revenue: "zVal" },
       }),
     ],

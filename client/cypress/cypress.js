@@ -1,10 +1,7 @@
-/* eslint-disable import/no-extraneous-dependencies, no-console */
-const { find } = require("lodash");
+/* eslint-disable no-console, compat/compat -- a Node.js script, not browser code */
 const { execSync } = require("child_process");
-const { get, post } = require("request").defaults({ jar: true });
 const { seedData } = require("./seed-data");
 const fs = require("fs");
-var Cookie = require("request-cookies").Cookie;
 
 let cypressConfigBaseUrl;
 try {
@@ -14,31 +11,40 @@ try {
 
 const baseUrl = process.env.CYPRESS_baseUrl || cypressConfigBaseUrl || "http://localhost:5001";
 
-function seedDatabase(seedValues) {
-  get(baseUrl + "/login", (_, { headers }) => {
-    const request = seedValues.shift();
-    const data = request.type === "form" ? { formData: request.data } : { json: request.data };
+// Minimal cookie jar: the seed requests share one session (setup, then login, then API calls)
+const cookies = {};
 
-    if (headers["set-cookie"]) {
-      const cookies = headers["set-cookie"].map((cookie) => new Cookie(cookie));
-      const csrfCookie = find(cookies, { key: "csrf_token" });
-      if (csrfCookie) {
-        if (request.type === "form") {
-          data["formData"] = { ...data["formData"], csrf_token: csrfCookie.value };
-        } else {
-          data["headers"] = { "X-CSRFToken": csrfCookie.value };
-        }
-      }
+async function request(method, route, { headers = {}, body } = {}) {
+  const cookie = Object.entries(cookies)
+    .map(([name, value]) => `${name}=${value}`)
+    .join("; ");
+  const response = await fetch(baseUrl + route, { method, body, headers: { ...headers, cookie }, redirect: "manual" });
+  for (const setCookie of response.headers.getSetCookie()) {
+    const [pair] = setCookie.split(";");
+    const separator = pair.indexOf("=");
+    cookies[pair.slice(0, separator).trim()] = pair.slice(separator + 1);
+  }
+  return response;
+}
+
+async function seedDatabase(seedValues) {
+  for (const { route, type, data } of seedValues) {
+    await request("GET", "/login"); // refreshes the CSRF cookie
+    const csrfToken = cookies.csrf_token;
+    let response;
+    try {
+      response =
+        type === "form"
+          ? await request("POST", route, { body: new URLSearchParams({ ...data, csrf_token: csrfToken }) })
+          : await request("POST", route, {
+              headers: { "Content-Type": "application/json", "X-CSRFToken": csrfToken },
+              body: JSON.stringify(data),
+            });
+      console.log("POST " + route + " - " + response.status);
+    } catch (err) {
+      console.log("POST " + route + " - " + err);
     }
-
-    post(baseUrl + request.route, data, (err, response) => {
-      const result = response ? response.statusCode : err;
-      console.log("POST " + request.route + " - " + result);
-      if (seedValues.length) {
-        seedDatabase(seedValues);
-      }
-    });
-  });
+  }
 }
 
 function buildServer() {
@@ -73,40 +79,42 @@ function runCypressCI() {
   );
 }
 
-const command = process.argv[2] || "all";
-
-switch (command) {
-  case "build":
-    buildServer();
-    break;
-  case "start":
-    startServer();
-    if (!process.argv.includes("--skip-db-seed")) {
-      seedDatabase(seedData);
-    }
-    break;
-  case "db-seed":
-    seedDatabase(seedData);
-    break;
-  case "run":
-    execSync("cypress run", { stdio: "inherit" });
-    break;
-  case "open":
-    execSync("cypress open", { stdio: "inherit" });
-    break;
-  case "run-ci":
-    runCypressCI();
-    break;
-  case "stop":
-    stopServer();
-    break;
-  case "all":
-    startServer();
-    seedDatabase(seedData);
-    execSync("cypress run", { stdio: "inherit" });
-    stopServer();
-    break;
-  default:
-    console.log("Usage: pnpm run cypress [build|start|db-seed|open|run|stop]");
-    break;
+async function main(command) {
+  switch (command) {
+    case "build":
+      buildServer();
+      break;
+    case "start":
+      startServer();
+      if (!process.argv.includes("--skip-db-seed")) {
+        await seedDatabase(seedData);
+      }
+      break;
+    case "db-seed":
+      await seedDatabase(seedData);
+      break;
+    case "run":
+      execSync("cypress run", { stdio: "inherit" });
+      break;
+    case "open":
+      execSync("cypress open", { stdio: "inherit" });
+      break;
+    case "run-ci":
+      runCypressCI();
+      break;
+    case "stop":
+      stopServer();
+      break;
+    case "all":
+      startServer();
+      await seedDatabase(seedData);
+      execSync("cypress run", { stdio: "inherit" });
+      stopServer();
+      break;
+    default:
+      console.log("Usage: pnpm run cypress [build|start|db-seed|open|run|stop]");
+      break;
+  }
 }
+
+main(process.argv[2] || "all");

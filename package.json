@@ -141,7 +141,6 @@
     "process": "^0.11.10",
     "react-refresh": "^0.14.0",
     "react-test-renderer": "^16.14.0",
-    "request-cookies": "^1.1.0",
     "source-map-loader": "^5.0.0",
     "stream-browserify": "^3.0.0",
     "style-loader": "^4.0.0",

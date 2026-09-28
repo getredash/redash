@@ -300,9 +300,6 @@ importers:
       react-test-renderer:
         specifier: ^16.14.0
         version: 16.14.0(react@16.14.0)
-      request-cookies:
-        specifier: ^1.1.0
-        version: 1.1.0
       source-map-loader:
         specifier: ^5.0.0
         version: 5.0.0(webpack@5.105.3)
@@ -6916,9 +6913,6 @@ packages:
     resolution: {integrity: sha512-PV0dzCYDNfRi1jCDbJzpW7jNNDRuCOG/jI5ctQcGKt/clZD+YcPS3yIlWuTJMmESC8aevCFmWJy5wjAFgNqN6w==}
     engines: {node: '>=0.10'}
 
-  request-cookies@1.1.0:
-    resolution: {integrity: sha512-asS2B6EdlD0zEiyPCHbsG239TkLTAw3GiIDHLXy9rNE1r+VjjOAz96mqeAHSabUOS2utqbpvOMtCpwTieEvcOA==}
-
   request-progress@3.0.0:
     resolution: {integrity: sha512-MnWzEHHaxHO2iWiQuHrUPBi/1WeBf5PkxQqNyNvLl9VAYSdXkP8tQ3pBSeCPD+yw0v0Aq1zosWLz0BdeXpWwZg==}
 
@@ -7637,11 +7631,6 @@ packages:
   totalist@3.0.1:
     resolution: {integrity: sha512-sf4i37nQ2LBx4m3wB74y+ubopq6W/dIzXg0FDGjsYnZHVa1Da8FH853wlL2gtUhg+xJXjfk3kUZS3BRoQeoQBQ==}
     engines: {node: '>=6'}
-
-  tough-cookie@0.12.1:
-    resolution: {integrity: sha512-+gd4PklNJsxzu1NoNjhGRfOZZ5llND6VtQZGuaDXdmI0Ii79V5+YCa2sLx8Q6lYhYN2+9frCzUwOLQpuwHvO4Q==}
-    engines: {node: '>=0.4.12'}
-    deprecated: ReDoS vulnerability parsing Set-Cookie https://nodesecurity.io/advisories/130
 
   tough-cookie@4.1.4:
     resolution: {integrity: sha512-Loo5UUvLD9ScZ6jh8beX1T6sO1w2/MpCRpEP7V280GKMVUQ0Jzar2U3UJPsrdbziLEMMhu3Ujnq//rhiFuIeag==}
@@ -16331,10 +16320,6 @@ snapshots:
 
   repeat-string@1.6.1: {}
 
-  request-cookies@1.1.0:
-    dependencies:
-      tough-cookie: 0.12.1
-
   request-progress@3.0.0:
     dependencies:
       throttleit: 1.0.1
@@ -17128,10 +17113,6 @@ snapshots:
       commander: 2.20.3
 
   totalist@3.0.1: {}
-
-  tough-cookie@0.12.1:
-    dependencies:
-      punycode: 2.3.1
 
   tough-cookie@4.1.4:
     dependencies:
