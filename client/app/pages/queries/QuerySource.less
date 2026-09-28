@@ -78,6 +78,11 @@
         flex: 1 1 auto;
         position: relative;
 
+        // antd 4.20+ positions .ant-tabs-content; keep the panes positioned against the holder
+        .ant-tabs-content {
+          position: static;
+        }
+
         @media (min-width: 880px) {
           .ant-tabs-tabpane {
             position: absolute;
