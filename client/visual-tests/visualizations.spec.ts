@@ -30,6 +30,10 @@ test.beforeEach(async ({ page }) => {
 
 for (const [type, dashboardName] of Object.entries(DASHBOARDS) as [VisualizationType, string][]) {
   const visualizations = EXAMPLES.flatMap((example) => example.visualizations).filter((viz) => viz.type === type);
+  const baselineNames = visualizations.map((viz) => slugify(viz.name));
+  if (new Set(baselineNames).size !== baselineNames.length) {
+    throw new Error(`${dashboardName} visualization names must be unique after slugifying: ${baselineNames}`);
+  }
 
   test(dashboardName, async ({ page }) => {
     const dashboard = readManifest().dashboards[type];

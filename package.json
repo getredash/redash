@@ -35,7 +35,7 @@
   },
   "packageManager": "pnpm@10.30.3",
   "engines": {
-    "node": ">=18.0.0 <26.0.0"
+    "node": ">=20.0.0 <26.0.0"
   },
   "author": "Redash Contributors",
   "license": "BSD-2-Clause",

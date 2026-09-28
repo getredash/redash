@@ -3,12 +3,12 @@ describe("Create Alert", () => {
     cy.login();
   });
 
-  it("renders the initial page and takes a screenshot", () => {
+  it("renders the initial page", () => {
     cy.visit("/alerts/new");
     cy.getByTestId("QuerySelector").should("exist");
   });
 
-  it("selects query and takes a screenshot", () => {
+  it("selects query", () => {
     cy.createQuery({ name: "Create Alert Query" }).then(({ id: queryId }) => {
       cy.visit("/alerts/new");
       cy.getByTestId("QuerySelector").click().type("Create Alert Query");

@@ -1132,7 +1132,7 @@ GROUP BY c.CustomerId
     query: `
 WITH paths AS (
     SELECT
-        ROW_NUMBER() OVER (ORDER BY 1) AS sequence,
+        ROW_NUMBER() OVER (ORDER BY region, genre, media_type) AS sequence,
         region, genre, media_type, value
     FROM (
         SELECT

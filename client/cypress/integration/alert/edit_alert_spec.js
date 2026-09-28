@@ -3,7 +3,7 @@ describe("Edit Alert", () => {
     cy.login();
   });
 
-  it("renders the page and takes a screenshot", () => {
+  it("renders the page", () => {
     cy.createQuery({ query: "select 1 as col_name" })
       .then(({ id: queryId }) => cy.createAlert(queryId, { column: "col_name" }))
       .then(({ id: alertId }) => {
@@ -12,7 +12,7 @@ describe("Edit Alert", () => {
       });
   });
 
-  it("edits the notification template and takes a screenshot", () => {
+  it("edits the notification template", () => {
     cy.createQuery()
       .then(({ id: queryId }) => cy.createAlert(queryId, { custom_subject: "FOO", custom_body: "BAR" }))
       .then(({ id: alertId }) => {

@@ -26,8 +26,8 @@ setup("load visualization examples", async ({ baseURL }) => {
       );
     }
 
-    await removeExamples(api);
     const dataSourceId = await upsertDataSource(api);
+    await removeExamples(api, dataSourceId);
 
     const queries = await mapWithConcurrency(EXAMPLES, 4, async (example) => {
       const query = await createQuery(api, example, dataSourceId);
@@ -55,15 +55,26 @@ setup("load visualization examples", async ({ baseURL }) => {
   }
 });
 
-async function removeExamples(api: RedashApi) {
+/**
+ * Archives examples loaded by a previous run. On a shared instance the tag alone could match someone else's
+ * items, so only the current user's dashboards named like ours and queries on our data source are removed.
+ */
+async function removeExamples(api: RedashApi, dataSourceId: number) {
+  const { user } = await api.get("/api/session");
+
   const dashboards = await api.get("/api/dashboards", { tags: TAG, page_size: 250 });
-  for (const { id } of dashboards.results) {
-    await api.delete(`/api/dashboards/${id}/share`);
-    await api.delete(`/api/dashboards/${id}`);
+  for (const dashboard of dashboards.results) {
+    if (dashboard.user_id === user.id && dashboard.name.startsWith(DASHBOARD_PREFIX)) {
+      await api.delete(`/api/dashboards/${dashboard.id}/share`);
+      await api.delete(`/api/dashboards/${dashboard.id}`);
+    }
   }
+
   const queries = await api.get("/api/queries", { tags: TAG, page_size: 250 });
-  for (const { id } of queries.results) {
-    await api.delete(`/api/queries/${id}`);
+  for (const query of queries.results) {
+    if ((query.user?.id ?? query.user_id) === user.id && query.data_source_id === dataSourceId) {
+      await api.delete(`/api/queries/${query.id}`);
+    }
   }
 }
 
@@ -88,8 +99,9 @@ async function createQuery(api: RedashApi, example: QueryExample, dataSourceId: 
     data_source_id: dataSourceId,
     options: { parameters: [] },
     schedule: null,
+    tags: [TAG], // tagged on creation, so an interrupted run can't leave untagged queries behind
   });
-  await api.post(`/api/queries/${query.id}`, { is_draft: false, tags: [TAG], version: query.version });
+  await api.post(`/api/queries/${query.id}`, { is_draft: false, version: query.version });
 
   const response = await api.post("/api/query_results", {
     query_id: query.id,

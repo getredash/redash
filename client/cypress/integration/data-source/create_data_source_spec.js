@@ -16,7 +16,7 @@ describe("Create Data Source", () => {
     });
   });
 
-  it("renders the page and takes a screenshot", function () {
+  it("renders the page", function () {
     cy.visit("/data_sources/new");
     cy.server();
     cy.route("**/api/data_sources/types").as("DataSourceTypesRequest");

@@ -29,11 +29,10 @@ async function request(method, route, { headers = {}, body } = {}) {
 
 async function seedDatabase(seedValues) {
   for (const { route, type, data } of seedValues) {
-    await request("GET", "/login"); // refreshes the CSRF cookie
-    const csrfToken = cookies.csrf_token;
-    let response;
     try {
-      response =
+      await request("GET", "/login"); // refreshes the CSRF cookie
+      const csrfToken = cookies.csrf_token;
+      const response =
         type === "form"
           ? await request("POST", route, { body: new URLSearchParams({ ...data, csrf_token: csrfToken }) })
           : await request("POST", route, {
@@ -117,4 +116,7 @@ async function main(command) {
   }
 }
 
-main(process.argv[2] || "all");
+main(process.argv[2] || "all").catch((error) => {
+  console.error(error);
+  process.exit(1);
+});

@@ -3,7 +3,7 @@ describe("Login", () => {
     cy.visit("/login");
   });
 
-  it("greets the user and take a screenshot", () => {
+  it("greets the user", () => {
     cy.contains("h3", "Login to Redash");
 
     cy.wait(1000); // eslint-disable-line cypress/no-unnecessary-waiting

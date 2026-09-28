@@ -46,7 +46,7 @@ fresh instance (this is what CI does).
 After a failure, open the report with the expected, actual and diff images:
 `pnpm exec playwright show-report client/visual-tests/.results/report`.
 
-`pnpm visual-tests` runs the same tests with the locally installed browsers - handy for seeding the examples
+`pnpm visual-tests` runs the same tests with locally installed browsers (`pnpm exec playwright install chromium`) - handy for seeding the examples
 and browsing them, but screenshots won't match the baselines outside Docker.
 
 ## Stable screenshots

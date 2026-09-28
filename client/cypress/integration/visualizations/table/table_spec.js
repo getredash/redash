@@ -1,4 +1,4 @@
-/* global cy */
+/* global cy, Cypress */
 
 import * as AllCellTypes from "./.mocks/all-cell-types";
 import * as MultiColumnSort from "./.mocks/multi-column-sort";
@@ -21,6 +21,18 @@ function prepareVisualization(query, type, name, options) {
       cy.getByTestId("TableVisualization").should("exist").find("table").should("exist");
 
       return cy.then(() => ({ queryId, visualizationId }));
+    });
+}
+
+// Checks the values displayed in each column, in row order
+function expectColumns(expected) {
+  cy.getByTestId("TableVisualization")
+    .find("tbody tr.ant-table-row")
+    .should(($rows) => {
+      Cypress._.each(expected, (values, columnIndex) => {
+        const actual = Cypress._.map($rows, (row) => Cypress.$(row).find("td").eq(columnIndex).text().trim());
+        expect(actual).to.deep.equal(values);
+      });
     });
 }
 
@@ -52,6 +64,7 @@ describe("Table", () => {
 
     it("sorts data by a single column", function () {
       cy.getByTestId("TableVisualization").find("table th").contains("c").should("exist").click();
+      expectColumns({ 2: ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"] });
     });
 
     it("sorts data by a multiple columns", function () {
@@ -59,10 +72,15 @@ describe("Table", () => {
 
       cy.get("body").type("{shift}", { release: false });
       cy.getByTestId("TableVisualization").find("table th").contains("b").should("exist").click();
+      expectColumns({
+        0: ["1", "1", "1", "1", "2", "2", "2", "3", "3", "3"],
+        1: ["1", "1", "2", "3", "1", "2", "3", "1", "2", "3"],
+      });
     });
 
     it("sorts data in reverse order", function () {
       cy.getByTestId("TableVisualization").find("table th").contains("c").should("exist").click().click();
+      expectColumns({ 2: ["j", "i", "h", "g", "f", "e", "d", "c", "b", "a"] });
     });
   });
 

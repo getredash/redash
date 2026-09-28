@@ -36,7 +36,7 @@ describe("Edit Profile", () => {
     });
   });
 
-  it("renders the page and takes a screenshot", () => {
+  it("renders the page", () => {
     cy.getByTestId("Groups").should("contain", "admin");
   });
 
