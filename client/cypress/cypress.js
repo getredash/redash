@@ -28,7 +28,7 @@ async function request(method, route, { headers = {}, body } = {}) {
 }
 
 async function seedDatabase(seedValues) {
-  // Network errors propagate, failing the command: tests shouldn't run against an unseeded server
+  // Errors fail the command: tests shouldn't run against an unseeded server
   for (const { route, type, data } of seedValues) {
     await request("GET", "/login"); // refreshes the CSRF cookie
     const csrfToken = cookies.csrf_token;
@@ -40,6 +40,10 @@ async function seedDatabase(seedValues) {
             body: JSON.stringify(data),
           });
     console.log("POST " + route + " - " + response.status);
+    // Not `response.ok`: the setup and login forms respond with redirects
+    if (response.status >= 400) {
+      throw new Error("Seeding failed: POST " + route + " returned " + response.status);
+    }
   }
 }
 
@@ -103,9 +107,12 @@ async function main(command) {
       break;
     case "all":
       startServer();
-      await seedDatabase(seedData);
-      execSync("cypress run", { stdio: "inherit" });
-      stopServer();
+      try {
+        await seedDatabase(seedData);
+        execSync("cypress run", { stdio: "inherit" });
+      } finally {
+        stopServer();
+      }
       break;
     default:
       console.log("Usage: pnpm run cypress [build|start|db-seed|open|run|stop]");
