@@ -6,6 +6,8 @@ on:
   pull_request:
     branches:
       - master
+permissions:
+  contents: read
 env:
   NODE_VERSION: 24
   PNPM_VERSION: 10.30.3
