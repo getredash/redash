@@ -39,6 +39,10 @@ function stabilize(value: unknown): unknown {
         if (key.endsWith("_at") && typeof field === "string") {
           return [key, TIMESTAMP];
         }
+        if (key === "active_at") {
+          // Stays empty until the scheduler syncs users' activity to the database, which may or may not have run yet
+          return [key, TIMESTAMP];
+        }
         if (key === "runtime" && typeof field === "number") {
           return [key, RUNTIME];
         }
