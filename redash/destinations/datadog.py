@@ -82,7 +82,7 @@ class Datadog(BaseDestination):
         url = f"https://{dd_host}/api/v1/events"
 
         try:
-            resp = requests.post(url, headers=headers, data=json_dumps(body), timeout=5.0)
+            resp = requests.post(url, headers=headers, data=json_dumps(body).encode("utf-8"), timeout=5.0)
             logging.warning(resp.text)
             if resp.status_code != 202:
                 logging.error(f"Datadog send ERROR. status_code => {resp.status_code}")
