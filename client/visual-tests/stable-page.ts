@@ -136,6 +136,7 @@ export async function waitForPageReady(page: Page) {
       ) &&
       // Menus and dialogs finished opening (disabling animations for the screenshot can leave them hidden)
       !document.querySelector(motion) &&
+      // eslint-disable-next-line compat/compat -- runs in Playwright's Chromium, not the app's supported browsers
       document
         .getAnimations()
         .every(
