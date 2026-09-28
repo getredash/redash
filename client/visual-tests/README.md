@@ -15,7 +15,9 @@ baseline in [`__screenshots__/`](__screenshots__).
 
 ## Running
 
-You need a running Redash with a worker (queries are executed when seeding), e.g. `docker compose up -d`.
+You need a running Redash with a worker (queries are executed when seeding), e.g. `docker compose up -d`,
+started with `REDASH_FEATURE_ALLOW_CUSTOM_JS_VISUALIZATIONS=true` (add it to `.env`): custom JavaScript charts
+are disabled by default, and the examples include one. The seed fails if the setting is off.
 The SQLite file has to be readable by the worker; by default the data source points at
 `/app/client/visual-tests/fixtures/chinook.db`, which is where the repository is in the Redash containers
 (override with `VISUAL_TESTS_DB_PATH`).
@@ -31,12 +33,12 @@ pnpm visual-tests:docker -g Chart        # only the Chart dashboard
 pnpm visual-tests:docker --no-deps       # skip seeding, reuse the examples from the previous run
 ```
 
-| Variable                                        | Default                                       |
-| ----------------------------------------------- | --------------------------------------------- |
-| `VISUAL_TESTS_BASE_URL`                         | `http://localhost:5001`                       |
-| `VISUAL_TESTS_API_KEY`                          | -                                             |
-| `VISUAL_TESTS_EMAIL` / `VISUAL_TESTS_PASSWORD`  | `admin@redash.io` / `password`                |
-| `VISUAL_TESTS_DB_PATH`                          | `/app/client/visual-tests/fixtures/chinook.db` |
+| Variable                                       | Default                                        |
+| ---------------------------------------------- | ---------------------------------------------- |
+| `VISUAL_TESTS_BASE_URL`                        | `http://localhost:5001`                        |
+| `VISUAL_TESTS_API_KEY`                         | -                                              |
+| `VISUAL_TESTS_EMAIL` / `VISUAL_TESTS_PASSWORD` | `admin@redash.io` / `password`                 |
+| `VISUAL_TESTS_DB_PATH`                         | `/app/client/visual-tests/fixtures/chinook.db` |
 
 Without an API key the seed logs in with the email and password, running the initial setup first on a
 fresh instance (this is what CI does).

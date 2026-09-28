@@ -187,6 +187,7 @@ jobs:
       CYPRESS_INSTALL_BINARY: 0
       PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 1
       VISUAL_TESTS_BASE_URL: http://localhost:5000
+      REDASH_FEATURE_ALLOW_CUSTOM_JS_VISUALIZATIONS: true
     steps:
       - if: github.event.pull_request.mergeable == 'false'
         name: Exit if PR is not mergeable

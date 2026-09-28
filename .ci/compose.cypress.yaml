@@ -12,6 +12,8 @@ x-redash-environment: &redash-environment
   REDASH_RATELIMIT_ENABLED: "false"
   REDASH_ENFORCE_CSRF: "true"
   REDASH_COOKIE_SECRET: "2H9gNG9obnAQ9qnR9BDTQUph6CbXKCzF"
+  # Enabled by the visual tests, which render a custom chart
+  REDASH_FEATURE_ALLOW_CUSTOM_JS_VISUALIZATIONS: ${REDASH_FEATURE_ALLOW_CUSTOM_JS_VISUALIZATIONS:-false}
 services:
   server:
     <<: *redash-service

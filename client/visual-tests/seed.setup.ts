@@ -18,6 +18,14 @@ setup("load visualization examples", async ({ baseURL }) => {
   const api = await RedashApi.connect(baseURL);
 
   try {
+    const { client_config: clientConfig } = await api.get("/api/config");
+    if (!clientConfig.allowCustomJSVisualizations) {
+      throw new Error(
+        "Custom JavaScript visualizations are disabled on this server, so the custom chart examples can't render. " +
+          "Start it with REDASH_FEATURE_ALLOW_CUSTOM_JS_VISUALIZATIONS=true."
+      );
+    }
+
     await removeExamples(api);
     const dataSourceId = await upsertDataSource(api);
 
