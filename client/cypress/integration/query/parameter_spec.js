@@ -532,11 +532,11 @@ describe("Parameter", () => {
     it("updates dirty counter", () => {
       cy.getByTestId("ParameterName-test-parameter-1").find("input").type("Redash");
 
-      cy.getByTestId("ParameterApplyButton").find(".ant-badge-count p.current").should("contain", "1");
+      cy.getByTestId("ParameterApplyButton").find(".ant-badge-count .current").should("contain", "1");
 
       cy.getByTestId("ParameterName-test-parameter-2").find("input").type("Redash");
 
-      cy.getByTestId("ParameterApplyButton").find(".ant-badge-count p.current").should("contain", "2");
+      cy.getByTestId("ParameterApplyButton").find(".ant-badge-count .current").should("contain", "2");
     });
 
     it('applies changes from "Apply Changes" button', () => {
