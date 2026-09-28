@@ -96,7 +96,7 @@
     "leaflet.markercluster": "^1.1.0",
     "lodash": "^4.18.1",
     "numeral": "^2.0.6",
-    "plotly.js": "3.3.1",
+    "plotly.js": "3.7.0",
     "react-pivottable": "^0.11.1",
     "react-plotly.js": "^4.1.0",
     "tinycolor2": "^1.4.1",
