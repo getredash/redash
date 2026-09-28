@@ -1,5 +1,10 @@
 {
-  "presets": ["@babel/preset-env", "@babel/preset-react", "@babel/preset-typescript"],
+  "presets": [
+    // lib/ is consumed as CommonJS (e.g. by the client's Jest tests)
+    ["@babel/preset-env", { "modules": "commonjs" }],
+    ["@babel/preset-react", { "runtime": "classic" }],
+    ["@babel/preset-typescript", { "onlyRemoveTypeImports": false }]
+  ],
   "plugins": [
     "@babel/plugin-transform-class-properties",
     [
