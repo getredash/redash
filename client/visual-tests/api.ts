@@ -1,13 +1,16 @@
 import { APIRequestContext, APIResponse, request } from "@playwright/test";
 
+const QUERY_TIMEOUT = 120_000;
+
 /**
- * Minimal Redash API client used to seed the visualization examples.
+ * Minimal Redash API client used to seed the examples.
  *
  * Authenticates with `VISUAL_TESTS_API_KEY` when set; otherwise logs in with `VISUAL_TESTS_EMAIL` /
  * `VISUAL_TESTS_PASSWORD`, running the initial setup first on a fresh instance (as in CI).
  */
 export class RedashApi {
   private constructor(
+    private readonly baseURL: string,
     private readonly context: APIRequestContext,
     private readonly usesSession: boolean
   ) {}
@@ -19,13 +22,20 @@ export class RedashApi {
     const apiKey = process.env.VISUAL_TESTS_API_KEY;
     if (apiKey) {
       const context = await request.newContext({ baseURL, extraHTTPHeaders: { Authorization: `Key ${apiKey}` } });
-      return new RedashApi(context, false);
+      return new RedashApi(baseURL, context, false);
     }
+    return RedashApi.login(baseURL);
+  }
 
+  /** Always logs in with a session (email and password), e.g. to reuse the session in the browser. */
+  static async login(baseURL: string | undefined): Promise<RedashApi> {
+    if (!baseURL) {
+      throw new Error("baseURL is not configured");
+    }
     const email = process.env.VISUAL_TESTS_EMAIL || "admin@redash.io";
     const password = process.env.VISUAL_TESTS_PASSWORD || "password";
     const context = await request.newContext({ baseURL });
-    const api = new RedashApi(context, true);
+    const api = new RedashApi(baseURL, context, true);
 
     // `/setup` renders the setup form only when there is no organization yet; otherwise it redirects.
     const setupPage = await context.get("/setup", { maxRedirects: 0 });
@@ -41,6 +51,26 @@ export class RedashApi {
     return api;
   }
 
+  /** Accepts an invitation (`invite_link` from `POST /api/users`) by setting the user's password. */
+  async acceptInvite(inviteLink: string, password: string) {
+    // In a separate session, to stay logged in as the current user
+    const context = await request.newContext({ baseURL: this.baseURL });
+    const path = new URL(inviteLink, this.baseURL).pathname;
+    try {
+      await new RedashApi(this.baseURL, context, true).submitForm(path, { password });
+    } finally {
+      await context.dispose();
+    }
+  }
+
+  /** Saves the session cookies, to log in the browser as the same user. */
+  async saveStorageState(path: string) {
+    if (!this.usesSession) {
+      throw new Error("Only a logged in session (not an API key) can be saved");
+    }
+    await this.context.storageState({ path });
+  }
+
   async get<T = any>(path: string, params?: Record<string, string | number>): Promise<T> {
     return this.parse(await this.context.get(path, { params }), "GET", path);
   }
@@ -51,6 +81,22 @@ export class RedashApi {
 
   async delete<T = any>(path: string): Promise<T> {
     return this.parse(await this.context.delete(path, { headers: await this.csrfHeaders() }), "DELETE", path);
+  }
+
+  /** Waits for a query execution started with `POST /api/query_results` or `POST /api/queries/<id>/results`. */
+  async waitForExecution(response: { job?: { id: string; status: number } }, label: string) {
+    let job = response.job;
+    const deadline = Date.now() + QUERY_TIMEOUT;
+    while (job && job.status < 3) {
+      if (Date.now() > deadline) {
+        throw new Error(`Query "${label}" did not finish in time - is a Redash worker running?`);
+      }
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      job = (await this.get(`/api/jobs/${job.id}`)).job;
+    }
+    if (job && job.status !== 3) {
+      throw new Error(`Query "${label}" failed: ${(job as { error?: string }).error}`);
+    }
   }
 
   async dispose() {
@@ -77,6 +123,7 @@ export class RedashApi {
     if (!response.ok()) {
       throw new Error(`${method} ${path} failed with ${response.status()}: ${await response.text()}`);
     }
-    return response.json();
+    const body = await response.text();
+    return body ? JSON.parse(body) : null; // some DELETE requests respond with an empty body
   }
 }
