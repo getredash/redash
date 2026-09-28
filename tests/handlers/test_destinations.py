@@ -508,7 +508,7 @@ def test_datadog_notify_calls_requests_post():
 
         mock_post.assert_called_once_with(
             "https://api.datadoghq.com/api/v1/events",
-            data=json.dumps(expected_payload),
+            data=json.dumps(expected_payload).encode("utf-8"),
             headers={
                 "Accept": "application/json",
                 "Content-Type": "application/json",
