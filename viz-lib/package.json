@@ -27,7 +27,8 @@
   "peerDependencies": {
     "@ant-design/icons": ">=4.0.0",
     "antd": ">=4.0.0",
-    "react-dom": ">=16.14.0"
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0"
   },
   "devDependencies": {
     "@ant-design/icons": "^4.8.3",
@@ -37,8 +38,8 @@
     "@babel/preset-env": "^8.0.6",
     "@babel/preset-react": "^8.0.1",
     "@babel/preset-typescript": "^8.0.1",
-    "@testing-library/dom": "^8.20.1",
-    "@testing-library/react": "^12.1.5",
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/react": "^16.3.3",
     "@types/chroma-js": "^3.1.2",
     "@types/d3": "^7.4.3",
     "@types/d3-cloud": "^1.2.3",
@@ -47,10 +48,9 @@
     "@types/leaflet": "^1.9.22",
     "@types/numeral": "0.0.28",
     "@types/plotly.js": "^3.0.14",
-    "@types/react": "^17.0.0",
-    "@types/react-dom": "^17.0.0",
+    "@types/react": "^18.3.31",
+    "@types/react-dom": "^18.3.7",
     "@types/react-pivottable": "^0.11.6",
-    "@types/react-plotly.js": "^2.6.4",
     "@types/tinycolor2": "^1.4.2",
     "antd": "4.24.16",
     "babel-jest": "^30.5.2",
@@ -64,6 +64,8 @@
     "less-plugin-autoprefix": "^2.0.0",
     "npm-run-all": "^4.1.5",
     "prop-types": "^15.7.2",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
     "style-loader": "^4.0.0",
     "typescript": "^6.0.3",
     "webpack": "^5.111.1",
@@ -96,7 +98,7 @@
     "numeral": "^2.0.6",
     "plotly.js": "3.3.1",
     "react-pivottable": "^0.11.1",
-    "react-plotly.js": "^2.6.0",
+    "react-plotly.js": "^4.1.0",
     "tinycolor2": "^1.4.1",
     "use-debounce": "^10.1.1",
     "use-media": "^1.4.0"
