@@ -68,7 +68,7 @@
     "react": "18.3.1",
     "react-ace": "^15.0.0",
     "react-dom": "18.3.1",
-    "react-grid-layout": "^1.5.4",
+    "react-grid-layout": "^2.2.4",
     "react-resizable": "^3.2.0",
     "react-virtualized": "^9.21.2",
     "sql-formatter": "git+https://github.com/getredash/sql-formatter.git",
