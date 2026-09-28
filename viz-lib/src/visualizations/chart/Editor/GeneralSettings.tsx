@@ -6,7 +6,7 @@ import { EditorPropTypes } from "@/visualizations/prop-types";
 import { AllColorPalettes } from "@/visualizations/ColorPalette";
 import ChartTypeSelect from "./ChartTypeSelect";
 import ColumnMappingSelect from "./ColumnMappingSelect";
-import { useDebouncedCallback } from "use-debounce/lib";
+import { useDebouncedCallback } from "use-debounce";
 
 function getAvailableColumnMappingTypes(options: any) {
   const result = ["x", "y"];
@@ -123,7 +123,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
     onOptionsChange({ swappedAxes: !options.swappedAxes, seriesOptions });
   }
 
-  const [debouncedOnOptionsChange] = useDebouncedCallback(onOptionsChange, 200);
+  const debouncedOnOptionsChange = useDebouncedCallback(onOptionsChange, 200);
 
   return (
     <React.Fragment>
