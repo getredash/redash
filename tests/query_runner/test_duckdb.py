@@ -3,6 +3,14 @@ import tempfile
 from unittest import TestCase
 from unittest.mock import patch
 
+from redash.query_runner import (
+    TYPE_BOOLEAN,
+    TYPE_DATE,
+    TYPE_DATETIME,
+    TYPE_FLOAT,
+    TYPE_INTEGER,
+    TYPE_STRING,
+)
 from redash.query_runner.duckdb import DuckDB
 
 
@@ -181,3 +189,19 @@ class TestDuckDBSchema(TestCase):
         self.assertIsNone(data)
         self.assertIn('configuration option "disabled_filesystems"', error)
         self.assertIn("configuration has been locked", error)
+
+
+class TestDuckDBRunQuery(TestCase):
+    def test_column_types(self) -> None:
+        runner = DuckDB({"dbpath": ":memory:"})
+        data, error = runner.run_query(
+            "SELECT true AS b, 1::BIGINT AS i, 1.5::DOUBLE AS f, 1.5::DECIMAL(18,3) AS d, 'x' AS s, "
+            "DATE '2020-01-01' AS dt, TIMESTAMP '2020-01-01 00:00:00' AS ts, {'a': 1} AS st",
+            None,
+        )
+
+        self.assertIsNone(error)
+        self.assertEqual(
+            [TYPE_BOOLEAN, TYPE_INTEGER, TYPE_FLOAT, TYPE_FLOAT, TYPE_STRING, TYPE_DATE, TYPE_DATETIME, TYPE_STRING],
+            [column["type"] for column in data["columns"]],
+        )
