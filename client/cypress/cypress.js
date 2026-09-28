@@ -28,21 +28,18 @@ async function request(method, route, { headers = {}, body } = {}) {
 }
 
 async function seedDatabase(seedValues) {
+  // Network errors propagate, failing the command: tests shouldn't run against an unseeded server
   for (const { route, type, data } of seedValues) {
-    try {
-      await request("GET", "/login"); // refreshes the CSRF cookie
-      const csrfToken = cookies.csrf_token;
-      const response =
-        type === "form"
-          ? await request("POST", route, { body: new URLSearchParams({ ...data, csrf_token: csrfToken }) })
-          : await request("POST", route, {
-              headers: { "Content-Type": "application/json", "X-CSRFToken": csrfToken },
-              body: JSON.stringify(data),
-            });
-      console.log("POST " + route + " - " + response.status);
-    } catch (err) {
-      console.log("POST " + route + " - " + err);
-    }
+    await request("GET", "/login"); // refreshes the CSRF cookie
+    const csrfToken = cookies.csrf_token;
+    const response =
+      type === "form"
+        ? await request("POST", route, { body: new URLSearchParams({ ...data, csrf_token: csrfToken }) })
+        : await request("POST", route, {
+            headers: { "Content-Type": "application/json", "X-CSRFToken": csrfToken },
+            body: JSON.stringify(data),
+          });
+    console.log("POST " + route + " - " + response.status);
   }
 }
 
