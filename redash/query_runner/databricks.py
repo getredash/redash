@@ -89,7 +89,7 @@ class Databricks(BaseSQLQueryRunner):
         metadata = {k: v for k, v in metadata.items() if k != "Job ID"}
         return super().annotate_query(query, metadata)
 
-    def _get_cursor(self):
+    def _get_cursor(self, timeout=0):
         user_agent = "Redash/{} (Databricks)".format(__version__.split("-")[0])
         connection_string = _build_odbc_connection_string(
             Driver="Simba",
@@ -113,12 +113,13 @@ class Databricks(BaseSQLQueryRunner):
 
         connection = pyodbc.connect(connection_string, autocommit=True)
         # Sets SQL_ATTR_QUERY_TIMEOUT for statements on this connection (0 = no timeout).
-        connection.timeout = int(self.configuration.get("timeout") or 0)
+        connection.timeout = timeout
         return connection.cursor()
 
     def run_query(self, query, user):
         try:
-            cursor = self._get_cursor()
+            # Only user queries are bounded; schema discovery relies on the schemas job timeout.
+            cursor = self._get_cursor(timeout=int(self.configuration.get("timeout") or 0))
 
             statements = split_sql_statements(query)
             for stmt in statements:

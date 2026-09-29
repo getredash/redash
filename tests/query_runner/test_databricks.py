@@ -47,17 +47,27 @@ class TestDatabricksQueryAnnotation(TestCase):
 
 
 class TestDatabricksQueryTimeout(TestCase):
-    def _get_connection(self, configuration):
+    def _get_connection(self, configuration, call):
         configuration = {"host": "host", "http_path": "path", "http_password": "token", **configuration}
         with patch("redash.query_runner.databricks.pyodbc", create=True) as pyodbc:
-            Databricks(configuration)._get_cursor()
+            pyodbc.connect.return_value.cursor.return_value.description = None
+            call(Databricks(configuration))
         return pyodbc.connect.return_value
 
-    def test_sets_configured_timeout_on_connection(self):
-        self.assertEqual(self._get_connection({"timeout": 600}).timeout, 600)
+    def _run_query(self, query_runner):
+        query_runner.run_query("SELECT 1", None)
+
+    def test_sets_configured_timeout_on_query_connection(self):
+        self.assertEqual(self._get_connection({"timeout": 600}, self._run_query).timeout, 600)
 
     def test_disables_timeout_when_not_configured(self):
-        self.assertEqual(self._get_connection({}).timeout, 0)
+        self.assertEqual(self._get_connection({}, self._run_query).timeout, 0)
+
+    def test_does_not_apply_timeout_to_schema_discovery(self):
+        connection = self._get_connection(
+            {"timeout": 600}, lambda query_runner: query_runner.get_database_tables_with_columns("db")
+        )
+        self.assertEqual(connection.timeout, 0)
 
 
 class TestSplitMultipleSQLStatements(TestCase):
