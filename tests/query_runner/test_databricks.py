@@ -1,4 +1,5 @@
 from unittest import TestCase
+from unittest.mock import patch
 
 from redash.query_runner import split_sql_statements
 from redash.query_runner.databricks import Databricks
@@ -43,6 +44,20 @@ class TestDatabricksQueryAnnotation(TestCase):
         query = "SELECT a FROM tbl"
 
         self.assertEqual(query_runner.annotate_query(query, metadata), query)
+
+
+class TestDatabricksQueryTimeout(TestCase):
+    def _get_connection(self, configuration):
+        configuration = {"host": "host", "http_path": "path", "http_password": "token", **configuration}
+        with patch("redash.query_runner.databricks.pyodbc", create=True) as pyodbc:
+            Databricks(configuration)._get_cursor()
+        return pyodbc.connect.return_value
+
+    def test_sets_configured_timeout_on_connection(self):
+        self.assertEqual(self._get_connection({"timeout": 600}).timeout, 600)
+
+    def test_disables_timeout_when_not_configured(self):
+        self.assertEqual(self._get_connection({}).timeout, 0)
 
 
 class TestSplitMultipleSQLStatements(TestCase):

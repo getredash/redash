@@ -71,8 +71,13 @@ class Databricks(BaseSQLQueryRunner):
                     "title": "Use Query Annotation",
                     "default": False,
                 },
+                "timeout": {
+                    "type": "number",
+                    "title": "Query Timeout in seconds (0 = no timeout)",
+                    "default": 0,
+                },
             },
-            "order": ["host", "http_path", "http_password", "useQueryAnnotation"],
+            "order": ["host", "http_path", "http_password", "useQueryAnnotation", "timeout"],
             "secret": ["http_password"],
             "required": ["host", "http_path", "http_password"],
         }
@@ -107,6 +112,8 @@ class Databricks(BaseSQLQueryRunner):
         )
 
         connection = pyodbc.connect(connection_string, autocommit=True)
+        # Sets SQL_ATTR_QUERY_TIMEOUT for statements on this connection (0 = no timeout).
+        connection.timeout = int(self.configuration.get("timeout") or 0)
         return connection.cursor()
 
     def run_query(self, query, user):
