@@ -490,13 +490,14 @@ class TestRemoteUserAuth(BaseTestCase):
 
     def test_remote_login_missing_name_falls_back_to_email(self):
         self.override_settings({"REDASH_REMOTE_USER_NAME_HEADER": "X-Remote-Name"})
-        for name in (None, "", "(null)", "   ", "\t", " (null) "):
+        for index, name in enumerate((None, "", "(null)", "   ", "\t", " (null) ")):
             with self.subTest(name=name):
-                headers = {"X-Forwarded-Remote-User": "test@example.com"}
+                email = "test{}@example.com".format(index)
+                headers = {"X-Forwarded-Remote-User": email}
                 if name is not None:
                     headers["X-Remote-Name"] = name
                 self.get_request("/remote_user/login", org=self.factory.org, headers=headers)
-                self.assert_correct_user_attributes(self.get_test_user())
+                self.assert_correct_user_attributes(self.get_test_user(email), email=email, name=email)
 
     def test_remote_login_name_does_not_replace_identity(self):
         self.override_settings({"REDASH_REMOTE_USER_NAME_HEADER": "X-Remote-Name"})
