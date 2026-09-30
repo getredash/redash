@@ -10,6 +10,7 @@ from redash.authentication import (
 )
 from redash.authentication.org_resolving import current_org
 from redash.handlers.base import org_scoped_rule
+from redash.models import User
 
 logger = logging.getLogger("remote_user_auth")
 
@@ -48,6 +49,7 @@ def login(org_slug=None):
     if not name or name == "(null)":
         name = email
 
+    name = name[: User.name.type.length]
     user = create_and_login_user(current_org, name, email)
     if user is None:
         return logout_and_redirect_to_index()

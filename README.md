@@ -124,7 +124,8 @@ BSD-2-Clause.
 When using remote user authentication, `REDASH_REMOTE_USER_HEADER` continues to
 identify the user's email address. Set `REDASH_REMOTE_USER_NAME_HEADER` to a
 trusted proxy header (for example, `X-Remote-Name`) to supply a separate display
-name. Missing, empty, or `(null)` names fall back to the email address. The name
+name, bounded to the database field limit (320 characters). Missing, empty, or
+`(null)` names fall back to the email address. The name
 header alone never authenticates a user. Configure the authentication proxy to
 strip incoming client values and set both headers itself, and prevent clients
 from bypassing that proxy.
