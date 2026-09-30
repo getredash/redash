@@ -451,6 +451,51 @@ class TestRemoteUserAuth(BaseTestCase):
 
         self.assert_correct_user_attributes(self.get_test_user())
 
+    def test_remote_login_display_name_header(self):
+        self.override_settings({"REDASH_REMOTE_USER_NAME_HEADER": "X-Remote-Name"})
+        self.get_request(
+            "/remote_user/login",
+            org=self.factory.org,
+            headers={"X-Forwarded-Remote-User": "test@example.com", "X-Remote-Name": "Test User"},
+        )
+        self.assert_correct_user_attributes(self.get_test_user(), name="Test User")
+
+    def test_remote_login_updates_existing_display_name(self):
+        self.override_settings({"REDASH_REMOTE_USER_NAME_HEADER": "X-Remote-Name"})
+        user = self.factory.create_user(email="test@example.com", name="Old Name")
+        models.db.session.commit()
+        response = self.client.get(
+            "/{}/remote_user/login".format(self.factory.org.slug),
+            headers={"X-Forwarded-Remote-User": user.email, "X-Remote-Name": "New Name"},
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(models.User.get_by_email_and_org(user.email, self.factory.org).id, user.id)
+        self.assertEqual(user.name, "New Name")
+
+    def test_remote_login_missing_name_falls_back_to_email(self):
+        self.override_settings({"REDASH_REMOTE_USER_NAME_HEADER": "X-Remote-Name"})
+        for name in (None, "", "(null)"):
+            with self.subTest(name=name):
+                headers = {"X-Forwarded-Remote-User": "test@example.com"}
+                if name is not None:
+                    headers["X-Remote-Name"] = name
+                self.get_request("/remote_user/login", org=self.factory.org, headers=headers)
+                self.assert_correct_user_attributes(self.get_test_user())
+
+    def test_remote_login_name_does_not_replace_identity(self):
+        self.override_settings({"REDASH_REMOTE_USER_NAME_HEADER": "X-Remote-Name"})
+        self.get_request("/remote_user/login", org=self.factory.org, headers={"X-Remote-Name": "Test User"})
+        with self.assertRaises(NoResultFound):
+            self.get_test_user()
+
+    def test_remote_login_ignores_unconfigured_name_header(self):
+        self.get_request(
+            "/remote_user/login",
+            org=self.factory.org,
+            headers={"X-Forwarded-Remote-User": "test@example.com", "X-Remote-Name": "Test User"},
+        )
+        self.assert_correct_user_attributes(self.get_test_user())
+
 
 class TestUserForgotPassword(BaseTestCase):
     def test_user_should_receive_password_reset_link(self):

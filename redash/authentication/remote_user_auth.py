@@ -44,7 +44,11 @@ def login(org_slug=None):
 
     logger.info("Logging in " + email + " via remote user")
 
-    user = create_and_login_user(current_org, email, email)
+    name = request.headers.get(settings.REMOTE_USER_NAME_HEADER) if settings.REMOTE_USER_NAME_HEADER else None
+    if not name or name == "(null)":
+        name = email
+
+    user = create_and_login_user(current_org, name, email)
     if user is None:
         return logout_and_redirect_to_index()
 

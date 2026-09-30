@@ -183,6 +183,8 @@ SAML_ENCRYPTION_ENABLED = SAML_ENCRYPTION_PEM_PATH != "" and SAML_ENCRYPTION_CER
 # on the login page to trigger remote user auth.
 REMOTE_USER_LOGIN_ENABLED = parse_boolean(os.environ.get("REDASH_REMOTE_USER_LOGIN_ENABLED", "false"))
 REMOTE_USER_HEADER = os.environ.get("REDASH_REMOTE_USER_HEADER", "X-Forwarded-Remote-User")
+# Optional trusted-proxy header for display names; identity still comes from REMOTE_USER_HEADER.
+REMOTE_USER_NAME_HEADER = os.environ.get("REDASH_REMOTE_USER_NAME_HEADER")
 
 # If the organization setting auth_password_login_enabled is not false, then users will still be
 # able to login through Redash instead of the LDAP server
