@@ -470,7 +470,7 @@ class TestRemoteUserAuth(BaseTestCase):
         )
         self.assertEqual(response.status_code, 302)
         self.assertEqual(models.User.get_by_email_and_org(user.email, self.factory.org).id, user.id)
-        self.assertEqual(user.name, "New Name")
+        self.assertEqual(self.get_test_user().name, "New Name")
 
     def test_remote_login_bounds_long_display_names(self):
         self.override_settings({"REDASH_REMOTE_USER_NAME_HEADER": "X-Remote-Name"})
@@ -490,7 +490,7 @@ class TestRemoteUserAuth(BaseTestCase):
 
     def test_remote_login_missing_name_falls_back_to_email(self):
         self.override_settings({"REDASH_REMOTE_USER_NAME_HEADER": "X-Remote-Name"})
-        for name in (None, "", "(null)"):
+        for name in (None, "", "(null)", "   ", "\t", " (null) "):
             with self.subTest(name=name):
                 headers = {"X-Forwarded-Remote-User": "test@example.com"}
                 if name is not None:

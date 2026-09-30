@@ -46,6 +46,7 @@ def login(org_slug=None):
     logger.info("Logging in " + email + " via remote user")
 
     name = request.headers.get(settings.REMOTE_USER_NAME_HEADER) if settings.REMOTE_USER_NAME_HEADER else None
+    name = (name or "").strip()
     if not name or name == "(null)":
         name = email
 
