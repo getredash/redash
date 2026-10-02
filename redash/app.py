@@ -35,6 +35,7 @@ def create_app():
     from .handlers.webpack import configure_webpack
     from .metrics import request as request_metrics
     from .models import db, users
+    from .pending_migration import pending_migration_check
     from .utils import sentry
     from .version_check import reset_new_version_status
 
@@ -48,6 +49,7 @@ def create_app():
     request_metrics.init_app(app)
     db.init_app(app)
     migrate.init_app(app, db)
+    pending_migration_check.init_app(app, db)
     mail.init_app(app)
     authentication.init_app(app)
     limiter.init_app(app)
