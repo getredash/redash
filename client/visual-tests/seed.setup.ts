@@ -6,7 +6,6 @@ import { DASHBOARD_PREFIX, DATA_SOURCE_NAME, Manifest, TAG, writeManifest } from
 // Path to the SQLite file as seen by the Redash server and workers (the repository is mounted at /app)
 const DB_PATH = process.env.VISUAL_TESTS_DB_PATH || "/app/client/visual-tests/fixtures/chinook.db";
 const GRID_COLUMNS = 12;
-const QUERY_TIMEOUT = 120_000;
 
 /**
  * Loads the examples through the API: a SQLite data source, one query per entry in EXAMPLES (executed, so
@@ -110,18 +109,7 @@ async function createQuery(api: RedashApi, example: QueryExample, dataSourceId: 
     parameters: {},
     max_age: 0,
   });
-  let job = response.job;
-  const deadline = Date.now() + QUERY_TIMEOUT;
-  while (job && job.status < 3) {
-    if (Date.now() > deadline) {
-      throw new Error(`Query "${example.name}" did not finish in time - is a Redash worker running?`);
-    }
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    job = (await api.get(`/api/jobs/${job.id}`)).job;
-  }
-  if (job && job.status !== 3) {
-    throw new Error(`Query "${example.name}" failed: ${job.error}`);
-  }
+  await api.waitForExecution(response, example.name);
   return query;
 }
 

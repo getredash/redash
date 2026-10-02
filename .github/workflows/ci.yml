@@ -225,3 +225,4 @@ jobs:
         with:
           name: visual-tests-report
           path: client/visual-tests/.results
+          include-hidden-files: true # .results is a hidden directory
