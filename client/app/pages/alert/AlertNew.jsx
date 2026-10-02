@@ -99,7 +99,7 @@ export default class AlertNew extends React.Component {
 
 AlertNew.propTypes = {
   alert: AlertType.isRequired,
-  queryResult: PropTypes.object, // eslint-disable-line react/forbid-prop-types,
+  queryResult: PropTypes.object,
   pendingRearm: PropTypes.number,
   onQuerySelected: PropTypes.func.isRequired,
   save: PropTypes.func.isRequired,

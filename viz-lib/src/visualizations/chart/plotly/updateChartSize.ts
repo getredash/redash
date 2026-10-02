@@ -75,7 +75,7 @@ function placeLegendBelowPlot(plotlyElement: any, layout: any) {
   return [
     pick(layout, ["width", "height", "legend"]),
     () => {
-      const legend = plotlyElement.querySelector(".legend"); // eslint-disable-line no-shadow
+      const legend = plotlyElement.querySelector(".legend");
       if (legend) {
         // compute real height of legend - items may be split into few columnns,
         // also scrollbar may be shown

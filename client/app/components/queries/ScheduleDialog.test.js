@@ -1,7 +1,6 @@
 import React from "react";
-import { mount } from "enzyme";
+import { render, fireEvent } from "@testing-library/react";
 import moment from "moment";
-import { durationHumanize } from "@/lib/utils";
 import ScheduleDialog, { TimeEditor } from "./ScheduleDialog";
 import RefreshScheduleDefault from "../proptypes";
 
@@ -32,7 +31,7 @@ const defaultProps = {
   },
 };
 
-function getWrapper(schedule = {}, { onConfirm, onCancel, ...props } = {}) {
+function renderDialog(schedule = {}, { onConfirm, onCancel, ...props } = {}) {
   onConfirm = onConfirm || (() => {});
   onCancel = onCancel || (() => {});
 
@@ -55,143 +54,114 @@ function getWrapper(schedule = {}, { onConfirm, onCancel, ...props } = {}) {
     },
   };
 
-  return [mount(<ScheduleDialog.Component {...props} />), props];
+  render(<ScheduleDialog.Component {...props} />);
+  return props;
 }
 
-function findByTestID(wrapper, id) {
-  return wrapper.find(`[data-testid="${id}"]`);
+function findByTestID(id) {
+  return document.querySelector(`[data-testid="${id}"]`);
+}
+
+function selectedInterval() {
+  const item = findByTestID("interval").querySelector(".ant-select-selection-item");
+  return item ? item.textContent : null;
+}
+
+function timeValue() {
+  return findByTestID("time").querySelector("input").value;
+}
+
+function checkedRadio(id) {
+  return findByTestID(id).querySelector(".ant-radio-button-wrapper-checked, .ant-radio-wrapper-checked").textContent;
+}
+
+function openIntervalSelect() {
+  fireEvent.mouseDown(findByTestID("interval").querySelector(".ant-select-selector"));
+  return Array.from(document.querySelectorAll(".ant-select-item-option"));
+}
+
+function chooseInterval(label) {
+  const option = openIntervalSelect().find((item) => item.textContent === label);
+  fireEvent.click(option);
+}
+
+function clickModalButton(selector) {
+  fireEvent.click(document.querySelector(`.ant-modal-footer ${selector}`));
 }
 
 describe("ScheduleDialog", () => {
   describe("Sets correct schedule settings", () => {
     test('Sets to "Never"', () => {
-      const [wrapper] = getWrapper();
-      const el = findByTestID(wrapper, "interval");
-      expect(el).toMatchSnapshot();
+      renderDialog();
+      expect(selectedInterval()).toBeNull();
+      expect(findByTestID("time")).toBeNull();
+      expect(findByTestID("ends")).toBeNull();
     });
 
     test('Sets to "5 Minutes"', () => {
-      const [wrapper] = getWrapper({ interval: 300 });
-      const el = findByTestID(wrapper, "interval");
-      expect(el).toMatchSnapshot();
+      renderDialog({ interval: 300 });
+      expect(selectedInterval()).toBe("5 minutes");
     });
 
     test('Sets to "2 Hours"', () => {
-      const [wrapper] = getWrapper({ interval: 7200 });
-      const el = findByTestID(wrapper, "interval");
-      expect(el).toMatchSnapshot();
+      // 2 hours isn't one of the refresh options, so the raw value is shown
+      renderDialog({ interval: 7200 });
+      expect(selectedInterval()).toBe("7200");
     });
 
-    describe('Sets to "1 Day 22:15"', () => {
-      const [wrapper] = getWrapper({
-        interval: 86400,
-        time: "22:15",
-      });
-
-      test("Sets to correct interval", () => {
-        const el = findByTestID(wrapper, "interval");
-        expect(el).toMatchSnapshot();
-      });
-
-      test("Sets to correct time", () => {
-        const el = findByTestID(wrapper, "time");
-        expect(el).toMatchSnapshot();
-      });
+    test('Sets to "1 Day 22:15"', () => {
+      renderDialog({ interval: 86400, time: "22:15" });
+      expect(selectedInterval()).toBe("1 day");
+      // time is stored in UTC and shown in local time (tests run in UTC+2)
+      expect(timeValue()).toBe("00:15");
+      expect(findByTestID("weekday")).toBeNull();
     });
 
     describe("TimeEditor", () => {
       const defaultValue = moment().hour(5).minute(25); // 05:25
 
       test("UTC set correctly on init", () => {
-        const editor = mount(<TimeEditor defaultValue={defaultValue} onChange={() => {}} />);
-        const utc = findByTestID(editor, "utc");
+        render(<TimeEditor defaultValue={defaultValue} onChange={() => {}} />);
 
         // expect utc to be 2h below initial time
-        expect(utc.text()).toBe("(03:25 UTC)");
+        expect(findByTestID("utc").textContent).toBe("(03:25 UTC)");
       });
 
       test("UTC time should not render", () => {
         const utcValue = moment.utc(defaultValue);
-        const editor = mount(<TimeEditor defaultValue={utcValue} onChange={() => {}} />);
-        const utc = findByTestID(editor, "utc");
+        render(<TimeEditor defaultValue={utcValue} onChange={() => {}} />);
 
         // expect utc to not render
-        expect(utc.exists()).toBeFalsy();
-      });
-
-      // Disabling this test as the TimePicker wasn't setting values from here after Antd v4
-      // eslint-disable-next-line jest/no-disabled-tests
-      test.skip("onChange correct result", () => {
-        const onChangeCb = jest.fn((time) => time.format("HH:mm"));
-        const editor = mount(<TimeEditor onChange={onChangeCb} />);
-
-        // click TimePicker
-        editor.find(".ant-picker-input input").simulate("mouseDown");
-
-        const timePickerPanel = editor.find(".ant-picker-panel");
-
-        // select hour "07"
-        const hourSelector = timePickerPanel.find(".ant-picker-time-panel-column").at(0);
-        hourSelector.find("li").at(7).simulate("click");
-
-        // select minute "30"
-        const minuteSelector = timePickerPanel.find(".ant-picker-time-panel-column").at(1);
-        minuteSelector.find("li").at(6).simulate("click");
-
-        timePickerPanel.find(".ant-picker-ok").find("button").simulate("mouseDown");
-
-        // expect utc to be 2h below initial time
-        const utc = findByTestID(editor, "utc");
-        expect(utc.text()).toBe("(05:30 UTC)");
-
-        // expect 07:30 from onChange
-        const onChangeResult = onChangeCb.mock.results[1].value;
-        expect(onChangeResult).toBe("07:30");
+        expect(findByTestID("utc")).toBeNull();
       });
     });
 
-    describe('Sets to "2 Weeks 22:15 Tuesday"', () => {
-      const [wrapper] = getWrapper({
-        interval: 1209600,
-        time: "22:15",
-        day_of_week: "Monday",
-      });
-
-      test("Sets to correct interval", () => {
-        const el = findByTestID(wrapper, "interval");
-        expect(el).toMatchSnapshot();
-      });
-
-      test("Sets to correct time", () => {
-        const el = findByTestID(wrapper, "time");
-        expect(el).toMatchSnapshot();
-      });
-
-      test("Sets to correct weekday", () => {
-        const el = findByTestID(wrapper, "weekday");
-        expect(el).toMatchSnapshot();
-      });
+    test('Sets to "2 Weeks 22:15 Monday"', () => {
+      renderDialog({ interval: 1209600, time: "22:15", day_of_week: "Monday" });
+      expect(selectedInterval()).toBe("2 weeks");
+      expect(timeValue()).toBe("00:15");
+      expect(checkedRadio("weekday")).toBe("M");
+      expect(findByTestID("weekday").querySelectorAll(".ant-radio-button-wrapper")).toHaveLength(7);
     });
 
     describe("Until feature", () => {
       test("Until not set", () => {
-        const [wrapper] = getWrapper({ interval: 300 });
-        const el = findByTestID(wrapper, "ends");
-        expect(el).toMatchSnapshot();
+        renderDialog({ interval: 300 });
+        expect(checkedRadio("ends")).toBe("Never");
+        expect(findByTestID("ends").querySelector(".ant-picker")).toBeNull();
       });
 
       test("Until is set", () => {
-        const [wrapper] = getWrapper({ interval: 300, until: "2030-01-01" });
-        const el = findByTestID(wrapper, "ends");
-        expect(el).toMatchSnapshot();
+        renderDialog({ interval: 300, until: "2030-01-01" });
+        expect(checkedRadio("ends")).toBe("On");
+        expect(findByTestID("ends").querySelector(".ant-picker input").value).toBe("2030-01-01");
       });
     });
 
     describe("Supports 30 days interval with no time value", () => {
       test("Time is none", () => {
-        const [wrapper] = getWrapper({ interval: 30 * 24 * 3600 });
-        const el = findByTestID(wrapper, "time");
-        expect(el).toMatchSnapshot();
+        renderDialog({ interval: 30 * 24 * 3600 });
+        expect(timeValue()).toBe("");
       });
     });
   });
@@ -199,25 +169,10 @@ describe("ScheduleDialog", () => {
   describe("Adheres to user permissions", () => {
     test("Shows correct interval options", () => {
       const refreshOptions = [60, 300, 3600, 7200]; // 1 min, 5 min, 1 hour, 2 hours
-      const [wrapper] = getWrapper(null, { refreshOptions });
+      renderDialog(null, { refreshOptions });
 
-      // Get the ScheduleDialog component instance and verify its computed intervals
-      const component = wrapper.find("ScheduleDialog").instance();
-      const intervals = component.intervals;
-
-      // Flatten all interval options to [label, seconds] pairs, prepend "Never"
-      const allOptions = ["Never"];
-      Object.keys(intervals)
-        .filter((key) => intervals[key].length > 0)
-        .forEach((key) => {
-          intervals[key].forEach(([, secs]) => {
-            allOptions.push(durationHumanize(secs));
-          });
-        });
-
-      const expected = ["Never", "1 minute", "5 minutes", "1 hour", "2 hours"];
-
-      expect(allOptions).toEqual(expected);
+      const labels = openIntervalSelect().map((option) => option.textContent);
+      expect(labels).toEqual(["Never", "1 minute", "5 minutes", "1 hour", "2 hours"]);
     });
   });
 
@@ -231,47 +186,27 @@ describe("ScheduleDialog", () => {
     });
 
     test("Query saved on confirm if state changed", () => {
-      // init
-      const [wrapper, props] = getWrapper(null, initProps);
+      renderDialog(null, initProps);
+      chooseInterval("1 minute");
+      clickModalButton(".ant-btn-primary");
 
-      // change state
-      const change = { time: "22:15" };
-      const newSchedule = Object.assign({}, props.schedule, change);
-      wrapper.setState({ newSchedule });
-
-      // click confirm button
-      wrapper.find(".ant-modal-footer").find(".ant-btn-primary").simulate("click");
-
-      // expect calls
-      expect(confirmCb).toHaveBeenCalled();
+      expect(confirmCb).toHaveBeenCalledWith(expect.objectContaining({ interval: 60 }));
       expect(closeCb).toHaveBeenCalled();
     });
 
     test("Query not saved on confirm if state unchanged", () => {
-      // init
-      const [wrapper] = getWrapper(null, initProps);
+      renderDialog(null, initProps);
+      clickModalButton(".ant-btn-primary");
 
-      // click confirm button
-      wrapper.find(".ant-modal-footer").find(".ant-btn-primary").simulate("click");
-
-      // expect calls
       expect(confirmCb).not.toHaveBeenCalled();
       expect(closeCb).toHaveBeenCalled();
     });
 
     test("Cancel closes modal and query unsaved", () => {
-      // init
-      const [wrapper, props] = getWrapper(null, initProps);
+      renderDialog(null, initProps);
+      chooseInterval("1 minute");
+      clickModalButton("button:not(.ant-btn-primary)");
 
-      // change state
-      const change = { time: "22:15" };
-      const newSchedule = Object.assign({}, props.schedule, change);
-      wrapper.setState({ newSchedule });
-
-      // click cancel button
-      wrapper.find(".ant-modal-footer").find("button:not(.ant-btn-primary)").simulate("click");
-
-      // expect calls
       expect(confirmCb).not.toHaveBeenCalled();
       expect(closeCb).toHaveBeenCalled();
     });

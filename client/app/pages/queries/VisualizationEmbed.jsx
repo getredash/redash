@@ -2,7 +2,7 @@ import { find, has } from "lodash";
 import React, { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import moment from "moment";
-import { markdown } from "markdown";
+import markdownToHtml from "@/lib/markdown";
 
 import Button from "antd/lib/button";
 import Dropdown from "antd/lib/dropdown";
@@ -40,7 +40,7 @@ function VisualizationEmbedHeader({ queryName, queryDescription, visualization }
         <VisualizationName visualization={visualization} /> {queryName}
         {queryDescription && (
           <small>
-            <HtmlContent className="markdown text-muted">{markdown.toHTML(queryDescription || "")}</HtmlContent>
+            <HtmlContent className="markdown text-muted">{markdownToHtml(queryDescription)}</HtmlContent>
           </small>
         )}
       </h3>
@@ -142,8 +142,8 @@ function VisualizationEmbedFooter({
 }
 
 VisualizationEmbedFooter.propTypes = {
-  query: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
-  queryResults: PropTypes.object, // eslint-disable-line react/forbid-prop-types
+  query: PropTypes.object.isRequired,
+  queryResults: PropTypes.object,
   updatedAt: PropTypes.string,
   refreshStartedAt: Moment,
   queryUrl: PropTypes.string,

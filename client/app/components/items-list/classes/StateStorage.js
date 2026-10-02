@@ -19,7 +19,6 @@ export class StateStorage {
     });
   }
 
-  // eslint-disable-next-line class-methods-use-this
   setState() {}
 }
 
@@ -45,7 +44,6 @@ export class UrlStateStorage extends StateStorage {
     };
   }
 
-  // eslint-disable-next-line class-methods-use-this
   setState({ page, itemsPerPage, orderByField, orderByReverse, searchTerm }) {
     location.setSearch(
       {

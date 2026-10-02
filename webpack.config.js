@@ -1,4 +1,3 @@
-/* eslint-disable */
 
 const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
@@ -10,7 +9,6 @@ const LessPluginAutoPrefix = require("less-plugin-autoprefix");
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
   .BundleAnalyzerPlugin;
 const ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
-const ESLintPlugin = require("eslint-webpack-plugin");
 
 const path = require("path");
 
@@ -91,9 +89,15 @@ const config = {
       stream: require.resolve("stream-browserify"),
       assert: require.resolve("assert/"),
       util: require.resolve("util/"),
-      process: require.resolve("process/browser"),
+      process: require.resolve("process/browser.js"),
     }
   },
+  ignoreWarnings: [
+    // Less 4 deprecation warnings from antd 4's own Less sources, which we can't change
+    { message: /DEPRECATED WARNING: .* in .*[\\/]node_modules[\\/].*[\\/]antd[\\/]/ },
+    // Packages that publish source maps pointing at source files they don't ship
+    { module: /[\\/]node_modules[\\/]/, message: /Failed to parse source map/ },
+  ],
   plugins: [
     new WebpackBuildNotifierPlugin({ title: "Redash" }),
     // bundle only default `moment` locale (`en`)
@@ -130,18 +134,11 @@ const config = {
       ],
     }),
     isHotReloadingEnabled && new ReactRefreshWebpackPlugin({ overlay: false }),
-    !isProduction &&
-      new ESLintPlugin({
-        extensions: ["js", "jsx", "ts", "tsx"],
-        context: path.resolve(__dirname, "client"),
-        eslintPath: require.resolve("eslint"),
-        failOnError: false,
-      }),
     new webpack.ProvidePlugin({
       // Make a global `process` variable that points to the `process` package,
       // because the `util` package expects there to be a global variable named `process`.
       // Thanks to https://stackoverflow.com/a/65018686/14239942
-      process: 'process/browser'
+      process: 'process/browser.js'
     })
   ].filter(Boolean),
   optimization: {
@@ -211,7 +208,9 @@ const config = {
                 plugins: [
                   new LessPluginAutoPrefix({ browsers: ["last 3 versions"] })
                 ],
-                javascriptEnabled: true
+                javascriptEnabled: true,
+                // antd 4's Less sources rely on Less 3 math, where `a / b` is always evaluated
+                math: "always"
               }
             }
           }
