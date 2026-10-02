@@ -75,7 +75,18 @@ export async function stabilizePage(page: Page) {
   const activity: ApiActivity = { pending: new Set(), lastChange: Date.now() };
   apiActivity.set(page, activity);
 
-  await page.clock.install({ time: NOW });
+  // Shift the date without replacing the browser's scheduler. Date.now must still advance for lodash
+  // debounce (dashboard autosave), while timers and animation frames must remain native for React/Plotly.
+  await page.addInitScript((epoch) => {
+    const OriginalDate = Date;
+    const started = performance.now();
+    const now = () => epoch + Math.floor(performance.now() - started);
+    window.Date = new Proxy(OriginalDate, {
+      apply: () => new OriginalDate(now()).toString(),
+      construct: (target, args, newTarget) => Reflect.construct(target, args.length ? args : [now()], newTarget),
+      get: (target, property, receiver) => (property === "now" ? now : Reflect.get(target, property, receiver)),
+    });
+  }, NOW.getTime());
   await page.route(/\/api\//, async (route) => {
     const request = route.request();
     activity.pending.add(request);
@@ -96,6 +107,18 @@ export async function stabilizePage(page: Page) {
     }
   });
   await page.route(/gravatar\.com\//, (route) => route.fulfill({ body: AVATAR, contentType: "image/png" }));
+}
+
+/** Masking text does not stop a longer URL from wrapping and changing the embed dialog's height. */
+export async function stabilizeEmbedUrls(page: Page) {
+  await page.locator(".embed-query-dialog code").evaluateAll((blocks) => {
+    for (const block of blocks) {
+      block.textContent = (block.textContent || "").replace(
+        /https?:\/\/[^/]+\/embed\/query\/\d+\/visualization\/\d+/g,
+        "https://redash.example/embed/query/1/visualization/1"
+      );
+    }
+  });
 }
 
 /** Waits until no API request was pending for a while (requests go through the route set up by `stabilizePage`). */

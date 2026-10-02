@@ -47,6 +47,9 @@ for (const [type, dashboardName] of Object.entries(DASHBOARDS) as [Visualization
     for (const viz of visualizations) {
       const widget = page.locator(`[data-widgetid="${dashboard.widgets[viz.name]}"]`);
       await widget.scrollIntoViewIfNeeded();
+      // Off-screen widgets can still be loading after the dashboard is network-idle. A spinner can
+      // produce two identical screenshots, so require the query result's renderer before comparing.
+      await expect(widget.locator(".visualization-renderer")).toBeVisible({ timeout: 30_000 });
       await expect.soft(widget, viz.name).toHaveScreenshot([slugify(dashboardName), `${slugify(viz.name)}.png`]);
     }
   });
