@@ -35,7 +35,7 @@
   },
   "packageManager": "pnpm@10.30.3",
   "engines": {
-    "node": ">=20.0.0 <26.0.0"
+    "node": ">=22.18.0 <26.0.0"
   },
   "author": "Redash Contributors",
   "license": "BSD-2-Clause",
@@ -55,7 +55,6 @@
     "d3": "^3.5.17",
     "debug": "^3.2.7",
     "dompurify": "^2.0.17",
-    "elliptic": "^6.6.0",
     "font-awesome": "^4.7.0",
     "history": "^4.10.1",
     "hoist-non-react-statics": "^3.3.0",
@@ -90,9 +89,9 @@
     "@playwright/test": "1.63.0",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.6.2",
     "@testing-library/cypress": "^8.0.7",
-    "@types/classnames": "^2.2.10",
     "@types/hoist-non-react-statics": "^3.3.1",
     "@types/lodash": "^4.14.157",
+    "@types/node": "^22.18.0",
     "@types/prop-types": "^15.7.3",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
