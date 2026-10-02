@@ -90,6 +90,7 @@ from redash.handlers.users import (
     UserResource,
 )
 from redash.handlers.visualizations import (
+    QueryVisualizationsReorderResource,
     VisualizationListResource,
     VisualizationResource,
 )
@@ -267,6 +268,11 @@ api.add_org_resource(
 )
 api.add_org_resource(UserDisableResource, "/api/users/<user_id>/disable", endpoint="user_disable")
 
+api.add_org_resource(
+    QueryVisualizationsReorderResource,
+    "/api/queries/<query_id>/visualizations/reorder",
+    endpoint="query_visualizations_reorder",
+)
 api.add_org_resource(VisualizationListResource, "/api/visualizations", endpoint="visualizations")
 api.add_org_resource(
     VisualizationResource,
