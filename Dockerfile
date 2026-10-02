@@ -50,24 +50,25 @@ RUN apt-get update && \
   apt-get install -y --no-install-recommends \
   pkg-config \
   curl \
-  gnupg \
   build-essential \
   pwgen \
   libffi-dev \
   sudo \
   git-core \
-  # Kerberos, needed for MS SQL Python driver to compile on arm64
+  # Kerberos, needed to compile gssapi (used by phoenixdb) and at runtime by
+  # the SQL Server driver bundled with mssql-python
   libkrb5-dev \
   # Postgres client
   libpq-dev \
-  # ODBC support:
+  # ODBC support (Databricks):
   g++ unixodbc-dev \
+  # Needed at runtime by the SQL Server driver bundled with mssql-python
+  libltdl7 \
   # for SAML
   xmlsec1 \
   # Additional packages required for data sources:
   libssl-dev \
   default-libmysqlclient-dev \
-  freetds-dev \
   libsasl2-dev \
   unzip \
   libsasl2-modules-gssapi-mit && \
@@ -79,12 +80,6 @@ ARG TARGETPLATFORM
 ARG databricks_odbc_driver_url=https://databricks-bi-artifacts.s3.us-east-2.amazonaws.com/simbaspark-drivers/odbc/2.6.26/SimbaSparkODBC-2.6.26.1045-Debian-64bit.zip
 RUN <<EOF
   if [ "$TARGETPLATFORM" = "linux/amd64" ]; then
-    curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg
-    curl https://packages.microsoft.com/config/debian/12/prod.list > /etc/apt/sources.list.d/mssql-release.list
-    apt-get update
-    ACCEPT_EULA=Y apt-get install  -y --no-install-recommends msodbcsql18
-    apt-get clean
-    rm -rf /var/lib/apt/lists/*
     curl "$databricks_odbc_driver_url" --location --output /tmp/simba_odbc.zip
     chmod 600 /tmp/simba_odbc.zip
     unzip /tmp/simba_odbc.zip -d /tmp/simba
