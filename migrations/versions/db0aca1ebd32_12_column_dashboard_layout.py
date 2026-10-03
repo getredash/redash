@@ -19,16 +19,20 @@ depends_on = None
 def upgrade():
     op.execute("""
     UPDATE widgets
-    SET options = jsonb_set(options, '{position,col}', to_json((options->'position'->>'col')::int * 2)::jsonb);
+    SET options = jsonb_set(options, '{position,col}', to_json((options->'position'->>'col')::int * 2)::jsonb)
+    WHERE options->'position'->>'col' IS NOT NULL;
     UPDATE widgets
-    SET options = jsonb_set(options, '{position,sizeX}', to_json((options->'position'->>'sizeX')::int * 2)::jsonb);
+    SET options = jsonb_set(options, '{position,sizeX}', to_json((options->'position'->>'sizeX')::int * 2)::jsonb)
+    WHERE options->'position'->>'sizeX' IS NOT NULL;
     """)
 
 
 def downgrade():
     op.execute("""
     UPDATE widgets
-    SET options = jsonb_set(options, '{position,col}', to_json((options->'position'->>'col')::int / 2)::jsonb);
+    SET options = jsonb_set(options, '{position,col}', to_json((options->'position'->>'col')::int / 2)::jsonb)
+    WHERE options->'position'->>'col' IS NOT NULL;
     UPDATE widgets
-    SET options = jsonb_set(options, '{position,sizeX}', to_json((options->'position'->>'sizeX')::int / 2)::jsonb);
+    SET options = jsonb_set(options, '{position,sizeX}', to_json((options->'position'->>'sizeX')::int / 2)::jsonb)
+    WHERE options->'position'->>'sizeX' IS NOT NULL;
     """)
