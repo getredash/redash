@@ -73,9 +73,14 @@ class ConfigurationContainer(Mutable):
         jsonschema.validate(new_config, self.schema)
 
         config = {}
+        secrets = self.schema.get("secret", [])
         for k, v in new_config.items():
-            if k in self.schema.get("secret", []) and v == SECRET_PLACEHOLDER:
+            if k in secrets and v == SECRET_PLACEHOLDER:
+                # Placeholder means the user did not change the field; keep existing value.
                 config[k] = self[k]
+            elif k in secrets and v == "":
+                # An empty secret means the user explicitly cleared the field; drop it.
+                continue
             else:
                 config[k] = v
 
