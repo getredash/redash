@@ -35,16 +35,6 @@ from tests import BaseTestCase
 
 
 class TestOIDCAuthentication(BaseTestCase):
-    def setUp(self):
-        super(TestOIDCAuthentication, self).setUp()
-        self.app.secret_key = "test_secret"
-        # Setup and register the blueprint in setup to avoid multiple registrations
-        if not self.app.blueprints.get("oidc"):
-            with patch.object(settings, "OIDC_ENABLED", True):
-                blueprint = create_oidc_blueprint(self.app)
-                if blueprint is not None:
-                    self.app.register_blueprint(blueprint)
-
     def test_oidc_blueprint_enabled(self):
         # Ensure OIDC is enabled in settings
         with patch.object(settings, "OIDC_ENABLED", True):
@@ -91,6 +81,17 @@ class TestOIDCAuthentication(BaseTestCase):
         mock_org.has_user = Mock(return_value=0)
         self.assertFalse(verify_account(mock_org, "user@example.com"))
 
+    def test_verify_account_domain_is_case_insensitive(self):
+        mock_org = Mock()
+        mock_org.is_public = False
+        mock_org.has_user = Mock(return_value=False)
+
+        mock_org.oidc_domains = ["example.com"]
+        self.assertTrue(verify_account(mock_org, "User@EXAMPLE.COM"))
+
+        mock_org.oidc_domains = ["Example.Com"]
+        self.assertTrue(verify_account(mock_org, "user@example.com"))
+
     def test_build_server_metadata_url_with_issuer_url(self):
         self.assertEqual(
             _build_server_metadata_url("https://accounts.google.com"),
@@ -112,6 +113,70 @@ class TestOIDCAuthentication(BaseTestCase):
             _build_server_metadata_url("https://keycloak.example.com/realms/myapp"),
             "https://keycloak.example.com/realms/myapp/.well-known/openid-configuration",
         )
+
+
+class TestOIDCRoutes(BaseTestCase):
+    def setUp(self):
+        super(TestOIDCRoutes, self).setUp()
+        self.app.secret_key = "test_secret"
+        with patch.object(settings, "OIDC_ENABLED", True):
+            self.app.register_blueprint(create_oidc_blueprint(self.app))
+        self.factory.org.settings[models.Organization.SETTING_OIDC_DOMAINS] = ["example.com"]
+        models.db.session.add(self.factory.org)
+        models.db.session.commit()
+
+    def _callback(self, user_info=None, token_error=None):
+        app_cls = "authlib.integrations.flask_client.FlaskOAuth2App"
+        token_kwargs = {"side_effect": token_error} if token_error else {"return_value": {"id_token": "x"}}
+        with patch(app_cls + ".authorize_access_token", **token_kwargs), patch(
+            app_cls + ".parse_id_token", return_value=user_info
+        ), patch("redash.authentication.login_user") as login_user_mock:
+            with self.app.test_client() as c:
+                rv = c.get("/oidc/callback")
+        return rv, login_user_mock
+
+    def test_authorize_without_org_slug_in_session_redirects_to_provider(self):
+        with patch(
+            "authlib.integrations.flask_client.FlaskOAuth2App.authorize_redirect",
+            return_value="redirected",
+        ) as authorize_redirect_mock:
+            with self.app.test_client() as c:
+                rv = c.get("/oidc")
+                self.assertEqual(rv.status_code, 200)
+                self.assertTrue(authorize_redirect_mock.called)
+                with c.session_transaction() as sess:
+                    self.assertIn("next_url", sess)
+
+    def test_callback_logs_in_user_from_allowed_domain(self):
+        rv, login_user_mock = self._callback({"email": "new@example.com", "name": "New User"})
+
+        self.assertEqual(rv.status_code, 302)
+        self.assertTrue(login_user_mock.called)
+        user = models.User.query.filter(models.User.email == "new@example.com").one()
+        self.assertEqual(user.name, "New User")
+
+    def test_callback_token_exchange_failure_redirects_to_login(self):
+        from authlib.integrations.base_client import OAuthError
+
+        rv, login_user_mock = self._callback(token_error=OAuthError(error="invalid_grant"))
+
+        self.assertEqual(rv.status_code, 302)
+        self.assertIn("/login", rv.location)
+        self.assertFalse(login_user_mock.called)
+
+    def test_callback_rejects_disallowed_domain(self):
+        rv, login_user_mock = self._callback({"email": "user@other.com", "name": "Other"})
+
+        self.assertEqual(rv.status_code, 302)
+        self.assertIn("/login", rv.location)
+        self.assertFalse(login_user_mock.called)
+
+    def test_callback_rejects_unverified_email(self):
+        rv, login_user_mock = self._callback({"email": "user@example.com", "name": "U", "email_verified": False})
+
+        self.assertEqual(rv.status_code, 302)
+        self.assertIn("/login", rv.location)
+        self.assertFalse(login_user_mock.called)
 
 
 class TestApiKeyAuthentication(BaseTestCase):
@@ -288,6 +353,7 @@ class TestCreateAndLoginUserOIDC(BaseTestCase):
         with patch("redash.authentication.login_user") as login_user_mock:
             oidc.create_and_login_user(self.factory.org, "New Name", user.email)
             login_user_mock.assert_called_once_with(user, remember=True)
+            self.assertEqual(user.name, "New Name")
 
 
 class TestCreateAndLoginUser(BaseTestCase):

@@ -29,10 +29,10 @@ def verify_account(org, email):
     if org.is_public:
         return True
 
-    domain = email.split("@")[-1]
+    domain = email.split("@")[-1].lower()
     logger.debug(f"org domains: {org.oidc_domains}")
 
-    if domain in org.oidc_domains:
+    if domain in [d.lower() for d in org.oidc_domains]:
         return True
 
     if org.has_user(email):
@@ -64,6 +64,11 @@ def get_name_from_user_info(user_info):
     return name
 
 
+def _session_org_slug():
+    # In multi-org mode url_for needs a slug; fall back when the session lacks one
+    return session.get("org_slug") or current_org.slug
+
+
 def create_oidc_blueprint(app):
     if not settings.OIDC_ENABLED:
         return None
@@ -92,7 +97,7 @@ def create_oidc_blueprint(app):
         scheme = settings.OIDC_SCHEME_OVERRIDE or None
         redirect_uri = url_for(".callback", _external=True, _scheme=scheme)
 
-        next_path = request.args.get("next", url_for("redash.index", org_slug=session.get("org_slug")))
+        next_path = request.args.get("next", url_for("redash.index", org_slug=_session_org_slug()))
         logger.debug("Callback url: %s", redirect_uri)
         logger.debug("Next is: %s", next_path)
 
@@ -109,19 +114,19 @@ def create_oidc_blueprint(app):
         except AuthlibBaseError as e:
             logger.warning("Failed to exchange authorization code: %s", e)
             flash("Validation error. Please retry.")
-            return redirect(url_for("redash.login", org_slug=session.get("org_slug")))
+            return redirect(url_for("redash.login", org_slug=_session_org_slug()))
 
         try:
             user_info = oauth.oidc.parse_id_token(token)
         except AuthlibBaseError as e:
             logger.warning("Failed to parse/validate ID token: %s", e)
             flash("Validation error. Please retry.")
-            return redirect(url_for("redash.login", org_slug=session.get("org_slug")))
+            return redirect(url_for("redash.login", org_slug=_session_org_slug()))
 
         if not user_info:
             logger.warning("Unable to get userinfo from returned token")
             flash("Validation error. Please retry.")
-            return redirect(url_for("redash.login", org_slug=session.get("org_slug")))
+            return redirect(url_for("redash.login", org_slug=_session_org_slug()))
 
         if "org_slug" in session:
             org = models.Organization.get_by_slug(session.pop("org_slug"))
