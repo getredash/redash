@@ -1,6 +1,6 @@
 import { expect, Locator, Page, test } from "@playwright/test";
 import { readPagesManifest } from "./manifest";
-import { stabilizePage, waitForPageReady } from "./stable-page";
+import { stabilizeEmbedUrls, stabilizePage, waitForPageReady } from "./stable-page";
 
 interface PageExample {
   name: string;
@@ -45,6 +45,7 @@ const PAGES: PageExample[] = [
     prepare: async (page) => {
       await page.getByTestId("QueryControlDropdownButton").click();
       await openDialog(page, "ShowEmbedDialogButton");
+      await stabilizeEmbedUrls(page);
     },
     mask: (page) => [page.locator(".embed-query-dialog code")],
   },
@@ -70,8 +71,7 @@ const PAGES: PageExample[] = [
     path: { manifest: "dashboardEdit" },
     prepare: async (page) => {
       // Entering edit mode saves the layout after a 2 seconds debounce, showing "Saving" until then
-      await page.clock.runFor(2_000);
-      await expect(page.getByText("Saved", { exact: true })).toBeVisible();
+      await expect(page.getByText("Saved", { exact: true })).toBeVisible({ timeout: 30_000 });
     },
   },
   {
