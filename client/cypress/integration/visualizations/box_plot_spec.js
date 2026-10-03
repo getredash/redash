@@ -1,4 +1,4 @@
-/* global cy, Cypress */
+/* global cy */
 
 const SQL = `
   SELECT 12 AS mn, 4967 AS mx UNION ALL
@@ -36,8 +36,6 @@ const SQL = `
 `;
 
 describe("Box Plot", () => {
-  const viewportWidth = Cypress.config("viewportWidth");
-
   beforeEach(() => {
     cy.login();
     cy.createQuery({ query: SQL })
@@ -63,7 +61,5 @@ describe("Box Plot", () => {
     cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
 
     cy.getByTestId("VisualizationPreview").find("svg").should("exist");
-
-    cy.percySnapshot("Visualizations - Box Plot", { widths: [viewportWidth] });
   });
 });

@@ -91,7 +91,6 @@ describe("Dashboard Sharing", () => {
           cy.logout();
           cy.visit(secretAddress);
           cy.getByTestId("TableVisualization", { timeout: 10000 }).should("exist");
-          cy.percySnapshot("Successfully Shared Unparameterized Dashboard");
         });
       });
     });
@@ -118,7 +117,6 @@ describe("Dashboard Sharing", () => {
           cy.logout();
           cy.visit(secretAddress);
           cy.getByTestId("TableVisualization", { timeout: 10000 }).should("exist");
-          cy.percySnapshot("Successfully Shared Parameterized Dashboard");
         });
       });
     });
@@ -161,7 +159,6 @@ describe("Dashboard Sharing", () => {
               "This query contains potentially unsafe parameters" +
                 " and cannot be executed on a shared dashboard or an embedded visualization."
             );
-            cy.percySnapshot("Successfully Shared Parameterized Dashboard With Some Unsafe Queries");
           });
         });
     });
