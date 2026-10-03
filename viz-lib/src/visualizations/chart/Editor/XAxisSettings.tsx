@@ -23,7 +23,8 @@ export default function XAxisSettings({ options, onOptionsChange }: any) {
           // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
           defaultChecked={options.sortX}
           // @ts-expect-error ts-migrate(2322) FIXME: Type '(sortX: any) => any' is not assignable to ty... Remove this comment to see the full error message
-          onChange={(sortX: any) => onOptionsChange({ sortX })}>
+          onChange={(sortX: any) => onOptionsChange({ sortX })}
+        >
           Sort Values
         </Switch>
       </Section>
@@ -36,7 +37,8 @@ export default function XAxisSettings({ options, onOptionsChange }: any) {
           // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
           defaultChecked={options.reverseX}
           // @ts-expect-error ts-migrate(2322) FIXME: Type '(reverseX: any) => any' is not assignable to... Remove this comment to see the full error message
-          onChange={(reverseX: any) => onOptionsChange({ reverseX })}>
+          onChange={(reverseX: any) => onOptionsChange({ reverseX })}
+        >
           Reverse Order
         </Switch>
       </Section>
@@ -49,7 +51,8 @@ export default function XAxisSettings({ options, onOptionsChange }: any) {
           // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
           defaultChecked={options.xAxis.labels.enabled}
           // @ts-expect-error ts-migrate(2322) FIXME: Type '(enabled: any) => any' is not assignable to ... Remove this comment to see the full error message
-          onChange={(enabled: any) => onOptionsChange({ xAxis: { labels: { enabled } } })}>
+          onChange={(enabled: any) => onOptionsChange({ xAxis: { labels: { enabled } } })}
+        >
           Show Labels
         </Switch>
       </Section>

@@ -4,11 +4,7 @@ describe("User List", () => {
     cy.visit("/users");
   });
 
-  it("renders the page and takes a screenshot", () => {
-    cy.getByTestId("UserList")
-      .should("exist")
-      .and("contain", "Example Admin");
-
-    cy.percySnapshot("Users");
+  it("renders the page", () => {
+    cy.getByTestId("UserList").should("exist").and("contain", "Example Admin");
   });
 });

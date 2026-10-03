@@ -7,7 +7,7 @@ export default function useRenameQuery(query, onChange) {
   const updateQuery = useUpdateQuery(query, onChange);
 
   return useCallback(
-    name => {
+    (name) => {
       recordEvent("edit_name", "query", query.id);
       const changes = { name };
       const options = {};

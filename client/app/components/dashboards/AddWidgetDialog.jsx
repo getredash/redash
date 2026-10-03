@@ -18,7 +18,7 @@ function VisualizationSelect({ query, visualization, onChange }) {
   const vizSelectId = useUniqueId("visualization-select");
 
   const handleChange = useCallback(
-    visualizationId => {
+    (visualizationId) => {
       const selectedVisualization = query ? find(query.visualizations, { id: visualizationId }) : null;
       onChange(selectedVisualization || null);
     },
@@ -37,10 +37,11 @@ function VisualizationSelect({ query, visualization, onChange }) {
           id={vizSelectId}
           className="w-100"
           value={visualization ? visualization.id : undefined}
-          onChange={handleChange}>
+          onChange={handleChange}
+        >
           {map(visualizationGroups, (visualizations, groupKey) => (
             <Select.OptGroup key={groupKey} label={groupKey}>
-              {map(visualizations, visualization => (
+              {map(visualizations, (visualization) => (
                 <Select.Option key={`${visualization.id}`} value={visualization.id}>
                   {visualization.name}
                 </Select.Option>
@@ -71,19 +72,19 @@ function AddWidgetDialog({ dialog, dashboard }) {
   const [parameterMappings, setParameterMappings] = useState([]);
 
   const selectQuery = useCallback(
-    queryId => {
+    (queryId) => {
       // Clear previously selected query (if any)
       setSelectedQuery(null);
       setSelectedVisualization(null);
       setParameterMappings([]);
 
       if (queryId) {
-        Query.get({ id: queryId }).then(query => {
+        Query.get({ id: queryId }).then((query) => {
           if (query) {
-            const existingParamNames = map(dashboard.getParametersDefs(), param => param.name);
+            const existingParamNames = map(dashboard.getParametersDefs(), (param) => param.name);
             setSelectedQuery(query);
             setParameterMappings(
-              map(query.getParametersDefs(), param => ({
+              map(query.getParametersDefs(), (param) => ({
                 name: param.name,
                 type: includes(existingParamNames, param.name)
                   ? MappingType.DashboardMapToExisting
@@ -123,9 +124,10 @@ function AddWidgetDialog({ dialog, dashboard }) {
         disabled: !selectedQuery || dialog.props.okButtonProps.disabled,
       }}
       okText="Add to Dashboard"
-      width={700}>
+      width={700}
+    >
       <div data-test="AddWidgetDialog">
-        <QuerySelector onChange={query => selectQuery(query ? query.id : null)} />
+        <QuerySelector onChange={(query) => selectQuery(query ? query.id : null)} />
 
         {selectedQuery && (
           <VisualizationSelect

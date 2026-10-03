@@ -47,12 +47,7 @@ export function formatDate(value) {
 
 export function localizeTime(time) {
   const [hrs, mins] = time.split(":");
-  return moment
-    .utc()
-    .hour(hrs)
-    .minute(mins)
-    .local()
-    .format("HH:mm");
+  return moment.utc().hour(hrs).minute(mins).local().format("HH:mm");
 }
 
 export function secondsToInterval(count) {
@@ -100,7 +95,7 @@ export function durationHumanize(durationInSeconds, options = {}) {
 }
 
 export function toHuman(text) {
-  return text.replace(/_/g, " ").replace(/(?:^|\s)\S/g, a => a.toUpperCase());
+  return text.replace(/_/g, " ").replace(/(?:^|\s)\S/g, (a) => a.toUpperCase());
 }
 
 export function remove(items, item) {
@@ -111,9 +106,9 @@ export function remove(items, item) {
   let notEquals;
 
   if (item instanceof Array) {
-    notEquals = other => item.indexOf(other) === -1;
+    notEquals = (other) => item.indexOf(other) === -1;
   } else {
-    notEquals = other => item !== other;
+    notEquals = (other) => item !== other;
   }
 
   const filtered = [];

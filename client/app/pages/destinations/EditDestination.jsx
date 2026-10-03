@@ -32,12 +32,12 @@ class EditDestination extends React.Component {
 
   componentDidMount() {
     Destination.get({ id: this.props.destinationId })
-      .then(destination => {
+      .then((destination) => {
         const { type } = destination;
         this.setState({ destination });
-        Destination.types().then(types => this.setState({ type: find(types, { type }), loading: false }));
+        Destination.types().then((types) => this.setState({ type: find(types, { type }), loading: false }));
       })
-      .catch(error => this.props.onError(error));
+      .catch((error) => this.props.onError(error));
   }
 
   saveDestination = (values, successCallback, errorCallback) => {
@@ -45,13 +45,13 @@ class EditDestination extends React.Component {
     helper.updateTargetWithValues(destination, values);
     Destination.save(destination)
       .then(() => successCallback("Saved."))
-      .catch(error => {
+      .catch((error) => {
         const message = get(error, "response.data.message", "Failed saving.");
         errorCallback(message);
       });
   };
 
-  deleteDestination = callback => {
+  deleteDestination = (callback) => {
     const { destination } = this.state;
 
     const doDelete = () => {
@@ -114,6 +114,6 @@ routes.register(
   routeWithUserSession({
     path: "/destinations/:destinationId",
     title: "Alert Destinations",
-    render: pageProps => <EditDestinationPage {...pageProps} />,
+    render: (pageProps) => <EditDestinationPage {...pageProps} />,
   })
 );

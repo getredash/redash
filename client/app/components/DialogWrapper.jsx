@@ -191,17 +191,17 @@ function openDialog(DialogComponent, props) {
   const result = {
     close: closeDialog,
     dismiss: dismissDialog,
-    update: newProps => {
+    update: (newProps) => {
       props = { ...props, ...newProps };
       render();
     },
-    onClose: handler => {
+    onClose: (handler) => {
       if (isFunction(handler)) {
         handlers.onClose = handler;
       }
       return result;
     },
-    onDismiss: handler => {
+    onDismiss: (handler) => {
       if (isFunction(handler)) {
         handlers.onDismiss = handler;
       }
@@ -217,7 +217,7 @@ function openDialog(DialogComponent, props) {
 export function wrap(DialogComponent) {
   return {
     Component: DialogComponent,
-    showModal: props => openDialog(DialogComponent, props),
+    showModal: (props) => openDialog(DialogComponent, props),
   };
 }
 

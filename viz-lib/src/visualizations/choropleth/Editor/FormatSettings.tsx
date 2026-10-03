@@ -42,7 +42,7 @@ function TemplateFormatHint({ geoJsonProperties }: TemplateFormatHintProps) {
         <React.Fragment>
           <div className="p-b-5">GeoJSON properties could be accessed by these names:</div>
           <div style={{ maxHeight: 300, overflow: "auto" }}>
-            {map(geoJsonProperties, property => (
+            {map(geoJsonProperties, (property) => (
               <div key={property}>
                 <code>{`{{ @@${property}}}`}</code>
               </div>
@@ -97,7 +97,8 @@ export default function GeneralSettings({ options, onOptionsChange }: any) {
         <Checkbox
           data-test="Choropleth.Editor.LegendVisibility"
           checked={options.legend.visible}
-          onChange={event => onOptionsChange({ legend: { visible: event.target.checked } })}>
+          onChange={(event) => onOptionsChange({ legend: { visible: event.target.checked } })}
+        >
           Show Legend
         </Checkbox>
       </Section>
@@ -111,7 +112,8 @@ export default function GeneralSettings({ options, onOptionsChange }: any) {
               data-test="Choropleth.Editor.LegendPosition"
               disabled={!options.legend.visible}
               defaultValue={options.legend.position}
-              onChange={(position: any) => onOptionsChange({ legend: { position } })}>
+              onChange={(position: any) => onOptionsChange({ legend: { position } })}
+            >
               {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
               <Select.Option value="top-left" data-test="Choropleth.Editor.LegendPosition.TopLeft">
                 top / left
@@ -151,7 +153,8 @@ export default function GeneralSettings({ options, onOptionsChange }: any) {
         <Checkbox
           data-test="Choropleth.Editor.TooltipEnabled"
           checked={options.tooltip.enabled}
-          onChange={event => onOptionsChange({ tooltip: { enabled: event.target.checked } })}>
+          onChange={(event) => onOptionsChange({ tooltip: { enabled: event.target.checked } })}
+        >
           Show Tooltip
         </Checkbox>
       </Section>
@@ -172,7 +175,8 @@ export default function GeneralSettings({ options, onOptionsChange }: any) {
         <Checkbox
           data-test="Choropleth.Editor.PopupEnabled"
           checked={options.popup.enabled}
-          onChange={event => onOptionsChange({ popup: { enabled: event.target.checked } })}>
+          onChange={(event) => onOptionsChange({ popup: { enabled: event.target.checked } })}
+        >
           Show Popup
         </Checkbox>
       </Section>
