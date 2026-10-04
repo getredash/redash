@@ -159,6 +159,14 @@ class TestWorkerHealthcheck(BaseTestCase):
         self.assertTrue(healthy)
         self.assertIn("Seen lately? True", log[0])
 
+    def test_future_heartbeat_is_not_recent(self):
+        self.worker.last_heartbeat = now() + timedelta(hours=1)
+
+        with patch("redash.cli.rq.Worker.all", return_value=[self.worker]):
+            _, log = self.check()
+
+        self.assertIn("Seen lately? False", log[0])
+
     def test_worker_without_heartbeat(self):
         rq_redis_connection.hdel(self.worker.key, "last_heartbeat")
         self.worker.last_heartbeat = None
