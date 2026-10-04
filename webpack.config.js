@@ -1,4 +1,3 @@
-/* eslint-disable */
 
 const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
@@ -10,7 +9,6 @@ const LessPluginAutoPrefix = require("less-plugin-autoprefix");
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
   .BundleAnalyzerPlugin;
 const ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
-const ESLintPlugin = require("eslint-webpack-plugin");
 
 const path = require("path");
 
@@ -136,13 +134,6 @@ const config = {
       ],
     }),
     isHotReloadingEnabled && new ReactRefreshWebpackPlugin({ overlay: false }),
-    !isProduction &&
-      new ESLintPlugin({
-        extensions: ["js", "jsx", "ts", "tsx"],
-        context: path.resolve(__dirname, "client"),
-        eslintPath: require.resolve("eslint"),
-        failOnError: false,
-      }),
     new webpack.ProvidePlugin({
       // Make a global `process` variable that points to the `process` package,
       // because the `util` package expects there to be a global variable named `process`.

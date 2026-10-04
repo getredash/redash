@@ -139,9 +139,7 @@ export function wrap<I, P = any>(
         this.setState(this.getState({ ...state, isLoaded: true }));
       };
 
-      itemsSource.onError = (error: GenericItemSourceError) =>
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        this.props.onError!(error);
+      itemsSource.onError = (error: GenericItemSourceError) => this.props.onError!(error);
 
       const initialState = this.getState({ ...itemsSource.getState(), isLoaded: false });
       const { updatePagination, toggleSorting, setSorting, updateSearch, updateSelectedTags, update, handleError } =
@@ -169,13 +167,13 @@ export function wrap<I, P = any>(
 
       this.state = {
         ...initialState,
-        toggleSorting, // eslint-disable-line react/no-unused-state
-        setSorting, // eslint-disable-line react/no-unused-state
-        updateSearch: debouncedUpdateSearch, // eslint-disable-line react/no-unused-state
-        updateSelectedTags, // eslint-disable-line react/no-unused-state
-        updatePagination, // eslint-disable-line react/no-unused-state
-        update, // eslint-disable-line react/no-unused-state
-        handleError, // eslint-disable-line react/no-unused-state
+        toggleSorting,
+        setSorting,
+        updateSearch: debouncedUpdateSearch,
+        updateSelectedTags,
+        updatePagination,
+        update,
+        handleError,
       };
     }
 
@@ -184,15 +182,11 @@ export function wrap<I, P = any>(
     }
 
     componentWillUnmount() {
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
       this._itemsSource.onBeforeUpdate = () => {};
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
       this._itemsSource.onAfterUpdate = () => {};
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
       this._itemsSource.onError = () => {};
     }
 
-    // eslint-disable-next-line class-methods-use-this
     getState({
       isLoaded,
       totalCount,

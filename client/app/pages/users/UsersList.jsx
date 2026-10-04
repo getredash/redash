@@ -189,7 +189,6 @@ class UsersList extends React.Component {
 
   deleteUser = (event, user) => User.deleteUser(user).then(() => this.props.controller.update());
 
-  // eslint-disable-next-line class-methods-use-this
   renderPageHeader() {
     if (!policy.canCreateUser()) {
       return null;

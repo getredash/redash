@@ -7,7 +7,6 @@ class NumberParameter extends Parameter {
     this.setValue(parameter.value);
   }
 
-  // eslint-disable-next-line class-methods-use-this
   normalizeValue(value) {
     if (isNull(value)) {
       return null;

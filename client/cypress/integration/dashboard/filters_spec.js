@@ -48,7 +48,7 @@ describe("Dashboard Filters", () => {
       cy.getByTestId("FilterName-stage1::filter").find(".ant-select").click();
     });
 
-    cy.wait(1500); // eslint-disable-line cypress/no-unnecessary-waiting
+    cy.wait(1500);
     cy.contains(".ant-select-item-option-content:visible", "b").click();
 
     cy.getByTestId(this.widget1TestId).within(() => {
@@ -69,14 +69,14 @@ describe("Dashboard Filters", () => {
       cy.getByTestId("FilterName-stage1::filter").find(".ant-select").click();
     });
 
-    cy.wait(1500); // eslint-disable-line cypress/no-unnecessary-waiting
+    cy.wait(1500);
     cy.contains(".ant-select-item-option-content:visible", "c").click();
 
-    [this.widget1TestId, this.widget2TestId].forEach((widgetTestId) =>
+    [this.widget1TestId, this.widget2TestId].forEach((widgetTestId) => {
       cy.getByTestId(widgetTestId).within(() => {
         expectTableToHaveLength(4);
         expectFirstColumnToHaveMembers(["c", "c", "c", "c"]);
-      })
-    );
+      });
+    });
   });
 });
