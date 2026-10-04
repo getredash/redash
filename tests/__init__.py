@@ -18,7 +18,7 @@ os.environ["REDASH_RATELIMIT_ENABLED"] = "true"
 
 os.environ["REDASH_ENFORCE_CSRF"] = "false"
 
-from flask import g  # noqa: E402
+from flask import g, has_app_context  # noqa: E402
 from flask.testing import FlaskClient  # noqa: E402
 
 from redash import limiter, redis_connection  # noqa: E402
@@ -36,7 +36,8 @@ class TestClient(FlaskClient):
         # Flask-Login caches the loaded user on `g`, which lives in the app context. Tests
         # keep one app context pushed for their whole duration, so every request would
         # otherwise reuse the user loaded by the first one.
-        g.pop("_login_user", None)
+        if has_app_context():
+            g.pop("_login_user", None)
         return super().open(*args, **kwargs)
 
 
