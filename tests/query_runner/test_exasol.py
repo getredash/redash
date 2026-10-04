@@ -14,9 +14,10 @@ class TestExasolConnection(TestCase):
         Exasol(dict(CONFIGURATION, verify_ssl=True))._get_connection()
         self.assertEqual({"cert_reqs": ssl.CERT_REQUIRED}, connect.call_args.kwargs["websocket_sslopt"])
 
-    def test_existing_data_sources_keep_skipping_verification(self, connect):
+    def test_verifies_certificate_when_option_is_missing(self, connect):
         Exasol(CONFIGURATION)._get_connection()
-        self.assertEqual({"cert_reqs": ssl.CERT_NONE}, connect.call_args.kwargs["websocket_sslopt"])
+        self.assertEqual({"cert_reqs": ssl.CERT_REQUIRED}, connect.call_args.kwargs["websocket_sslopt"])
 
-    def test_new_data_sources_verify_by_default(self, connect):
-        self.assertTrue(Exasol.configuration_schema()["properties"]["verify_ssl"]["default"])
+    def test_verification_can_be_turned_off(self, connect):
+        Exasol(dict(CONFIGURATION, verify_ssl=False))._get_connection()
+        self.assertEqual({"cert_reqs": ssl.CERT_NONE}, connect.call_args.kwargs["websocket_sslopt"])
