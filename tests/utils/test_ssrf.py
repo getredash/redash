@@ -1,5 +1,6 @@
 import datetime
 import ipaddress
+import os
 import socket
 import ssl
 import tempfile
@@ -55,7 +56,21 @@ class TestIsIpAllowed(TestCase):
         self.assertFalse(ssrf.is_ip_allowed(address, {address}))
 
 
-class TestSession(TestCase):
+PROXY_VARIABLES = ["http_proxy", "https_proxy", "all_proxy", "no_proxy"]
+
+
+class SessionTestCase(TestCase):
+    def setUp(self):
+        # requests picks up proxies from the environment, and the session refuses proxies.
+        environ = mock.patch.dict(os.environ)
+        environ.start()
+        self.addCleanup(environ.stop)
+        for name in PROXY_VARIABLES:
+            os.environ.pop(name, None)
+            os.environ.pop(name.upper(), None)
+
+
+class TestSession(SessionTestCase):
     def test_rejects_hostname_resolving_to_private_address(self):
         with resolves_to("10.0.0.1"):
             with self.assertRaises(ssrf.UnacceptableAddressException):
@@ -127,16 +142,18 @@ def self_signed_cert(hostname, directory):
     return cert_path, key_path
 
 
-class LocalServerTestCase(TestCase):
+class LocalServerTestCase(SessionTestCase):
     """Runs a local server and lets the SSRF checks accept 127.0.0.1 and its port."""
 
     redirect_to = None
 
     def start_server(self, tls_files=None):
         redirect_to = self.redirect_to
+        self.requests = requests_served = []
 
         class Handler(BaseHTTPRequestHandler):
             def do_GET(self):
+                requests_served.append(self.path)
                 if redirect_to:
                     self.send_response(302)
                     self.send_header("Location", redirect_to.format(port=self.server.server_port))
@@ -152,6 +169,7 @@ class LocalServerTestCase(TestCase):
         server = HTTPServer(("127.0.0.1", 0), Handler)
         if tls_files:
             context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+            context.minimum_version = ssl.TLSVersion.TLSv1_2
             context.load_cert_chain(*tls_files)
             server.socket = context.wrap_socket(server.socket, server_side=True)
         threading.Thread(target=server.serve_forever, daemon=True).start()
@@ -181,10 +199,13 @@ class TestRedirects(LocalServerTestCase):
         with resolve_hosts({"public.example": "127.0.0.1", "internal.example": "10.0.0.1"}):
             with self.assertRaises(ssrf.UnacceptableAddressException):
                 ssrf.get(f"http://public.example:{port}/")
+        # The first request was served; it's the redirect target that was refused.
+        self.assertEqual(["/"], self.requests)
 
 
 class TestHTTPS(LocalServerTestCase):
     def setUp(self):
+        super().setUp()
         directory = tempfile.TemporaryDirectory()
         self.addCleanup(directory.cleanup)
         self.cert_path, key_path = self_signed_cert("public.example", directory.name)
