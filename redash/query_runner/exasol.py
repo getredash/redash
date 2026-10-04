@@ -87,9 +87,9 @@ class Exasol(BaseQueryRunner):
             self.configuration.get("host", None),
             self.configuration.get("port", 8563),
         )
-        # pyexasol 1.0+ verifies the server certificate by default. Data sources created
-        # before this option existed didn't verify it, so keep that for them.
-        if self.configuration.get("verify_ssl", False):
+        # Verify the server certificate unless it's explicitly turned off, e.g. for a
+        # server with a self-signed certificate.
+        if self.configuration.get("verify_ssl", True):
             websocket_sslopt = {"cert_reqs": ssl.CERT_REQUIRED}
         else:
             websocket_sslopt = {"cert_reqs": ssl.CERT_NONE}
