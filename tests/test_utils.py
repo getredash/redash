@@ -122,7 +122,6 @@ class TestRenderTemplate(TestCase):
 
 
 @pytest.fixture
-@skip_condition
 def mock_dataframe():
     df = pd.DataFrame(
         {
