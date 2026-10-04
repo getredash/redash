@@ -105,6 +105,7 @@ class TestOrderResults(BaseTestCase):
         allowed_orders = {"users-name": "users-name"}
         with self.app.test_request_context("/items?order=users-name"):
             ordered_results = order_results(results, "", allowed_orders, fallback=False)
+            self.assertNotIn("ORDER BY", str(ordered_results.statement.compile()))
             self.assertEqual(3, ordered_results.count())
 
     def test_order_by_label(self):
