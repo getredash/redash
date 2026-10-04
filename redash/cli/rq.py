@@ -66,7 +66,8 @@ class WorkerHealthcheck(base.BaseCheck):
             seen_lately = False
         else:
             seconds_since_seen = int((now() - worker.last_heartbeat).total_seconds())
-            seen_lately = seconds_since_seen < 60
+            # A heartbeat from the future isn't evidence the worker is alive.
+            seen_lately = 0 <= seconds_since_seen < 60
 
         total_jobs_in_watched_queues = sum([len(q.jobs) for q in worker.queues])
         has_nothing_to_do = total_jobs_in_watched_queues == 0
