@@ -158,7 +158,7 @@ dev = [
     "ptpython==3.0.32",
     "pytest-cov==7.1.0",
     "watchdog==6.0.0",
-    "ruff==0.0.289",
+    "ruff==0.16.9",
 ]
 
 [tool.uv]
@@ -167,11 +167,13 @@ default-groups = []
 
 [tool.ruff]
 exclude = [".git", "viz-lib", "node_modules", "migrations"]
+
+[tool.ruff.lint]
 ignore = ["E501"]
 select = ["C9", "E", "F", "W", "I001", "UP004"]
 
-[tool.ruff.mccabe]
+[tool.ruff.lint.mccabe]
 max-complexity = 15
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
