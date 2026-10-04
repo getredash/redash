@@ -1,8 +1,14 @@
+import datetime
+import decimal
 import logging
+import uuid
 
 from redash.query_runner import (
+    TYPE_BOOLEAN,
+    TYPE_DATE,
     TYPE_DATETIME,
     TYPE_FLOAT,
+    TYPE_INTEGER,
     TYPE_STRING,
     BaseSQLQueryRunner,
     JobTimeoutException,
@@ -12,21 +18,24 @@ from redash.query_runner import (
 logger = logging.getLogger(__name__)
 
 try:
-    import pymssql
+    import mssql_python
 
     enabled = True
 except ImportError:
     enabled = False
 
-# from _mssql.pyx ## DB-API type definitions & http://www.freetds.org/tds.html#types ##
+# mssql-python reports the Python type of each column in cursor.description
 types_map = {
-    1: TYPE_STRING,
-    2: TYPE_STRING,
-    # Type #3 supposed to be an integer, but in some cases decimals are returned
-    # with this type. To be on safe side, marking it as float.
-    3: TYPE_FLOAT,
-    4: TYPE_DATETIME,
-    5: TYPE_FLOAT,
+    str: TYPE_STRING,
+    bool: TYPE_BOOLEAN,
+    int: TYPE_INTEGER,
+    float: TYPE_FLOAT,
+    decimal.Decimal: TYPE_FLOAT,
+    datetime.datetime: TYPE_DATETIME,
+    datetime.date: TYPE_DATE,
+    datetime.time: TYPE_STRING,
+    uuid.UUID: TYPE_STRING,
+    bytes: TYPE_STRING,
 }
 
 
@@ -47,20 +56,22 @@ class SqlServer(BaseSQLQueryRunner):
                 "password": {"type": "string"},
                 "server": {"type": "string", "default": "127.0.0.1"},
                 "port": {"type": "number", "default": 1433},
-                "tds_version": {
-                    "type": "string",
-                    "default": "7.0",
-                    "title": "TDS Version",
-                },
-                "charset": {
-                    "type": "string",
-                    "default": "UTF-8",
-                    "title": "Character Set",
-                },
                 "db": {"type": "string", "title": "Database Name"},
+                "use_ssl": {
+                    "type": "boolean",
+                    "title": "Use SSL",
+                    "default": False,
+                },
+                "verify_ssl": {
+                    "type": "boolean",
+                    "title": "Verify SSL certificate",
+                    "default": False,
+                },
             },
+            "order": ["server", "port", "user", "password", "db", "use_ssl", "verify_ssl"],
             "required": ["db"],
             "secret": ["password"],
+            "extra_options": ["use_ssl", "verify_ssl"],
         }
 
     @classmethod
@@ -103,32 +114,39 @@ class SqlServer(BaseSQLQueryRunner):
 
         return list(schema.values())
 
+    def _connection_params(self):
+        server = self.configuration.get("server", "")
+        port = int(self.configuration.get("port") or 1433)
+
+        # Only pass the port when it isn't the default, so named instances
+        # (HOST\INSTANCE) can still be resolved through SQL Server Browser.
+        if port != 1433:
+            server = "{},{}".format(server, port)
+
+        params = {
+            "server": server,
+            "database": self.configuration["db"],
+            "uid": self.configuration.get("user", ""),
+            "pwd": self.configuration.get("password", ""),
+        }
+
+        if self.configuration.get("use_ssl", False):
+            params["encrypt"] = "yes"
+            params["trustservercertificate"] = "no" if self.configuration.get("verify_ssl", False) else "yes"
+        else:
+            # Neither FreeTDS (pymssql) nor the previous ODBC runner verified
+            # the server certificate by default; keep that behavior for servers
+            # that force encryption.
+            params["encrypt"] = "no"
+            params["trustservercertificate"] = "yes"
+
+        return params
+
     def run_query(self, query, user):
         connection = None
 
         try:
-            server = self.configuration.get("server", "")
-            user = self.configuration.get("user", "")
-            password = self.configuration.get("password", "")
-            db = self.configuration["db"]
-            port = self.configuration.get("port", 1433)
-            tds_version = self.configuration.get("tds_version", "7.0")
-            charset = self.configuration.get("charset", "UTF-8")
-
-            if port != 1433:
-                server = server + ":" + str(port)
-
-            connection = pymssql.connect(
-                server=server,
-                user=user,
-                password=password,
-                database=db,
-                tds_version=tds_version,
-                charset=charset,
-            )
-
-            if isinstance(query, str):
-                query = query.encode(charset)
+            connection = mssql_python.connect(autocommit=True, **self._connection_params())
 
             cursor = connection.cursor()
             logger.debug("SqlServer running query: %s", query)
@@ -147,17 +165,11 @@ class SqlServer(BaseSQLQueryRunner):
                 data = None
 
             cursor.close()
-            connection.commit()
-        except pymssql.Error as e:
-            try:
-                # Query errors are at `args[1]`
-                error = e.args[1]
-            except IndexError:
-                # Connection errors are `args[0][1]`
-                error = e.args[0][1]
+        except mssql_python.Error as e:
+            error = getattr(e, "ddbc_error", None) or str(e)
             data = None
         except (KeyboardInterrupt, JobTimeoutException):
-            connection.cancel()
+            # mssql-python has no cancel(); closing the connection (below) aborts the query.
             raise
         finally:
             if connection:
