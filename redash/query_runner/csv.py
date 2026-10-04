@@ -80,6 +80,8 @@ class CSV(BaseQueryRunner):
                 },
                 {"pandas_type": np.bool_, "redash_type": "boolean"},
                 {"pandas_type": np.object_, "redash_type": "string"},
+                # pandas 3 reads text columns as the `str` dtype rather than object.
+                {"pandas_type": str, "redash_type": "string"},
             ]
             labels = []
             for dtype, label in zip(df.dtypes, df.columns):
