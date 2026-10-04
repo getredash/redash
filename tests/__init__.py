@@ -18,6 +18,9 @@ os.environ["REDASH_RATELIMIT_ENABLED"] = "true"
 
 os.environ["REDASH_ENFORCE_CSRF"] = "false"
 
+from flask import g, has_app_context  # noqa: E402
+from flask.testing import FlaskClient  # noqa: E402
+
 from redash import limiter, redis_connection  # noqa: E402
 from redash.app import create_app  # noqa: E402
 from redash.models import db  # noqa: E402
@@ -26,6 +29,16 @@ from tests.factories import Factory, user_factory  # noqa: E402
 
 logging.disable(logging.INFO)
 logging.getLogger("metrics").setLevel(logging.ERROR)
+
+
+class TestClient(FlaskClient):
+    def open(self, *args, **kwargs):
+        # Flask-Login caches the loaded user on `g`, which lives in the app context. Tests
+        # keep one app context pushed for their whole duration, so every request would
+        # otherwise reuse the user loaded by the first one.
+        if has_app_context():
+            g.pop("_login_user", None)
+        return super().open(*args, **kwargs)
 
 
 def authenticate_request(c, user):
@@ -48,6 +61,7 @@ class BaseTestCase(TestCase):
         self.app = create_app()
         self.db = db
         self.app.config["TESTING"] = True
+        self.app.test_client_class = TestClient
         limiter.enabled = False
         self.app_ctx = self.app.app_context()
         self.app_ctx.push()
@@ -59,7 +73,7 @@ class BaseTestCase(TestCase):
 
     def tearDown(self):
         db.session.remove()
-        db.get_engine(self.app).dispose()
+        db.engine.dispose()
         self.app_ctx.pop()
         redis_connection.flushdb()
 
