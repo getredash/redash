@@ -7,15 +7,18 @@ import { visualizationsSettings } from "@/visualizations/visualizationsSettings"
 
 import useLoadGeoJson from "../hooks/useLoadGeoJson";
 import { getGeoJsonFields } from "./utils";
+import "./editor.less";
 
 export default function GeneralSettings({ options, data, onOptionsChange }: any) {
-  const [geoJson, isLoadingGeoJson] = useLoadGeoJson(options.mapType);
+  const [geoJson, isLoadingGeoJson, loadError] = useLoadGeoJson(options.mapType);
   const geoJsonFields = useMemo(() => getGeoJsonFields(geoJson), [geoJson]);
 
   // While geoJson is loading - show last selected field in select
   const targetFields = isLoadingGeoJson ? filter([options.targetField], isString) : geoJsonFields;
 
-  const fieldNames = get(visualizationsSettings, `choroplethAvailableMaps.${options.mapType}.fieldNames`, {});
+  const registeredFieldNames = get(visualizationsSettings, `choroplethAvailableMaps.${options.mapType}.fieldNames`, {});
+  const geoJsonFieldNames = get(geoJson, "fieldNames", {});
+  const fieldNames = { ...geoJsonFieldNames, ...registeredFieldNames };
 
   const handleMapChange = useCallback(
     (mapType) => {
@@ -42,6 +45,11 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
             </Select.Option>
           ))}
         </Select>
+        {loadError && (
+          <div className="choropleth-custom-map-error" data-test="Choropleth.Editor.LoadError">
+            {loadError}
+          </div>
+        )}
       </Section>
 
       {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
