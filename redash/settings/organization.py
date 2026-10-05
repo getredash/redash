@@ -34,6 +34,7 @@ THOUSANDS_SEPARATOR = os.environ.get("REDASH_THOUSANDS_SEPARATOR", ",")
 DECIMAL_SEPARATOR = os.environ.get("REDASH_DECIMAL_SEPARATOR", ".")
 NULL_VALUE = os.environ.get("REDASH_NULL_VALUE", "null")
 MULTI_BYTE_SEARCH_ENABLED = parse_boolean(os.environ.get("MULTI_BYTE_SEARCH_ENABLED", "false"))
+TAGS_SORT_BY = os.environ.get("REDASH_TAGS_SORT_BY", "name")
 
 JWT_LOGIN_ENABLED = parse_boolean(os.environ.get("REDASH_JWT_LOGIN_ENABLED", "false"))
 JWT_AUTH_ISSUER = os.environ.get("REDASH_JWT_AUTH_ISSUER", "")
@@ -69,6 +70,7 @@ settings = {
     "decimal_separator": DECIMAL_SEPARATOR,
     "null_value": NULL_VALUE,
     "multi_byte_search_enabled": MULTI_BYTE_SEARCH_ENABLED,
+    "tags_sort_by": TAGS_SORT_BY,
     "auth_jwt_login_enabled": JWT_LOGIN_ENABLED,
     "auth_jwt_auth_issuer": JWT_AUTH_ISSUER,
     "auth_jwt_auth_public_certs_url": JWT_AUTH_PUBLIC_CERTS_URL,
