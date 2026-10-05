@@ -593,7 +593,8 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     def outdated_queries(cls):
         queries = (
             Query.query.options(joinedload(Query.latest_query_data).load_only("retrieved_at"))
-            .filter(func.jsonb_typeof(Query.schedule) != "null")
+            .filter(func.jsonb_typeof(Query.schedule) == "object")
+            .filter(cast(Query.schedule, db.Text) != "{}")
             .order_by(Query.id)
             .all()
         )
@@ -607,16 +608,31 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
                 if query.schedule.get("disabled"):
                     continue
 
+                interval = query.schedule.get("interval")
+                schedule_time = query.schedule.get("time")
+                day_of_week = query.schedule.get("day_of_week")
+                schedule_until = query.schedule.get("until")
+
+                # Parse `until` before interval checks so malformed date values are
+                # treated as faulty schedules and get disabled in the exception path.
+                if schedule_until:
+                    schedule_until = pytz.utc.localize(datetime.datetime.strptime(schedule_until, "%Y-%m-%d"))
+
+                    if schedule_until <= now:
+                        continue
+
+                # Missing interval means this isn't an actionable schedule.
+                if not interval:
+                    logger.warning(
+                        "Skipping schedule evaluation for query %s: interval is missing.",
+                        query.id,
+                    )
+                    continue
+
                 # Skip queries that have None for all schedule values. It's unclear whether this
                 # something that can happen in practice, but we have a test case for it.
                 if all(value is None for value in query.schedule.values()):
                     continue
-
-                if query.schedule["until"]:
-                    schedule_until = pytz.utc.localize(datetime.datetime.strptime(query.schedule["until"], "%Y-%m-%d"))
-
-                    if schedule_until <= now:
-                        continue
 
                 retrieved_at = scheduled_queries_executions.get(query.id) or (
                     query.latest_query_data and query.latest_query_data.retrieved_at
@@ -625,9 +641,9 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
                 if should_schedule_next(
                     retrieved_at,
                     now,
-                    query.schedule["interval"],
-                    query.schedule["time"],
-                    query.schedule["day_of_week"],
+                    interval,
+                    schedule_time,
+                    day_of_week,
                     query.schedule_failures,
                 ):
                     key = "{}:{}".format(query.query_hash, query.data_source_id)
@@ -808,7 +824,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         kwargs = {a: getattr(self, a) for a in forked_list}
 
         # Query.create will add default TABLE visualization, so use constructor to create bare copy of query
-        forked_query = Query(name="Copy of (#{}) {}".format(self.id, self.name), user=user, **kwargs)
+        forked_query = Query(name="Copy of (#{}) {}".format(self.id, self.name), user=user, schedule=None, **kwargs)
 
         for v in sorted(self.visualizations, key=lambda v: v.id):
             forked_v = v.copy()
