@@ -72,6 +72,22 @@ def _apply_default_parameters(query):
         return query.query_text
 
 
+def _sync_query_hash(query):
+    """
+    The rendered text of a query with dynamic parameter values (e.g. a "Last 7 days"
+    date range) changes over time, so the hash stored when the query was last saved
+    doesn't necessarily match the text that is about to run. Refresh it the same way
+    a save does; otherwise Query.update_latest_result() can't attach the result to
+    this query once the execution finishes.
+    """
+    previous_hash = query.query_hash
+    query.update_query_hash()
+    if query.query_hash != previous_hash:
+        query.skip_updated_at = True
+        models.db.session.add(query)
+        models.db.session.commit()
+
+
 class RefreshQueriesError(Exception):
     pass
 
@@ -92,6 +108,7 @@ def refresh_queries():
         try:
             query_text = _apply_default_parameters(query)
             query_text = _apply_auto_limit(query_text, query)
+            _sync_query_hash(query)
             enqueue_query(
                 query_text,
                 query.data_source,
