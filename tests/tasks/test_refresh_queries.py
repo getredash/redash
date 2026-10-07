@@ -8,6 +8,13 @@ ENQUEUE_QUERY = "redash.tasks.queries.maintenance.enqueue_query"
 
 
 class TestRefreshQuery(BaseTestCase):
+    def test_scheduled_query_metadata_uses_user_id(self):
+        query = self.factory.create_query()
+        with patch(ENQUEUE_QUERY) as enqueue, patch.object(Query, "outdated_queries", return_value=[query]):
+            refresh_queries()
+        metadata = enqueue.call_args[1]["metadata"]
+        self.assertEqual(metadata, {"query_id": query.id, "user_id": query.user_id})
+
     def test_enqueues_outdated_queries_for_sqlquery(self):
         """
         refresh_queries() launches an execution task for each query returned
@@ -30,14 +37,14 @@ class TestRefreshQuery(BaseTestCase):
                         query1.data_source,
                         query1.user_id,
                         scheduled_query=query1,
-                        metadata={"query_id": query1.id, "Username": query1.user.get_actual_user()},
+                        metadata={"query_id": query1.id, "user_id": query1.user_id},
                     ),
                     call(
                         "select 42 LIMIT 1000",
                         query2.data_source,
                         query2.user_id,
                         scheduled_query=query2,
-                        metadata={"query_id": query2.id, "Username": query2.user.get_actual_user()},
+                        metadata={"query_id": query2.id, "user_id": query2.user_id},
                     ),
                 ],
                 any_order=True,
@@ -62,14 +69,14 @@ class TestRefreshQuery(BaseTestCase):
                         query1.data_source,
                         query1.user_id,
                         scheduled_query=query1,
-                        metadata={"query_id": query1.id, "Username": query1.user.get_actual_user()},
+                        metadata={"query_id": query1.id, "user_id": query1.user_id},
                     ),
                     call(
                         query2.query_text,
                         query2.data_source,
                         query2.user_id,
                         scheduled_query=query2,
-                        metadata={"query_id": query2.id, "Username": query2.user.get_actual_user()},
+                        metadata={"query_id": query2.id, "user_id": query2.user_id},
                     ),
                 ],
                 any_order=True,

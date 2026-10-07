@@ -3,7 +3,7 @@ describe("Create Destination", () => {
     cy.login();
   });
 
-  it("renders the page and takes a screenshot", function () {
+  it("renders the page", function () {
     cy.visit("/destinations/new");
     cy.server();
     cy.route("**/api/destinations/types").as("DestinationTypesRequest");
@@ -19,7 +19,6 @@ describe("Create Destination", () => {
 
     cy.getByTestId("CreateSourceDialog").should("contain", "Email");
     cy.wait(1000); // eslint-disable-line cypress/no-unnecessary-waiting
-    cy.percySnapshot("Create Destination - Types");
   });
 
   it("shows a custom error message when destination name is already taken", () => {

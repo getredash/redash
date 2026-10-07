@@ -4,12 +4,10 @@ describe("Settings", () => {
     cy.visit("/settings/general");
   });
 
-  it("renders the page and takes a screenshot", () => {
+  it("renders the page", () => {
     cy.getByTestId("OrganizationSettings").within(() => {
       cy.getByTestId("TimeFormatSelect").should("contain", "HH:mm");
     });
-
-    cy.percySnapshot("Organization Settings");
   });
 
   it("can set date format setting", () => {

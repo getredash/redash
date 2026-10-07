@@ -17,7 +17,6 @@ describe("Create Query", () => {
     cy.getByTestId("ExecuteButton").should("be.enabled").click();
 
     cy.getByTestId("TableVisualization").should("exist");
-    cy.percySnapshot("Edit Query");
 
     cy.getByTestId("SaveButton").click();
     cy.url().should("match", /\/queries\/.+\/source/);

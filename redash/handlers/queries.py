@@ -4,6 +4,7 @@ from flask_login import login_required
 from flask_restful import abort
 from funcy import partial
 from sqlalchemy.orm.exc import StaleDataError
+from sqlparse.exceptions import SQLParseError
 
 from redash import models, settings
 from redash.authentication.org_resolving import current_org
@@ -63,7 +64,12 @@ def format_sql_query(org_slug=None):
     arguments = request.get_json(force=True)
     query = arguments.get("query", "")
 
-    return jsonify({"query": sqlparse.format(query, **settings.SQLPARSE_FORMAT_OPTIONS)})
+    try:
+        formatted = sqlparse.format(query, **settings.SQLPARSE_FORMAT_OPTIONS)
+    except SQLParseError:
+        abort(400, message="Query is too large or too deeply nested to format.")
+
+    return jsonify({"query": formatted})
 
 
 class QuerySearchResource(BaseResource):
@@ -387,6 +393,10 @@ class QueryResource(BaseResource):
 
         result = QuerySerializer(q, with_visualizations=True).serialize()
         result["can_edit"] = can_modify(q, self.current_user)
+
+        if self.current_user.is_api_user():
+            # Dashboard share tokens must not reveal the query's own long-lived API key.
+            result["api_key"] = None
 
         self.record_event({"action": "view", "object_id": query_id, "object_type": "query"})
 

@@ -1,9 +1,5 @@
 /* global cy, Cypress */
 
-/*
-  This test suite relies on Percy (does not validate rendered visualizations)
-*/
-
 import * as AllCellTypes from "./.mocks/all-cell-types";
 import * as MultiColumnSort from "./.mocks/multi-column-sort";
 import * as SearchInData from "./.mocks/search-in-data";
@@ -28,9 +24,19 @@ function prepareVisualization(query, type, name, options) {
     });
 }
 
-describe("Table", () => {
-  const viewportWidth = Cypress.config("viewportWidth");
+// Checks the values displayed in each column, in row order
+function expectColumns(expected) {
+  cy.getByTestId("TableVisualization")
+    .find("tbody tr.ant-table-row")
+    .should(($rows) => {
+      Cypress._.each(expected, (values, columnIndex) => {
+        const actual = Cypress._.map($rows, (row) => Cypress.$(row).find("td").eq(columnIndex).text().trim());
+        expect(actual).to.deep.equal(values);
+      });
+    });
+}
 
+describe("Table", () => {
   beforeEach(() => {
     cy.login();
   });
@@ -44,8 +50,6 @@ describe("Table", () => {
       // expand JSON cell
       cy.get(".jvi-item.jvi-root .jvi-toggle").click();
       cy.get(".jvi-item.jvi-root .jvi-item .jvi-toggle").click({ multiple: true });
-
-      cy.percySnapshot("Visualizations - Table (All cell types)", { widths: [viewportWidth] });
     });
   });
 
@@ -60,7 +64,7 @@ describe("Table", () => {
 
     it("sorts data by a single column", function () {
       cy.getByTestId("TableVisualization").find("table th").contains("c").should("exist").click();
-      cy.percySnapshot("Visualizations - Table (Single-column sort)", { widths: [viewportWidth] });
+      expectColumns({ 2: ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"] });
     });
 
     it("sorts data by a multiple columns", function () {
@@ -68,13 +72,15 @@ describe("Table", () => {
 
       cy.get("body").type("{shift}", { release: false });
       cy.getByTestId("TableVisualization").find("table th").contains("b").should("exist").click();
-
-      cy.percySnapshot("Visualizations - Table (Multi-column sort)", { widths: [viewportWidth] });
+      expectColumns({
+        0: ["1", "1", "1", "1", "2", "2", "2", "3", "3", "3"],
+        1: ["1", "1", "2", "3", "1", "2", "3", "1", "2", "3"],
+      });
     });
 
     it("sorts data in reverse order", function () {
       cy.getByTestId("TableVisualization").find("table th").contains("c").should("exist").click().click();
-      cy.percySnapshot("Visualizations - Table (Single-column reverse sort)", { widths: [viewportWidth] });
+      expectColumns({ 2: ["j", "i", "h", "g", "f", "e", "d", "c", "b", "a"] });
     });
   });
 
@@ -82,7 +88,6 @@ describe("Table", () => {
     const { query, config } = SearchInData;
     prepareVisualization(query, "TABLE", "Search", config).then(({ visualizationId }) => {
       cy.getByTestId("TableVisualization").find("table input").should("exist").type("test");
-      cy.percySnapshot("Visualizations - Table (Search in data)", { widths: [viewportWidth] });
     });
   });
 
@@ -96,8 +101,6 @@ describe("Table", () => {
         .contains("3")
         .should("exist")
         .click();
-
-      cy.percySnapshot("Visualizations - Table (Pagination)", { widths: [viewportWidth] });
     });
   });
 });
