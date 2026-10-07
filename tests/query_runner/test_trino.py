@@ -29,6 +29,46 @@ class TestTrino(TestCase):
         runner = Trino({"catalog": TestTrino.catalog_name})
         self._assert_schema_catalog(mock_run_query, mock__get_catalogs, runner)
 
+    @patch.object(Trino, "run_query")
+    def test_get_schema_with_schema_filter(self, mock_run_query):
+        runner = Trino({"catalog": TestTrino.catalog_name, "schema": TestTrino.schema_name})
+        mock_run_query.return_value = (
+            {
+                "rows": [
+                    {
+                        "table_schema": TestTrino.schema_name,
+                        "table_name": TestTrino.table_name,
+                        "column_name": TestTrino.column_name,
+                        "data_type": TestTrino.column_type,
+                    }
+                ]
+            },
+            None,
+        )
+        runner.get_schema()
+        query_arg = mock_run_query.call_args[0][0]
+        self.assertIn(f"AND table_schema = '{TestTrino.schema_name}'", query_arg)
+
+    @patch.object(Trino, "run_query")
+    def test_get_schema_without_schema_filter(self, mock_run_query):
+        runner = Trino({"catalog": TestTrino.catalog_name})
+        mock_run_query.return_value = (
+            {
+                "rows": [
+                    {
+                        "table_schema": TestTrino.schema_name,
+                        "table_name": TestTrino.table_name,
+                        "column_name": TestTrino.column_name,
+                        "data_type": TestTrino.column_type,
+                    }
+                ]
+            },
+            None,
+        )
+        runner.get_schema()
+        query_arg = mock_run_query.call_args[0][0]
+        self.assertNotIn("AND table_schema =", query_arg)
+
     def _assert_schema_catalog(self, mock_run_query, mock__get_catalogs, runner):
         mock_run_query.return_value = (
             {
