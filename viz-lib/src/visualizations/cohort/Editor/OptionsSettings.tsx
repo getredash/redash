@@ -24,7 +24,8 @@ export default function OptionsSettings({ options, onOptionsChange }: any) {
           label="Time Interval"
           data-test="Cohort.TimeInterval"
           value={options.timeInterval}
-          onChange={(timeInterval: any) => onOptionsChange({ timeInterval })}>
+          onChange={(timeInterval: any) => onOptionsChange({ timeInterval })}
+        >
           {map(CohortTimeIntervals, (name, value) => (
             // @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message
             <Select.Option key={value} data-test={"Cohort.TimeInterval." + value}>
@@ -42,7 +43,8 @@ export default function OptionsSettings({ options, onOptionsChange }: any) {
           label="Mode"
           data-test="Cohort.Mode"
           value={options.mode}
-          onChange={(mode: any) => onOptionsChange({ mode })}>
+          onChange={(mode: any) => onOptionsChange({ mode })}
+        >
           {map(CohortModes, (name, value) => (
             // @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message
             <Select.Option key={value} data-test={"Cohort.Mode." + value}>

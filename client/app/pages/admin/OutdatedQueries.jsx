@@ -55,7 +55,7 @@ class OutdatedQueries extends React.Component {
         width: null,
       }
     ),
-    Columns.avatar({ field: "user", className: "p-l-0 p-r-0" }, name => `Created by ${name}`),
+    Columns.avatar({ field: "user", className: "p-l-0 p-r-0" }, (name) => `Created by ${name}`),
     Columns.dateTime.sortable({ title: "Created At", field: "created_at" }),
     Columns.duration.sortable({ title: "Runtime", field: "runtime" }),
     Columns.dateTime.sortable({ title: "Last Executed At", field: "retrieved_at", orderByField: "executed_at" }),
@@ -101,7 +101,7 @@ class OutdatedQueries extends React.Component {
               id={this.autoUpdateSwitchId}
               className="m-l-10"
               checked={this.state.autoUpdate}
-              onChange={autoUpdate => this.setState({ autoUpdate })}
+              onChange={(autoUpdate) => this.setState({ autoUpdate })}
             />
           </div>
           {controller.params.lastUpdatedAt && (
@@ -127,9 +127,9 @@ class OutdatedQueries extends React.Component {
               showPageSizeSelect
               totalCount={controller.totalItemsCount}
               pageSize={controller.itemsPerPage}
-              onPageSizeChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
+              onPageSizeChange={(itemsPerPage) => controller.updatePagination({ itemsPerPage })}
               page={controller.page}
-              onChange={page => controller.updatePagination({ page })}
+              onChange={(page) => controller.updatePagination({ page })}
             />
           </div>
         )}
@@ -154,7 +154,7 @@ const OutdatedQueriesPage = itemsList(
         );
       },
       processResults(items) {
-        return map(items, item => new Query(item));
+        return map(items, (item) => new Query(item));
       },
       isPlainList: true,
     }),
@@ -166,6 +166,6 @@ routes.register(
   routeWithUserSession({
     path: "/admin/queries/outdated",
     title: "Outdated Queries",
-    render: pageProps => <OutdatedQueriesPage {...pageProps} currentPage="outdated_queries" />,
+    render: (pageProps) => <OutdatedQueriesPage {...pageProps} currentPage="outdated_queries" />,
   })
 );

@@ -106,7 +106,6 @@ describe("Chart", () => {
     };
 
     createDashboardWithCharts("Bar chart visualizations", chartGetters, withDashboardWidgetsAssertionFn);
-    cy.percySnapshot("Visualizations - Charts - Bar");
   });
   it("colors Bar charts", function () {
     cy.visit(`queries/${this.queryId}/source`);

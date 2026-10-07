@@ -34,7 +34,7 @@ const columnMappingSelectDefaultProps = {
 type Props = OwnProps & typeof columnMappingSelectDefaultProps;
 
 export default function ColumnMappingSelect({ value, availableColumns, type, onChange, areAxesSwapped }: Props) {
-  const options = sortBy(filter(uniq(flatten([availableColumns, value])), v => isString(v) && v !== ""));
+  const options = sortBy(filter(uniq(flatten([availableColumns, value])), (v) => isString(v) && v !== ""));
 
   // this swaps the ui, as the data will be swapped on render
   const { label, multiple } = !areAxesSwapped ? MappingTypes[type] : SwappedMappingTypes[type];
@@ -51,8 +51,9 @@ export default function ColumnMappingSelect({ value, availableColumns, type, onC
         placeholder={multiple ? "Choose columns..." : "Choose column..."}
         value={value || undefined}
         // @ts-expect-error ts-migrate(2349) FIXME: This expression is not callable.
-        onChange={(column: any) => onChange(column || null, type)}>
-        {map(options, c => (
+        onChange={(column: any) => onChange(column || null, type)}
+      >
+        {map(options, (c) => (
           // @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message
           <Select.Option key={c} value={c} data-test={`Chart.ColumnMapping.${type}.${c}`}>
             {c}

@@ -83,14 +83,14 @@ export const Auth = {
     }
 
     Auth.setApiKey(null);
-    return axios.get("api/session").then(data => {
+    return axios.get("api/session").then((data) => {
       updateSession(data);
       return session;
     });
   },
   loadConfig() {
     logger("Loading config");
-    return axios.get("/api/config").then(data => {
+    return axios.get("/api/config").then((data) => {
       updateSession({ client_config: data.client_config, user: { permissions: [] }, messages: [] });
       return data;
     });

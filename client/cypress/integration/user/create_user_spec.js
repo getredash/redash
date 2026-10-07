@@ -15,8 +15,8 @@ describe("Create User", () => {
   it("creates a new user", () => {
     // delete existing "new-user@redash.io"
     cy.request("GET", "api/users?q=new-user")
-      .then(({ body }) => body.results.filter(user => user.email === "new-user@redash.io"))
-      .each(user => cy.request("DELETE", `api/users/${user.id}`));
+      .then(({ body }) => body.results.filter((user) => user.email === "new-user@redash.io"))
+      .each((user) => cy.request("DELETE", `api/users/${user.id}`));
 
     fillUserFormAndSubmit("New User", "admin@redash.io");
 

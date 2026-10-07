@@ -1,6 +1,6 @@
 {
   "name": "redash-client",
-  "version": "26.08.0-dev",
+  "version": "26.10.0-dev",
   "description": "The frontend part of Redash.",
   "main": "index.js",
   "scripts": {
@@ -18,13 +18,15 @@
     "lint:fix": "pnpm run lint:base  --fix --ext .js --ext .jsx --ext .ts --ext .tsx ./client",
     "lint:base": "eslint --config ./client/.eslintrc.js --ignore-path ./client/.eslintignore",
     "lint:ci": "pnpm run lint --max-warnings 0 --format junit --output-file /tmp/test-results/eslint/results.xml",
-    "prettier": "prettier --write 'client/app/**/*.{js,jsx,ts,tsx}' 'client/cypress/**/*.{js,jsx,ts,tsx}'",
+    "prettier": "prettier --write 'client/app/**/*.{js,jsx,ts,tsx}' 'client/cypress/**/*.{js,jsx,ts,tsx}' 'client/visual-tests/**/*.ts' 'viz-lib/src/**/*.{ts,tsx}'",
     "type-check": "tsc --noEmit --project client/tsconfig.json",
     "type-check:watch": "pnpm run type-check --watch",
     "jest": "TZ=Africa/Khartoum jest",
     "test": "run-s type-check jest",
     "test:watch": "jest --watch",
     "cypress": "node client/cypress/cypress.js",
+    "visual-tests": "playwright test --config client/visual-tests/playwright.config.ts",
+    "visual-tests:docker": "sh client/visual-tests/docker.sh",
     "postinstall": "pnpm run build:viz"
   },
   "repository": {
@@ -33,7 +35,7 @@
   },
   "packageManager": "pnpm@10.30.3",
   "engines": {
-    "node": ">=18.0.0 <26.0.0"
+    "node": ">=20.0.0 <26.0.0"
   },
   "author": "Redash Contributors",
   "license": "BSD-2-Clause",
@@ -46,7 +48,7 @@
     "@redash/viz": "workspace:*",
     "ace-builds": "^1.43.3",
     "antd": "4.4.3",
-    "axios": "0.27.2",
+    "axios": "0.33.0",
     "axios-auth-refresh": "3.3.6",
     "bootstrap": "^3.4.1",
     "classnames": "^2.2.6",
@@ -85,8 +87,7 @@
     "@babel/preset-react": "^7.28.5",
     "@babel/preset-typescript": "^7.28.5",
     "@cypress/code-coverage": "^3.11.0",
-    "@percy/agent": "^0.28.7",
-    "@percy/cypress": "^3.1.2",
+    "@playwright/test": "1.63.0",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.6.2",
     "@testing-library/cypress": "^8.0.7",
     "@types/classnames": "^2.2.10",
@@ -140,7 +141,6 @@
     "process": "^0.11.10",
     "react-refresh": "^0.14.0",
     "react-test-renderer": "^16.14.0",
-    "request-cookies": "^1.1.0",
     "source-map-loader": "^5.0.0",
     "stream-browserify": "^3.0.0",
     "style-loader": "^4.0.0",
@@ -171,7 +171,8 @@
       "\\.(css|less)$": "identity-obj-proxy"
     },
     "testPathIgnorePatterns": [
-      "<rootDir>/app/__tests__/"
+      "<rootDir>/app/__tests__/",
+      "<rootDir>/visual-tests/"
     ]
   },
   "nyc": {

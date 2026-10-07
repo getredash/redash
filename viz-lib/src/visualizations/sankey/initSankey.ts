@@ -103,7 +103,7 @@ function graph(data: ExtendedSankeyDataType["rows"]) {
   const color = d3.scale.category20();
 
   return {
-    nodes: map(nodes, d => extend(d, { color: color(d.name.replace(/ .*/, "")) })),
+    nodes: map(nodes, (d) => extend(d, { color: color(d.name.replace(/ .*/, "")) })),
     links: values(links),
   };
 }
@@ -119,12 +119,12 @@ function spreadNodes(height: any, data: ExtendedSankeyDataType) {
 
   nodesByBreadth.forEach((nodes: any) => {
     nodes = filter(
-      sortBy(nodes, node => -node.value),
-      node => node.name !== "Exit"
+      sortBy(nodes, (node) => -node.value),
+      (node) => node.name !== "Exit"
     );
 
     // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
-    const sum = d3.sum(nodes, o => o.dy);
+    const sum = d3.sum(nodes, (o) => o.dy);
     const padding = (height - sum) / nodes.length;
 
     reduce(
@@ -140,12 +140,12 @@ function spreadNodes(height: any, data: ExtendedSankeyDataType) {
 
 function isDataValid(data: ExtendedSankeyDataType) {
   // data should contain column named 'value', otherwise no reason to render anything at all
-  if (!data || !find(data.columns, c => c.name === "value")) {
+  if (!data || !find(data.columns, (c) => c.name === "value")) {
     return false;
   }
   // prepareData will have coerced any invalid data rows into NaN, which is verified below
-  return every(data.rows, row =>
-    every(row, v => {
+  return every(data.rows, (row) =>
+    every(row, (v) => {
       if (!v || isString(v)) {
         return true;
       }
@@ -156,8 +156,8 @@ function isDataValid(data: ExtendedSankeyDataType) {
 
 // will coerce number strings into valid numbers
 function prepareDataRows(rows: ExtendedSankeyDataType["rows"]) {
-  return map(rows, row =>
-    mapValues(row, v => {
+  return map(rows, (row) =>
+    mapValues(row, (v) => {
       if (!v || isNumber(v)) {
         return v;
       }
@@ -171,9 +171,7 @@ export default function initSankey(data: ExtendedSankeyDataType) {
 
   if (!isDataValid(data)) {
     return (element: HTMLDivElement) => {
-      d3.select(element)
-        .selectAll("*")
-        .remove();
+      d3.select(element).selectAll("*").remove();
     };
   }
 
@@ -182,9 +180,7 @@ export default function initSankey(data: ExtendedSankeyDataType) {
   const format = (d: DType) => d3.format(",.0f")(d); // TODO: editor option ?
 
   return (element: HTMLDivElement) => {
-    d3.select(element)
-      .selectAll("*")
-      .remove();
+    d3.select(element).selectAll("*").remove();
 
     const margin = {
       top: 10,
@@ -210,17 +206,11 @@ export default function initSankey(data: ExtendedSankeyDataType) {
       .attr("transform", `translate(${margin.left},${margin.top})`);
 
     // Set the sankey diagram properties
-    const sankey = d3sankey()
-      .nodeWidth(15)
-      .nodePadding(10)
-      .size([width, height]);
+    const sankey = d3sankey().nodeWidth(15).nodePadding(10).size([width, height]);
 
     const path = sankey.link();
 
-    sankey
-      .nodes(data.nodes)
-      .links(data.links)
-      .layout(0);
+    sankey.nodes(data.nodes).links(data.links).layout(0);
 
     spreadNodes(height, data);
     sankey.relayout();
@@ -232,14 +222,14 @@ export default function initSankey(data: ExtendedSankeyDataType) {
       .data(data.links)
       .enter()
       .append("path")
-      .filter(l => l.target.name !== "Exit")
+      .filter((l) => l.target.name !== "Exit")
       .attr("class", "link")
       .attr("d", path)
-      .style("stroke-width", d => Math.max(1, d.dy))
+      .style("stroke-width", (d) => Math.max(1, d.dy))
       .sort((a, b) => b.dy - a.dy);
 
     // add the link titles
-    link.append("title").text(d => `${d.source.name} → ${d.target.name}\n${format(d.value)}`);
+    link.append("title").text((d) => `${d.source.name} → ${d.target.name}\n${format(d.value)}`);
 
     const node = svg
       .append("g")
@@ -247,15 +237,15 @@ export default function initSankey(data: ExtendedSankeyDataType) {
       .data(data.nodes)
       .enter()
       .append("g")
-      .filter(n => n.name !== "Exit")
+      .filter((n) => n.name !== "Exit")
       .attr("class", "node")
       .attr("transform", (d: DType) => `translate(${d.x},${d.y})`);
 
     function nodeMouseOver(currentNode: NodeType) {
       let nodes = getConnectedNodes(currentNode);
-      nodes = map(nodes, i => i.id);
+      nodes = map(nodes, (i) => i.id);
       node
-        .filter(d => {
+        .filter((d) => {
           if (d === currentNode) {
             return false;
           }
@@ -263,7 +253,7 @@ export default function initSankey(data: ExtendedSankeyDataType) {
         })
         .style("opacity", 0.2);
       link
-        .filter(l => !(includes(currentNode.sourceLinks, l) || includes(currentNode.targetLinks, l)))
+        .filter((l) => !(includes(currentNode.sourceLinks, l) || includes(currentNode.targetLinks, l)))
         .style("opacity", 0.2);
     }
 

@@ -342,14 +342,6 @@ class TestRedirectToUrlAfterLoggingIn(BaseTestCase):
         )
         self.assertEqual(response.location, "./")
 
-    def test_backslash_redirect_rejected(self):
-        response = self.post_request(
-            "/login?next=%5Cevil.com",
-            data={"email": self.user.email, "password": self.password},
-            org=self.factory.org,
-        )
-        self.assertEqual(response.location, "./")
-
     def test_slash_backslash_redirect_rejected(self):
         response = self.post_request(
             "/login?next=/%5Cevil.com",

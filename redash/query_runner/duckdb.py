@@ -71,8 +71,13 @@ class DuckDB(BaseSQLQueryRunner):
                     "type": "string",
                     "title": "Extensions (comma separated)",
                 },
+                "external_access": {
+                    "type": "boolean",
+                    "title": "Enable External Access (filesystem & network)",
+                    "default": True,
+                },
             },
-            "order": ["dbpath", "extensions"],
+            "order": ["dbpath", "extensions", "external_access"],
             "required": ["dbpath"],
         }
 
@@ -81,7 +86,8 @@ class DuckDB(BaseSQLQueryRunner):
         return enabled
 
     def _connect(self) -> None:
-        self.con = duckdb.connect(self.dbpath)
+        external_access = self.configuration.get("external_access", True)
+        self.con = duckdb.connect(self.dbpath, config={"enable_external_access": external_access})
         for ext in self.extensions:
             try:
                 if "." in ext:
@@ -96,6 +102,8 @@ class DuckDB(BaseSQLQueryRunner):
                     self.con.execute(f"LOAD {ext}")
             except Exception as e:
                 logger.warning("Failed to load extension %s: %s", ext, e)
+        self.con.execute("SET disabled_filesystems = 'LocalFileSystem'")
+        self.con.execute("SET lock_configuration = true")
 
     def run_query(self, query, user) -> tuple:
         try:

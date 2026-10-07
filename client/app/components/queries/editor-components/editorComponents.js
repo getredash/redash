@@ -16,7 +16,7 @@ export function registerEditorComponent(componentName, component, dataSourceType
     dataSourceTypes = [dataSourceTypes];
   }
 
-  each(dataSourceTypes, dataSourceType => {
+  each(dataSourceTypes, (dataSourceType) => {
     componentsRegistry.set(dataSourceType, { ...componentsRegistry.get(dataSourceType), [componentName]: component });
   });
 }

@@ -56,7 +56,7 @@ ApiKeySessionWrapper.defaultProps = {
 export default function routeWithApiKeySession({ render, getApiKey, ...rest }) {
   return {
     ...rest,
-    render: currentRoute => (
+    render: (currentRoute) => (
       <ApiKeySessionWrapper apiKey={getApiKey(currentRoute)} currentRoute={currentRoute} renderChildren={render} />
     ),
   };

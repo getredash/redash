@@ -28,7 +28,7 @@ export default function ColumnsSettings({ options, onOptionsChange, variant }: C
     if (event) {
       event.stopPropagation();
     }
-    const columns = map(options.columns, c => (c.name === newColumn.name ? newColumn : c));
+    const columns = map(options.columns, (c) => (c.name === newColumn.name ? newColumn : c));
     onOptionsChange({ columns });
   }
 
@@ -52,7 +52,8 @@ export default function ColumnsSettings({ options, onOptionsChange, variant }: C
       onSortEnd={handleColumnsReorder}
       containerProps={{
         className: containerClass,
-      }}>
+      }}
+    >
       {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'Element' is not assignable to type 'null | u... Remove this comment to see the full error message */}
       <Collapse bordered={false} defaultActiveKey={[]} expandIconPosition="right">
         {map(options.columns, (column, index) => (
@@ -77,17 +78,22 @@ export default function ColumnsSettings({ options, onOptionsChange, variant }: C
                 {column.visible ? (
                   <EyeOutlinedIcon
                     data-test={`${testPrefix}.Column.${column.name}.Visibility`}
-                    onClick={event => handleColumnChange({ ...column, visible: !column.visible }, event)}
+                    onClick={(event) => handleColumnChange({ ...column, visible: !column.visible }, event)}
                   />
                 ) : (
                   <EyeInvisibleOutlinedIcon
                     data-test={`${testPrefix}.Column.${column.name}.Visibility`}
-                    onClick={event => handleColumnChange({ ...column, visible: !column.visible }, event)}
+                    onClick={(event) => handleColumnChange({ ...column, visible: !column.visible }, event)}
                   />
                 )}
               </Tooltip>
-            }>
-            <ColumnEditor column={column} variant={variant} onChange={(changes) => handleColumnChange(changes, undefined)} />
+            }
+          >
+            <ColumnEditor
+              column={column}
+              variant={variant}
+              onChange={(changes) => handleColumnChange(changes, undefined)}
+            />
           </SortableItem>
         ))}
       </Collapse>
