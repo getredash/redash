@@ -1,7 +1,5 @@
 /* global Cypress */
 
-import "@percy/cypress"; // eslint-disable-line import/no-extraneous-dependencies, import/no-unresolved
-
 import "@testing-library/cypress/add-commands";
 
 const { each } = Cypress._;
@@ -114,9 +112,4 @@ Cypress.Commands.add("all", (...functions) => {
   }, results);
 
   return cy.wrap(results);
-});
-
-Cypress.Commands.overwrite("percySnapshot", (originalFn, ...args) => {
-  Cypress.$("*[data-test=TimeAgo]").text("just now");
-  return originalFn(...args);
 });

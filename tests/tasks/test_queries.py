@@ -174,6 +174,33 @@ class TestEnqueueTask(BaseTestCase):
 
 @patch("redash.tasks.queries.execution.get_current_job", side_effect=fetch_job)
 class QueryExecutorTests(BaseTestCase):
+    def test_legacy_api_job_uses_query_identity_label(self, _):
+        query = self.factory.create_query(query_text="SELECT 1")
+        api_key = query.api_key
+        with patch.object(PostgreSQL, "run_query", return_value=({"columns": [], "rows": []}, None)) as runner:
+            execute_query(
+                query.query_text,
+                query.data_source.id,
+                {"query_id": query.id},
+                user_id=api_key,
+                is_api_key=True,
+            )
+        sql = runner.call_args[0][0]
+        self.assertIn("user_id: <ApiKey: Query {}>".format(query.id), sql)
+
+    def test_preserves_provided_api_identity_label(self, _):
+        query = self.factory.create_query(query_text="SELECT 1")
+        identity = "<ApiKey: 9>"
+        with patch.object(PostgreSQL, "run_query", return_value=({"columns": [], "rows": []}, None)) as runner:
+            execute_query(
+                query.query_text,
+                query.data_source.id,
+                {"query_id": query.id, "user_id": identity},
+                user_id=query.api_key,
+                is_api_key=True,
+            )
+        self.assertIn("user_id: {}".format(identity), runner.call_args[0][0])
+
     def test_success(self, _):
         """
         ``execute_query`` invokes the query runner and stores a query result.

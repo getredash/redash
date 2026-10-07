@@ -33,6 +33,13 @@ class AlertResource(BaseResource):
         alert = get_object_or_404(models.Alert.get_by_id_and_org, alert_id, self.current_org)
         require_admin_or_owner(alert.user.id)
 
+        if "query_id" in params:
+            query = get_object_or_404(models.Query.get_by_id_and_org, params.pop("query_id"), self.current_org)
+        else:
+            query = alert.query_rel
+        require_access(query, self.current_user, view_only)
+        alert.query_rel = query
+
         self.update_model(alert, params)
         models.db.session.commit()
 
@@ -51,6 +58,7 @@ class AlertEvaluateResource(BaseResource):
     def post(self, alert_id):
         alert = get_object_or_404(models.Alert.get_by_id_and_org, alert_id, self.current_org)
         require_admin_or_owner(alert.user.id)
+        require_access(alert, self.current_user, view_only)
 
         new_state = alert.evaluate()
         if should_notify(alert, new_state):

@@ -1,6 +1,6 @@
 [project]
 name = "redash"
-version = "26.08.0-dev"
+version = "26.10.0-dev"
 description = "Make Your Company Data Driven. Connect to any data source, easily visualize, dashboard and share your data."
 authors = [
     { name = "Arik Fraimovich", email = "<arik@redash.io>" }
@@ -42,7 +42,7 @@ dependencies = [
     "parsedatetime==2.6",
     "passlib==1.7.3",
     "psycopg2-binary==2.9.11",
-    "pyjwt==2.12.0",
+    "pyjwt==2.14.0",
     "pyopenssl==26.2.0",
     "pypd==1.1.0",
     "pysaml2==7.3.1",
@@ -63,7 +63,7 @@ dependencies = [
     "sqlalchemy==1.3.24",
     "sqlalchemy-searchable==1.2.0",
     "sqlalchemy-utils==0.38.3",
-    "sqlparse==0.5.0",
+    "sqlparse==0.6.0",
     "sshtunnel==0.1.5",
     "statsd==3.3.0",
     "supervisor==4.1.0",
@@ -138,12 +138,12 @@ all_ds = [
     "requests-aws-sign==0.1.5",
     "sasl>=0.4a1",
     "simple-salesforce==0.74.3",
-    "snowflake-connector-python==4.5.0",
+    "snowflake-connector-python==4.7.3",
     "td-client==1.5.0",
     "thrift>=0.8.0",
     "thrift-sasl>=0.1.0",
     "trino>=0.305,<1.0",
-    "vertica-python==1.1.1",
+    "vertica-python==1.4.0",
     "xlrd==2.0.1",
     "e6data-python-connector==2.2.0",
 ]
