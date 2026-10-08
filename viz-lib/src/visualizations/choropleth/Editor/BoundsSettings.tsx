@@ -35,7 +35,7 @@ export default function BoundsSettings({ options, onOptionsChange }: any) {
   }, [options.bounds, geoJson]);
 
   const updateBounds = useCallback(
-    (i, j, v) => {
+    (i: number, j: number, v: any) => {
       v = parseFloat(v); // InputNumber may emit `null` and empty strings instead of numbers
       if (isFinite(v)) {
         const newBounds = cloneDeep(bounds);

@@ -20,8 +20,9 @@ const SwappedMappingTypes = {
 type OwnProps = {
   value?: string | string[];
   availableColumns?: string[];
-  type?: any; // TODO: PropTypes.oneOf(keys(MappingTypes))
+  type?: string; // one of the MappingTypes keys
   onChange?: (...args: any[]) => any;
+  areAxesSwapped?: boolean;
 };
 
 const columnMappingSelectDefaultProps = {
@@ -31,13 +32,16 @@ const columnMappingSelectDefaultProps = {
   onChange: () => {},
 };
 
-type Props = OwnProps & typeof columnMappingSelectDefaultProps;
+type Props = OwnProps;
 
 export default function ColumnMappingSelect({ value, availableColumns, type, onChange, areAxesSwapped }: Props) {
   const options = sortBy(filter(uniq(flatten([availableColumns, value])), (v) => isString(v) && v !== ""));
 
   // this swaps the ui, as the data will be swapped on render
-  const { label, multiple } = !areAxesSwapped ? MappingTypes[type] : SwappedMappingTypes[type];
+  const mappingTypes: Record<string, { label: string; multiple?: boolean }> = !areAxesSwapped
+    ? MappingTypes
+    : SwappedMappingTypes;
+  const { label, multiple } = mappingTypes[type!];
 
   return (
     // @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message
