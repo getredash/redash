@@ -157,8 +157,12 @@ class TestResultsColumnTypes(TestCase):
         self.assertEqual(types["num"], TYPE_INTEGER)
         self.assertEqual(types["ts"], TYPE_DATETIME)
 
+    def test_all_null_column_has_no_inferred_type(self):
+        types = self._column_types("SELECT NULL AS empty_col UNION ALL SELECT NULL")
+        self.assertIsNone(types["empty_col"])
+
     def test_mixed_value_types_fall_back_to_string(self):
-        types = self._column_types("SELECT 1 AS val UNION ALL SELECT NULL UNION ALL SELECT 'text'")
+        types = self._column_types("SELECT 1 AS val UNION ALL SELECT 'text'")
         self.assertEqual(types["val"], TYPE_STRING)
 
 
