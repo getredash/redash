@@ -43,6 +43,7 @@ type OwnProps = {
   addonBefore?: React.ReactNode;
   addonAfter?: React.ReactNode;
   onChange?: (...args: any[]) => any;
+  "data-test"?: string;
 };
 
 const colorPickerDefaultProps = {
@@ -71,6 +72,7 @@ export default function ColorPicker({
   triggerProps,
   addonBefore,
   addonAfter,
+  "data-test": dataTest,
 }: Props) {
   const [visible, setVisible] = useState(false);
   const validatedColor = useMemo(() => validateColor(color), [color]);
@@ -118,7 +120,7 @@ export default function ColorPicker({
   }, [validatedColor, visible]);
 
   return (
-    <span className="color-picker-wrapper">
+    <span className="color-picker-wrapper" data-test={dataTest}>
       {addonBefore}
       <Popover
         arrowPointAtCenter

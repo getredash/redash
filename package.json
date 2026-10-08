@@ -88,6 +88,8 @@
     "@playwright/test": "1.63.0",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.6.3",
     "@testing-library/cypress": "^8.0.7",
+    "@testing-library/dom": "^8.20.1",
+    "@testing-library/react": "^12.1.5",
     "@types/hoist-non-react-statics": "^3.3.1",
     "@types/lodash": "^4.17.25",
     "@types/node": "^22.18.0",
@@ -105,9 +107,6 @@
     "css-loader": "^7.1.5",
     "cypress": "^11.2.0",
     "dayjs": "^1.11.23",
-    "enzyme": "^3.8.0",
-    "enzyme-adapter-react-16": "^1.7.1",
-    "enzyme-to-json": "^3.3.5",
     "html-webpack-plugin": "^5.6.8",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^30.5.2",
@@ -121,7 +120,6 @@
     "npm-run-all": "^4.1.5",
     "process": "^0.11.10",
     "react-refresh": "^0.19.0",
-    "react-test-renderer": "^16.14.0",
     "source-map-loader": "^5.0.0",
     "stream-browserify": "^3.0.0",
     "style-loader": "^4.0.0",
@@ -163,11 +161,7 @@
       "/node_modules/\\.pnpm/(?!(marked|universal-router|query-string|decode-uri-component|split-on-first|filter-obj|d3|d3-[a-z-]+|internmap|delaunator|robust-predicates)@)"
     ],
     "setupFiles": [
-      "./app/__tests__/enzyme_setup.js",
       "./app/__tests__/mocks.js"
-    ],
-    "snapshotSerializers": [
-      "enzyme-to-json/serializer"
     ],
     "moduleNameMapper": {
       "^@/(.*)": "<rootDir>/app/$1",

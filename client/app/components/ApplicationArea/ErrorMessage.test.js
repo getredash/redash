@@ -1,5 +1,5 @@
 import React from "react";
-import { mount } from "enzyme";
+import { render } from "@testing-library/react";
 import ErrorMessage from "./ErrorMessage";
 
 const ErrorMessages = {
@@ -23,9 +23,9 @@ describe("Error Message", () => {
   });
 
   function expectErrorMessageToBe(error, errorMessage) {
-    const component = mount(<ErrorMessage error={error} />);
+    const { getByText } = render(<ErrorMessage error={error} />);
 
-    expect(component.find(".error-state__details h4").text()).toBe(errorMessage);
+    expect(getByText(errorMessage).tagName).toBe("H4");
     expect(spyError).toHaveBeenCalledWith(error);
   }
 
