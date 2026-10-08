@@ -167,7 +167,12 @@ function EditParameterSettingsDialog(props) {
           />
         </Form.Item>
         <Form.Item label="Type" {...formItemProps}>
-          <Select value={param.type} onChange={(type) => setParam({ ...param, type })} data-test="ParameterTypeSelect">
+          <Select
+            value={param.type}
+            onChange={(type) => setParam({ ...param, type })}
+            virtual={false} // short fixed list; virtualization re-renders options while scrolling
+            data-test="ParameterTypeSelect"
+          >
             <Option value="text" data-test="TextParameterTypeOption">
               Text
             </Option>

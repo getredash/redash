@@ -46,7 +46,7 @@
     "@ant-design/icons": "^4.2.1",
     "@redash/viz": "workspace:*",
     "ace-builds": "^1.44.0",
-    "antd": "4.4.3",
+    "antd": "4.24.16",
     "axios": "1.20.0",
     "axios-auth-refresh": "5.0.2",
     "bootstrap": "^3.4.1",

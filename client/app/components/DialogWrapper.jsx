@@ -111,6 +111,9 @@ function openDialog(DialogComponent, props) {
   const dialog = {
     props: {
       visible: true,
+      // Render the dialog right in its container (below), not in a portal: antd 4.24 mounts the portal's content
+      // before attaching it to the document, so inputs with `autoFocus` didn't get focused
+      getContainer: false,
       okButtonProps: {},
       cancelButtonProps: {},
       onOk: () => {},
