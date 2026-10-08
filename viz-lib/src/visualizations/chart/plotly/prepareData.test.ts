@@ -1,4 +1,3 @@
-/* eslint-disable global-require, import/no-unresolved */
 import prepareData from "./prepareData";
 
 function cleanSeries(series: any) {

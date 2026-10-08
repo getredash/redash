@@ -74,7 +74,7 @@ function getCustomIconOptionFields(iconShape: any) {
 }
 
 export default function StyleSettings({ options, onOptionsChange }: any) {
-  const [debouncedOnOptionsChange] = useDebouncedCallback(onOptionsChange, 200);
+  const debouncedOnOptionsChange = useDebouncedCallback(onOptionsChange, 200);
 
   const { showIcon, showBackgroundColor, showBorderColor } = useMemo(
     () => getCustomIconOptionFields(options.iconShape),

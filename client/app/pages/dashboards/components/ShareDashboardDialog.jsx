@@ -15,7 +15,7 @@ const API_SHARE_URL = "api/dashboards/{id}/share";
 
 class ShareDashboardDialog extends React.Component {
   static propTypes = {
-    dashboard: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+    dashboard: PropTypes.object.isRequired,
     hasOnlySafeQueries: PropTypes.bool.isRequired,
     canManageSharing: PropTypes.bool.isRequired,
     dialog: DialogPropType.isRequired,

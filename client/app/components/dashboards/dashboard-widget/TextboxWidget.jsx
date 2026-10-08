@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import { markdown } from "markdown";
+import markdownToHtml from "@/lib/markdown";
 import Menu from "antd/lib/menu";
 import HtmlContent from "@redash/viz/lib/components/HtmlContent";
 import TextboxDialog from "@/components/dashboards/TextboxDialog";
@@ -32,13 +32,13 @@ function TextboxWidget(props) {
 
   return (
     <Widget {...props} menuOptions={canEdit ? TextboxMenuOptions : null} className="widget-text">
-      <HtmlContent className="body-row-auto scrollbox t-body p-15 markdown">{markdown.toHTML(text || "")}</HtmlContent>
+      <HtmlContent className="body-row-auto scrollbox t-body p-15 markdown">{markdownToHtml(text)}</HtmlContent>
     </Widget>
   );
 }
 
 TextboxWidget.propTypes = {
-  widget: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  widget: PropTypes.object.isRequired,
   canEdit: PropTypes.bool,
 };
 

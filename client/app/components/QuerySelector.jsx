@@ -32,7 +32,14 @@ export default function QuerySelector(props) {
 
   const placeholder = "Search a query by name";
   const clearIcon = (
-    <i className="fa fa-times" role="button" tabIndex={0} aria-label="Clear" onClick={() => selectQuery(null)} />
+    <i
+      className="fa fa-times"
+      // biome-ignore lint/a11y/noNoninteractiveElementToInteractiveRole: icon used as the Select's clear button
+      role="button"
+      tabIndex={0}
+      aria-label="Clear"
+      onClick={() => selectQuery(null)}
+    />
   );
   const spinIcon = (
     <span role="status" aria-live="polite" aria-relevant="additions removals">
@@ -160,7 +167,7 @@ export default function QuerySelector(props) {
 
 QuerySelector.propTypes = {
   onChange: PropTypes.func.isRequired,
-  selectedQuery: PropTypes.object, // eslint-disable-line react/forbid-prop-types
+  selectedQuery: PropTypes.object,
   type: PropTypes.oneOf(["select", "default"]),
   className: PropTypes.string,
   disabled: PropTypes.bool,

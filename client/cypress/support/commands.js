@@ -77,7 +77,7 @@ Cypress.Commands.add("fillInputs", (elements, { wait = 0 } = {}) => {
   each(elements, (value, testId) => {
     cy.getByTestId(testId).filter(":visible").clear().type(value);
     if (wait > 0) {
-      cy.wait(wait); // eslint-disable-line cypress/no-unnecessary-waiting
+      cy.wait(wait);
     }
   });
 });
@@ -89,12 +89,17 @@ Cypress.Commands.add("dragBy", { prevSubject: true }, (subject, offsetLeft, offs
   if (!offsetTop) {
     offsetTop = 1;
   }
+  // React 18 renders the updates of mouse move events asynchronously; wait between the events so
+  // that each one is rendered before the next, as it would be with a real mouse
   return cy
     .wrap(subject)
     .trigger("mouseover", { force })
     .trigger("mousedown", "topLeft", { force })
+    .wait(50)
     .trigger("mousemove", 1, 1, { force }) // must have at least 2 mousemove events for react-grid-layout to trigger onLayoutChange
+    .wait(50)
     .trigger("mousemove", offsetLeft, offsetTop, { force })
+    .wait(50)
     .trigger("mouseup", { force });
 });
 

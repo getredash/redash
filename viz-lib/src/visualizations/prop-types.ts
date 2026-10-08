@@ -6,7 +6,7 @@ type VisualizationOptions = any;
 type Data = {
   columns: any[];
   rows: any[];
-}; // eslint-disable-line react/forbid-prop-types
+};
 
 const Data: PropTypes.Requireable<Data> = PropTypes.shape({
   columns: PropTypes.arrayOf(PropTypes.object).isRequired,

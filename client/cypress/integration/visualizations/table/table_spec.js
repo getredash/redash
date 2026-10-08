@@ -44,7 +44,6 @@ describe("Table", () => {
   it("renders all cell types", () => {
     const { query, config } = AllCellTypes;
     prepareVisualization(query, "TABLE", "All cell types", config).then(() => {
-      // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(500); // add some waiting to avoid an async update error from .jvi-toggle
 
       // expand JSON cell

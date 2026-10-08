@@ -24,7 +24,6 @@ function DynamicButton({ options, selectedDynamicValue, onSelect, enabled, stati
       data-test="DynamicButtonMenu"
     >
       {options.map((option, index) => (
-        // eslint-disable-next-line react/no-array-index-key
         <Menu.Item key={index}>
           {option.name} {option.label && <em>{isFunction(option.label) ? option.label() : option.label}</em>}
         </Menu.Item>
@@ -65,7 +64,7 @@ function DynamicButton({ options, selectedDynamicValue, onSelect, enabled, stati
 }
 
 DynamicButton.propTypes = {
-  options: PropTypes.arrayOf(PropTypes.object), // eslint-disable-line react/forbid-prop-types
+  options: PropTypes.arrayOf(PropTypes.object),
   selectedDynamicValue: PropTypes.oneOfType([DynamicDateType, DynamicDateRangeType]),
   onSelect: PropTypes.func,
   enabled: PropTypes.bool,

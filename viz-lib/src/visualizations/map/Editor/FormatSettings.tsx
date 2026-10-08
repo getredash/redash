@@ -4,7 +4,6 @@ import { Section, Input, Checkbox, TextArea, ContextHelp } from "@/components/vi
 import { EditorPropTypes } from "@/visualizations/prop-types";
 
 function TemplateFormatHint() {
-  // eslint-disable-line react/prop-types
   return (
     // @ts-expect-error ts-migrate(2746) FIXME: This JSX tag's 'children' prop expects a single ch... Remove this comment to see the full error message
     <ContextHelp placement="topLeft" arrowPointAtCenter>
@@ -17,7 +16,7 @@ function TemplateFormatHint() {
 }
 
 export default function FormatSettings({ options, onOptionsChange }: any) {
-  const [onOptionsChangeDebounced] = useDebouncedCallback(onOptionsChange, 200);
+  const onOptionsChangeDebounced = useDebouncedCallback(onOptionsChange, 200);
 
   const templateFormatHint = <TemplateFormatHint />;
 

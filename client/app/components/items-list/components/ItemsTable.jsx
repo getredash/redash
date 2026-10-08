@@ -94,7 +94,6 @@ Columns.custom.sortable = sortable;
 export default class ItemsTable extends React.Component {
   static propTypes = {
     loading: PropTypes.bool,
-    // eslint-disable-next-line react/forbid-prop-types
     items: PropTypes.arrayOf(PropTypes.object),
     columns: PropTypes.arrayOf(
       PropTypes.shape({

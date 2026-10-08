@@ -1,5 +1,5 @@
 import { map, each } from "lodash";
-import d3 from "d3";
+import * as d3 from "d3";
 import React, { useState, useEffect } from "react";
 import resizeObserver from "@/services/resizeObserver";
 import { RendererPropTypes } from "@/visualizations/prop-types";
@@ -53,11 +53,10 @@ function render(container: any, data: any, { xAxisLabel, yAxisLabel }: any) {
   let d = [];
 
   const columns = map(data.columns, (col) => col.name);
-  // @ts-expect-error ts-migrate(2339) FIXME: Property 'scale' does not exist on type 'typeof im... Remove this comment to see the full error message
-  const xscale = d3.scale
-    .ordinal()
+  const xscale: any = d3
+    .scaleBand()
     .domain(columns)
-    .rangeBands([0, containerWidth - margin.left - margin.right]);
+    .range([0, containerWidth - margin.left - margin.right]);
 
   let boxWidth;
   if (columns.length > 1) {
@@ -77,46 +76,29 @@ function render(container: any, data: any, { xAxisLabel, yAxisLabel }: any) {
     });
   });
 
-  // @ts-expect-error ts-migrate(2339) FIXME: Property 'scale' does not exist on type 'typeof im... Remove this comment to see the full error message
-  const yscale = d3.scale
-    .linear()
+  const yscale = d3
+    .scaleLinear()
     .domain([min * 0.99, max * 1.01])
     .range([height, 0]);
 
   const chart = box()
     .whiskers(calcIqr(1.5))
-    // @ts-expect-error ts-migrate(2339) FIXME: Property 'width' does not exist on type '{ (g: any... Remove this comment to see the full error message
     .width(boxWidth - 2 * margin.inner)
     .height(height)
     .domain([min * 0.99, max * 1.01]);
-  const xAxis = d3.svg
-    // @ts-expect-error ts-migrate(2339) FIXME: Property 'axis' does not exist on type '(url: stri... Remove this comment to see the full error message
-    .axis()
-    .scale(xscale)
-    .orient("bottom");
+  const xAxis = d3.axisBottom(xscale);
 
-  const yAxis = d3.svg
-    // @ts-expect-error ts-migrate(2339) FIXME: Property 'axis' does not exist on type '(url: stri... Remove this comment to see the full error message
-    .axis()
-    .scale(yscale)
-    .orient("left");
+  const yAxis = d3.axisLeft(yscale);
 
-  const xLines = d3.svg
-    // @ts-expect-error ts-migrate(2339) FIXME: Property 'axis' does not exist on type '(url: stri... Remove this comment to see the full error message
-    .axis()
-    .scale(xscale)
-    .tickSize(height)
-    .orient("bottom");
+  const xLines = d3.axisBottom(xscale).tickSize(height);
 
-  const yLines = d3.svg
-    // @ts-expect-error ts-migrate(2339) FIXME: Property 'axis' does not exist on type '(url: stri... Remove this comment to see the full error message
-    .axis()
-    .scale(yscale)
-    .tickSize(width)
-    .orient("right");
+  const yLines = d3.axisRight(yscale).tickSize(width);
+
+  // With a single column there's no second band to measure; d3 3's ordinal scale returned 0 for it
+  const bandStep = columns.length > 1 ? xscale(columns[1]) : 0;
 
   function barOffset(i: any) {
-    return xscale(columns[i]) + (xscale(columns[1]) - margin.inner) / 2.0;
+    return xscale(columns[i]) + (bandStep - margin.inner) / 2.0;
   }
 
   container.selectAll("*").remove();

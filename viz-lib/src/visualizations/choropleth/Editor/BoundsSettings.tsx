@@ -17,7 +17,7 @@ export default function BoundsSettings({ options, onOptionsChange }: any) {
   // but `onOptionsChange` event is debounced and uses last value from internal state.
 
   const [bounds, setBounds] = useState(options.bounds);
-  const [onOptionsChangeDebounced] = useDebouncedCallback(onOptionsChange, 200);
+  const onOptionsChangeDebounced = useDebouncedCallback(onOptionsChange, 200);
 
   const [geoJson] = useLoadGeoJson(options.mapType);
 
@@ -35,7 +35,7 @@ export default function BoundsSettings({ options, onOptionsChange }: any) {
   }, [options.bounds, geoJson]);
 
   const updateBounds = useCallback(
-    (i, j, v) => {
+    (i: number, j: number, v: any) => {
       v = parseFloat(v); // InputNumber may emit `null` and empty strings instead of numbers
       if (isFinite(v)) {
         const newBounds = cloneDeep(bounds);

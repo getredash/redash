@@ -73,13 +73,11 @@ export default function DesktopNavbar() {
 
   return (
     <nav className="desktop-navbar">
-      <NavbarSection className="desktop-navbar-logo">
-        <div role="menuitem">
-          <Link href="./">
-            <img src={logoUrl} alt="Redash" />
-          </Link>
-        </div>
-      </NavbarSection>
+      <div className="desktop-navbar-logo">
+        <Link href="./">
+          <img src={logoUrl} alt="Redash" />
+        </Link>
+      </div>
 
       <NavbarSection>
         {currentUser.hasPermission("list_dashboards") && (
@@ -166,7 +164,7 @@ export default function DesktopNavbar() {
 
       <NavbarSection className="desktop-navbar-profile-menu">
         <Menu.SubMenu
-          key="profile"
+          key="profile-menu"
           popupClassName="desktop-navbar-submenu"
           tabIndex={0}
           title={
