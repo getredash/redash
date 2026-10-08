@@ -113,7 +113,7 @@ export default function SeriesSettings({ options, data, onOptionsChange }: any) 
     },
     [onOptionsChange]
   );
-  const [debouncedUpdateSeriesOption] = useDebouncedCallback(updateSeriesOption, 200);
+  const debouncedUpdateSeriesOption = useDebouncedCallback(updateSeriesOption, 200);
 
   const columns = useMemo(
     () => getTableColumns(options, updateSeriesOption, debouncedUpdateSeriesOption),
