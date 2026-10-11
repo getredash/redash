@@ -32,6 +32,12 @@ def _tables_key(data_source_id, database_name):
     return "databricks:database_tables:{}:{}".format(data_source_id, database_name)
 
 
+def clear_databricks_schema_cache(data_source_id):
+    keys = [_databases_key(data_source_id)]
+    keys.extend(redis_connection.scan_iter(match=_tables_key(data_source_id, "*")))
+    redis_connection.delete(*keys)
+
+
 def _get_databases_from_cache(data_source_id):
     cache = redis_connection.get(_databases_key(data_source_id))
     return json_loads(cache) if cache else None

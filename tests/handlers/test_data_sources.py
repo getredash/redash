@@ -1,6 +1,8 @@
 from funcy import pairwise
 
+from redash import redis_connection
 from redash.models import DataSource
+from redash.utils.configuration import ConfigurationContainer
 from tests import BaseTestCase
 
 
@@ -121,6 +123,45 @@ class TestDataSourceResourcePost(BaseTestCase):
 
         self.assertEqual(data_source.name, new_name)
         self.assertEqual(data_source.options.to_dict(), new_options)
+
+    def test_clears_databricks_schema_cache(self):
+        admin = self.factory.create_admin()
+        options = {
+            "host": "example.cloud.databricks.com",
+            "http_path": "/sql/1.0/warehouses/abc",
+            "http_password": "token",
+            "catalog": "samples",
+        }
+        data_source = self.factory.create_data_source(type="databricks", options=ConfigurationContainer(options))
+        other_data_source = self.factory.create_data_source(type="databricks")
+
+        cached_keys = [
+            "databricks:databases:{}".format(data_source.id),
+            "databricks:database_tables:{}:default".format(data_source.id),
+            "databricks:database_tables:{}:nyctaxi".format(data_source.id),
+        ]
+        other_keys = [
+            "databricks:databases:{}".format(other_data_source.id),
+            "databricks:database_tables:{}:default".format(other_data_source.id),
+        ]
+        for key in cached_keys + other_keys:
+            redis_connection.set(key, "[]")
+
+        rv = self.make_request(
+            "post",
+            "/api/data_sources/{}".format(data_source.id),
+            data={"name": data_source.name, "type": "databricks", "options": dict(options, catalog="system")},
+            user=admin,
+        )
+
+        self.assertEqual(rv.status_code, 200)
+        for key in cached_keys:
+            self.assertFalse(redis_connection.exists(key))
+        for key in other_keys:
+            self.assertTrue(redis_connection.exists(key))
+
+        rv = self.make_request("get", "/api/databricks/databases/{}".format(data_source.id), user=admin)
+        self.assertIn("job", rv.json)
 
 
 class TestDataSourceResourceDelete(BaseTestCase):

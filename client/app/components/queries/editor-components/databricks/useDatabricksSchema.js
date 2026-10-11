@@ -159,7 +159,8 @@ export default function useDatabricksSchema(dataSource, options = null, onOption
           let lastUsedDatabase =
             defaultDatabaseNameRef.current || localStorage.getItem(`lastSelectedDatabricksDatabase_${dataSource.id}`);
 
-          if (!lastUsedDatabase) {
+          // The stored database may no longer exist, e.g. after the data source's catalog was changed.
+          if (!includes(data, lastUsedDatabase)) {
             lastUsedDatabase = includes(data, "default") ? "default" : first(data) || null;
           }
 
