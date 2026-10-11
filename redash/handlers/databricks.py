@@ -1,3 +1,5 @@
+import hashlib
+
 from flask import request
 from flask_restful import abort
 
@@ -11,7 +13,7 @@ from redash.tasks.databricks import (
     get_databricks_table_columns,
     get_databricks_tables,
 )
-from redash.utils import json_loads
+from redash.utils import json_dumps, json_loads
 
 
 def _get_databricks_data_source(data_source_id, user, org):
@@ -24,27 +26,38 @@ def _get_databricks_data_source(data_source_id, user, org):
     return data_source
 
 
-def _databases_key(data_source_id):
-    return "databricks:databases:{}".format(data_source_id)
+def _configuration_hash(data_source):
+    # Part of the cache keys, so lists fetched with a previous configuration (e.g. another
+    # catalog) are never served, even when a job that started before the change finishes after it.
+    values = [data_source.options.get(name) or "" for name in ("host", "http_path", "catalog")]
+    return hashlib.sha1(json_dumps(values).encode()).hexdigest()[:12]
 
 
-def _tables_key(data_source_id, database_name):
-    return "databricks:database_tables:{}:{}".format(data_source_id, database_name)
+def _databases_key(data_source):
+    return "databricks:databases:{}:{}".format(data_source.id, _configuration_hash(data_source))
+
+
+def _tables_key(data_source, database_name):
+    return "databricks:database_tables:{}:{}:{}".format(
+        data_source.id, _configuration_hash(data_source), database_name
+    )
 
 
 def clear_databricks_schema_cache(data_source_id):
-    keys = [_databases_key(data_source_id)]
-    keys.extend(redis_connection.scan_iter(match=_tables_key(data_source_id, "*")))
-    redis_connection.delete(*keys)
+    keys = []
+    for prefix in ("databricks:databases", "databricks:database_tables"):
+        keys.extend(redis_connection.scan_iter(match="{}:{}:*".format(prefix, data_source_id)))
+    if keys:
+        redis_connection.delete(*keys)
 
 
-def _get_databases_from_cache(data_source_id):
-    cache = redis_connection.get(_databases_key(data_source_id))
+def _get_databases_from_cache(data_source):
+    cache = redis_connection.get(_databases_key(data_source))
     return json_loads(cache) if cache else None
 
 
-def _get_tables_from_cache(data_source_id, database_name):
-    cache = redis_connection.get(_tables_key(data_source_id, database_name))
+def _get_tables_from_cache(data_source, database_name):
+    cache = redis_connection.get(_tables_key(data_source, database_name))
     return json_loads(cache) if cache else None
 
 
@@ -54,12 +67,12 @@ class DatabricksDatabaseListResource(BaseResource):
 
         refresh = request.args.get("refresh") is not None
         if not refresh:
-            cached_databases = _get_databases_from_cache(data_source_id)
+            cached_databases = _get_databases_from_cache(data_source)
 
             if cached_databases is not None:
                 return cached_databases
 
-        job = get_databricks_databases.delay(data_source.id, redis_key=_databases_key(data_source_id))
+        job = get_databricks_databases.delay(data_source.id, redis_key=_databases_key(data_source))
         return serialize_job(job)
 
 
@@ -69,7 +82,7 @@ class DatabricksSchemaResource(BaseResource):
 
         refresh = request.args.get("refresh") is not None
         if not refresh:
-            cached_tables = _get_tables_from_cache(data_source_id, database_name)
+            cached_tables = _get_tables_from_cache(data_source, database_name)
 
             if cached_tables is not None:
                 return {"schema": cached_tables, "has_columns": True}
@@ -78,7 +91,7 @@ class DatabricksSchemaResource(BaseResource):
             return serialize_job(job)
 
         job = get_database_tables_with_columns.delay(
-            data_source.id, database_name, redis_key=_tables_key(data_source_id, database_name)
+            data_source.id, database_name, redis_key=_tables_key(data_source, database_name)
         )
         return serialize_job(job)
 

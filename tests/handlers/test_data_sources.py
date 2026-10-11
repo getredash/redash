@@ -1,6 +1,7 @@
 from funcy import pairwise
 
 from redash import redis_connection
+from redash.handlers.databricks import _databases_key, _tables_key
 from redash.models import DataSource
 from redash.utils.configuration import ConfigurationContainer
 from tests import BaseTestCase
@@ -135,15 +136,9 @@ class TestDataSourceResourcePost(BaseTestCase):
         data_source = self.factory.create_data_source(type="databricks", options=ConfigurationContainer(options))
         other_data_source = self.factory.create_data_source(type="databricks")
 
-        cached_keys = [
-            "databricks:databases:{}".format(data_source.id),
-            "databricks:database_tables:{}:default".format(data_source.id),
-            "databricks:database_tables:{}:nyctaxi".format(data_source.id),
-        ]
-        other_keys = [
-            "databricks:databases:{}".format(other_data_source.id),
-            "databricks:database_tables:{}:default".format(other_data_source.id),
-        ]
+        databases_key = _databases_key(data_source)
+        cached_keys = [databases_key, _tables_key(data_source, "default"), _tables_key(data_source, "nyctaxi")]
+        other_keys = [_databases_key(other_data_source), _tables_key(other_data_source, "default")]
         for key in cached_keys + other_keys:
             redis_connection.set(key, "[]")
 
@@ -159,6 +154,9 @@ class TestDataSourceResourcePost(BaseTestCase):
             self.assertFalse(redis_connection.exists(key))
         for key in other_keys:
             self.assertTrue(redis_connection.exists(key))
+
+        # A job that started before the change writes its result after the cache was cleared.
+        redis_connection.set(databases_key, '["nyctaxi"]')
 
         rv = self.make_request("get", "/api/databricks/databases/{}".format(data_source.id), user=admin)
         self.assertIn("job", rv.json)
