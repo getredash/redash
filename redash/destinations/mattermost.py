@@ -44,7 +44,7 @@ class Mattermost(BaseDestination):
             payload["channel"] = options.get("channel")
 
         try:
-            resp = requests.post(options.get("url"), data=json_dumps(payload), timeout=5.0)
+            resp = requests.post(options.get("url"), data=json_dumps(payload).encode("utf-8"), timeout=5.0)
             logging.warning(resp.text)
 
             if resp.status_code != 200:
