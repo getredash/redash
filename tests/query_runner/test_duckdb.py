@@ -1,3 +1,5 @@
+import os
+import tempfile
 from unittest import TestCase
 from unittest.mock import patch
 
@@ -152,3 +154,30 @@ class TestDuckDBSchema(TestCase):
         with self.assertRaises(Exception) as ctx:
             self.runner.get_schema()
         self.assertIn("boom", str(ctx.exception))
+
+    def test_local_file_reads_are_blocked(self) -> None:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".txt") as fp:
+            fp.write("secret")
+            fp.flush()
+
+            data, error = self.runner.run_query(f"SELECT * FROM read_text('{fp.name}')", None)
+
+        self.assertIsNone(data)
+        self.assertIn("LocalFileSystem has been disabled", error)
+
+    def test_local_file_writes_are_blocked(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = os.path.join(tmpdir, "duckdb-output.csv")
+
+            data, error = self.runner.run_query(f"COPY (SELECT 'pwned') TO '{output_path}'", None)
+
+            self.assertIsNone(data)
+            self.assertIn("LocalFileSystem has been disabled", error)
+            self.assertFalse(os.path.exists(output_path))
+
+    def test_filesystem_access_cannot_be_reenabled_by_query(self) -> None:
+        data, error = self.runner.run_query("SET disabled_filesystems = ''", None)
+
+        self.assertIsNone(data)
+        self.assertIn('configuration option "disabled_filesystems"', error)
+        self.assertIn("configuration has been locked", error)

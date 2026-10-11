@@ -11,17 +11,17 @@ class TestDatabricksQueryAnnotation(TestCase):
         self.assertTrue(query_runner.should_annotate_query)
 
         metadata = {
-            "Username": "username",
+            "user_id": 42,
             "query_id": "adhoc",
-            "Job ID": "job-id",
-            "Query Hash": "query-hash",
+            "Job ID": "12345678-1234-1234-1234-123456789abc",
+            "Query Hash": "0123456789abcdef0123456789abcdef",
             "Scheduled": False,
         }
 
         query = "SELECT a FROM tbl"
         expect = (
-            "/* Username: username, query_id: adhoc, "
-            "Query Hash: query-hash, "
+            "/* user_id: 42, query_id: adhoc, "
+            "Query Hash: 0123456789abcdef0123456789abcdef, "
             "Scheduled: False */ SELECT a FROM tbl"
         )
 
@@ -33,10 +33,10 @@ class TestDatabricksQueryAnnotation(TestCase):
         self.assertFalse(query_runner.should_annotate_query)
 
         metadata = {
-            "Username": "username",
+            "user_id": 42,
             "query_id": "adhoc",
-            "Job ID": "job-id",
-            "Query Hash": "query-hash",
+            "Job ID": "12345678-1234-1234-1234-123456789abc",
+            "Query Hash": "0123456789abcdef0123456789abcdef",
             "Scheduled": False,
         }
 

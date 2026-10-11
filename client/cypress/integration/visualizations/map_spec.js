@@ -13,8 +13,6 @@ const SQL = `
 `;
 
 describe("Map (Markers)", () => {
-  const viewportWidth = Cypress.config("viewportWidth");
-
   beforeEach(() => {
     cy.login();
 
@@ -56,7 +54,6 @@ describe("Map (Markers)", () => {
 
     // Wait for proper initialization of visualization
     cy.wait(1000); // eslint-disable-line cypress/no-unnecessary-waiting
-    cy.percySnapshot("Visualizations - Map (Markers) with groups", { widths: [viewportWidth] });
   });
 
   it("creates Map with custom markers", () => {
@@ -88,6 +85,5 @@ describe("Map (Markers)", () => {
 
     // Wait for proper initialization of visualization
     cy.wait(1000); // eslint-disable-line cypress/no-unnecessary-waiting
-    cy.percySnapshot("Visualizations - Map (Markers) with custom markers", { widths: [viewportWidth] });
   });
 });

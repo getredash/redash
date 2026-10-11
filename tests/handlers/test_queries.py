@@ -1,5 +1,9 @@
+from unittest.mock import patch
+
+from sqlparse.engine import grouping
+
 from redash import models
-from redash.models import db
+from redash.models import ApiKey, db
 from redash.permissions import ACCESS_TYPE_MODIFY
 from redash.serializers import serialize_query
 from tests import BaseTestCase
@@ -453,6 +457,20 @@ class TestQueryRegenerateApiKey(BaseTestCase):
         self.assertNotEqual(orig_api_key, updated_query.api_key)
 
 
+class TestQueryResourceGetWithDashboardApiKey(BaseTestCase):
+    def test_does_not_return_query_api_key(self):
+        query = self.factory.create_query()
+        visualization = self.factory.create_visualization(query_rel=query)
+        widget = self.factory.create_widget(visualization=visualization)
+        api_key = ApiKey.create_for_object(widget.dashboard, self.factory.user)
+        db.session.commit()
+
+        rv = self.make_request("get", "/api/queries/{}?api_key={}".format(query.id, api_key.api_key), user=False)
+
+        self.assertEqual(rv.status_code, 200)
+        self.assertIsNone(rv.json["api_key"])
+
+
 class TestQueryForkResourcePost(BaseTestCase):
     def test_forks_a_query(self):
         ds = self.factory.create_data_source(group=self.factory.org.default_group, view_only=False)
@@ -485,3 +503,25 @@ WHERE x=1
         rv = self.make_request("post", "/api/queries/format", user=admin, data={"query": query})
 
         self.assertEqual(rv.json["query"], expected)
+
+    # Pin the limits so these tests do not depend on SQLPARSE_MAX_GROUPING_* in the
+    # environment running them.
+    @patch.multiple(grouping, MAX_GROUPING_TOKENS=100, MAX_GROUPING_DEPTH=10)
+    def test_format_sql_query_too_large_to_group(self):
+        admin = self.factory.create_admin()
+        # sqlparse raises SQLParseError past its grouping limits rather than spending
+        # unbounded CPU on a single statement. Answer 400 instead of failing the request.
+        query = "SELECT * FROM events WHERE id IN ({})".format(",".join(str(i) for i in range(100)))
+
+        rv = self.make_request("post", "/api/queries/format", user=admin, data={"query": query})
+
+        self.assertEqual(rv.status_code, 400)
+
+    @patch.multiple(grouping, MAX_GROUPING_TOKENS=100, MAX_GROUPING_DEPTH=10)
+    def test_format_sql_query_too_deeply_nested(self):
+        admin = self.factory.create_admin()
+        query = "SELECT {}1{}".format("(" * 20, ")" * 20)
+
+        rv = self.make_request("post", "/api/queries/format", user=admin, data={"query": query})
+
+        self.assertEqual(rv.status_code, 400)

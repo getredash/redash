@@ -46,7 +46,7 @@ export default function ApiKeyForm(props) {
       <Form layout="vertical">
         <hr />
         <Form.Item label="API Key" className="m-b-10">
-          <InputWithCopy id={apiKeyInputId} className="hide-in-percy" value={user.apiKey} data-test="ApiKey" readOnly />
+          <InputWithCopy id={apiKeyInputId} value={user.apiKey} data-test="ApiKey" readOnly />
         </Form.Item>
         <Button className="w-100" onClick={regenerateApiKey} loading={loading} data-test="RegenerateApiKey">
           Regenerate

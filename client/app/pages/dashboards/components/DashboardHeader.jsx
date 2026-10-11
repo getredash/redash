@@ -185,6 +185,7 @@ function DashboardControl({ dashboardConfiguration, headerExtra }) {
     dashboard,
     togglePublished,
     canEditDashboard,
+    isDashboardOwnerOrAdmin,
     fullscreen,
     toggleFullscreen,
     showShareDashboardDialog,
@@ -193,7 +194,7 @@ function DashboardControl({ dashboardConfiguration, headerExtra }) {
   const showPublishButton = dashboard.is_draft;
   const showRefreshButton = true;
   const showFullscreenButton = !dashboard.is_draft;
-  const canShareDashboard = canEditDashboard && !dashboard.is_draft;
+  const canShareDashboard = isDashboardOwnerOrAdmin && !dashboard.is_draft;
   const showShareButton = !clientConfig.disablePublicUrls && (dashboard.publicAccessEnabled || canShareDashboard);
   const showMoreOptionsButton = canEditDashboard;
 
