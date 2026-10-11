@@ -161,6 +161,18 @@ class TestDataSourceResourcePost(BaseTestCase):
         rv = self.make_request("get", "/api/databricks/databases/{}".format(data_source.id), user=admin)
         self.assertIn("job", rv.json)
 
+    def test_databricks_schema_cache_key_changes_with_access_token(self):
+        options = {"host": "example.cloud.databricks.com", "http_path": "/sql/1.0/warehouses/abc"}
+        data_source = self.factory.create_data_source(
+            type="databricks", options=ConfigurationContainer(dict(options, http_password="old-token"))
+        )
+        old_key = _databases_key(data_source)
+
+        data_source.options = ConfigurationContainer(dict(options, http_password="new-token"))
+
+        self.assertNotEqual(_databases_key(data_source), old_key)
+        self.assertNotIn("token", old_key)
+
 
 class TestDataSourceResourceDelete(BaseTestCase):
     def test_deletes_the_data_source(self):

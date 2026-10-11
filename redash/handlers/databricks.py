@@ -1,9 +1,10 @@
 import hashlib
+import hmac
 
 from flask import request
 from flask_restful import abort
 
-from redash import models, redis_connection
+from redash import models, redis_connection, settings
 from redash.handlers.base import BaseResource, get_object_or_404
 from redash.permissions import require_access, view_only
 from redash.serializers import serialize_job
@@ -13,7 +14,7 @@ from redash.tasks.databricks import (
     get_databricks_table_columns,
     get_databricks_tables,
 )
-from redash.utils import json_dumps, json_loads
+from redash.utils import json_loads
 
 
 def _get_databricks_data_source(data_source_id, user, org):
@@ -28,9 +29,10 @@ def _get_databricks_data_source(data_source_id, user, org):
 
 def _configuration_hash(data_source):
     # Part of the cache keys, so lists fetched with a previous configuration (e.g. another
-    # catalog) are never served, even when a job that started before the change finishes after it.
-    values = [data_source.options.get(name) or "" for name in ("host", "http_path", "catalog")]
-    return hashlib.sha1(json_dumps(values).encode()).hexdigest()[:12]
+    # catalog or access token) are never served, even when a job that started before the
+    # change finishes after it. Keyed, since the configuration includes the access token.
+    key = settings.DATASOURCE_SECRET_KEY.encode()
+    return hmac.new(key, data_source.options.to_json().encode(), hashlib.sha256).hexdigest()[:16]
 
 
 def _databases_key(data_source):
