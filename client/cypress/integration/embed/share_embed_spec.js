@@ -58,7 +58,6 @@ describe("Embedded Queries", () => {
           cy.getByTestId("VisualizationEmbed", { timeout: 10000 }).should("exist");
           cy.getByTestId("TimeAgo", { timeout: 10000 }).should("exist");
           cy.getByTestId("TableVisualization").should("exist");
-          cy.percySnapshot("Successfully Embedded Non-Parameterized Query");
         });
     });
   });
@@ -96,7 +95,6 @@ describe("Embedded Queries", () => {
         cy.getByTestId("VisualizationEmbed", { timeout: 10000 }).should("exist");
         cy.getByTestId("TimeAgo", { timeout: 10000 }).should("exist");
         cy.getByTestId("TableVisualization").should("exist");
-        cy.percySnapshot("Successfully Embedded Parameterized Query");
       });
   });
 

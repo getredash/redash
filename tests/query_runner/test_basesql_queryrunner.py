@@ -1,5 +1,11 @@
 import unittest
+from unittest.mock import patch
 
+import sqlparse
+from sqlparse.engine import grouping
+from sqlparse.exceptions import SQLParseError
+
+from redash import configure_sqlparse, settings
 from redash.query_runner import BaseQueryRunner, BaseSQLQueryRunner
 from redash.utils import gen_query_hash
 
@@ -116,6 +122,22 @@ class TestBaseSQLQueryRunner(unittest.TestCase):
         query_text = self.query_runner.apply_auto_limit(origin_query_text, True)
         self.assertEqual("select * from raw_events LIMIT 1000", query_text)
 
+    # Pin the limits so these tests do not depend on SQLPARSE_MAX_GROUPING_* in the
+    # environment running them.
+    @patch.multiple(grouping, MAX_GROUPING_TOKENS=100, MAX_GROUPING_DEPTH=10)
+    def test_apply_auto_limit_statement_too_large_to_group(self):
+        # sqlparse raises SQLParseError past its grouping limits. Run the query as the
+        # user wrote it rather than failing it.
+        origin_query_text = "select * from events where id in ({})".format(",".join(str(i) for i in range(100)))
+        query_text = self.query_runner.apply_auto_limit(origin_query_text, True)
+        self.assertEqual(origin_query_text, query_text)
+
+    @patch.multiple(grouping, MAX_GROUPING_TOKENS=100, MAX_GROUPING_DEPTH=10)
+    def test_apply_auto_limit_statement_too_deeply_nested(self):
+        origin_query_text = "select {}1{}".format("(" * 20, ")" * 20)
+        query_text = self.query_runner.apply_auto_limit(origin_query_text, True)
+        self.assertEqual(origin_query_text, query_text)
+
     def test_gen_query_hash_baseSQL(self):
         origin_query_text = "select *"
         expected_query_text = "select * LIMIT 1000"
@@ -128,6 +150,36 @@ class TestBaseSQLQueryRunner(unittest.TestCase):
         origin_query_text = "select *"
         base_runner = BaseQueryRunner({})
         self.assertEqual(gen_query_hash(origin_query_text), base_runner.gen_query_hash(origin_query_text, True))
+
+
+class TestSqlparseGroupingLimits(unittest.TestCase):
+    """configure_sqlparse() reaches into sqlparse.engine.grouping, so fail loudly here
+    rather than silently losing the limits if sqlparse renames those attributes."""
+
+    def setUp(self):
+        self.original = (grouping.MAX_GROUPING_TOKENS, grouping.MAX_GROUPING_DEPTH)
+
+    def tearDown(self):
+        grouping.MAX_GROUPING_TOKENS, grouping.MAX_GROUPING_DEPTH = self.original
+        configure_sqlparse()
+
+    def test_settings_are_applied(self):
+        with patch.multiple(settings, SQLPARSE_MAX_GROUPING_TOKENS=1234, SQLPARSE_MAX_GROUPING_DEPTH=56):
+            configure_sqlparse()
+            self.assertEqual(1234, grouping.MAX_GROUPING_TOKENS)
+            self.assertEqual(56, grouping.MAX_GROUPING_DEPTH)
+
+    def test_zero_disables_the_limit(self):
+        with patch.multiple(settings, SQLPARSE_MAX_GROUPING_TOKENS=0, SQLPARSE_MAX_GROUPING_DEPTH=0):
+            configure_sqlparse()
+            self.assertIsNone(grouping.MAX_GROUPING_TOKENS)
+            self.assertIsNone(grouping.MAX_GROUPING_DEPTH)
+
+    def test_limit_raises_sqlparse_error(self):
+        with patch.multiple(settings, SQLPARSE_MAX_GROUPING_TOKENS=100, SQLPARSE_MAX_GROUPING_DEPTH=100):
+            configure_sqlparse()
+            with self.assertRaises(SQLParseError):
+                sqlparse.parse("select * from events where id in ({})".format(",".join(str(i) for i in range(100))))
 
 
 if __name__ == "__main__":
