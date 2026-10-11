@@ -80,6 +80,13 @@ def serialize_query_result(query_result, is_api_user):
         return query_result.to_dict()
 
 
+def _sanitize_csv_value(value):
+    # Python's csv module cannot write NUL bytes (and many consumers reject them).
+    if isinstance(value, str) and "\x00" in value:
+        return value.replace("\x00", "")
+    return value
+
+
 def serialize_query_result_to_dsv(query_result, delimiter):
     s = io.StringIO()
 
@@ -95,7 +102,7 @@ def serialize_query_result_to_dsv(query_result, delimiter):
             if col_name in row:
                 row[col_name] = converter(row[col_name])
 
-        writer.writerow(row)
+        writer.writerow({key: _sanitize_csv_value(value) for key, value in row.items()})
 
     return s.getvalue()
 
