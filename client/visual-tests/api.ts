@@ -28,12 +28,15 @@ export class RedashApi {
   }
 
   /** Always logs in with a session (email and password), e.g. to reuse the session in the browser. */
-  static async login(baseURL: string | undefined): Promise<RedashApi> {
+  static async login(
+    baseURL: string | undefined,
+    credentials: { email?: string; password?: string } = {}
+  ): Promise<RedashApi> {
     if (!baseURL) {
       throw new Error("baseURL is not configured");
     }
-    const email = process.env.VISUAL_TESTS_EMAIL || "admin@redash.io";
-    const password = process.env.VISUAL_TESTS_PASSWORD || "password";
+    const email = credentials.email || process.env.VISUAL_TESTS_EMAIL || "admin@redash.io";
+    const password = credentials.password || process.env.VISUAL_TESTS_PASSWORD || "password";
     const context = await request.newContext({ baseURL });
     const api = new RedashApi(baseURL, context, true);
 
