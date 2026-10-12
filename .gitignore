@@ -30,3 +30,4 @@ client/cypress/screenshots
 client/cypress/videos
 
 client/visual-tests/.results
+client/e2e/.results

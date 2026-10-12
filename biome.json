@@ -16,6 +16,8 @@
       "client/cypress/**/*.ts",
       "client/cypress/**/*.tsx",
       "client/visual-tests/**/*.ts",
+      "client/e2e/**/*.ts",
+      "client/e2e/**/*.js",
       "viz-lib/src/**/*.ts",
       "viz-lib/src/**/*.tsx",
       "viz-lib/src/**/*.js",

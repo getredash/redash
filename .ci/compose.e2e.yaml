@@ -1,0 +1,79 @@
+# Redash plus the services the end-to-end tests (client/e2e) need: demo databases to query, a mail catcher and
+# an HTTP server that serves sample data and records webhook calls. See client/e2e/README.md.
+x-redash-service: &redash-service
+  build:
+    context: ../
+    args:
+      # "all_ds" adds the MySQL driver; without it the MySQL tests are skipped
+      install_groups: ${E2E_INSTALL_GROUPS:-main}
+x-redash-environment: &redash-environment
+  REDASH_HOST: ${E2E_BASE_URL:-http://localhost:5000}
+  REDASH_LOG_LEVEL: "INFO"
+  REDASH_REDIS_URL: "redis://redis:6379/0"
+  REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
+  REDASH_RATELIMIT_ENABLED: "false"
+  REDASH_ENFORCE_CSRF: "true"
+  REDASH_COOKIE_SECRET: "2H9gNG9obnAQ9qnR9BDTQUph6CbXKCzF"
+  REDASH_MAIL_SERVER: "email"
+  REDASH_MAIL_PORT: 1025
+  REDASH_MAIL_DEFAULT_SENDER: "redash@example.com"
+  PYTHONUNBUFFERED: 1
+services:
+  server:
+    <<: *redash-service
+    command: server
+    depends_on: [postgres, redis]
+    ports:
+      - "${E2E_PORT:-5000}:5000"
+    environment:
+      <<: *redash-environment
+  scheduler:
+    <<: *redash-service
+    command: scheduler
+    depends_on: [server]
+    environment:
+      <<: *redash-environment
+  worker:
+    <<: *redash-service
+    command: worker
+    depends_on: [server]
+    environment:
+      <<: *redash-environment
+  redis:
+    image: redis:7-alpine
+  postgres:
+    image: postgres:18-alpine
+    command: "postgres -c fsync=off -c full_page_writes=off -c synchronous_commit=OFF"
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: "trust"
+  # ---- what the tests query and observe ----
+  e2e-postgres:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_USER: demo
+      POSTGRES_PASSWORD: demo
+      POSTGRES_DB: demo
+    volumes:
+      - ../client/e2e/fixtures/demo.sql:/docker-entrypoint-initdb.d/demo.sql:ro
+  e2e-mysql:
+    image: mysql:8.4
+    command: --performance-schema=OFF --innodb-buffer-pool-size=48M --skip-log-bin
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: demo
+      MYSQL_USER: demo
+      MYSQL_PASSWORD: demo
+    volumes:
+      - ../client/e2e/fixtures/demo.sql:/docker-entrypoint-initdb.d/demo.sql:ro
+  email:
+    image: maildev/maildev
+    ports:
+      - "${E2E_MAIL_PORT:-1080}:1080"
+  e2e-http:
+    image: node:24-alpine
+    command: node /http-fixture.js
+    init: true
+    volumes:
+      - ../client/e2e/fixtures/http-fixture.js:/http-fixture.js:ro
+    ports:
+      - "${E2E_HTTP_PORT:-8000}:8000"

@@ -26,6 +26,8 @@
     "cypress": "node client/cypress/cypress.js",
     "visual-tests": "playwright test --config client/visual-tests/playwright.config.ts",
     "visual-tests:docker": "sh client/visual-tests/docker.sh",
+    "e2e": "playwright test --config client/e2e/playwright.config.ts",
+    "e2e:type-check": "tsc --noEmit --project client/e2e/tsconfig.json",
     "postinstall": "pnpm run build:viz"
   },
   "repository": {
@@ -171,7 +173,8 @@
     },
     "testPathIgnorePatterns": [
       "<rootDir>/app/__tests__/",
-      "<rootDir>/visual-tests/"
+      "<rootDir>/visual-tests/",
+      "<rootDir>/e2e/"
     ]
   },
   "nyc": {
