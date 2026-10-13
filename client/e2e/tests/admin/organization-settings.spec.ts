@@ -65,9 +65,10 @@ test.describe("Settings > General", () => {
     }
     // The time formats are all 24-hour ones
     await byTest(page, "TimeFormatSelect").locator(".ant-select-selector").click();
-    await expect(
-      page.locator(".ant-select-dropdown:not(.ant-select-dropdown-hidden) .ant-select-item-option")
-    ).toHaveText(["HH:mm:ss.SSS", "HH:mm:ss", "HH:mm"], { ignoreCase: false });
+    // In no particular order: the server builds the list from a set, so the order changes between server processes
+    const timeFormats = page.locator(".ant-select-dropdown:not(.ant-select-dropdown-hidden) .ant-select-item-option");
+    await expect(timeFormats).toHaveCount(3);
+    expect((await timeFormats.allTextContents()).sort()).toEqual(["HH:mm", "HH:mm:ss", "HH:mm:ss.SSS"]);
     await page.keyboard.press("Escape");
 
     try {
