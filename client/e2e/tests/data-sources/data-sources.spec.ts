@@ -14,9 +14,12 @@ async function createDataSource(
   fields: Record<string, string>
 ) {
   await page.goto("/data_sources");
+  // The dialog gets the list of types when it opens, and the page loads them after it has rendered the button
+  await expect(byTest(page, "CardsList")).toBeVisible();
   await page.getByRole("button", { name: /New Data Source/ }).click();
   await expect(byTest(page, "SearchSource")).toBeFocused();
-  await page.keyboard.type(search);
+  await byTest(page, "SearchSource").fill(search);
+  await expect(byTest(page, "SearchSource")).toHaveValue(search);
   await dialog(page).locator(`[data-test="PreviewItem"][data-test-type="${type}"]`).click();
   await byTest(dialog(page), "Name").fill(name);
   for (const [label, value] of Object.entries(fields)) {
@@ -45,6 +48,7 @@ test.describe("Data sources", () => {
 
   test("the New Data Source dialog focuses its search box and filters the types", async ({ page }) => {
     await page.goto("/data_sources");
+    await expect(byTest(page, "CardsList")).toBeVisible();
     await page.getByRole("button", { name: /New Data Source/ }).click();
     await expect(byTest(page, "SearchSource")).toBeFocused();
     await page.keyboard.type("postgres");
