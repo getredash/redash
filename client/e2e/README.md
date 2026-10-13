@@ -10,13 +10,17 @@ behaviour (what is rendered, what was saved, which file was downloaded, which em
 
 ## Layout
 
-- [`playwright.config.ts`](playwright.config.ts) - three projects that run in order: `first-run`, `setup`, `e2e`.
+- [`playwright.config.ts`](playwright.config.ts) - four projects that run in order: `first-run`, `setup`, `e2e`,
+  `exclusive`.
 - [`first-run.setup.ts`](first-run.setup.ts) - the first-run setup page. Only does something on an instance
   that has no admin yet (as in CI); skipped otherwise.
 - [`global.setup.ts`](global.setup.ts) - prepares, through the API, what every test may rely on: five data
   sources (`E2E PostgreSQL`, `E2E MySQL`, `E2E Query Results`, `E2E JSON`, `E2E CSV`), a limited user in a group
   with view-only access to PostgreSQL, and saved browser sessions for the admin and that user. Safe to rerun.
 - [`tests/`](tests) - the tests, one directory per area.
+- [`tests-exclusive/`](tests-exclusive) - tests that change a setting of the whole organization which the other
+  tests depend on (public URLs, the number format). They run one at a time after everything else has finished.
+  Keep them in one file: files of a project run in parallel.
 - [`support/fixtures.ts`](support/fixtures.ts) - the `test` object the tests use: an API client (`api`), the
   seeded ids (`seed`), pages for the limited user (`viewerPage`) and for a logged-out browser (`anonPage`), the
   mail catcher (`mailbox`) and the webhook log (`webhooks`).
@@ -46,6 +50,7 @@ pnpm e2e client/e2e/tests/dashboards     # one area
 pnpm e2e -g "Cancel stops"               # tests whose title matches
 pnpm e2e --grep-invert "@slow|@internet" # skip the slow tests and the ones that need the internet
 pnpm e2e --project e2e --no-deps         # skip the setup projects (they already ran on this instance)
+pnpm e2e --project exclusive --no-deps   # only the organization-wide settings tests
 E2E_VIDEO=on pnpm e2e                    # record a video of every test
 pnpm exec playwright show-report client/e2e/.results/report
 ```
@@ -100,4 +105,5 @@ tests pass on a backend without the upgrade and are expected to fail when `E2E_B
   everything else through the API (`createQueryViaApi`, `api.post(...)`), which is faster and more stable.
 - Name what you create with `uniqueName("...")` and do not assert on totals that other tests change.
 - Assert the outcome: what the page shows and what the API says was saved. No fixed sleeps.
-- A test that changes an organization-wide setting restores it in `finally`.
+- A test that changes an organization-wide setting restores it in `finally`, and goes in `tests-exclusive/` when
+  the setting can make another test fail.

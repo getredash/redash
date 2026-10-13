@@ -15,6 +15,11 @@ test.describe("Login and logout", () => {
     await expect(page).toHaveURL(/\/login\?next=/);
   });
 
+  test("the login page greets the user", async ({ anonPage }) => {
+    await anonPage.goto("/login");
+    await expect(anonPage.locator("h3", { hasText: "Login to Redash" })).toBeVisible();
+  });
+
   test("a wrong password shows an error and does not log in", async ({ anonPage }) => {
     await anonPage.goto("/login");
     await anonPage.fill('input[name="email"]', ADMIN.email);

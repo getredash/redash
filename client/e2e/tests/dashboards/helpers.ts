@@ -591,3 +591,42 @@ export async function columnStep(page: Page): Promise<number> {
   const box = await grid(page).boundingBox();
   return ((box?.width || 0) - 15 * 13) / 12 + 15;
 }
+
+/**
+ * A text box saved the way the Cypress suite (and an old client) did: only the position, without size limits, so the
+ * grid applies its defaults (at least 2 columns wide and 2 rows high).
+ */
+export async function addTextboxWithDefaultLimitsViaApi(
+  api: RedashApi,
+  dashboardId: number,
+  text: string,
+  position: Pick<Position, "col" | "row" | "sizeX" | "sizeY">
+): Promise<number> {
+  const widget = await api.post("/api/widgets", {
+    dashboard_id: dashboardId,
+    visualization_id: null,
+    text,
+    width: 1,
+    options: { position },
+  });
+  return widget.id;
+}
+
+/**
+ * A widget saved with nothing but its position (what the Cypress suite and old clients did): the grid fills in the
+ * size limits and, for a table, turns auto height on.
+ */
+export async function addWidgetWithDefaultsViaApi(
+  api: RedashApi,
+  dashboardId: number,
+  visualizationId: number,
+  position: Pick<Position, "col" | "row" | "sizeX" | "sizeY"> & { autoHeight?: boolean }
+): Promise<number> {
+  const widget = await api.post("/api/widgets", {
+    dashboard_id: dashboardId,
+    visualization_id: visualizationId,
+    width: 1,
+    options: { position },
+  });
+  return widget.id;
+}

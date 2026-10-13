@@ -8,6 +8,8 @@ import { ADMIN_STATE, BASE_URL } from "./support/env";
  *   first-run  the setup page - only does something on an instance that has no admin yet
  *   setup      logs in, creates the shared data sources and the limited user through the API
  *   e2e        the tests
+ *   exclusive  tests that change settings of the whole organization, which would break the others if they ran
+ *              at the same time: one at a time, once every other test has finished
  */
 export default defineConfig({
   testDir: ".",
@@ -34,11 +36,18 @@ export default defineConfig({
   },
   projects: [
     { name: "first-run", testMatch: /first-run\.setup\.ts/ },
-    { name: "setup", testMatch: /global\.setup\.ts/, dependencies: ["first-run"] },
+    // `teardown` rather than a dependency on "e2e": it runs last, and also when a test of "e2e" failed
+    { name: "setup", testMatch: /global\.setup\.ts/, dependencies: ["first-run"], teardown: "exclusive" },
     {
       name: "e2e",
       testMatch: /tests\/.*\.spec\.ts/,
       dependencies: ["setup"],
+      use: { storageState: ADMIN_STATE },
+    },
+    {
+      name: "exclusive",
+      testMatch: /tests-exclusive\/.*\.spec\.ts/,
+      fullyParallel: false,
       use: { storageState: ADMIN_STATE },
     },
   ],

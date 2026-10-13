@@ -170,4 +170,26 @@ test.describe("Query snippets", () => {
     await page.keyboard.press("Tab");
     expect(await getSql(page)).toContain(trigger);
   });
+
+  test("a snippet with an empty description is saved and listed", async ({ page, api }) => {
+    const emptyTrigger = `Qempty${uniqueName("x").slice(2).replace(/\s+/g, "")}`;
+    try {
+      await page.goto("/query_snippets/new");
+      await expect(dialog(page)).toContainText("Create Query Snippet");
+      await fields(page).nth(0).fill(emptyTrigger);
+      await dialog(page).locator(".ace_content").click();
+      await page.keyboard.type("SELECT 1");
+      await byTest(page, "SaveQuerySnippetButton").click();
+
+      await expect(dialog(page)).toHaveCount(0);
+      await expect(row(page, emptyTrigger).locator(".snippet-content")).toHaveText("SELECT 1");
+      const saved = (await api.get("/api/query_snippets")).find((snippet: Snippet) => snippet.trigger === emptyTrigger);
+      expect(saved).toMatchObject({ trigger: emptyTrigger, description: "", snippet: "SELECT 1" });
+    } finally {
+      const left = (await api.get("/api/query_snippets")).find((snippet: Snippet) => snippet.trigger === emptyTrigger);
+      if (left) {
+        await api.delete(`/api/query_snippets/${left.id}`);
+      }
+    }
+  });
 });
