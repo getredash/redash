@@ -1,6 +1,7 @@
 import { APIRequestContext, APIResponse, request } from "@playwright/test";
 
 const QUERY_TIMEOUT = 120_000;
+const NO_SESSION = { cookies: [], origins: [] };
 
 /**
  * Minimal Redash API client used to seed the examples.
@@ -37,7 +38,8 @@ export class RedashApi {
     }
     const email = credentials.email || process.env.VISUAL_TESTS_EMAIL || "admin@redash.io";
     const password = credentials.password || process.env.VISUAL_TESTS_PASSWORD || "password";
-    const context = await request.newContext({ baseURL });
+    // Start without cookies: inside a project with a `storageState` the context would otherwise inherit that session
+    const context = await request.newContext({ baseURL, storageState: NO_SESSION });
     const api = new RedashApi(baseURL, context, true);
 
     // `/setup` renders the setup form only when there is no organization yet; otherwise it redirects.
@@ -57,7 +59,7 @@ export class RedashApi {
   /** Accepts an invitation (`invite_link` from `POST /api/users`) by setting the user's password. */
   async acceptInvite(inviteLink: string, password: string) {
     // In a separate session, to stay logged in as the current user
-    const context = await request.newContext({ baseURL: this.baseURL });
+    const context = await request.newContext({ baseURL: this.baseURL, storageState: NO_SESSION });
     const path = new URL(inviteLink, this.baseURL).pathname;
     try {
       await new RedashApi(this.baseURL, context, true).submitForm(path, { password });

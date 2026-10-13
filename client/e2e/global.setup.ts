@@ -71,7 +71,7 @@ setup("prepare data sources, the limited user and browser sessions", async ({ ba
       await api.delete(`/api/users/${viewer.id}/disable`);
     }
     const defaultGroup = groups.find((g) => g.name === "default");
-    const viewerGroups: number[] = (await api.get(`/api/users/${viewer.id}`)).groups.map((g: { id: number }) => g.id);
+    const viewerGroups: number[] = (await api.get(`/api/users/${viewer.id}`)).groups;
     if (!viewerGroups.includes(group.id)) {
       await api.post(`/api/groups/${group.id}/members`, { user_id: viewer.id });
     }

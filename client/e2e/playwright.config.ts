@@ -11,7 +11,8 @@ import { ADMIN_STATE, BASE_URL } from "./support/env";
  */
 export default defineConfig({
   testDir: ".",
-  outputDir: "./.results/test-results",
+  // Override when several runs share a checkout: each run empties its output directory when it starts
+  outputDir: process.env.E2E_OUTPUT_DIR || "./.results/test-results",
   timeout: 90_000,
   expect: { timeout: 10_000 },
   // Tests in one file run in order (many build on each other); files run in parallel

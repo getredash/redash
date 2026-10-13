@@ -6,7 +6,8 @@ import { test } from "@playwright/test";
  * red ("expected to fail, but passed") as soon as it is fixed: remove the entry and the call then.
  *
  * `since` says where the bug comes from: "26.9.0" means it is also in that release; a PR number means it was
- * introduced by that pull request of the frontend dependency upgrade (#7848).
+ * introduced by that pull request of the frontend dependency upgrade (#7848); "unknown" means it was found while
+ * writing these tests and has not been compared with a release yet.
  */
 export const KNOWN_ISSUES = {
   "map-popup-close-navigates": { since: "#7857", title: "Closing a map popup with its x navigates to /#close" },
@@ -53,6 +54,14 @@ export const KNOWN_ISSUES = {
   "legacy-dashboard-url-after-rename": {
     since: "26.9.0",
     title: "Legacy /dashboard/<slug> fails with the slug of a renamed dashboard",
+  },
+  "editor-drops-keystrokes": {
+    since: "unknown",
+    title: "Query editor drops or misplaces characters typed about 100 ms apart",
+  },
+  "added-widget-hidden-until-reload": {
+    since: "unknown",
+    title: "A widget added while another widget finished loading does not show until reload",
   },
 } as const;
 
