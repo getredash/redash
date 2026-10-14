@@ -49,3 +49,18 @@ class TestNotifySubscriptions(BaseTestCase):
             ANY,
             ANY,
         )
+
+    def test_skips_disabled_user_email_subscribers(self):
+        user = self.factory.create_user(disabled_at="2018-03-08 00:00")
+        subscription = self.factory.create_alert_subscription(user=user, destination=None)
+        subscription.notify = MagicMock()
+        notify_subscriptions(subscription.alert, Alert.OK_STATE, metadata={"Scheduled": False})
+        subscription.notify.assert_not_called()
+
+    def test_notifies_destinations_of_disabled_subscribers(self):
+        user = self.factory.create_user(disabled_at="2018-03-08 00:00")
+        destination = self.factory.create_destination()
+        subscription = self.factory.create_alert_subscription(user=user, destination=destination)
+        subscription.notify = MagicMock()
+        notify_subscriptions(subscription.alert, Alert.OK_STATE, metadata={"Scheduled": False})
+        subscription.notify.assert_called()

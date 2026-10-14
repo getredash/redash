@@ -9,6 +9,7 @@ from rq_scheduler import Scheduler
 from redash import rq_redis_connection, settings
 from redash.tasks.failure_report import send_aggregated_errors
 from redash.tasks.general import sync_user_details, version_check
+from redash.tasks.google_directory import sync_google_directory_users
 from redash.tasks.queries import (
     cleanup_query_results,
     empty_schedules,
@@ -81,6 +82,15 @@ def periodic_job_definitions():
 
     if settings.VERSION_CHECK:
         jobs.append({"func": version_check, "interval": timedelta(days=1)})
+
+    if settings.GOOGLE_DIRECTORY_SYNC_ENABLED:
+        jobs.append(
+            {
+                "func": sync_google_directory_users,
+                "timeout": 300,
+                "interval": timedelta(minutes=settings.GOOGLE_DIRECTORY_SYNC_SCHEDULE),
+            }
+        )
 
     if settings.QUERY_RESULTS_CLEANUP_ENABLED:
         jobs.append({"func": cleanup_query_results, "interval": timedelta(minutes=5)})
