@@ -326,3 +326,38 @@ def list_command(organization=None, as_json=False):
         groups = models.Group.query.filter(models.Group.id.in_(user.group_ids)).all()
         group_names = [group.name for group in groups]
         print("Groups: {}".format(", ".join(group_names)))
+
+
+@manager.command(name="remove_disabled_alert_subscriptions")
+@option(
+    "--org",
+    "organization",
+    default=None,
+    help="The organization the users belong to (leave blank for all organizations).",
+)
+@option("--dry-run", is_flag=True, default=False, help="Only list the subscriptions that would be removed.")
+def remove_disabled_alert_subscriptions(organization=None, dry_run=False):
+    """
+    Remove alert email subscriptions of disabled users.
+    """
+    users = models.User.query.filter(models.User.disabled_at.isnot(None))
+    if organization:
+        org = models.Organization.get_by_slug(organization)
+        users = users.filter(models.User.org == org)
+
+    user_ids = [user.id for user in users]
+    subscriptions = models.AlertSubscription.query.filter(
+        models.AlertSubscription.user_id.in_(user_ids),
+        models.AlertSubscription.destination_id.is_(None),
+    )
+
+    for subscription in subscriptions:
+        print("Alert {}: {}".format(subscription.alert_id, subscription.user.email))
+
+    if dry_run:
+        print("Dry run: {} subscriptions would be removed.".format(subscriptions.count()))
+        return
+
+    count = models.AlertSubscription.delete_user_email_subscriptions(user_ids)
+    models.db.session.commit()
+    print("Removed {} subscriptions.".format(count))
