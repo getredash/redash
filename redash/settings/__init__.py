@@ -147,6 +147,21 @@ GOOGLE_CLIENT_ID = os.environ.get("REDASH_GOOGLE_CLIENT_ID", "")
 GOOGLE_CLIENT_SECRET = os.environ.get("REDASH_GOOGLE_CLIENT_SECRET", "")
 GOOGLE_OAUTH_ENABLED = bool(GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET)
 
+# Periodically disables users who are suspended, archived or deleted in Google Workspace,
+# for the domains in each org's "Allowed Google Apps Domains" setting. Enabled by setting
+# REDASH_GOOGLE_DIRECTORY_CREDENTIALS_JSON to a service account key. The service account
+# needs an admin role with Users > Read assigned to it, or domain-wide delegation for the
+# admin.directory.user.readonly scope with REDASH_GOOGLE_DIRECTORY_SUBJECT set to the
+# Workspace admin it should impersonate. Requires google-api-python-client.
+GOOGLE_DIRECTORY_CREDENTIALS_JSON = os.environ.get("REDASH_GOOGLE_DIRECTORY_CREDENTIALS_JSON", "")
+GOOGLE_DIRECTORY_SUBJECT = os.environ.get("REDASH_GOOGLE_DIRECTORY_SUBJECT") or None
+GOOGLE_DIRECTORY_SYNC_ENABLED = bool(GOOGLE_DIRECTORY_CREDENTIALS_JSON)
+# In minutes; defaults to once a day.
+GOOGLE_DIRECTORY_SYNC_SCHEDULE = int(os.environ.get("REDASH_GOOGLE_DIRECTORY_SYNC_SCHEDULE", 1440))
+# Safety net against a misconfigured directory lookup locking everyone out: if a
+# single run would disable more users than this, it disables none and logs an error.
+GOOGLE_DIRECTORY_SYNC_MAX_DISABLE = int(os.environ.get("REDASH_GOOGLE_DIRECTORY_SYNC_MAX_DISABLE", 25))
+
 # If Redash is behind a proxy it might sometimes receive a X-Forwarded-Proto of HTTP
 # even if your actual Redash URL scheme is HTTPS. This will cause Flask to build
 # the SAML redirect URL incorrect thus failing auth. This is especially common if
