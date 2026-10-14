@@ -1,9 +1,10 @@
+# Redash for the visual tests (client/visual-tests): no mail server and no REDASH_HOST, as when the baselines
+# were taken (both change what some pages show). See client/visual-tests/README.md.
 x-redash-service: &redash-service
   build:
     context: ../
     args:
       install_groups: "main"
-      code_coverage: ${CODE_COVERAGE}
 x-redash-environment: &redash-environment
   REDASH_LOG_LEVEL: "INFO"
   REDASH_REDIS_URL: "redis://redis:6379/0"
@@ -41,25 +42,6 @@ services:
     environment:
       <<: *redash-environment
       PYTHONUNBUFFERED: 0
-  cypress:
-    ipc: host
-    build:
-      context: ../
-      dockerfile: .ci/Dockerfile.cypress
-    depends_on:
-      - server
-      - worker
-      - scheduler
-    environment:
-      CYPRESS_baseUrl: "http://server:5000"
-      CYPRESS_coverage: ${CODE_COVERAGE}
-      COMMIT_INFO_BRANCH: ${CIRCLE_BRANCH}
-      COMMIT_INFO_MESSAGE: ${COMMIT_INFO_MESSAGE}
-      COMMIT_INFO_AUTHOR: ${CIRCLE_USERNAME}
-      COMMIT_INFO_SHA: ${CIRCLE_SHA1}
-      COMMIT_INFO_REMOTE: ${CIRCLE_REPOSITORY_URL}
-      CYPRESS_PROJECT_ID: ${CYPRESS_PROJECT_ID}
-      CYPRESS_RECORD_KEY: ${CYPRESS_RECORD_KEY}
   redis:
     image: redis:7-alpine
     restart: unless-stopped
