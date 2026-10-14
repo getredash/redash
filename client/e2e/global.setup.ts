@@ -30,7 +30,7 @@ setup("prepare data sources, the limited user and browser sessions", async ({ ba
       dbname: postgres.db,
     });
     await waitUntilReachable(api, pg);
-    // The MySQL driver is not in every image (e.g. CI installs the "main" dependency group only)
+    // The MySQL driver is not in every image (it is in the "all_ds" dependency group)
     let mysqlId: number | null = null;
     if (hasType("mysql")) {
       const dataSource = await upsertDataSource(api, DATA_SOURCES.mysql, "mysql", {

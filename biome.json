@@ -11,10 +11,6 @@
       "client/app/**/*.jsx",
       "client/app/**/*.ts",
       "client/app/**/*.tsx",
-      "client/cypress/**/*.js",
-      "client/cypress/**/*.jsx",
-      "client/cypress/**/*.ts",
-      "client/cypress/**/*.tsx",
       "client/visual-tests/**/*.ts",
       "client/e2e/**/*.ts",
       "client/e2e/**/*.js",
@@ -273,33 +269,6 @@
       "includes": ["**/*.test.*", "**/__tests__/**", "**/tests/**"],
       "javascript": {
         "globals": ["describe", "test", "it", "expect", "jest", "beforeEach", "beforeAll", "afterEach", "afterAll"]
-      }
-    },
-    {
-      "includes": ["client/cypress/**"],
-      "javascript": {
-        "globals": [
-          "cy",
-          "Cypress",
-          "describe",
-          "context",
-          "it",
-          "before",
-          "beforeEach",
-          "after",
-          "afterEach",
-          "expect",
-          "assert"
-        ]
-      },
-      "linter": {
-        "rules": {
-          "suspicious": {
-            "noRedeclare": "off",
-            "noUnusedExpressions": "off",
-            "noDuplicateTestHooks": "off"
-          }
-        }
       }
     },
     {

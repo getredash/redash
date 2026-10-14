@@ -55,6 +55,9 @@ E2E_VIDEO=on pnpm e2e                    # record a video of every test
 pnpm exec playwright show-report client/e2e/.results/report
 ```
 
+CI (the `frontend-e2e-tests` job in [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml)) does the same on a
+fresh instance with `E2E_INSTALL_GROUPS=main,all_ds`, and keeps the report as an artifact when a test fails.
+
 The tests create everything they need under unique names, so they can run repeatedly on the same instance, and
 on one that already has other data. They never edit or delete what they did not create.
 

@@ -14,7 +14,7 @@
 ## How is this tested?
 
 - [ ] Unit tests (pytest, jest)
-- [ ] E2E Tests (Cypress)
+- [ ] E2E Tests (Playwright)
 - [ ] Manually
 - [ ] N/A
 
