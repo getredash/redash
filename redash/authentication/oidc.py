@@ -3,6 +3,8 @@ import logging
 from authlib.common.errors import AuthlibBaseError
 from authlib.integrations.flask_client import OAuth
 from flask import Blueprint, flash, redirect, request, session, url_for
+from joserfc.errors import JoseError
+from requests.exceptions import RequestException
 
 from redash import models, settings
 from redash.authentication import (
@@ -30,7 +32,7 @@ def verify_account(org, email):
         return True
 
     domain = email.split("@")[-1].lower()
-    logger.debug(f"org domains: {org.oidc_domains}")
+    logger.debug("org domains: %s", org.oidc_domains)
 
     if domain in [d.lower() for d in org.oidc_domains]:
         return True
@@ -51,16 +53,16 @@ def ensure_required_scope(scope):
     return " ".join(scope_set)
 
 
-def get_name_from_user_info(user_info):
-    name = user_info.get("name")
+def get_name_from_user_info(userinfo):
+    name = userinfo.get("name")
     if not name:
-        given_name = user_info.get("given_name", "")
-        family_name = user_info.get("family_name", "")
+        given_name = userinfo.get("given_name", "")
+        family_name = userinfo.get("family_name", "")
         name = f"{given_name} {family_name}".strip()
     if not name:
-        name = user_info.get("preferred_username", "")
+        name = userinfo.get("preferred_username", "")
     if not name:
-        name = user_info.get("nickname", "")
+        name = userinfo.get("nickname", "")
     return name
 
 
@@ -111,19 +113,24 @@ def create_oidc_blueprint(app):
 
         try:
             token = oauth.oidc.authorize_access_token()
-        except AuthlibBaseError as e:
-            logger.warning("Failed to exchange authorization code: %s", e)
+            # Authlib validates the ID token, including its nonce, during the exchange.
+            userinfo = token.get("userinfo") if token.get("id_token") else None
+            if userinfo and not userinfo.get("email"):
+                metadata = oauth.oidc.load_server_metadata()
+                if metadata.get("userinfo_endpoint"):
+                    profile = oauth.oidc.userinfo(token=token)
+                    # OIDC requires the UserInfo subject to match the validated ID token.
+                    if not userinfo.get("sub") or profile.get("sub") != userinfo["sub"]:
+                        logger.warning("OIDC UserInfo subject does not match ID token")
+                        flash("Validation error. Please retry.")
+                        return redirect(url_for("redash.login", org_slug=_session_org_slug()))
+                    userinfo = {**userinfo, **profile}
+        except (AuthlibBaseError, JoseError, RequestException) as e:
+            logger.warning("Failed to authenticate with OIDC provider: %s", e)
             flash("Validation error. Please retry.")
             return redirect(url_for("redash.login", org_slug=_session_org_slug()))
 
-        try:
-            user_info = oauth.oidc.parse_id_token(token)
-        except AuthlibBaseError as e:
-            logger.warning("Failed to parse/validate ID token: %s", e)
-            flash("Validation error. Please retry.")
-            return redirect(url_for("redash.login", org_slug=_session_org_slug()))
-
-        if not user_info:
+        if not userinfo:
             logger.warning("Unable to get userinfo from returned token")
             flash("Validation error. Please retry.")
             return redirect(url_for("redash.login", org_slug=_session_org_slug()))
@@ -133,7 +140,7 @@ def create_oidc_blueprint(app):
         else:
             org = current_org
 
-        email = user_info.get("email")
+        email = userinfo.get("email")
         if not email:
             logger.warning("OIDC provider did not return an email claim")
             flash("Email claim missing from OIDC provider response.")
@@ -148,19 +155,18 @@ def create_oidc_blueprint(app):
             flash("Your account ({}) isn't allowed.".format(email))
             return redirect(url_for("redash.login", org_slug=org.slug))
 
-        # see if email is verified; treat missing claim as verified
-        email_verified = user_info.get("email_verified")
-        if email_verified is False:
+        # The optional claim must be a JSON boolean when present.
+        if "email_verified" in userinfo and userinfo["email_verified"] is not True:
             flash("Email not verified.")
             return redirect(url_for("redash.login", org_slug=org.slug))
 
-        user_name = get_name_from_user_info(user_info)
+        user_name = get_name_from_user_info(userinfo)
 
         user = create_and_login_user(org, user_name, email)
         if user is None:
             return logout_and_redirect_to_index()
 
-        unsafe_next_path = session.get("next_url") or url_for("redash.index", org_slug=org.slug)
+        unsafe_next_path = session.pop("next_url", None) or url_for("redash.index", org_slug=org.slug)
         next_path = get_next_path(unsafe_next_path)
 
         return redirect(next_path)

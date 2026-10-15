@@ -3,6 +3,7 @@ import json
 import os
 import subprocess
 import time
+from urllib.parse import urlsplit
 
 import jwcrypto.jwk
 import jwt
@@ -32,6 +33,7 @@ from redash.authentication.oidc import (
     verify_account,
 )
 from tests import BaseTestCase
+from tests.oidc_provider import OIDCProvider
 
 
 class TestOIDCAuthentication(BaseTestCase):
@@ -117,22 +119,33 @@ class TestOIDCAuthentication(BaseTestCase):
 
 class TestOIDCRoutes(BaseTestCase):
     def setUp(self):
-        super(TestOIDCRoutes, self).setUp()
-        self.app.secret_key = "test_secret"
         with patch.object(settings, "OIDC_ENABLED", True):
-            self.app.register_blueprint(create_oidc_blueprint(self.app))
+            super(TestOIDCRoutes, self).setUp()
+        self.app.secret_key = "test_secret"
         self.factory.org.settings[models.Organization.SETTING_OIDC_DOMAINS] = ["example.com"]
         models.db.session.add(self.factory.org)
         models.db.session.commit()
 
-    def _callback(self, user_info=None, token_error=None):
+    def _callback(self, user_info=None, token_error=None, profile=None, profile_error=None, next_url=None):
         app_cls = "authlib.integrations.flask_client.FlaskOAuth2App"
-        token_kwargs = {"side_effect": token_error} if token_error else {"return_value": {"id_token": "x"}}
+        token_kwargs = (
+            {"side_effect": token_error} if token_error else {"return_value": {"id_token": "x", "userinfo": user_info}}
+        )
+        profile_kwargs = {"side_effect": profile_error} if profile_error else {"return_value": profile}
         with patch(app_cls + ".authorize_access_token", **token_kwargs), patch(
-            app_cls + ".parse_id_token", return_value=user_info
-        ), patch("redash.authentication.login_user") as login_user_mock:
+            app_cls + ".userinfo", **profile_kwargs
+        ), patch(
+            app_cls + ".load_server_metadata", return_value={"userinfo_endpoint": "https://idp.example/userinfo"}
+        ), patch(
+            "redash.authentication.login_user"
+        ) as login_user_mock:
             with self.app.test_client() as c:
+                if next_url:
+                    with c.session_transaction() as sess:
+                        sess["next_url"] = next_url
                 rv = c.get("/oidc/callback")
+                with c.session_transaction() as sess:
+                    self.callback_session = dict(sess)
         return rv, login_user_mock
 
     def test_authorize_without_org_slug_in_session_redirects_to_provider(self):
@@ -177,6 +190,168 @@ class TestOIDCRoutes(BaseTestCase):
         self.assertEqual(rv.status_code, 302)
         self.assertIn("/login", rv.location)
         self.assertFalse(login_user_mock.called)
+
+    def test_callback_consumes_next_url(self):
+        rv, login_user_mock = self._callback({"email": "user@example.com"}, next_url="/queries/42")
+
+        self.assertEqual(rv.location, "/queries/42")
+        self.assertTrue(login_user_mock.called)
+        self.assertNotIn("next_url", self.callback_session)
+
+    def test_callback_rejects_malformed_email_verified(self):
+        for value in (0, 1, "false", "true", None):
+            with self.subTest(value=value):
+                rv, login_user_mock = self._callback({"email": "user@example.com", "email_verified": value})
+                self.assertIn("/login", rv.location)
+                self.assertFalse(login_user_mock.called)
+
+    def test_callback_accepts_verified_email(self):
+        rv, login_user_mock = self._callback({"email": "user@example.com", "email_verified": True})
+        self.assertEqual(rv.status_code, 302)
+        self.assertTrue(login_user_mock.called)
+
+    def test_callback_fetches_missing_email_from_userinfo(self):
+        rv, login_user_mock = self._callback(
+            {"sub": "subject-1"},
+            profile={"sub": "subject-1", "email": "user@example.com", "name": "User", "email_verified": True},
+        )
+        self.assertEqual(rv.status_code, 302)
+        self.assertTrue(login_user_mock.called)
+
+    def test_callback_rejects_userinfo_from_different_subject(self):
+        rv, login_user_mock = self._callback(
+            {"sub": "subject-1"}, profile={"sub": "subject-2", "email": "user@example.com"}
+        )
+        self.assertIn("/login", rv.location)
+        self.assertFalse(login_user_mock.called)
+
+    def test_callback_rejects_missing_validated_id_token(self):
+        rv, login_user_mock = self._callback()
+        self.assertIn("/login", rv.location)
+        self.assertFalse(login_user_mock.called)
+
+    def test_callback_rejects_userinfo_without_id_token(self):
+        with patch(
+            "authlib.integrations.flask_client.FlaskOAuth2App.authorize_access_token",
+            return_value={"userinfo": {"email": "user@example.com"}},
+        ), patch("redash.authentication.login_user") as login_user_mock:
+            rv = self.client.get("/oidc/callback")
+        self.assertIn("/login", rv.location)
+        self.assertFalse(login_user_mock.called)
+
+    def test_callback_rejects_invalid_id_token(self):
+        from joserfc.errors import BadSignatureError
+
+        rv, login_user_mock = self._callback(token_error=BadSignatureError())
+        self.assertIn("/login", rv.location)
+        self.assertFalse(login_user_mock.called)
+
+    def test_callback_handles_userinfo_http_failure(self):
+        rv, login_user_mock = self._callback({"sub": "subject-1"}, profile_error=requests.HTTPError())
+        self.assertIn("/login", rv.location)
+        self.assertFalse(login_user_mock.called)
+
+
+class TestOIDCFlow(BaseTestCase):
+    """Exercise real Authlib discovery, token exchange, JWKS and claim validation."""
+
+    def setUp(self):
+        self.provider = OIDCProvider().start()
+        self.addCleanup(self.provider.stop)
+        transport = patch.dict(os.environ, {"AUTHLIB_INSECURE_TRANSPORT": "1"})
+        transport.start()
+        self.addCleanup(transport.stop)
+        with patch.multiple(
+            settings,
+            OIDC_ENABLED=True,
+            OIDC_CLIENT_ID="local-redash",
+            OIDC_CLIENT_SECRET="local-secret",
+            OIDC_ISSUER_URL=self.provider.issuer,
+        ):
+            super(TestOIDCFlow, self).setUp()
+        self.factory.org.settings[models.Organization.SETTING_OIDC_DOMAINS] = ["example.com"]
+        models.db.session.commit()
+
+    def _login(self, email="verified@example.com"):
+        slug = self.factory.org.slug
+        rv = self.client.get("/{}/oidc?next=/{}/queries".format(slug, slug))
+        rv = self.client.get(rv.location)
+        self.assertEqual(rv.status_code, 302)
+        login = requests.post(
+            rv.location, data={"email": email, "password": "test-only"}, allow_redirects=False, timeout=5
+        )
+        self.assertEqual(login.status_code, 302)
+        parts = urlsplit(login.headers["Location"])
+        self.callback_url = parts.path + "?" + parts.query
+        return self.client.get(self.callback_url)
+
+    def test_login_creates_authenticated_session(self):
+        rv = self._login()
+        self.assertEqual(rv.location, "/{}/queries".format(self.factory.org.slug))
+        with self.client.session_transaction() as sess:
+            self.assertIn("_user_id", sess)
+            self.assertNotIn("next_url", sess)
+            self.assertNotIn("org_slug", sess)
+        user = models.User.get_by_email_and_org("verified@example.com", self.factory.org)
+        rv = self.client.get("/{}/api/users/{}".format(self.factory.org.slug, user.id))
+        self.assertEqual(rv.status_code, 200)
+        self.assertEqual(rv.json["email"], "verified@example.com")
+
+    def test_login_with_email_only_in_userinfo(self):
+        rv = self._login("userinfo@example.com")
+        self.assertEqual(rv.location, "/{}/queries".format(self.factory.org.slug))
+        self.assertTrue(self.factory.org.has_user("userinfo@example.com"))
+
+    def test_rejects_unverified_email(self):
+        rv = self._login("unverified@example.com")
+        self.assertIn("/login", rv.location)
+        self.assertFalse(self.factory.org.has_user("unverified@example.com"))
+
+    def test_rejects_disallowed_domain(self):
+        rv = self._login("outsider@other.com")
+        self.assertIn("/login", rv.location)
+        self.assertFalse(self.factory.org.has_user("outsider@other.com"))
+
+    def test_rejects_wrong_nonce(self):
+        self.provider.bad_nonce = True
+        rv = self._login()
+        self.assertIn("/login", rv.location)
+        self.assertFalse(self.factory.org.has_user("verified@example.com"))
+
+    def test_rejects_bad_signature(self):
+        self.provider.bad_signature = True
+        rv = self._login()
+        self.assertIn("/login", rv.location)
+        self.assertFalse(self.factory.org.has_user("verified@example.com"))
+
+    def test_rejects_wrong_issuer(self):
+        self.provider.claims_override = {"iss": "https://other-provider.example"}
+        rv = self._login()
+        self.assertIn("/login", rv.location)
+        self.assertFalse(self.factory.org.has_user("verified@example.com"))
+
+    def test_rejects_wrong_audience(self):
+        self.provider.claims_override = {"aud": "other-client"}
+        rv = self._login()
+        self.assertIn("/login", rv.location)
+        self.assertFalse(self.factory.org.has_user("verified@example.com"))
+
+    def test_rejects_expired_token(self):
+        self.provider.claims_override = {"exp": int(time.time()) - 600}
+        rv = self._login()
+        self.assertIn("/login", rv.location)
+        self.assertFalse(self.factory.org.has_user("verified@example.com"))
+
+    def test_rejects_userinfo_subject_mismatch(self):
+        self.provider.wrong_subject = True
+        rv = self._login("userinfo@example.com")
+        self.assertIn("/login", rv.location)
+        self.assertFalse(self.factory.org.has_user("userinfo@example.com"))
+
+    def test_rejects_replayed_callback(self):
+        self.assertEqual(self._login().status_code, 302)
+        rv = self.client.get(self.callback_url)
+        self.assertIn("/login", rv.location)
 
 
 class TestApiKeyAuthentication(BaseTestCase):
