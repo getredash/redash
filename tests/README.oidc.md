@@ -21,8 +21,12 @@ export REDASH_OIDC_CLIENT_ID=local-redash
 export REDASH_OIDC_CLIENT_SECRET=local-secret
 export REDASH_OIDC_ISSUER_URL=http://localhost:16485
 export AUTHLIB_INSECURE_TRANSPORT=1  # local HTTP test provider only
-python tests/oidc_provider.py --issuer http://localhost:16485
+python tests/oidc_provider.py --issuer http://localhost:16485 &
+oidc_provider_pid=$!
 ```
+
+Start Redash from this same shell so it inherits the exported settings. Stop
+the provider after verification with `kill "$oidc_provider_pid"`.
 
 The provider accepts password `test-only` for these fixture accounts:
 
