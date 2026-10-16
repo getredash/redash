@@ -17,6 +17,11 @@ interface PageExample {
 
 const waitForSchema = (page: Page) => expect(page.getByText("invoice_items")).toBeVisible();
 
+const tableHeader = (page: Page, column: string) =>
+  page.getByTestId("TableVisualization").locator("thead th").filter({ hasText: column });
+
+const tableRows = (page: Page) => page.getByTestId("TableVisualization").locator("tbody tr.ant-table-row");
+
 async function openDialog(page: Page, testId: string) {
   await page.getByTestId(testId).click();
   await expect(page.locator(".ant-modal")).toBeVisible();
@@ -62,6 +67,37 @@ const PAGES: PageExample[] = [
   { name: "New query", path: "/queries/new", prepare: waitForSchema },
   { name: "Query snippet", path: { manifest: "snippet" } },
   { name: "Embedded visualization", path: { manifest: "embed" }, loggedOut: true },
+  { name: "Embedded visualization: parameters", path: { manifest: "embedParameters" }, loggedOut: true },
+  {
+    name: "Query: table sorted by two columns",
+    path: { manifest: "queryTable" },
+    prepare: async (page) => {
+      // Ascending by the number of invoices, then (Shift) descending by country
+      await tableHeader(page, "invoices").click();
+      await tableHeader(page, "country").click({ modifiers: ["Shift"] });
+      await tableHeader(page, "country").click({ modifiers: ["Shift"] });
+      await expect(tableRows(page).first()).toContainText("Sweden");
+    },
+  },
+  {
+    name: "Query: table search",
+    path: { manifest: "queryTable" },
+    prepare: async (page) => {
+      await page
+        .getByTestId("TableVisualization")
+        .getByPlaceholder(/^Search /)
+        .fill("land");
+      await expect(tableRows(page)).toHaveCount(4);
+    },
+  },
+  {
+    name: "Query: table third page",
+    path: { manifest: "queryTable" },
+    prepare: async (page) => {
+      await page.locator(".ant-pagination-item-3").click();
+      await expect(page.locator(".ant-pagination-item-3")).toHaveClass(/ant-pagination-item-active/);
+    },
+  },
 
   // Dashboards
   { name: "Dashboards: favorites", path: "/dashboards/favorites" },
@@ -80,12 +116,27 @@ const PAGES: PageExample[] = [
     viewportOnly: true,
     prepare: (page) => openDialog(page, "OpenShareForm"),
   },
+  { name: "Public dashboard", path: { manifest: "publicDashboard" }, loggedOut: true },
+  {
+    name: "Public dashboard: widget with an unsafe parameter",
+    path: { manifest: "publicDashboardUnsafe" },
+    loggedOut: true,
+  },
 
   // Alerts
   { name: "Alerts", path: "/alerts" },
   { name: "Alert", path: { manifest: "alert" } },
   { name: "Alert: editing", path: { manifest: "alertEdit" } },
   { name: "New alert", path: "/alerts/new" },
+  {
+    name: "New alert: query selected",
+    path: "/alerts/new",
+    prepare: async (page) => {
+      await page.getByTestId("QuerySelector").locator("input").fill("Invoices by country");
+      await page.locator(".query-selector-result").filter({ hasText: "Invoices by country" }).click();
+      await expect(page.getByTestId("Criteria")).toBeVisible();
+    },
+  },
 
   // Users and groups
   { name: "Users", path: "/users" },

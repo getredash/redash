@@ -5,7 +5,6 @@
 
 [build.environment]
   NODE_VERSION = "24"
-  CYPRESS_INSTALL_BINARY = "0"
   PUPPETEER_SKIP_CHROMIUM_DOWNLOAD = "1"
 
 [[redirects]]
