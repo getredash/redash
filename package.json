@@ -51,6 +51,7 @@
     "axios": "1.20.0",
     "axios-auth-refresh": "5.0.2",
     "bootstrap": "^3.4.1",
+    "buffer": "^5.7.1",
     "classnames": "^2.2.6",
     "core-js": "^3.50.0",
     "d3": "^7.9.0",
