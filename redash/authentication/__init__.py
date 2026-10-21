@@ -2,8 +2,9 @@ import hashlib
 import hmac
 import logging
 import time
+import unicodedata
 from datetime import timedelta
-from urllib.parse import urlsplit, urlunsplit
+from urllib.parse import urlparse, urlsplit, urlunsplit
 
 from flask import jsonify, redirect, request, session, url_for
 from flask_login import LoginManager, login_user, logout_user, user_logged_in
@@ -298,20 +299,75 @@ def create_and_login_user(org, name, email, picture=None):
     return user_object
 
 
+def _is_safe_next_url(url):
+    """Validate that a redirect URL is safe (on-site only).
+
+    Adapted from Django's url_has_allowed_host_and_scheme().
+    Rejects any URL that would redirect to an external host.
+    """
+    if not url:
+        return False
+
+    url = url.strip()
+    if not url:
+        return False
+
+    # Reject URLs with leading control characters (browsers silently strip them)
+    if unicodedata.category(url[0])[0] == "C":
+        return False
+
+    # Chrome treats \ as / in URLs, so check both the original and
+    # backslash-normalized versions to prevent bypasses like \/evil.com
+    for test_url in (url, url.replace("\\", "/")):
+        # Chrome treats any URL with three or more slashes as absolute
+        if test_url.startswith("///"):
+            return False
+
+        try:
+            parsed = urlparse(test_url)
+        except ValueError:
+            return False
+
+        # Reject scheme-without-netloc (e.g. http:///evil.com)
+        if parsed.scheme and not parsed.netloc:
+            return False
+
+        # Reject any URL with a netloc (external host)
+        if parsed.netloc:
+            return False
+
+        # Only allow http(s) schemes or no scheme at all
+        if parsed.scheme and parsed.scheme not in ("http", "https"):
+            return False
+
+    return True
+
+
 def get_next_path(unsafe_next_path):
     if not unsafe_next_path:
         return ""
 
-    # Preventing open redirection attacks
+    if _is_safe_next_url(unsafe_next_path):
+        return unsafe_next_path
+
+    # For http(s) URLs with a netloc, extract the path component.
+    # This handles legitimate cases like "https://myredash.com/queries/5"
+    # or "//localhost/queries" where the path component is safe.
+    # All other unsafe URLs (non-http schemes, scheme-without-netloc, etc.)
+    # are rejected outright.
     parts = list(urlsplit(unsafe_next_path))
-    parts[0] = ""  # clear scheme
-    parts[1] = ""  # clear netloc
-    safe_next_path = urlunsplit(parts)
+    scheme = parts[0].lower() if parts[0] else ""
+    has_netloc = bool(parts[1])
 
-    # If the original path was a URL, we might end up with an empty
-    # safe url, which will redirect to the login page. Changing to
-    # relative root to redirect to the app root after login.
-    if not safe_next_path:
-        safe_next_path = "./"
+    if scheme and scheme not in ("http", "https"):
+        return "./"
 
-    return safe_next_path
+    if not has_netloc:
+        return "./"
+
+    safe_next_path = urlunsplit(["", "", parts[2], parts[3], parts[4]])
+
+    if safe_next_path and _is_safe_next_url(safe_next_path):
+        return safe_next_path
+
+    return "./"

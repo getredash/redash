@@ -55,7 +55,8 @@ function Editor({ column, onChange }: Props) {
         <Checkbox
           data-test="Table.ColumnEditor.Link.OpenInNewTab"
           checked={column.linkOpenInNewTab}
-          onChange={event => onChange({ linkOpenInNewTab: event.target.checked })}>
+          onChange={(event) => onChange({ linkOpenInNewTab: event.target.checked })}
+        >
           Open in new tab
         </Checkbox>
       </Section>
@@ -67,7 +68,8 @@ function Editor({ column, onChange }: Props) {
           placement="topLeft"
           arrowPointAtCenter
           // @ts-expect-error ts-migrate(2322) FIXME: Type 'Element' is not assignable to type 'null | u... Remove this comment to see the full error message
-          icon={<span style={{ cursor: "default" }}>Format specs {ContextHelp.defaultIcon}</span>}>
+          icon={<span style={{ cursor: "default" }}>Format specs {ContextHelp.defaultIcon}</span>}
+        >
           <div>
             All columns can be referenced using <code>{"{{ column_name }}"}</code> syntax.
           </div>

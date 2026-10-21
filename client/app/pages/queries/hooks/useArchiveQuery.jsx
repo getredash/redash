@@ -34,7 +34,7 @@ function doArchiveQuery(query) {
     .then(() => {
       return extend(query.clone(), { is_archived: true, schedule: null });
     })
-    .catch(error => {
+    .catch((error) => {
       notification.error("Query could not be archived.");
       return Promise.reject(error);
     });

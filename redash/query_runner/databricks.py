@@ -44,7 +44,10 @@ def _build_odbc_connection_string(**kwargs):
 
 class Databricks(BaseSQLQueryRunner):
     noop_query = "SELECT 1"
-    should_annotate_query = False
+
+    def __init__(self, configuration):
+        super().__init__(configuration)
+        self.should_annotate_query = configuration.get("useQueryAnnotation", False)
 
     @classmethod
     def type(cls):
@@ -63,11 +66,23 @@ class Databricks(BaseSQLQueryRunner):
                 "http_path": {"type": "string", "title": "HTTP Path"},
                 # We're using `http_password` here for legacy reasons
                 "http_password": {"type": "string", "title": "Access Token"},
+                "useQueryAnnotation": {
+                    "type": "boolean",
+                    "title": "Use Query Annotation",
+                    "default": False,
+                },
             },
-            "order": ["host", "http_path", "http_password"],
+            "order": ["host", "http_path", "http_password", "useQueryAnnotation"],
             "secret": ["http_password"],
             "required": ["host", "http_path", "http_password"],
         }
+
+    def annotate_query(self, query, metadata):
+        # Remove "Job ID" before annotating the query so repeated runs of the
+        # same query produce identical statements and can hit the Databricks
+        # SQL result cache.
+        metadata = {k: v for k, v in metadata.items() if k != "Job ID"}
+        return super().annotate_query(query, metadata)
 
     def _get_cursor(self):
         user_agent = "Redash/{} (Databricks)".format(__version__.split("-")[0])

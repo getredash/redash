@@ -17,13 +17,13 @@ function enableUser(user) {
 
   return axios
     .delete(disableResource(user))
-    .then(data => {
+    .then((data) => {
       notification.success(`User ${userName} is now enabled.`);
       user.is_disabled = false;
       user.profile_image_url = data.profile_image_url;
       return data;
     })
-    .catch(error => {
+    .catch((error) => {
       notification.error("Cannot enable user", getErrorMessage(error));
     });
 }
@@ -32,13 +32,13 @@ function disableUser(user) {
   const userName = sanitize(user.name);
   return axios
     .post(disableResource(user))
-    .then(data => {
+    .then((data) => {
       notification.warning(`User ${userName} is now disabled.`);
       user.is_disabled = true;
       user.profile_image_url = data.profile_image_url;
       return data;
     })
-    .catch(error => {
+    .catch((error) => {
       notification.error("Cannot disable user", getErrorMessage(error));
     });
 }
@@ -47,11 +47,11 @@ function deleteUser(user) {
   const userName = sanitize(user.name);
   return axios
     .delete(`api/users/${user.id}`)
-    .then(data => {
+    .then((data) => {
       notification.warning(`User ${userName} has been deleted.`);
       return data;
     })
-    .catch(error => {
+    .catch((error) => {
       notification.error("Cannot delete user", getErrorMessage(error));
     });
 }
@@ -72,11 +72,11 @@ function convertUserInfo(user) {
 function regenerateApiKey(user) {
   return axios
     .post(`api/users/${user.id}/regenerate_api_key`)
-    .then(data => {
+    .then((data) => {
       notification.success("The API Key has been updated.");
       return data.api_key;
     })
-    .catch(error => {
+    .catch((error) => {
       notification.error("Failed regenerating API Key", getErrorMessage(error));
     });
 }
@@ -84,14 +84,14 @@ function regenerateApiKey(user) {
 function sendPasswordReset(user) {
   return axios
     .post(`api/users/${user.id}/reset_password`)
-    .then(data => {
+    .then((data) => {
       if (clientConfig.mailSettingsMissing) {
         notification.warning("The mail server is not configured.");
         return data.reset_link;
       }
       notification.success("Password reset email sent.");
     })
-    .catch(error => {
+    .catch((error) => {
       notification.error("Failed to send password reset email", getErrorMessage(error));
     });
 }
@@ -99,23 +99,23 @@ function sendPasswordReset(user) {
 function resendInvitation(user) {
   return axios
     .post(`api/users/${user.id}/invite`)
-    .then(data => {
+    .then((data) => {
       if (clientConfig.mailSettingsMissing) {
         notification.warning("The mail server is not configured.");
         return data.invite_link;
       }
       notification.success("Invitation sent.");
     })
-    .catch(error => {
+    .catch((error) => {
       notification.error("Failed to resend invitation", getErrorMessage(error));
     });
 }
 
 const User = {
-  query: params => axios.get("api/users", { params }),
+  query: (params) => axios.get("api/users", { params }),
   get: ({ id }) => axios.get(`api/users/${id}`),
-  create: data => axios.post(`api/users`, data),
-  save: data => axios.post(`api/users/${data.id}`, data),
+  create: (data) => axios.post(`api/users`, data),
+  save: (data) => axios.post(`api/users/${data.id}`, data),
   enableUser,
   disableUser,
   deleteUser,

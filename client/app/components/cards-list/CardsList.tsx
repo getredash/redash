@@ -44,7 +44,7 @@ function ListItem({ item, keySuffix }: ListItemProps) {
 export default function CardsList({ items = [], showSearch = false }: CardsListProps) {
   const [searchText, setSearchText] = useState("");
   const filteredItems = items.filter(
-    item => isEmpty(searchText) || includes(item.title.toLowerCase(), searchText.toLowerCase())
+    (item) => isEmpty(searchText) || includes(item.title.toLowerCase(), searchText.toLowerCase())
   );
 
   return (

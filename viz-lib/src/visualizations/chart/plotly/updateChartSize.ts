@@ -17,7 +17,7 @@ function fixLegendContainer(plotlyElement: any) {
 function placeLegendNextToPlot(plotlyElement: any, layout: any) {
   const transformName = find(
     ["transform", "WebkitTransform", "MozTransform", "MsTransform", "OTransform"],
-    prop => prop in plotlyElement.style
+    (prop) => prop in plotlyElement.style
   );
 
   layout.legend = extend({}, layout.legend, {
@@ -42,7 +42,7 @@ function placeLegendNextToPlot(plotlyElement: any, layout: any) {
 function placeLegendBelowPlot(plotlyElement: any, layout: any) {
   const transformName = find(
     ["transform", "WebkitTransform", "MozTransform", "MsTransform", "OTransform"],
-    prop => prop in plotlyElement.style
+    (prop) => prop in plotlyElement.style
   );
 
   // Save current `layout.height` value because `Plotly.relayout().then(...)` handler may be called multiple
@@ -109,16 +109,20 @@ function placeLegendAuto(plotlyElement: any, layout: any) {
 export default function updateChartSize(plotlyElement: any, layout: any, options: any) {
   // update layout size to plot container
   // plot size should be at least 5x5px
-  layout.width = Math.max(5, Math.floor(plotlyElement.offsetWidth));
-  layout.height = Math.max(5, Math.floor(plotlyElement.offsetHeight));
+  const width = Math.max(5, Math.floor(plotlyElement.offsetWidth));
+  const height = Math.max(5, Math.floor(plotlyElement.offsetHeight));
 
   const [previousWidth, previousHeight] = plotlyElement.__previousSize || [];
 
-  if (layout.width === previousWidth && layout.height === previousHeight) {
+  if (width === previousWidth && height === previousHeight) {
     return;
   }
 
-  plotlyElement.__previousSize = [layout.width, layout.height];
+  // Plotly shares this layout object. Only reset its dimensions when resizing;
+  // an unchanged container must preserve the height reserved for the legend.
+  layout.width = width;
+  layout.height = height;
+  plotlyElement.__previousSize = [width, height];
 
   if (options.legend.enabled) {
     switch (options.legend.placement) {

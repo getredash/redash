@@ -6,8 +6,8 @@ interface QueryFormatterMap {
 }
 
 const QueryFormatters: QueryFormatterMap = {
-  sql: queryText => sqlFormatter.format(trim(queryText)),
-  json: queryText => JSON.stringify(JSON.parse(queryText), null, 4),
+  sql: (queryText) => sqlFormatter.format(trim(queryText)),
+  json: (queryText) => JSON.stringify(JSON.parse(queryText), null, 4),
 };
 
 export function isFormatQueryAvailable(syntax: string) {

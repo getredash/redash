@@ -4,14 +4,14 @@ import { Section, Select } from "@/components/visualizations/editor";
 import { EditorPropTypes } from "@/visualizations/prop-types";
 
 function getColumns(column: any, unusedColumns: any) {
-  return filter([column, ...unusedColumns], v => !isNil(v));
+  return filter([column, ...unusedColumns], (v) => !isNil(v));
 }
 
 export default function GeneralSettings({ options, data, onOptionsChange }: any) {
   const unusedColumns = useMemo(
     () =>
       difference(
-        map(data.columns, c => c.name),
+        map(data.columns, (c) => c.name),
         [options.latColName, options.lonColName, options.classify]
       ),
     [data, options.latColName, options.lonColName, options.classify]
@@ -25,8 +25,9 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
           label="Latitude Column Name"
           data-test="Map.Editor.LatitudeColumnName"
           value={options.latColName}
-          onChange={(latColName: any) => onOptionsChange({ latColName })}>
-          {map(getColumns(options.latColName, unusedColumns), col => (
+          onChange={(latColName: any) => onOptionsChange({ latColName })}
+        >
+          {map(getColumns(options.latColName, unusedColumns), (col) => (
             // @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message
             <Select.Option key={col} data-test={"Map.Editor.LatitudeColumnName." + col}>
               {col}
@@ -42,8 +43,9 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
           label="Longitude Column Name"
           data-test="Map.Editor.LongitudeColumnName"
           value={options.lonColName}
-          onChange={(lonColName: any) => onOptionsChange({ lonColName })}>
-          {map(getColumns(options.lonColName, unusedColumns), col => (
+          onChange={(lonColName: any) => onOptionsChange({ lonColName })}
+        >
+          {map(getColumns(options.lonColName, unusedColumns), (col) => (
             // @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message
             <Select.Option key={col} data-test={"Map.Editor.LongitudeColumnName." + col}>
               {col}
@@ -61,8 +63,9 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
           allowClear
           placeholder="none"
           value={options.classify || undefined}
-          onChange={(column: any) => onOptionsChange({ classify: column || null })}>
-          {map(getColumns(options.classify, unusedColumns), col => (
+          onChange={(column: any) => onOptionsChange({ classify: column || null })}
+        >
+          {map(getColumns(options.classify, unusedColumns), (col) => (
             // @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message
             <Select.Option key={col} data-test={"Map.Editor.GroupBy." + col}>
               {col}

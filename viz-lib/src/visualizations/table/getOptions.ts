@@ -10,10 +10,9 @@ const DEFAULT_OPTIONS = {
   paginationSize: "default", // not editable through Editor
 };
 
-
 export default function getOptions(options: any, { columns }: any) {
   options = { ...DEFAULT_OPTIONS, ...options };
-  options.columns = _.map(getColumnsOptions(columns, options.columns, { allowSearch: false }), col => ({
+  options.columns = _.map(getColumnsOptions(columns, options.columns, { allowSearch: false }), (col) => ({
     ...getDefaultFormatOptions(col),
     ...col,
   }));

@@ -55,7 +55,7 @@ function updateSeriesText(seriesList: any, options: any) {
 
   const defaultY = options.missingValuesAsZero ? 0.0 : null;
 
-  each(seriesList, series => {
+  each(seriesList, (series) => {
     const seriesOptions = options.seriesOptions[series.name] || { type: options.globalSeriesType };
 
     series.text = [];
@@ -104,14 +104,14 @@ function updatePercentValues(seriesList: any, options: any) {
     // Some series may not have corresponding x-values;
     // do calculations for each x only for series that do have that x
     const sumOfCorrespondingPoints = new Map();
-    each(seriesList, series => {
+    each(seriesList, (series) => {
       series.sourceData.forEach((item: any) => {
         const sum = sumOfCorrespondingPoints.get(item.x) || 0;
         sumOfCorrespondingPoints.set(item.x, sum + Math.abs(item.y || 0.0));
       });
     });
 
-    each(seriesList, series => {
+    each(seriesList, (series) => {
       const yValues: any = [];
 
       series.sourceData.forEach((item: any) => {
@@ -131,7 +131,7 @@ function updatePercentValues(seriesList: any, options: any) {
 
 function getUnifiedXAxisValues(seriesList: any, sorted: any) {
   const set = new Set();
-  each(seriesList, series => {
+  each(seriesList, (series) => {
     // `Map.forEach` will walk items in insertion order
     series.sourceData.forEach((item: any) => {
       set.add(item.x);
@@ -145,11 +145,11 @@ function getUnifiedXAxisValues(seriesList: any, sorted: any) {
 function updateUnifiedXAxisValues(seriesList: any, options: any) {
   const unifiedX = getUnifiedXAxisValues(seriesList, options.sortX);
   const defaultY = options.missingValuesAsZero ? 0.0 : null;
-  each(seriesList, series => {
+  each(seriesList, (series) => {
     series.x = [];
     series.y = [];
     series.error_y.array = [];
-    each(unifiedX, x => {
+    each(unifiedX, (x) => {
       series.x.push(x);
       const item = series.sourceData.get(x);
       if (item) {
@@ -175,7 +175,7 @@ function updateLineAreaData(seriesList: any, options: any) {
 
     // Calculate cumulative value for each x tick
     const cumulativeValues = {};
-    each(seriesList, series => {
+    each(seriesList, (series) => {
       series.y = map(series.y, (y, i) => {
         if (isNil(y) && !options.missingValuesAsZero) {
           return null;
@@ -214,7 +214,7 @@ function updateDefaultData(seriesList: any, options: any) {
 
 export default function updateData(seriesList: any, options: any) {
   // Use only visible series
-  const visibleSeriesList = filter(seriesList, s => s.visible === true);
+  const visibleSeriesList = filter(seriesList, (s) => s.visible === true);
 
   if (visibleSeriesList.length > 0) {
     switch (options.globalSeriesType) {

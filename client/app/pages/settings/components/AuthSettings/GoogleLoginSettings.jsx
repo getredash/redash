@@ -21,7 +21,7 @@ export default function GoogleLoginSettings(props) {
         <Select
           mode="tags"
           value={values.auth_google_apps_domains}
-          onChange={value => onChange({ auth_google_apps_domains: value })}
+          onChange={(value) => onChange({ auth_google_apps_domains: value })}
         />
         {!isEmpty(values.auth_google_apps_domains) && (
           <Alert

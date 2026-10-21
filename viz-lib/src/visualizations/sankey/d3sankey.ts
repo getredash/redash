@@ -53,11 +53,11 @@ function Sankey(): D3SankeyType {
   // Populate the sourceLinks and targetLinks for each node.
   // Also, if the source and target are not objects, assume they are indices.
   function computeNodeLinks() {
-    nodes.forEach(node => {
+    nodes.forEach((node) => {
       node.sourceLinks = [];
       node.targetLinks = [];
     });
-    links.forEach(link => {
+    links.forEach((link) => {
       let source = link.source;
       let target = link.target;
       if (typeof source === "number") source = link.source = nodes[link.source];
@@ -69,13 +69,13 @@ function Sankey(): D3SankeyType {
 
   // Compute the value (size) of each node by summing the associated links.
   function computeNodeValues() {
-    nodes.forEach(node => {
+    nodes.forEach((node) => {
       node.value = Math.max(d3.sum(node.sourceLinks, value), d3.sum(node.targetLinks, value));
     });
   }
 
   function moveSinksRight(x: any) {
-    nodes.forEach(node => {
+    nodes.forEach((node) => {
       if (!node.sourceLinks.length) {
         node.x = x - 1;
       }
@@ -83,7 +83,7 @@ function Sankey(): D3SankeyType {
   }
 
   function scaleNodeBreadths(kx: any) {
-    nodes.forEach(node => {
+    nodes.forEach((node) => {
       node.x *= kx;
     });
   }
@@ -116,7 +116,7 @@ function Sankey(): D3SankeyType {
 
     moveSinksRight(x);
     x = Math.max(
-      d3.max(nodes, n => n.x),
+      d3.max(nodes, (n) => n.x),
       2
     ); // get new maximum x value (min 2)
     scaleNodeBreadths((size[0] - nodeWidth) / (x - 1));
@@ -133,7 +133,7 @@ function Sankey(): D3SankeyType {
 
     function initializeNodeDepth() {
       // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
-      const ky = d3.min(nodesByBreadth, n => (size[1] - (n.length - 1) * nodePadding) / d3.sum(n, value));
+      const ky = d3.min(nodesByBreadth, (n) => (size[1] - (n.length - 1) * nodePadding) / d3.sum(n, value));
 
       nodesByBreadth.forEach((n: any) => {
         n.forEach((node: any, i: any) => {
@@ -143,7 +143,7 @@ function Sankey(): D3SankeyType {
         });
       });
 
-      links.forEach(link => {
+      links.forEach((link) => {
         // @ts-expect-error ts-migrate(2532) FIXME: Object is possibly 'undefined'.
         link.dy = link.value * ky;
       });
@@ -231,11 +231,11 @@ function Sankey(): D3SankeyType {
   }
 
   function computeLinkDepths() {
-    nodes.forEach(node => {
+    nodes.forEach((node) => {
       node.sourceLinks.sort(ascendingTargetDepth);
       node.targetLinks.sort(ascendingSourceDepth);
     });
-    nodes.forEach(node => {
+    nodes.forEach((node) => {
       let sy = 0,
         ty = 0;
       node.sourceLinks.forEach((link: any) => {
@@ -258,42 +258,42 @@ function Sankey(): D3SankeyType {
   }
 
   // @ts-expect-error ts-migrate(2339) FIXME: Property 'nodeWidth' does not exist on type '{}'.
-  sankey.nodeWidth = function(_: any) {
+  sankey.nodeWidth = function (_: any) {
     if (!arguments.length) return nodeWidth;
     nodeWidth = +_;
     return sankey;
   };
 
   // @ts-expect-error ts-migrate(2339) FIXME: Property 'nodePadding' does not exist on type '{}'... Remove this comment to see the full error message
-  sankey.nodePadding = function(_: any) {
+  sankey.nodePadding = function (_: any) {
     if (!arguments.length) return nodePadding;
     nodePadding = +_;
     return sankey;
   };
 
   // @ts-expect-error ts-migrate(2339) FIXME: Property 'nodes' does not exist on type '{}'.
-  sankey.nodes = function(_: any) {
+  sankey.nodes = function (_: any) {
     if (!arguments.length) return nodes;
     nodes = _;
     return sankey;
   };
 
   // @ts-expect-error ts-migrate(2339) FIXME: Property 'links' does not exist on type '{}'.
-  sankey.links = function(_: any) {
+  sankey.links = function (_: any) {
     if (!arguments.length) return links;
     links = _;
     return sankey;
   };
 
   // @ts-expect-error ts-migrate(2339) FIXME: Property 'size' does not exist on type '{}'.
-  sankey.size = function(_: any) {
+  sankey.size = function (_: any) {
     if (!arguments.length) return size;
     size = _;
     return sankey;
   };
 
   // @ts-expect-error ts-migrate(2339) FIXME: Property 'layout' does not exist on type '{}'.
-  sankey.layout = function(iterations: any) {
+  sankey.layout = function (iterations: any) {
     computeNodeLinks();
     computeNodeValues();
     computeNodeBreadths();
@@ -303,13 +303,13 @@ function Sankey(): D3SankeyType {
   };
 
   // @ts-expect-error ts-migrate(2339) FIXME: Property 'relayout' does not exist on type '{}'.
-  sankey.relayout = function() {
+  sankey.relayout = function () {
     computeLinkDepths();
     return sankey;
   };
 
   // @ts-expect-error ts-migrate(2339) FIXME: Property 'link' does not exist on type '{}'.
-  sankey.link = function() {
+  sankey.link = function () {
     let curvature = 0.5;
 
     function link(d: DType) {

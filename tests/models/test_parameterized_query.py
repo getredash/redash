@@ -255,6 +255,73 @@ class TestParameterizedQuery(TestCase):
 
         self.assertFalse(query.is_safe)
 
+    def test_is_not_safe_if_expecting_text_pattern_parameter(self):
+        schema = [{"name": "bar", "type": "text-pattern", "regex": ".*"}]
+        query = ParameterizedQuery("foo", schema)
+
+        self.assertFalse(query.is_safe)
+
+    def test_is_not_safe_if_template_has_undeclared_parameter(self):
+        query = ParameterizedQuery("select '{{bar}}'", [])
+
+        self.assertFalse(query.is_safe)
+
+    def test_is_safe_if_all_template_parameters_are_declared(self):
+        schema = [{"name": "bar", "type": "number"}]
+        query = ParameterizedQuery("select {{bar}}", schema)
+
+        self.assertTrue(query.is_safe)
+
+    def test_undeclared_parameters_are_unsafe_in_all_interpolation_forms(self):
+        templates = (
+            "SELECT {{{value}}}",
+            "SELECT {{&value}}",
+            "SELECT {{^flag}}{{value}}{{/flag}}",
+            "SELECT {{^flag}}{{#nested}}{{{value}}}{{/nested}}{{/flag}}",
+        )
+        for template in templates:
+            with self.subTest(template=template):
+                query = ParameterizedQuery(template)
+                self.assertFalse(query.is_safe)
+                self.assertIn("value", query.missing_params)
+
+    def test_declared_unescaped_parameters_are_validated(self):
+        for template in ("SELECT {{{value}}}", "SELECT {{&value}}"):
+            with self.subTest(template=template):
+                query = ParameterizedQuery(template, [{"name": "value", "type": "number"}])
+                self.assertTrue(query.is_safe)
+                self.assertEqual({"value"}, query.missing_params)
+                with self.assertRaises(InvalidParameterError):
+                    query.apply({"value": "1 UNION SELECT 2"})
+                query.apply({"value": 42})
+                self.assertEqual("SELECT 42", query.text)
+                self.assertEqual(set(), query.missing_params)
+
+    def test_declared_range_fields_are_safe(self):
+        for parameter_type in ("date-range", "datetime-range", "datetime-range-with-seconds"):
+            with self.subTest(parameter_type=parameter_type):
+                query = ParameterizedQuery(
+                    "SELECT '{{period.start}}', '{{period.end}}'",
+                    [{"name": "period", "type": parameter_type}],
+                )
+                self.assertTrue(query.is_safe)
+                query.apply({"period": {"start": "2026-01-01", "end": "2026-01-31"}})
+                self.assertEqual("SELECT '2026-01-01', '2026-01-31'", query.text)
+                self.assertEqual(set(), query.missing_params)
+
+    def test_range_declaration_does_not_allow_arbitrary_nested_fields(self):
+        for field in ("extra", "start.extra", "end.extra"):
+            with self.subTest(field=field):
+                query = ParameterizedQuery(
+                    "SELECT {{{{period.{}}}}}".format(field),
+                    [{"name": "period", "type": "date-range"}],
+                )
+                self.assertFalse(query.is_safe)
+
+    def test_non_range_declaration_does_not_allow_range_fields(self):
+        query = ParameterizedQuery("SELECT {{period.start}}", [{"name": "period", "type": "number"}])
+        self.assertFalse(query.is_safe)
+
     def test_is_safe_if_not_expecting_text_parameter(self):
         schema = [{"name": "bar", "type": "number"}]
         query = ParameterizedQuery("foo", schema)

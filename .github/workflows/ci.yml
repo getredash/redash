@@ -6,6 +6,8 @@ on:
   pull_request:
     branches:
       - master
+permissions:
+  contents: read
 env:
   NODE_VERSION: 24
   PNPM_VERSION: 10.30.3
@@ -136,7 +138,6 @@ jobs:
       COMPOSE_PROJECT_NAME: cypress
       CYPRESS_INSTALL_BINARY: 0
       PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 1
-      # PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
       # CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
       # CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
     steps:
@@ -178,3 +179,50 @@ jobs:
         with:
           name: coverage
           path: coverage
+
+  frontend-visual-tests:
+    runs-on: ubuntu-22.04
+    needs: frontend-lint
+    env:
+      COMPOSE_FILE: .ci/compose.cypress.yaml
+      COMPOSE_PROJECT_NAME: visual-tests
+      CYPRESS_INSTALL_BINARY: 0
+      PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 1
+      VISUAL_TESTS_BASE_URL: http://localhost:5000
+      REDASH_FEATURE_ALLOW_CUSTOM_JS_VISUALIZATIONS: true
+    steps:
+      - if: github.event.pull_request.mergeable == 'false'
+        name: Exit if PR is not mergeable
+        run: exit 1
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Setup Redash Server
+        run: |
+          set -x
+          docker compose build server worker scheduler
+          docker compose run --rm server create_db
+          docker compose up -d server worker scheduler
+          timeout 120 sh -c 'until curl -sf http://localhost:5000/ping; do sleep 2; done'
+      - name: Run Visual Tests
+        run: pnpm run visual-tests:docker
+      - name: "Failure: output container logs to console"
+        if: failure()
+        run: docker compose logs
+      - name: Store Visual Tests Report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-tests-report
+          path: client/visual-tests/.results
+          include-hidden-files: true # .results is a hidden directory

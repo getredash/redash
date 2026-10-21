@@ -10,7 +10,7 @@ export function getWidgetTestId(widget) {
 export function createQueryAndAddWidget(dashboardId, queryData = {}, widgetOptions = {}) {
   return cy
     .createQuery(queryData)
-    .then(query => {
+    .then((query) => {
       const visualizationId = get(query, "visualizations.0.id");
       assert.isDefined(visualizationId, "Query api call returns at least one visualization with id");
       return cy.addWidget(dashboardId, visualizationId, widgetOptions);
@@ -21,9 +21,7 @@ export function createQueryAndAddWidget(dashboardId, queryData = {}, widgetOptio
 export function editDashboard() {
   cy.getByTestId("DashboardMoreButton").click();
 
-  cy.getByTestId("DashboardMoreButtonMenu")
-    .contains("Edit")
-    .click();
+  cy.getByTestId("DashboardMoreButtonMenu").contains("Edit").click();
 }
 
 export function shareDashboard() {

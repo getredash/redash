@@ -20,7 +20,8 @@ export default function DataLabelsSettings({ options, onOptionsChange }: any) {
           <Checkbox
             data-test="Chart.DataLabels.ShowDataLabels"
             defaultChecked={options.showDataLabels}
-            onChange={event => onOptionsChange({ showDataLabels: event.target.checked })}>
+            onChange={(event) => onOptionsChange({ showDataLabels: event.target.checked })}
+          >
             Show Data Labels
           </Checkbox>
         </Section>

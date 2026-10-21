@@ -426,8 +426,9 @@ TABLE_CELL_MAX_JSON_SIZE = int(os.environ.get("REDASH_TABLE_CELL_MAX_JSON_SIZE",
 VERSION_CHECK = parse_boolean(os.environ.get("REDASH_VERSION_CHECK", "true"))
 FEATURE_DISABLE_REFRESH_QUERIES = parse_boolean(os.environ.get("REDASH_FEATURE_DISABLE_REFRESH_QUERIES", "false"))
 FEATURE_SHOW_QUERY_RESULTS_COUNT = parse_boolean(os.environ.get("REDASH_FEATURE_SHOW_QUERY_RESULTS_COUNT", "true"))
+# Custom chart code runs with the viewer's privileges. Enable only for trusted authors.
 FEATURE_ALLOW_CUSTOM_JS_VISUALIZATIONS = parse_boolean(
-    os.environ.get("REDASH_FEATURE_ALLOW_CUSTOM_JS_VISUALIZATIONS", "true")
+    os.environ.get("REDASH_FEATURE_ALLOW_CUSTOM_JS_VISUALIZATIONS", "false")
 )
 FEATURE_AUTO_PUBLISH_NAMED_QUERIES = parse_boolean(os.environ.get("REDASH_FEATURE_AUTO_PUBLISH_NAMED_QUERIES", "true"))
 FEATURE_EXTENDED_ALERT_OPTIONS = parse_boolean(os.environ.get("REDASH_FEATURE_EXTENDED_ALERT_OPTIONS", "false"))
@@ -455,6 +456,17 @@ SQLPARSE_FORMAT_OPTIONS = {
     "reindent": parse_boolean(os.environ.get("SQLPARSE_FORMAT_REINDENT", "true")),
     "keyword_case": os.environ.get("SQLPARSE_FORMAT_KEYWORD_CASE", "upper"),
 }
+
+# sqlparse refuses to group statements beyond these limits, raising SQLParseError,
+# to bound the CPU it will spend on a single statement. The defaults match
+# sqlparse's own. Raise them if your users run legitimately huge queries (long
+# IN lists, wide SELECTs, many VALUES tuples) and you would rather pay the CPU
+# than lose auto limit and query formatting on them. Set to 0 to disable a limit
+# entirely -- note that formatting cost grows faster than linearly with
+# statement size, so an unbounded limit lets one request occupy a worker for a
+# long time.
+SQLPARSE_MAX_GROUPING_TOKENS = int(os.environ.get("SQLPARSE_MAX_GROUPING_TOKENS", 10000))
+SQLPARSE_MAX_GROUPING_DEPTH = int(os.environ.get("SQLPARSE_MAX_GROUPING_DEPTH", 100))
 
 # requests
 REQUESTS_ALLOW_REDIRECTS = parse_boolean(os.environ.get("REDASH_REQUESTS_ALLOW_REDIRECTS", "false"))
