@@ -26,6 +26,10 @@ export default defineConfig({
   },
   projects: [
     {
+      name: "stability",
+      testMatch: /stability\.spec\.ts/,
+    },
+    {
       name: "seed",
       testMatch: /seed\.setup\.ts/,
     },
