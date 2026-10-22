@@ -12,7 +12,6 @@ maintainers = [
 readme = "README.md"
 requires-python = ">=3.13,<3.14"
 dependencies = [
-    "advocate==1.0.0",
     "aniso8601==10.0.1",
     "authlib==1.8.0",
     "backoff==2.2.1",
@@ -34,6 +33,7 @@ dependencies = [
     "gevent==26.9.0",
     "greenlet==3.5.6",
     "gunicorn==26.2.0",
+    "ifaddr==0.2.0",
     "itsdangerous==2.2.0",
     "jinja2==3.1.6",
     "jsonschema==4.26.0",
@@ -69,7 +69,7 @@ dependencies = [
     "supervisor==4.3.0",
     "supervisor-checks==0.8.1",
     "ua-parser==1.0.2",
-    "urllib3==1.26.19",
+    "urllib3==2.8.0",
     "user-agents==2.2.0",
     "werkzeug==2.3.8",
     "wtforms==3.2.2",
@@ -137,7 +137,7 @@ all_ds = [
     "sasl>=0.4a1",
     "simple-salesforce==1.12.10",
     "snowflake-connector-python==4.7.5",
-    "td-client==1.5.0",
+    "td-client==1.7.0",
     "thrift>=0.8.0",
     "thrift-sasl>=0.1.0",
     "trino>=0.305,<1.0",
