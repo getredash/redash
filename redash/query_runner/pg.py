@@ -177,6 +177,8 @@ class PostgreSQL(BaseSQLQueryRunner):
                 "sslrootcertFile": {"type": "string", "title": "SSL Root Certificate"},
                 "sslcertFile": {"type": "string", "title": "SSL Client Certificate"},
                 "sslkeyFile": {"type": "string", "title": "SSL Client Key"},
+                "awsIamAuth": {"type": "boolean", "title": "AWS IAM authentication"},
+                "awsRegion": {"type": "string", "title": "AWS Region"},
             },
             "order": ["host", "port", "user", "password"],
             "required": ["dbname"],
@@ -186,6 +188,8 @@ class PostgreSQL(BaseSQLQueryRunner):
                 "sslrootcertFile",
                 "sslcertFile",
                 "sslkeyFile",
+                "awsIamAuth",
+                "awsRegion",
             ],
         }
 
@@ -255,11 +259,29 @@ class PostgreSQL(BaseSQLQueryRunner):
     def _get_connection(self):
         self.ssl_config = _get_ssl_config(self.configuration)
         self.dsn = _parse_dsn(self.configuration)
+
+        user = self.configuration.get("user")
+        password = self.configuration.get("password")
+        host = self.configuration.get("host")
+        port = self.configuration.get("port", 5432)
+
+        if self.configuration.get("awsIamAuth", False):
+            if not IAM_ENABLED:
+                raise Exception("boto3 must be installed to use AWS IAM authentication.")
+            region_name = self.configuration.get("awsRegion")
+            rds_client = boto3.client("rds", region_name=region_name)
+            auth_token = rds_client.generate_db_auth_token(
+                DBHostname=host,
+                Port=port,
+                DBUsername=user,
+            )
+            password = auth_token
+
         connection = psycopg2.connect(
-            user=self.configuration.get("user"),
-            password=self.configuration.get("password"),
-            host=self.configuration.get("host"),
-            port=self.configuration.get("port"),
+            user=user,
+            password=password,
+            host=host,
+            port=port,
             dbname=self.configuration.get("dbname"),
             async_=True,
             **self.ssl_config,
