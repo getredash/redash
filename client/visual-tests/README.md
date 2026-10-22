@@ -19,6 +19,8 @@ Files:
   saves the admin's session for the browser.
 - [`pages.spec.ts`](pages.spec.ts) - the pages and dialogs to take a screenshot of. To cover another page, add it
   to `PAGES` (and the objects it needs to `pages.setup.ts`).
+- [`stability.spec.ts`](stability.spec.ts) - browser regression tests for date handling and embed URL normalization;
+  these run without a Redash server (`--project stability`).
 - [`fixtures/chinook.db`](fixtures/chinook.db) - the [Chinook sample database](https://github.com/lerocha/chinook-database)
   (a digital music store), MIT license.
 
@@ -81,9 +83,11 @@ Rendering in the Docker image is deterministic, so the comparison has no pixel t
 - `Math.random` is seeded (word cloud layout).
 - Map tiles are replaced with a plain gray tile.
 - Visualizations: "Updated x minutes ago" timestamps are hidden ([`screenshot.css`](screenshot.css)).
-- Pages ([`stable-page.ts`](stable-page.ts)): the browser's clock is fixed, and API responses are rewritten so
+- Pages ([`stable-page.ts`](stable-page.ts)): the browser's date starts at a known time and keeps advancing,
+  while timers and animation frames remain native. API responses are rewritten so
   timestamps, query run times and API keys are the same on every run. Profile pictures (Gravatar) are replaced,
   and the data source type lists only show types available on every server. Screenshots are taken once the page
   stopped loading (no spinners), and [`pages.css`](pages.css) makes the whole page scroll (so full-page
   screenshots capture everything) and hides tooltips and the editor's cursor. URLs that include the server's
-  address are masked.
+  address are masked. Embed URLs also have their origin and object IDs normalized before the screenshot so
+  different URL lengths cannot change line wrapping and the dialog's height.
