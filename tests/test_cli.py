@@ -17,7 +17,9 @@ class DataSourceCommandTests(BaseTestCase):
         result = runner.invoke(
             manager,
             ["ds", "new"],
-            input="test\n%s\n\n\nexample.com\n\n\ntestdb\n" % (pg_i,),
+            # Blank answers for the optional prompts after the database name; Click
+            # aborts when a prompt runs out of input.
+            input="test\n%s\n\n\nexample.com\n\n\ntestdb\n" % (pg_i,) + "\n" * 20,
         )
         self.assertFalse(result.exception)
         self.assertEqual(result.exit_code, 0)
