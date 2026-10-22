@@ -6,7 +6,7 @@ import yaml
 from redash.query_runner import BaseQueryRunner, NotSupported, register
 from redash.utils.requests_session import (
     UnacceptableAddressException,
-    requests_or_advocate,
+    requests_or_ssrf,
 )
 
 logger = logging.getLogger(__name__)
@@ -59,7 +59,7 @@ class CSV(BaseQueryRunner):
             pass
 
         try:
-            response = requests_or_advocate.get(url=path, headers={"User-agent": ua})
+            response = requests_or_ssrf.get(url=path, headers={"User-agent": ua})
             workbook = pd.read_csv(io.BytesIO(response.content), sep=",", **args)
 
             df = workbook.copy()
@@ -80,6 +80,8 @@ class CSV(BaseQueryRunner):
                 },
                 {"pandas_type": np.bool_, "redash_type": "boolean"},
                 {"pandas_type": np.object_, "redash_type": "string"},
+                # pandas 3 reads text columns as the `str` dtype rather than object.
+                {"pandas_type": str, "redash_type": "string"},
             ]
             labels = []
             for dtype, label in zip(df.dtypes, df.columns):

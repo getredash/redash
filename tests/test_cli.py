@@ -17,7 +17,9 @@ class DataSourceCommandTests(BaseTestCase):
         result = runner.invoke(
             manager,
             ["ds", "new"],
-            input="test\n%s\n\n\nexample.com\n\n\ntestdb\n" % (pg_i,),
+            # Blank answers for the optional prompts after the database name; Click
+            # aborts when a prompt runs out of input.
+            input="test\n%s\n\n\nexample.com\n\n\ntestdb\n" % (pg_i,) + "\n" * 20,
         )
         self.assertFalse(result.exception)
         self.assertEqual(result.exit_code, 0)
@@ -566,3 +568,30 @@ class UserCommandTests(BaseTestCase):
         self.assertEqual(result.exit_code, 0)
         db.session.add(u)
         self.assertEqual(u.group_ids, [u.org.default_group.id, u.org.admin_group.id])
+
+
+class DatabaseCommandTests(BaseTestCase):
+    def test_reencrypt_round_trip(self):
+        from sqlalchemy import text
+
+        from redash import settings
+
+        options = {"dbname": "testdb", "password": "secret"}
+        ds = self.factory.create_data_source(options=ConfigurationContainer(options))
+        db.session.commit()
+
+        def ciphertext():
+            query = text("SELECT encrypted_options FROM data_sources WHERE id = :id")
+            return db.session.execute(query, {"id": ds.id}).scalar()
+
+        original = ciphertext()
+        runner = CliRunner()
+
+        result = runner.invoke(manager, ["database", "reencrypt", settings.DATASOURCE_SECRET_KEY, "new-secret"])
+        self.assertFalse(result.exception, result.output)
+        self.assertNotEqual(original, ciphertext())
+
+        result = runner.invoke(manager, ["database", "reencrypt", "new-secret", settings.DATASOURCE_SECRET_KEY])
+        self.assertFalse(result.exception, result.output)
+        db.session.expire_all()
+        self.assertEqual(options, DataSource.query.get(ds.id).options.to_dict())

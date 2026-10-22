@@ -34,7 +34,7 @@ def upgrade():
     set details = details::jsonb || ('{"profile_image_url": "' || profile_image_url || '"}')::jsonb
     where 1=1
     """
-    connection.execute(update_query)
+    connection.execute(sa.text(update_query))
     op.drop_column("users", "profile_image_url")
 
 
@@ -49,7 +49,7 @@ def downgrade():
     details = details - 'profile_image_url' ;
     """
 
-    connection.execute(update_query)
+    connection.execute(sa.text(update_query))
     db.session.commit()
     op.alter_column('users', 'details',
                existing_type=JSONB(astext_type=sa.Text()),

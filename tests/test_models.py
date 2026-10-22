@@ -497,6 +497,7 @@ class TestGroup(BaseTestCase):
         matching_group1 = models.Group(id=999, name="g1", org=org1)
         matching_group2 = models.Group(id=888, name="g2", org=org1)
         non_matching_group = models.Group(id=777, name="g1", org=org2)
+        db.session.add_all([matching_group1, matching_group2, non_matching_group])
 
         groups = models.Group.find_by_name(org1, ["g1", "g2"])
         self.assertIn(matching_group1, groups)

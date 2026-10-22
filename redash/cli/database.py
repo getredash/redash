@@ -22,7 +22,8 @@ def _wait_for_db_connection(db):
     retried = False
     while not retried:
         try:
-            db.engine.execute("SELECT 1;")
+            with db.engine.connect() as connection:
+                connection.execute(sqlalchemy.text("SELECT 1;"))
             return
         except DatabaseError:
             time.sleep(30)
@@ -33,14 +34,15 @@ def _wait_for_db_connection(db):
 def is_db_empty():
     from redash.models import db
 
-    table_names = sqlalchemy.inspect(db.get_engine()).get_table_names()
+    table_names = sqlalchemy.inspect(db.engine).get_table_names()
     return len(table_names) == 0
 
 
 def load_extensions(db):
     with db.engine.connect() as connection:
         for extension in settings.dynamic_settings.database_extensions:
-            connection.execute(f'CREATE EXTENSION IF NOT EXISTS "{extension}";')
+            connection.execute(sqlalchemy.text(f'CREATE EXTENSION IF NOT EXISTS "{extension}";'))
+        connection.commit()
 
 
 @manager.command(name="create_tables")
@@ -107,14 +109,12 @@ def reencrypt(old_secret, new_secret, show_sql):
         )
 
         update = table_for_update.update()
-        selected_items = db.session.execute(select([table_for_select]))
+        selected_items = db.session.execute(select(table_for_select))
         for item in selected_items:
             try:
-                stmt = update.where(table_for_update.c.id == item["id"]).values(
-                    encrypted_options=item["encrypted_options"]
-                )
+                stmt = update.where(table_for_update.c.id == item.id).values(encrypted_options=item.encrypted_options)
             except InvalidToken:
-                logging.error(f'Invalid Decryption Key for id {item["id"]} in table {table_for_select}')
+                logging.error(f"Invalid Decryption Key for id {item.id} in table {table_for_select}")
             else:
                 db.session.execute(stmt)
 
