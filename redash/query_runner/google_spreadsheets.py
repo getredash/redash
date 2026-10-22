@@ -3,7 +3,6 @@ import re
 from base64 import b64decode
 
 from dateutil import parser
-from requests import Session
 from xlsxwriter.utility import xl_col_to_name
 
 from redash.query_runner import (
@@ -181,12 +180,6 @@ class SpreadsheetWrapper:
             return None
 
 
-class TimeoutSession(Session):
-    def request(self, *args, **kwargs):
-        kwargs.setdefault("timeout", 300)
-        return super(TimeoutSession, self).request(*args, **kwargs)
-
-
 class GoogleSpreadsheet(BaseQueryRunner):
     should_annotate_query = False
 
@@ -224,10 +217,8 @@ class GoogleSpreadsheet(BaseQueryRunner):
         except KeyError:
             creds = google.auth.default(scopes=scopes)[0]
 
-        timeout_session = Session()
-        timeout_session.requests_session = TimeoutSession()
-        spreadsheetservice = gspread.Client(auth=creds, session=timeout_session)
-        spreadsheetservice.login()
+        spreadsheetservice = gspread.Client(auth=creds)
+        spreadsheetservice.set_timeout(300)
         return spreadsheetservice
 
     def test_connection(self):
