@@ -1511,19 +1511,6 @@ wheels = [
 ]
 
 [[package]]
-name = "nzalchemy"
-version = "11.0.2"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "nzpy" },
-    { name = "sqlalchemy" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/3d/ba/ea2c315151966704a30bbac0f5a122f5aa0742ae73315b8412c5f24e38e3/nzalchemy-11.0.2.tar.gz", hash = "sha256:4e05a5a8df984d43b8d301f7b19fb4f4408bac9eb0421205adb1ab29827de50e", size = 27821, upload-time = "2021-06-07T11:58:02.775Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/1f/4c/a1dea614ea559de2268606a97e291f912fbb65e352f5a5357e5aaef4c41c/nzalchemy-11.0.2-py3-none-any.whl", hash = "sha256:b7a7909bdab2a511f46d205598ec2b7d09cea1042f2a04e8351048c7a2811348", size = 21136, upload-time = "2021-06-07T11:58:01.731Z" },
-]
-
-[[package]]
 name = "nzpy"
 version = "1.17"
 source = { registry = "https://pypi.org/simple" }
@@ -1534,22 +1521,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/01/f3/fe4708a202c4a884b72df70364e930c3bcc2d4776f2f12d938dfec638666/nzpy-1.17.tar.gz", hash = "sha256:98cc17b2c6cf24c816ef69205a3d85d2e740eedd1e7787641e87dc4a28aca9a3", size = 79586, upload-time = "2025-03-20T14:19:29.603Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/1e/23/d375a7dd936d2b033a473fc7c52802f763cef34824dd33f964c1c8db6987/nzpy-1.17-py3-none-any.whl", hash = "sha256:45230e674656b0ce9edb659de8ff06c9e093e825add7c7e1ba5ccd36fe99356d", size = 52363, upload-time = "2025-03-20T14:19:28.229Z" },
-]
-
-[[package]]
-name = "oauth2client"
-version = "4.1.3"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "httplib2" },
-    { name = "pyasn1" },
-    { name = "pyasn1-modules" },
-    { name = "rsa" },
-    { name = "six" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/a6/7b/17244b1083e8e604bf154cf9b716aecd6388acd656dd01893d0d244c94d9/oauth2client-4.1.3.tar.gz", hash = "sha256:d486741e451287f69568a4d26d70d9acd73a2bbfa275746c535b4209891cccc6", size = 155910, upload-time = "2018-09-07T21:38:18.036Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/95/a9/4f25a14d23f0786b64875b91784607c2277eff25d48f915e39ff0cff505a/oauth2client-4.1.3-py2.py3-none-any.whl", hash = "sha256:b8a81cc5d60e2d364f0b1b98f958dbd472887acaf1a5b05e21c28c31a2d6d3ac", size = 98206, upload-time = "2018-09-07T21:38:16.742Z" },
 ]
 
 [[package]]
@@ -2284,7 +2255,6 @@ dependencies = [
     { name = "gevent" },
     { name = "greenlet" },
     { name = "gunicorn" },
-    { name = "httplib2" },
     { name = "ibm-db", marker = "platform_machine == 'AMD64' or platform_machine == 'x86_64'" },
     { name = "itsdangerous" },
     { name = "jinja2" },
@@ -2358,9 +2328,7 @@ all-ds = [
     { name = "memsql" },
     { name = "mysqlclient" },
     { name = "numpy" },
-    { name = "nzalchemy" },
     { name = "nzpy" },
-    { name = "oauth2client" },
     { name = "openpyxl" },
     { name = "pandas" },
     { name = "phoenixdb" },
@@ -2428,7 +2396,6 @@ requires-dist = [
     { name = "gevent", specifier = "==25.9.1" },
     { name = "greenlet", specifier = "==3.3.2" },
     { name = "gunicorn", specifier = "==22.0.0" },
-    { name = "httplib2", specifier = "==0.19.0" },
     { name = "ibm-db", marker = "platform_machine == 'AMD64' or platform_machine == 'x86_64'", specifier = ">=3.2.7,<4.0.0" },
     { name = "itsdangerous", specifier = "==2.1.2" },
     { name = "jinja2", specifier = "==3.1.5" },
@@ -2502,9 +2469,7 @@ all-ds = [
     { name = "memsql", specifier = "==3.2.0" },
     { name = "mysqlclient", specifier = "==2.1.1" },
     { name = "numpy", specifier = "==2.4.2" },
-    { name = "nzalchemy", specifier = ">=11.0.2,<12.0.0" },
     { name = "nzpy", specifier = ">=1.15" },
-    { name = "oauth2client", specifier = "==4.1.3" },
     { name = "openpyxl", specifier = "==3.1.5" },
     { name = "pandas", specifier = "==2.3.3" },
     { name = "phoenixdb", specifier = "==1.2.2" },
