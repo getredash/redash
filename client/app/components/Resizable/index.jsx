@@ -1,4 +1,4 @@
-import d3 from "d3";
+import * as d3 from "d3";
 import React, { useRef, useMemo, useCallback, useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { Resizable as ReactResizable } from "react-resizable";
@@ -42,7 +42,7 @@ export default function Resizable({ toggleShortcut, direction, sizeAttribute, ch
       .style(sizeAttribute, savedSize.current || "0px")
       .transition()
       .duration(200)
-      .ease("swing")
+      .ease(d3.easeLinear)
       .style(sizeAttribute, targetSize);
 
     // update state to new element's size
@@ -51,7 +51,6 @@ export default function Resizable({ toggleShortcut, direction, sizeAttribute, ch
 
   const resizeHandle = useMemo(
     () => (
-      // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions
       <span
         className={`react-resizable-handle react-resizable-handle-${direction}`}
         role="separator"

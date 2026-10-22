@@ -3,6 +3,7 @@ export function dragParam(paramName, offsetLeft, offsetTop) {
 
   cy.get(".parameter-dragged .drag-handle")
     .trigger("mousemove", offsetLeft, offsetTop, { force: true })
+    .wait(50) // let React render the drag before dropping (see the dragBy command)
     .trigger("mouseup", { force: true });
 }
 

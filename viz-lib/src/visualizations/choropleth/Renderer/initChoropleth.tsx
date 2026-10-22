@@ -1,8 +1,9 @@
 import { isFunction, isObject, isArray, map } from "lodash";
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import "../../leaflet.less";
 import "leaflet-fullscreen";
 import "leaflet-fullscreen/dist/leaflet.fullscreen.css";
 import { formatSimpleTemplate } from "@/lib/value-format";
@@ -30,8 +31,20 @@ const CustomControl = L.Control.extend({
     return div;
   },
   onRemove() {
-    // @ts-expect-error ts-migrate(2339) FIXME: Property 'getContainer' does not exist on type '{ ... Remove this comment to see the full error message
-    ReactDOM.unmountComponentAtNode(this.getContainer());
+    const root = (this as any)._reactRoot;
+    (this as any)._reactRoot = null;
+    // Leaflet removes controls while React may be rendering, so unmount afterwards
+    if (root) {
+      setTimeout(() => root.unmount());
+    }
+  },
+  // Render React content into the control's container
+  renderContent(element: React.ReactNode) {
+    const control = this as any;
+    if (!control._reactRoot) {
+      control._reactRoot = createRoot(control.getContainer());
+    }
+    control._reactRoot.render(element);
   },
 });
 
@@ -110,7 +123,14 @@ export default function initChoropleth(container: any, onBoundsChange: any) {
   }
 
   let boundsChangedFromMap = false;
+  // The user panned or zoomed the map since its bounds were last set
+  let viewChangedByUser = false;
+  // `invalidateSize` also ends with a "moveend" event, which isn't the user moving the map
+  let isResizing = false;
   const onMapMoveEnd = () => {
+    if (!isResizing) {
+      viewChangedByUser = true;
+    }
     handleMapBoundsChange();
   };
   _map.on("focus", () => {
@@ -148,6 +168,7 @@ export default function initChoropleth(container: any, onBoundsChange: any) {
     const mapBounds = _choropleth.getBounds();
     const bounds = validateBounds(options.bounds, mapBounds);
     _map.fitBounds(bounds, { animate: false, duration: 0 });
+    viewChangedByUser = false;
 
     // equivalent to `_map.setMaxBounds(mapBounds)` but without animation
     _map.options.maxBounds = mapBounds;
@@ -157,30 +178,42 @@ export default function initChoropleth(container: any, onBoundsChange: any) {
     if (options.legend.visible && legend.length > 0) {
       _legend.setPosition(options.legend.position.replace("-", ""));
       _map.addControl(_legend);
-      ReactDOM.render(
-        // @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call.
+      _legend.renderContent(
         <Legend
           // @ts-expect-error ts-migrate(2322) FIXME: Type '{ text: any; color: any; limit: any; }[]' is... Remove this comment to see the full error message
           items={map(legend, (item) => ({ ...item, text: formatValue(item.limit) }))}
           alignText={options.legend.alignText}
-        />,
-        _legend.getContainer()
+        />
       );
     }
   }
 
+  let _bounds: any = null;
+
   function updateBounds(bounds: any) {
+    _bounds = bounds;
     if (!boundsChangedFromMap) {
       const layerBounds = _choropleth ? _choropleth.getBounds() : _map.getBounds();
       bounds = validateBounds(bounds, layerBounds);
       if (bounds) {
         _map.fitBounds(bounds, { animate: false, duration: 0 });
+        viewChangedByUser = false;
       }
     }
   }
 
   const unwatchResize = resizeObserver(container, () => {
+    isResizing = true;
     _map.invalidateSize(false);
+    isResizing = false;
+    // Fit the bounds again for the new size, resetting the view: otherwise how the map is drawn depends on whether
+    // it was first drawn before or after its container got its final size. Keep the view if the user changed it.
+    if (_choropleth && !boundsChangedFromMap && !viewChangedByUser) {
+      const bounds = validateBounds(_bounds, _choropleth.getBounds());
+      if (bounds) {
+        _map.fitBounds(bounds, { reset: true } as L.FitBoundsOptions);
+      }
+    }
   });
 
   return {

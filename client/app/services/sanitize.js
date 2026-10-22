@@ -20,4 +20,6 @@ DOMPurify.addHook("afterSanitizeAttributes", function (node) {
 
 export { DOMPurify };
 
-export default DOMPurify.sanitize;
+export default function sanitize(dirty) {
+  return DOMPurify.sanitize(dirty);
+}

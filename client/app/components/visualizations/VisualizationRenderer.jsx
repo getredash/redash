@@ -92,7 +92,7 @@ export default function VisualizationRenderer(props) {
 
 VisualizationRenderer.propTypes = {
   visualization: VisualizationType.isRequired,
-  queryResult: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  queryResult: PropTypes.object.isRequired,
   showFilters: PropTypes.bool,
   filters: FiltersType,
   onFiltersChange: PropTypes.func,

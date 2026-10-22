@@ -1,0 +1,310 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.5.14/schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "files": {
+    "includes": [
+      "client/app/**/*.js",
+      "client/app/**/*.jsx",
+      "client/app/**/*.ts",
+      "client/app/**/*.tsx",
+      "client/cypress/**/*.js",
+      "client/cypress/**/*.jsx",
+      "client/cypress/**/*.ts",
+      "client/cypress/**/*.tsx",
+      "client/visual-tests/**/*.ts",
+      "viz-lib/src/**/*.ts",
+      "viz-lib/src/**/*.tsx",
+      "viz-lib/src/**/*.js",
+      "viz-lib/src/**/*.jsx"
+    ]
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineEnding": "lf",
+    "lineWidth": 120
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "double",
+      "jsxQuoteStyle": "double",
+      "semicolons": "always",
+      "trailingCommas": "es5",
+      "arrowParentheses": "always",
+      "bracketSameLine": false,
+      "bracketSpacing": true,
+      "quoteProperties": "asNeeded"
+    }
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "preset": "none",
+      "a11y": {
+        "noAccessKey": "warn",
+        "noAmbiguousAnchorText": "off",
+        "noAriaUnsupportedElements": "warn",
+        "noAutofocus": "off",
+        "noDistractingElements": "warn",
+        "noHeaderScope": "warn",
+        "noInteractiveElementToNoninteractiveRole": "error",
+        "noLabelWithoutControl": "error",
+        "noNoninteractiveElementInteractions": "off",
+        "noNoninteractiveElementToInteractiveRole": "error",
+        "noNoninteractiveTabindex": "error",
+        "noPositiveTabindex": "error",
+        "noRedundantAlt": "warn",
+        "noRedundantRoles": "error",
+        "noStaticElementInteractions": "off",
+        "useAltText": "warn",
+        "useAnchorContent": "warn",
+        "useAriaActivedescendantWithTabindex": "warn",
+        "useAriaPropsForRole": "warn",
+        "useAriaPropsSupportedByRole": "warn",
+        "useFocusableInteractive": "error",
+        "useHeadingContent": "warn",
+        "useHtmlLang": "error",
+        "useIframeTitle": "warn",
+        "useKeyWithClickEvents": "off",
+        "useKeyWithMouseEvents": "error",
+        "useMediaCaption": "error",
+        "useValidAnchor": "off",
+        "useValidAriaProps": "warn",
+        "useValidAriaRole": {
+          "level": "warn",
+          "options": {
+            "ignoreNonDom": true
+          }
+        },
+        "useValidAriaValues": "warn",
+        "useValidAutocomplete": "error"
+      },
+      "complexity": {
+        "noAdjacentSpacesInRegex": "warn",
+        "noCommaOperator": "warn",
+        "noUselessConstructor": "warn",
+        "noUselessEscapeInRegex": "warn",
+        "noUselessLabel": "warn",
+        "noUselessLoneBlockStatements": "warn",
+        "noUselessRename": "warn",
+        "noUselessStringConcat": "warn",
+        "useLiteralKeys": "warn"
+      },
+      "correctness": {
+        "noConstAssign": "warn",
+        "noEmptyCharacterClassInRegex": "warn",
+        "noEmptyPattern": "warn",
+        "noGlobalObjectCalls": "warn",
+        "noInvalidUseBeforeDeclaration": "warn",
+        "noSelfAssign": "warn",
+        "noUndeclaredVariables": "error",
+        "noUnreachable": "warn",
+        "noUnreachableSuper": "warn",
+        "noUnusedLabels": "warn",
+        "noUnusedVariables": "warn",
+        "useExhaustiveDependencies": {
+          "level": "warn",
+          "options": {
+            "reportUnnecessaryDependencies": false
+          }
+        },
+        "useHookAtTopLevel": "error",
+        "useIsNan": "warn",
+        "useValidTypeof": "warn",
+        "useYield": "warn"
+      },
+      "security": {
+        "noBlankTarget": "warn",
+        "noDangerouslySetInnerHtmlWithChildren": "warn",
+        "noGlobalEval": "warn",
+        "noScriptUrl": "warn"
+      },
+      "style": {
+        "noMultilineString": "warn",
+        "noNestedTernary": "off",
+        "noRestrictedGlobals": {
+          "level": "error",
+          "options": {
+            "deniedGlobals": {
+              "addEventListener": "Use window.addEventListener instead; the bare global is easy to use by mistake.",
+              "blur": "Use window.blur instead; the bare global is easy to use by mistake.",
+              "close": "Use window.close instead; the bare global is easy to use by mistake.",
+              "closed": "Use window.closed instead; the bare global is easy to use by mistake.",
+              "confirm": "Use window.confirm instead; the bare global is easy to use by mistake.",
+              "defaultStatus": "Use window.defaultStatus instead; the bare global is easy to use by mistake.",
+              "defaultstatus": "Use window.defaultstatus instead; the bare global is easy to use by mistake.",
+              "event": "Use window.event instead; the bare global is easy to use by mistake.",
+              "external": "Use window.external instead; the bare global is easy to use by mistake.",
+              "find": "Use window.find instead; the bare global is easy to use by mistake.",
+              "focus": "Use window.focus instead; the bare global is easy to use by mistake.",
+              "frameElement": "Use window.frameElement instead; the bare global is easy to use by mistake.",
+              "frames": "Use window.frames instead; the bare global is easy to use by mistake.",
+              "history": "Use window.history instead; the bare global is easy to use by mistake.",
+              "innerHeight": "Use window.innerHeight instead; the bare global is easy to use by mistake.",
+              "innerWidth": "Use window.innerWidth instead; the bare global is easy to use by mistake.",
+              "length": "Use window.length instead; the bare global is easy to use by mistake.",
+              "location": "Use window.location instead; the bare global is easy to use by mistake.",
+              "locationbar": "Use window.locationbar instead; the bare global is easy to use by mistake.",
+              "menubar": "Use window.menubar instead; the bare global is easy to use by mistake.",
+              "moveBy": "Use window.moveBy instead; the bare global is easy to use by mistake.",
+              "moveTo": "Use window.moveTo instead; the bare global is easy to use by mistake.",
+              "name": "Use window.name instead; the bare global is easy to use by mistake.",
+              "onblur": "Use window.onblur instead; the bare global is easy to use by mistake.",
+              "onerror": "Use window.onerror instead; the bare global is easy to use by mistake.",
+              "onfocus": "Use window.onfocus instead; the bare global is easy to use by mistake.",
+              "onload": "Use window.onload instead; the bare global is easy to use by mistake.",
+              "onresize": "Use window.onresize instead; the bare global is easy to use by mistake.",
+              "onunload": "Use window.onunload instead; the bare global is easy to use by mistake.",
+              "open": "Use window.open instead; the bare global is easy to use by mistake.",
+              "opener": "Use window.opener instead; the bare global is easy to use by mistake.",
+              "opera": "Use window.opera instead; the bare global is easy to use by mistake.",
+              "outerHeight": "Use window.outerHeight instead; the bare global is easy to use by mistake.",
+              "outerWidth": "Use window.outerWidth instead; the bare global is easy to use by mistake.",
+              "pageXOffset": "Use window.pageXOffset instead; the bare global is easy to use by mistake.",
+              "pageYOffset": "Use window.pageYOffset instead; the bare global is easy to use by mistake.",
+              "parent": "Use window.parent instead; the bare global is easy to use by mistake.",
+              "print": "Use window.print instead; the bare global is easy to use by mistake.",
+              "removeEventListener": "Use window.removeEventListener instead; the bare global is easy to use by mistake.",
+              "resizeBy": "Use window.resizeBy instead; the bare global is easy to use by mistake.",
+              "resizeTo": "Use window.resizeTo instead; the bare global is easy to use by mistake.",
+              "screen": "Use window.screen instead; the bare global is easy to use by mistake.",
+              "screenLeft": "Use window.screenLeft instead; the bare global is easy to use by mistake.",
+              "screenTop": "Use window.screenTop instead; the bare global is easy to use by mistake.",
+              "screenX": "Use window.screenX instead; the bare global is easy to use by mistake.",
+              "screenY": "Use window.screenY instead; the bare global is easy to use by mistake.",
+              "scroll": "Use window.scroll instead; the bare global is easy to use by mistake.",
+              "scrollBy": "Use window.scrollBy instead; the bare global is easy to use by mistake.",
+              "scrollTo": "Use window.scrollTo instead; the bare global is easy to use by mistake.",
+              "scrollX": "Use window.scrollX instead; the bare global is easy to use by mistake.",
+              "scrollY": "Use window.scrollY instead; the bare global is easy to use by mistake.",
+              "scrollbars": "Use window.scrollbars instead; the bare global is easy to use by mistake.",
+              "self": "Use window.self instead; the bare global is easy to use by mistake.",
+              "status": "Use window.status instead; the bare global is easy to use by mistake.",
+              "statusbar": "Use window.statusbar instead; the bare global is easy to use by mistake.",
+              "stop": "Use window.stop instead; the bare global is easy to use by mistake.",
+              "toolbar": "Use window.toolbar instead; the bare global is easy to use by mistake.",
+              "top": "Use window.top instead; the bare global is easy to use by mistake."
+            }
+          }
+        },
+        "noRestrictedImports": {
+          "level": "error",
+          "options": {
+            "paths": {
+              "antd": "Please use 'import XXX from antd/lib/XXX' import instead.",
+              "antd/lib": "Please use 'import XXX from antd/lib/XXX' import instead."
+            }
+          }
+        },
+        "useArrayLiterals": "warn",
+        "useBlockStatements": "off",
+        "useConsistentBuiltinInstantiation": "warn",
+        "useDefaultSwitchClause": "off",
+        "useThrowOnlyError": "warn"
+      },
+      "suspicious": {
+        "noAssignInExpressions": "warn",
+        "noCatchAssign": "warn",
+        "noCommentText": "warn",
+        "noConfusingLabels": "warn",
+        "noConsole": {
+          "level": "warn",
+          "options": {
+            "allow": ["warn", "error"]
+          }
+        },
+        "noControlCharactersInRegex": "warn",
+        "noDebugger": "error",
+        "noDoubleEquals": "warn",
+        "noDuplicateCase": "warn",
+        "noDuplicateClassMembers": "warn",
+        "noDuplicateJsxProps": "warn",
+        "noDuplicateObjectKeys": "warn",
+        "noDuplicateParameters": "warn",
+        "noFallthroughSwitchClause": "warn",
+        "noFunctionAssign": "warn",
+        "noGlobalAssign": "warn",
+        "noLabelVar": "warn",
+        "noOctalEscape": "warn",
+        "noRedeclare": "warn",
+        "noSelfCompare": "warn",
+        "noShadowRestrictedNames": "off",
+        "noSparseArray": "warn",
+        "noTemplateCurlyInString": "warn",
+        "noUnsafeNegation": "warn",
+        "noUnusedExpressions": "error",
+        "noWith": "warn",
+        "useGetterReturn": "warn",
+        "useIterableCallbackReturn": {
+          "level": "warn",
+          "options": {}
+        },
+        "noFocusedTests": "error",
+        "noDuplicateTestHooks": "error",
+        "noExportsInTest": "error"
+      }
+    }
+  },
+  "assist": {
+    "enabled": false
+  },
+  "overrides": [
+    {
+      "includes": ["**/*.ts", "**/*.tsx"],
+      "linter": {
+        "rules": {
+          "complexity": {
+            "noUselessConstructor": "error"
+          },
+          "suspicious": {
+            "noExplicitAny": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["**/*.test.*", "**/__tests__/**", "**/tests/**"],
+      "javascript": {
+        "globals": ["describe", "test", "it", "expect", "jest", "beforeEach", "beforeAll", "afterEach", "afterAll"]
+      }
+    },
+    {
+      "includes": ["client/cypress/**"],
+      "javascript": {
+        "globals": [
+          "cy",
+          "Cypress",
+          "describe",
+          "context",
+          "it",
+          "before",
+          "beforeEach",
+          "after",
+          "afterEach",
+          "expect",
+          "assert"
+        ]
+      },
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noRedeclare": "off",
+            "noUnusedExpressions": "off",
+            "noDuplicateTestHooks": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["viz-lib/**"],
+      "linter": {
+        "enabled": false
+      }
+    }
+  ]
+}

@@ -6,7 +6,7 @@ import { EditorPropTypes } from "@/visualizations/prop-types";
 import { AllColorPalettes } from "@/visualizations/ColorPalette";
 import ChartTypeSelect from "./ChartTypeSelect";
 import ColumnMappingSelect from "./ColumnMappingSelect";
-import { useDebouncedCallback } from "use-debounce/lib";
+import { useDebouncedCallback } from "use-debounce";
 
 function getAvailableColumnMappingTypes(options: any) {
   const result = ["x", "y"];
@@ -123,7 +123,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
     onOptionsChange({ swappedAxes: !options.swappedAxes, seriesOptions });
   }
 
-  const [debouncedOnOptionsChange] = useDebouncedCallback(onOptionsChange, 200);
+  const debouncedOnOptionsChange = useDebouncedCallback(onOptionsChange, 200);
 
   return (
     <React.Fragment>
@@ -154,16 +154,12 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
 
       {map(mappedColumns, (value, type) => (
         <ColumnMappingSelect
-          // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
           key={type}
-          // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
           type={type}
           value={value}
-          // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
           areAxesSwapped={options.swappedAxes}
           // @ts-expect-error ts-migrate(2322) FIXME: Type 'unknown[]' is not assignable to type 'never'... Remove this comment to see the full error message
           availableColumns={unusedColumns}
-          // @ts-expect-error ts-migrate(2322) FIXME: Type '(column: any, type: any) => void' is not ass... Remove this comment to see the full error message
           onChange={handleColumnMappingChange}
         />
       ))}

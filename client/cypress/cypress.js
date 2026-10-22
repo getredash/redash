@@ -1,4 +1,4 @@
-/* eslint-disable no-console, compat/compat -- a Node.js script, not browser code */
+// biome-ignore-all lint/suspicious/noConsole: CLI script that reports progress on the console
 const { execSync } = require("child_process");
 const { seedData } = require("./seed-data");
 const fs = require("fs");
@@ -7,7 +7,7 @@ let cypressConfigBaseUrl;
 try {
   const cypressConfig = JSON.parse(fs.readFileSync("cypress.json"));
   cypressConfigBaseUrl = cypressConfig.baseUrl;
-} catch (e) {}
+} catch {}
 
 const baseUrl = process.env.CYPRESS_baseUrl || cypressConfigBaseUrl || "http://localhost:5001";
 
@@ -64,10 +64,7 @@ function stopServer() {
 }
 
 function runCypressCI() {
-  const {
-    GITHUB_REPOSITORY,
-    CYPRESS_OPTIONS, // eslint-disable-line no-unused-vars
-  } = process.env;
+  const { GITHUB_REPOSITORY } = process.env;
 
   if (GITHUB_REPOSITORY === "getredash/redash" && process.env.CYPRESS_RECORD_KEY) {
     process.env.CYPRESS_OPTIONS = "--record";

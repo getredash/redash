@@ -12,7 +12,7 @@ type Props = {
 };
 
 function Editor({ column, onChange }: Props) {
-  const [onChangeDebounced] = useDebouncedCallback(onChange, 200);
+  const onChangeDebounced = useDebouncedCallback(onChange, 200);
 
   return (
     // @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message
@@ -42,7 +42,6 @@ export default function initDateTimeColumn(column: any) {
   }
 
   function DateTimeColumn({ row }: any) {
-    // eslint-disable-line react/prop-types
     const { text } = prepareData(row);
     return text;
   }

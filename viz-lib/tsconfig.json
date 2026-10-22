@@ -1,11 +1,12 @@
 {
   "compilerOptions": {
     "target": "es2019",
-    "module": "commonjs",
-    "moduleResolution": "node",
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "lib": ["dom", "dom.iterable", "esnext"],
     "jsx": "react",
     "types": ["node", "jest"],
+    "rootDir": "src",
     "outDir": "lib",
     "declaration": true,
     "strict": true,
@@ -16,7 +17,6 @@
     "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "baseUrl": "./",
     "paths": {
       "@/*": ["./src/*"]
     }

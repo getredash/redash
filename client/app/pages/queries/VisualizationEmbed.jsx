@@ -2,9 +2,10 @@ import { find, has } from "lodash";
 import React, { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import moment from "moment";
-import { markdown } from "markdown";
+import markdownToHtml from "@/lib/markdown";
 
 import Button from "antd/lib/button";
+import LoadingOutlinedIcon from "@ant-design/icons/LoadingOutlined";
 import Dropdown from "antd/lib/dropdown";
 import Menu from "antd/lib/menu";
 import Tooltip from "@/components/Tooltip";
@@ -40,7 +41,7 @@ function VisualizationEmbedHeader({ queryName, queryDescription, visualization }
         <VisualizationName visualization={visualization} /> {queryName}
         {queryDescription && (
           <small>
-            <HtmlContent className="markdown text-muted">{markdown.toHTML(queryDescription || "")}</HtmlContent>
+            <HtmlContent className="markdown text-muted">{markdownToHtml(queryDescription)}</HtmlContent>
           </small>
         )}
       </h3>
@@ -129,7 +130,10 @@ function VisualizationEmbedFooter({
           </Tooltip>
           {!query.hasParameters() && (
             <Dropdown overlay={downloadMenu} disabled={!queryResults} trigger={["click"]} placement="topLeft">
-              <Button loading={!queryResults && !!refreshStartedAt} className="m-l-5">
+              <Button className="m-l-5">
+                {/* Not the button's `loading` prop: when loading ends right after it starts, antd 4.24 leaves
+                    its animated loading icon in the middle of its transition forever */}
+                {!queryResults && !!refreshStartedAt && <LoadingOutlinedIcon className="m-r-5" />}
                 Download Dataset
                 <i className="fa fa-caret-up m-l-5" aria-hidden="true" />
               </Button>
@@ -142,8 +146,8 @@ function VisualizationEmbedFooter({
 }
 
 VisualizationEmbedFooter.propTypes = {
-  query: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
-  queryResults: PropTypes.object, // eslint-disable-line react/forbid-prop-types
+  query: PropTypes.object.isRequired,
+  queryResults: PropTypes.object,
   updatedAt: PropTypes.string,
   refreshStartedAt: Moment,
   queryUrl: PropTypes.string,

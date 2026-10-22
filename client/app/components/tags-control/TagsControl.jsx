@@ -78,7 +78,6 @@ export class TagsControl extends React.Component {
 
 function modelTagsControl({ archivedTooltip }) {
   // See comment for `propTypes`/`defaultProps`
-  // eslint-disable-next-line react/prop-types
   function ModelTagsControl({ isDraft, isArchived, ...props }) {
     return (
       <TagsControl {...props}>

@@ -88,8 +88,8 @@ export default function QueryExecutionMetadata({
 }
 
 QueryExecutionMetadata.propTypes = {
-  query: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
-  queryResult: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  query: PropTypes.object.isRequired,
+  queryResult: PropTypes.object.isRequired,
   isQueryExecuting: PropTypes.bool,
   selectedVisualization: PropTypes.number,
   showEditVisualizationButton: PropTypes.bool,

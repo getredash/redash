@@ -238,9 +238,9 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
 
 EditVisualizationDialog.propTypes = {
   dialog: DialogPropType.isRequired,
-  query: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  query: PropTypes.object.isRequired,
   visualization: VisualizationType,
-  queryResult: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  queryResult: PropTypes.object.isRequired,
 };
 
 EditVisualizationDialog.defaultProps = {

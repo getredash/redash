@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { compact, isEmpty, invoke, map } from "lodash";
-import { markdown } from "markdown";
+import markdownToHtml from "@/lib/markdown";
 import cx from "classnames";
 import Menu from "antd/lib/menu";
 import HtmlContent from "@redash/viz/lib/components/HtmlContent";
@@ -107,7 +107,7 @@ function VisualizationWidgetHeader({
           </p>
           {!isEmpty(widget.getQuery().description) && (
             <HtmlContent className="text-muted markdown query--description">
-              {markdown.toHTML(widget.getQuery().description || "")}
+              {markdownToHtml(widget.getQuery().description)}
             </HtmlContent>
           )}
         </div>
@@ -117,7 +117,6 @@ function VisualizationWidgetHeader({
           <Parameters
             parameters={parameters}
             sortable={isEditing}
-            appendSortableToParent={false}
             onValuesChange={onParametersUpdate}
             onParametersEdit={onParametersEdit}
           />
@@ -128,7 +127,7 @@ function VisualizationWidgetHeader({
 }
 
 VisualizationWidgetHeader.propTypes = {
-  widget: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  widget: PropTypes.object.isRequired,
   refreshStartedAt: Moment,
   parameters: PropTypes.arrayOf(PropTypes.object),
   isEditing: PropTypes.bool,
@@ -202,7 +201,7 @@ function VisualizationWidgetFooter({ widget, isPublic, onRefresh, onExpand }) {
 }
 
 VisualizationWidgetFooter.propTypes = {
-  widget: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  widget: PropTypes.object.isRequired,
   isPublic: PropTypes.bool,
   onRefresh: PropTypes.func.isRequired,
   onExpand: PropTypes.func.isRequired,
@@ -212,8 +211,8 @@ VisualizationWidgetFooter.defaultProps = { isPublic: false };
 
 class VisualizationWidget extends React.Component {
   static propTypes = {
-    widget: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
-    dashboard: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+    widget: PropTypes.object.isRequired,
+    dashboard: PropTypes.object.isRequired,
     filters: FiltersType,
     isPublic: PropTypes.bool,
     isLoading: PropTypes.bool,

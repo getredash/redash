@@ -181,7 +181,7 @@ export default function useDatabricksSchema(dataSource, options = null, onOption
       if (databaseName) {
         try {
           localStorage.setItem(`lastSelectedDatabricksDatabase_${dataSource.id}`, databaseName);
-        } catch (e) {
+        } catch {
           // `localStorage.setItem` may throw exception if there are no enough space - in this case it could be ignored
         }
       }

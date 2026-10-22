@@ -1,5 +1,5 @@
 import React from "react";
-import enzyme from "enzyme";
+import { render, fireEvent } from "@testing-library/react";
 import moment from "moment";
 
 import Renderer from "./Renderer";
@@ -7,7 +7,7 @@ import getOptions from "./getOptions";
 
 function mount(data: any, options: any = {}) {
   options = getOptions(options, data);
-  return enzyme.mount(<Renderer data={data} options={options} />);
+  return render(<Renderer data={data} options={options} />).container;
 }
 
 describe("Visualizations -> Details -> Renderer", () => {
@@ -38,12 +38,12 @@ describe("Visualizations -> Details -> Renderer", () => {
     const el = mount(sampleData);
 
     // Check that the component renders with expected data
-    expect(el.text()).toContain("id");
-    expect(el.text()).toContain("name");
-    expect(el.text()).toContain("created_at");
-    expect(el.text()).toContain("active");
-    expect(el.text()).toContain("1"); // id value
-    expect(el.text()).toContain("John Doe"); // name value
+    expect(el.textContent).toContain("id");
+    expect(el.textContent).toContain("name");
+    expect(el.textContent).toContain("created_at");
+    expect(el.textContent).toContain("active");
+    expect(el.textContent).toContain("1"); // id value
+    expect(el.textContent).toContain("John Doe"); // name value
   });
 
   test("Renders only visible columns", () => {
@@ -59,10 +59,10 @@ describe("Visualizations -> Details -> Renderer", () => {
     const el = mount(sampleData, options);
 
     // Should show id and created_at, but not name and active
-    expect(el.text()).toContain("id");
-    expect(el.text()).toContain("created_at");
-    expect(el.text()).not.toContain("name");
-    expect(el.text()).not.toContain("active");
+    expect(el.textContent).toContain("id");
+    expect(el.textContent).toContain("created_at");
+    expect(el.textContent).not.toContain("name");
+    expect(el.textContent).not.toContain("active");
   });
 
   test("Respects column order", () => {
@@ -78,7 +78,7 @@ describe("Visualizations -> Details -> Renderer", () => {
     const el = mount(sampleData, options);
 
     // Get all description item labels in order
-    const labels = el.find(".ant-descriptions-item-label").map((node) => node.text());
+    const labels = Array.from(el.querySelectorAll(".ant-descriptions-item-label")).map((node) => node.textContent);
 
     // Should appear in order: active (0), name (1), created_at (2), id (3)
     expect(labels).toEqual(["active", "name", "created_at", "id"]);
@@ -94,8 +94,8 @@ describe("Visualizations -> Details -> Renderer", () => {
 
     const el = mount(sampleData, options);
 
-    expect(el.text()).toContain("User ID");
-    expect(el.text()).toContain("Full Name");
+    expect(el.textContent).toContain("User ID");
+    expect(el.textContent).toContain("Full Name");
   });
 
   test("Applies text alignment", () => {
@@ -109,7 +109,7 @@ describe("Visualizations -> Details -> Renderer", () => {
     const el = mount(sampleData, options);
 
     // Check that alignment styles are applied
-    const alignedDivs = el.find("div[style]");
+    const alignedDivs = el.querySelectorAll("div[style]");
     expect(alignedDivs.length).toBeGreaterThan(0);
   });
 
@@ -117,7 +117,7 @@ describe("Visualizations -> Details -> Renderer", () => {
     const el = mount(sampleData);
 
     // Check that pagination is present - look for pagination elements
-    const paginationElements = el.find('[className*="paginator"]');
+    const paginationElements = el.querySelectorAll('[class*="paginator"]');
     expect(paginationElements.length).toBeGreaterThan(0);
   });
 
@@ -130,7 +130,7 @@ describe("Visualizations -> Details -> Renderer", () => {
     const el = mount(singleRowData);
 
     // Check that pagination is not present for single row
-    const paginationElements = el.find('[className*="paginator"]');
+    const paginationElements = el.querySelectorAll('[class*="paginator"]');
     expect(paginationElements.length).toBe(0);
   });
 
@@ -142,7 +142,7 @@ describe("Visualizations -> Details -> Renderer", () => {
 
     const el = mount(emptyData);
 
-    expect(el.html()).toBeNull();
+    expect(el.innerHTML).toBe("");
   });
 
   test("Handles null data", () => {
@@ -151,9 +151,9 @@ describe("Visualizations -> Details -> Renderer", () => {
     console.error = jest.fn();
 
     // Test the component directly with null data instead of using mount helper
-    const el = enzyme.mount(<Renderer data={null as any} options={{}} />);
+    const el = render(<Renderer data={null as any} options={{}} />).container;
 
-    expect(el.html()).toBeNull();
+    expect(el.innerHTML).toBe("");
 
     // Restore console.error
     console.error = originalError;
@@ -163,19 +163,15 @@ describe("Visualizations -> Details -> Renderer", () => {
     const el = mount(sampleData);
 
     // Check first row is displayed
-    expect(el.text()).toContain("John Doe");
-    expect(el.text()).not.toContain("Jane Smith");
+    expect(el.textContent).toContain("John Doe");
+    expect(el.textContent).not.toContain("Jane Smith");
 
     // Find and click next button
-    const nextButton = el
-      .find("button")
-      .filterWhere((n) => n.text().includes("Next") || n.prop("aria-label") === "Next Page");
-    if (nextButton.length > 0) {
-      nextButton.first().simulate("click");
+    const nextButton = el.querySelector('li[title="Next Page"] button');
+    expect(nextButton).not.toBeNull();
+    fireEvent.click(nextButton as HTMLButtonElement);
 
-      // Check second row is displayed after state update
-      el.update();
-      expect(el.text()).toContain("Jane Smith");
-    }
+    // Check second row is displayed after state update
+    expect(el.textContent).toContain("Jane Smith");
   });
 });
