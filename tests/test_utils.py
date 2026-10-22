@@ -159,3 +159,13 @@ def test_pandas_to_result(mock_dataframe):
     assert "rows" in result
 
     assert mock_dataframe.equals(pd.DataFrame(result["rows"]))
+
+
+@skip_condition
+def test_get_column_types_from_dataframe_with_custom_index():
+    df = pd.DataFrame(
+        {"datetime_col": [np.datetime64("2020-01-01 12:00:00"), np.datetime64("2020-05-05 14:30:00")]},
+        index=["a", "b"],
+    )
+    result = get_column_types_from_dataframe(df)
+    assert result == [{"name": "datetime_col", "friendly_name": "datetime_col", "type": TYPE_DATETIME}]
