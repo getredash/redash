@@ -5,11 +5,11 @@ from collections import deque
 
 import redis
 from rq import get_current_job
-from rq.exceptions import NoSuchJobError
+from rq.exceptions import InvalidJobOperation, NoSuchJobError
 from rq.job import JobStatus
 from rq.timeouts import JobTimeoutException
 
-from redash import models, redis_connection, settings
+from redash import models, redis_connection, rq_redis_connection, settings
 from redash.query_runner import InterruptException
 from redash.tasks.alerts import check_alerts_for_query
 from redash.tasks.failure_report import track_failure
@@ -48,7 +48,7 @@ def enqueue_query(query, data_source, user_id, is_api_key=False, scheduled_query
                 job_cancelled = None
 
                 try:
-                    job = Job.fetch(job_id)
+                    job = Job.fetch(job_id, connection=rq_redis_connection)
                     job_exists = True
                     status = job.get_status()
                     job_complete = status in [JobStatus.FINISHED, JobStatus.FAILED]
@@ -58,7 +58,7 @@ def enqueue_query(query, data_source, user_id, is_api_key=False, scheduled_query
                         message = "job found is complete (%s)" % status
                     elif job_cancelled:
                         message = "job found has been cancelled"
-                except NoSuchJobError:
+                except (NoSuchJobError, InvalidJobOperation):
                     message = "job found has expired"
                     job_exists = False
 
@@ -82,7 +82,7 @@ def enqueue_query(query, data_source, user_id, is_api_key=False, scheduled_query
                 time_limit = settings.dynamic_settings.query_time_limit(scheduled_query, user_id, data_source.org_id)
                 metadata["Queue"] = queue_name
 
-                queue = Queue(queue_name)
+                queue = Queue(queue_name, connection=rq_redis_connection)
                 enqueue_kwargs = {
                     "user_id": user_id,
                     "scheduled_query_id": scheduled_query_id,
