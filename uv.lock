@@ -612,6 +612,19 @@ wheels = [
 ]
 
 [[package]]
+name = "email-validator"
+version = "2.3.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "dnspython" },
+    { name = "idna" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/f5/22/900cb125c76b7aaa450ce02fd727f452243f2e91a61af068b40adba60ea9/email_validator-2.3.0.tar.gz", hash = "sha256:9fc05c37f2f6cf439ff414f8fc46d917929974a82244c20eb10231ba60c54426", size = 51238, upload-time = "2025-08-26T13:09:06.831Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/de/15/545e2b6cf2e3be84bc1ed85613edd75b8aea69807a71c26f4ca6a9258e82/email_validator-2.3.0-py3-none-any.whl", hash = "sha256:80f13f623413e6b197ae73bb10bf4eb0908faf509ad8362c5edeb0be7fd450b4", size = 35604, upload-time = "2025-08-26T13:09:05.858Z" },
+]
+
+[[package]]
 name = "environs"
 version = "11.2.1"
 source = { registry = "https://pypi.org/simple" }
@@ -752,16 +765,16 @@ wheels = [
 
 [[package]]
 name = "flask-wtf"
-version = "1.1.1"
+version = "1.3.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "flask" },
     { name = "itsdangerous" },
     { name = "wtforms" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/80/55/5114035eb8f6200fbe838a4b9828409ac831408c4591bf7875aed299d5f8/Flask-WTF-1.1.1.tar.gz", hash = "sha256:41c4244e9ae626d63bed42ae4785b90667b885b1535d5a4095e1f63060d12aa9", size = 52303, upload-time = "2023-01-17T19:26:58.18Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/91/f1/605a56d4ea217b307f3e6f4d663e0351253d85d841edc93ba559f0648e19/flask_wtf-1.3.0.tar.gz", hash = "sha256:61d5dabc50c3df885c297dcbd80810443a5d632106c8a69cab8ce740f0cdd7cc", size = 50414, upload-time = "2026-04-23T07:41:55.096Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/e0/06/102cdb72b0f98bf6ee73e9239e9cfb071e5ab8893037f6b12053b6b06a27/Flask_WTF-1.1.1-py3-none-any.whl", hash = "sha256:7887d6f1ebb3e17bf648647422f0944c9a469d0fcf63e3b66fb9a83037e38b2c", size = 12079, upload-time = "2023-01-17T19:26:56.13Z" },
+    { url = "https://files.pythonhosted.org/packages/14/d2/97adf2ec7af95522573e6dd5493ee84792d0fbfb2def010c4a581b8d6e5e/flask_wtf-1.3.0-py3-none-any.whl", hash = "sha256:dc5e3a4ce97f75c47bf6c1c72ad2c3b7bdf579a2ed13aebcc5d3d81fe2571160", size = 13959, upload-time = "2026-04-23T07:41:53.828Z" },
 ]
 
 [[package]]
@@ -2311,6 +2324,7 @@ dependencies = [
     { name = "cryptography" },
     { name = "debugpy" },
     { name = "disposable-email-domains" },
+    { name = "email-validator" },
     { name = "flask" },
     { name = "flask-limiter" },
     { name = "flask-login" },
@@ -2452,6 +2466,7 @@ requires-dist = [
     { name = "cryptography", specifier = "==50.0.1" },
     { name = "debugpy", specifier = ">=1.8.9,<2.0.0" },
     { name = "disposable-email-domains", specifier = ">=0.0.52" },
+    { name = "email-validator", specifier = "==2.3.0" },
     { name = "flask", specifier = "==2.3.2" },
     { name = "flask-limiter", specifier = "==4.1.1" },
     { name = "flask-login", specifier = "==0.6.3" },
@@ -2460,7 +2475,7 @@ requires-dist = [
     { name = "flask-restful", specifier = "==0.3.10" },
     { name = "flask-sqlalchemy", specifier = "==2.5.1" },
     { name = "flask-talisman", specifier = "==1.1.0" },
-    { name = "flask-wtf", specifier = "==1.1.1" },
+    { name = "flask-wtf", specifier = "==1.3.0" },
     { name = "funcy", specifier = "==2.1" },
     { name = "gevent", specifier = "==26.9.0" },
     { name = "greenlet", specifier = "==3.5.6" },
@@ -2508,7 +2523,7 @@ requires-dist = [
     { name = "urllib3", specifier = "==1.26.19" },
     { name = "user-agents", specifier = "==2.2.0" },
     { name = "werkzeug", specifier = "==2.3.8" },
-    { name = "wtforms", specifier = "==2.2.1" },
+    { name = "wtforms", specifier = "==3.2.2" },
     { name = "xlsxwriter", specifier = "==3.2.9" },
 ]
 
@@ -3306,11 +3321,14 @@ sdist = { url = "https://files.pythonhosted.org/packages/50/8d/e3605669df8541f68
 
 [[package]]
 name = "wtforms"
-version = "2.2.1"
+version = "3.2.2"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/cd/1d/7221354ebfc32b868740d02e44225c2ce00769b0d3dc370e463e2bc4b446/WTForms-2.2.1.tar.gz", hash = "sha256:0cdbac3e7f6878086c334aa25dc5a33869a3954e9d1e015130d65a69309b3b61", size = 156904, upload-time = "2018-06-07T22:16:35.601Z" }
+dependencies = [
+    { name = "markupsafe" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/e9/91/ed9b517da898e3fb747566aa3c12a734bd64ea7449a0d25ec74ce8f8b8eb/wtforms-3.2.2.tar.gz", hash = "sha256:7b00c73f8670f35d4edb0293dcd81b980528bee72fd662b182aaba27ae570b93", size = 139583, upload-time = "2026-05-03T05:53:44.147Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/9f/c8/dac5dce9908df1d9d48ec0e26e2a250839fa36ea2c602cc4f85ccfeb5c65/WTForms-2.2.1-py2.py3-none-any.whl", hash = "sha256:e3ee092c827582c50877cdbd49e9ce6d2c5c1f6561f849b3b068c1b8029626f1", size = 166353, upload-time = "2018-06-07T22:16:33.906Z" },
+    { url = "https://files.pythonhosted.org/packages/18/76/bb225c8300f3a0ba28e01df51419c6c9574a297c43d71b29048e03b65deb/wtforms-3.2.2-py3-none-any.whl", hash = "sha256:72b90d5d921bd3119252069cf0301e9c13915f9e52792652bc91c5dda4b79e56", size = 158656, upload-time = "2026-05-03T05:53:46.072Z" },
 ]
 
 [[package]]
