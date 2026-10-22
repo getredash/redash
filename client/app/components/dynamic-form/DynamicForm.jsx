@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import cx from "classnames";
 import Form from "antd/lib/form";
 import Button from "antd/lib/button";
-import { includes, isFunction, filter, find, difference, isEmpty, mapValues } from "lodash";
+import { includes, isFunction, filter, difference, isEmpty, mapValues } from "lodash";
 import notification from "@/services/notification";
 import Collapse from "@/components/Collapse";
 import DynamicFormField, { FieldType } from "./DynamicFormField";
@@ -36,14 +36,8 @@ const fieldRules = ({ type, required, minLength }) => {
   ].filter((rule) => rule);
 };
 
-function normalizeEmptyValuesToNull(fields, values) {
-  return mapValues(values, (value, key) => {
-    const { initialValue } = find(fields, { name: key }) || {};
-    if ((initialValue === null || initialValue === undefined || initialValue === "") && value === "") {
-      return null;
-    }
-    return value;
-  });
+function normalizeEmptyValuesToNull(values) {
+  return mapValues(values, (value) => (value === "" ? null : value));
 }
 
 function DynamicFormFields({ fields, feedbackIcons, form }) {
@@ -161,7 +155,7 @@ export default function DynamicForm({
   const handleFinish = useCallback(
     (values) => {
       setIsSubmitting(true);
-      values = normalizeEmptyValuesToNull(fields, values);
+      values = normalizeEmptyValuesToNull(values);
       onSubmit(
         values,
         (msg) => {
@@ -175,7 +169,7 @@ export default function DynamicForm({
         }
       );
     },
-    [fields, onSubmit]
+    [onSubmit]
   );
 
   const handleFinishFailed = useCallback(
