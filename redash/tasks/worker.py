@@ -1,8 +1,10 @@
 import errno
 import os
 import signal
+import socket
 import sys
 
+import redis
 from rq import Queue as BaseQueue
 from rq.job import Job as BaseJob
 from rq.job import JobStatus
@@ -193,6 +195,41 @@ class HardLimitingWorker(BaseWorker):
 
 class RedashWorker(StatsdRecordingWorker, HardLimitingWorker):
     queue_class = RedashQueue
+
+    def __init__(self, *args, prepare_for_work=True, **kwargs):
+        """
+        RQ 1.x looks up the worker's IP address by reading `client["name"]` for every
+        CLIENT LIST entry, which raises a KeyError when an entry has no name (e.g. HTTP
+        connections to Dragonfly's admin port). Do the lookup ourselves and tolerate such
+        entries, like RQ 2.x does. See https://github.com/getredash/redash/issues/7823
+        """
+        super().__init__(*args, prepare_for_work=False, **kwargs)
+
+        if not prepare_for_work:
+            return
+
+        self.hostname = socket.gethostname()
+        self.pid = os.getpid()
+        try:
+            self.connection.client_setname(self.name)
+        except redis.exceptions.ResponseError:
+            self.log.warning("CLIENT SETNAME command not supported, setting ip_address to unknown")
+            self.ip_address = "unknown"
+            return
+
+        try:
+            client_list = self.connection.client_list()
+        except redis.exceptions.ResponseError:
+            self.log.warning("CLIENT LIST command not supported, setting ip_address to unknown")
+            self.ip_address = "unknown"
+            return
+
+        client_addresses = [client["addr"] for client in client_list if client.get("name") == self.name]
+        if client_addresses:
+            self.ip_address = client_addresses[0]
+        else:
+            self.log.warning("Worker not found in CLIENT LIST, setting ip_address to unknown")
+            self.ip_address = "unknown"
 
 
 Job = CancellableJob
