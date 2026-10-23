@@ -20,6 +20,7 @@ from redash.query_runner import (
     BaseSQLQueryRunner,
     register,
 )
+from redash.utils import json_dumps
 
 TYPES_MAP = {
     0: TYPE_INTEGER,
@@ -36,7 +37,13 @@ TYPES_MAP = {
 
 
 class Snowflake(BaseSQLQueryRunner):
+    add_query_tags = False
+    metadata = None
     noop_query = "SELECT 1"
+
+    def __init__(self, configuration):
+        super().__init__(configuration)
+        self.add_query_tags = configuration.get("add_query_tags", False)
 
     @classmethod
     def configuration_schema(cls):
@@ -57,6 +64,11 @@ class Snowflake(BaseSQLQueryRunner):
                     "default": False,
                 },
                 "host": {"type": "string"},
+                "add_query_tags": {
+                    "type": "boolean",
+                    "title": "Add Redash metadata as query tag",
+                    "default": False,
+                },
             },
             "order": [
                 "account",
@@ -75,6 +87,11 @@ class Snowflake(BaseSQLQueryRunner):
                 "host",
             ],
         }
+
+    def annotate_query(self, query, metadata):
+        annotated = super(Snowflake, self).annotate_query(query, metadata)
+        self.metadata = metadata
+        return annotated
 
     @classmethod
     def enabled(cls):
@@ -151,6 +168,10 @@ class Snowflake(BaseSQLQueryRunner):
         try:
             cursor.execute("USE WAREHOUSE {}".format(self.configuration["warehouse"]))
             cursor.execute("USE {}".format(self.configuration["database"]))
+
+            if self.add_query_tags:
+                if self.metadata:
+                    cursor.execute(f"ALTER SESSION SET QUERY_TAG=$$'{json_dumps(self.metadata)}'$$")
 
             cursor.execute(query)
 
