@@ -221,9 +221,14 @@ class DataSource(BelongsToOrgMixin, db.Model):
             except Exception:
                 logging.exception("Error sorting schema columns for data_source {}".format(self.id))
                 out_schema = schema
-            finally:
+
+            # An empty schema usually means the fetch failed, so cache it only
+            # until the next scheduled refresh instead of for a week.
+            if out_schema:
                 ttl = int(datetime.timedelta(minutes=settings.SCHEMAS_REFRESH_SCHEDULE, days=7).total_seconds())
-                redis_connection.set(self._schema_key, json_dumps(out_schema), ex=ttl)
+            else:
+                ttl = int(datetime.timedelta(minutes=settings.SCHEMAS_REFRESH_SCHEDULE).total_seconds())
+            redis_connection.set(self._schema_key, json_dumps(out_schema), ex=ttl)
 
         return out_schema
 
