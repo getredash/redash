@@ -31,23 +31,8 @@ async function settle(page: Page) {
         .map((img) => new Promise((r) => img.addEventListener('load', r) || img.addEventListener('error', r)))
     )
   )
-  // Freeze videos on their first frame.
-  await page.evaluate(() =>
-    Promise.all(
-      Array.from(document.querySelectorAll('video')).map(
-        (v) =>
-          new Promise<void>((resolve) => {
-            v.pause()
-            v.removeAttribute('autoplay')
-            if (v.readyState >= 2 && v.currentTime === 0) return resolve()
-            v.addEventListener('seeked', () => resolve(), { once: true })
-            v.addEventListener('loadeddata', () => resolve(), { once: true })
-            v.currentTime = 0
-            setTimeout(resolve, 3000)
-          })
-      )
-    )
-  )
+  // Stop videos; their content is masked below (same file on both sites).
+  await page.evaluate(() => document.querySelectorAll('video').forEach((v) => v.pause()))
   await page.evaluate(() => document.fonts.ready)
   // Drop invisible tracking iframes (e.g. the 1x1 frame Segment injects on the old site).
   await page.evaluate(() =>
@@ -58,8 +43,9 @@ async function settle(page: Page) {
   )
 }
 
-// Third-party widgets whose content changes between loads (GitHub star counts).
-const MASKS = ['.github-button', 'iframe']
+// Content that changes between loads: third-party widgets (GitHub star
+// counts) and video frames. Masked boxes are still compared for size/position.
+const MASKS = ['.github-button', 'iframe', 'video']
 
 type Action = (page: Page) => Promise<void>
 
