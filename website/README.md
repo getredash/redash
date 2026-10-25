@@ -1,10 +1,10 @@
 # redash.io
 
-The Redash website: marketing pages and the knowledge base at `/help/`.
+The Redash website: marketing pages and the docs at `/help/`.
 Built with [Astro](https://astro.build) and [Starlight](https://starlight.astro.build),
 deployed to Cloudflare as static files.
 
-- **Knowledge base content lives in [`/docs`](../docs)**: see its README for
+- **Docs content lives in [`/docs`](../docs)**: see its README for
   how to write docs. This folder is the site that renders it.
 - Marketing pages (`src/react/`) are the React components of the previous
   Gatsby site (getredash/website), rendered to static HTML at build time with
@@ -44,7 +44,7 @@ pnpm test:visual        # after a build: compare marketing pages with the live s
 
 ## URLs and redirects
 
-URLs must not break. The Redash app links to knowledge base pages and anchors
+URLs must not break. The Redash app links to docs pages and anchors
 (`client/app/components/HelpTrigger.jsx`), as do old installs we can't update.
 `pnpm check:redirects` verifies against the build that each of these resolves
 to a page in at most one redirect:

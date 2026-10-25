@@ -21,7 +21,7 @@ export default defineConfig({
   build: { format: 'directory' },
   integrations: [
     starlight({
-      title: 'Redash Knowledge Base',
+      title: 'Redash Docs',
       logo: { src: './src/assets/redash-logo.svg', alt: 'Redash' },
       favicon: '/assets/images/favicon.ico',
       social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/getredash/redash' }],

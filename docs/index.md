@@ -1,5 +1,5 @@
 ---
-title: Knowledge Base
+title: Docs
 description: Guides and reference for using, self-hosting and developing Redash.
 tableOfContents: false
 ---

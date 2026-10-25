@@ -96,7 +96,7 @@ class Header extends React.Component {
                 </a>
                 <ul className="dropdown-menu">
                   <li>
-                    <Link to="/help/">Knowledge Base</Link>
+                    <Link to="/help/">Docs</Link>
                   </li>
                   <li>
                     <Link

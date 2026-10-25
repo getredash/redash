@@ -1,6 +1,6 @@
-# Redash Knowledge Base
+# Redash Docs
 
-This folder is the source of the knowledge base at https://redash.io/help/.
+This folder is the source of the Redash docs at https://redash.io/help/.
 The site that renders it lives in [`/website`](../website).
 
 ## Writing docs

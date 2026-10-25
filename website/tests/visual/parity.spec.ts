@@ -47,12 +47,24 @@ async function settle(page: Page) {
 // counts) and video frames. Masked boxes are still compared for size/position.
 const MASKS = ['.github-button', 'iframe', 'video']
 
+// Deliberate differences from the old site, applied to the reference page so
+// everything else is still compared pixel for pixel.
+async function applyIntendedChanges(page: Page) {
+  await page.evaluate(() => {
+    // "Knowledge Base" is now called "Docs" (header, footer).
+    document.querySelectorAll('a').forEach((a) => {
+      if (a.textContent?.trim() === 'Knowledge Base') a.textContent = 'Docs'
+    })
+  })
+}
+
 type Action = (page: Page) => Promise<void>
 
-async function screenshot(page: Page, url: string, action?: Action): Promise<Buffer> {
+async function screenshot(page: Page, url: string, action?: Action, reference = false): Promise<Buffer> {
   const response = await page.goto(url, { waitUntil: 'networkidle' })
   expect(response?.status(), `${url} status`).toBe(200)
   await settle(page)
+  if (reference) await applyIntendedChanges(page)
   if (action) await action(page)
   return page.screenshot({
     fullPage: !action,
@@ -73,7 +85,7 @@ function parity(name: string, pathname: string, action?: Action, projects?: stri
     if (!REFRESH && fs.existsSync(cached)) {
       reference = fs.readFileSync(cached)
     } else {
-      reference = await screenshot(page, REFERENCE_URL + pathname, action)
+      reference = await screenshot(page, REFERENCE_URL + pathname, action, true)
       fs.mkdirSync(path.dirname(cached), { recursive: true })
       fs.writeFileSync(cached, reference)
     }
