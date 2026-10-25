@@ -1,0 +1,416 @@
+/* SECTION */
+
+.section {
+  position: relative;
+  padding: 75px 0;
+  @include respond-to(sm) {
+    padding: 50px 0;
+  }
+  @include respond-to(xs) {
+    padding: 25px 0;
+  }
+}
+
+.section--pt-lg {
+  @include respond-to(sm-min) {
+    padding-top: 90px;
+  }
+}
+.section--pt-sm {
+  @include respond-to(sm-min) {
+    padding-top: 50px;
+  }
+}
+.section--pt-xs {
+  @include respond-to(sm-min) {
+    padding-top: 35px;
+  }
+}
+.section--small {
+  @include respond-to(xs-min) {
+    padding: 40px 0;
+  }
+}
+
+.section--users {
+  padding: 25px 0;
+}
+
+.section-product-hero {
+  overflow: hidden;
+}
+
+.section--hero {
+  padding: 25px 0 125px;
+  overflow: hidden;
+
+  h1 {
+    margin: 50px 0 25px;
+  }
+
+  h3 {
+    color: #333333;
+    font-size: 18px;
+    font-weight: 400;
+    width: 88%;
+    line-height: 1.5;
+  }
+
+  p {
+    margin-top: 15px;
+    font-size: 13px;
+    color: #333;
+  }
+
+  .btn {
+    font-size: 16px;
+    margin-top: 25px;
+    padding: 10px 25px;
+  }
+}
+
+.browser-image {
+  margin-top: 25px;
+  box-shadow: 0 6px 18px -5px rgba(175, 175, 175, 0.5);
+}
+
+.section__open-source {
+  p {
+    margin: 30px 0;
+  }
+
+  #open-source-illustrated {
+    transform: translatey(0px);
+    animation: float 12s ease-in-out infinite;
+  }
+}
+
+.section__feature {
+  padding-bottom: 0;
+
+  h2 {
+    font-size: 24px;
+    margin: 50px 0 25px 0;
+    letter-spacing: 1px;
+    line-height: 36px;
+  }
+
+  p {
+    margin: 0 0 25px 0;
+    width: 75%;
+  }
+}
+
+.section__feature--query {
+  padding-top: 100px;
+}
+
+.section__feature--visualize {
+  padding-bottom: 75px;
+  padding-top: 25px;
+
+  h2 {
+    margin-top: 75px;
+  }
+
+  img {
+    margin-left: -25px;
+    width: 575px;
+  }
+}
+
+.section__more-features {
+  .feature-container {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(102, 136, 153, 0.18);
+    box-shadow: 0 5px 9px -1px #ebf2ff;
+    border-radius: $border-radius;
+    width: 30%;
+    float: left;
+    text-align: center;
+    margin: 0 10px;
+    padding: 15px;
+  }
+
+  h4 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 10px 0;
+  }
+}
+
+.section__integrations {
+  p {
+    margin-bottom: 70px;
+
+    &:last-of-type {
+      margin-bottom: 0;
+    }
+  }
+
+  .integrations-container {
+    padding: 50px;
+    box-shadow: 0 8px 25px 0 rgba(155, 155, 155, 0.15);
+    border-radius: $border-radius;
+
+    h2 {
+      margin: 0 0 25px;
+    }
+
+    img {
+      margin-right: 50px;
+    }
+  }
+}
+
+.section__databricks {
+  text-align: left;
+  padding-top: 50px;
+  background-color: #f8fafa;
+  @media (min-width: 768px) {
+    text-align: center;
+  }
+  h1 {
+    margin: 50px 0 25px 0;
+  }
+  img {
+    width: 290px;
+  }
+  @media (min-width: 768px) {
+    img {
+      width: 419px;
+    }
+  }
+}
+
+#customers-illustrated {
+  width: 75%;
+}
+
+#open-source-illustrated {
+  width: 100%;
+}
+
+#integrations-illustrated {
+  width: 256px;
+}
+
+#write-query-illustrated,
+#visualize-illustrated {
+  width: 90%;
+}
+
+.get-started {
+  .col-sm-2 {
+    text-align: right;
+  }
+}
+
+// Optimization
+
+/* Large devices (large desktops, 1200px and down) */
+@media (max-width: 1200px) {
+  .section {
+    padding: 50px 0;
+  }
+
+  #customers-illustrated {
+    width: 100%;
+  }
+
+  .section--users {
+    padding: 25px 0;
+  }
+
+  #open-source-illustrated {
+    margin-top: 0px;
+  }
+
+  .get-started .row {
+    padding: 25px;
+  }
+
+  .section__feature--visualize h2 {
+    margin-top: 25px;
+  }
+
+  .section__feature p {
+    width: 90%;
+  }
+
+  .section__integrations {
+    .integrations-container {
+      padding: 30px;
+
+      img {
+        margin-right: 25px;
+      }
+    }
+  }
+}
+
+/* Medium devices (desktops, 992px and down) */
+@media (min-width: 768px) and (max-width: 992px) {
+  .section--hero h1 {
+    margin-top: 0;
+  }
+
+  .section__os--hero h1 {
+    margin-top: 100px;
+  }
+
+  .section {
+    padding: 35px 0;
+  }
+
+  #open-source-illustrated {
+    margin-top: 40px;
+  }
+
+  .section__integrations {
+    .integrations-container {
+      img {
+        margin-right: 0;
+      }
+    }
+  }
+
+  #integrations-illustrated {
+    width: 100%;
+  }
+
+  .section__integrations {
+    p {
+      margin-bottom: 10px;
+    }
+  }
+
+  .section--users {
+    h4 {
+      font-size: 18px;
+    }
+
+    h3.serif {
+      font-size: 18px;
+      margin-bottom: 0;
+    }
+  }
+
+  .highlight-p,
+  .highlight-ul li {
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  .visualize-dashboards-illustrated {
+    margin-top: 0px;
+  }
+}
+
+/* Small devices (tablets, 768px and down) */
+@media (max-width: 768px) {
+  .section {
+    padding: 20px 0;
+  }
+
+  .section__feature--query h2 {
+    margin-top: 25px;
+  }
+
+  .contributor-list--team {
+    flex-direction: column;
+
+    .contributor-card {
+      min-width: 100%;
+      margin-left: 0;
+      margin-right: 0;
+    }
+  }
+
+  .visualize-dashboards-illustrated {
+    margin-top: 0px;
+  }
+
+  #integrations-illustrated {
+    width: 75%;
+    margin-bottom: 25px;
+  }
+
+  .section__open-source {
+    text-align: center;
+  }
+  #open-source-illustrated {
+    width: 55%;
+    margin: 0 auto;
+  }
+
+  .get-started {
+    text-align: center;
+
+    .col-sm-2 {
+      text-align: center;
+    }
+
+    h3 {
+      line-height: 1.5;
+    }
+  }
+
+  .footer__list--social {
+    margin-top: 0;
+  }
+
+  .section__more-features .feature-container {
+    margin: 0 5px;
+    padding: 7px;
+    width: 30%;
+
+    img {
+      width: 64px;
+    }
+
+    h4 {
+      font-size: 13px;
+      font-weight: 500;
+    }
+  }
+
+  .section--hero h1 {
+    margin-top: 0;
+  }
+
+  .section__os--hero h1 {
+    margin-top: 25px;
+  }
+
+  .section__feature p {
+    width: 100%;
+  }
+
+  #visualize-illustrated,
+  #write-query-illustrated {
+    width: 75%;
+  }
+
+  .section--users {
+    text-align: center;
+  }
+
+  .highlight-p,
+  .highlight-ul li {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .section__integrations p {
+    margin-bottom: 25px;
+  }
+
+  .footer__item--other {
+    clear: both;
+  }
+
+  .contributor-card {
+    min-width: 145px;
+  }
+}

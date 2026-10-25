@@ -1,0 +1,18 @@
+---
+import { getCollection } from 'astro:content'
+import MarketingLayout from '../../layouts/MarketingLayout.astro'
+import Page from '../../react/pages/DataSourcePage.jsx'
+
+export async function getStaticPaths() {
+  const entries = await getCollection('dataSources', (e) => e.data.path?.startsWith('/integrations/'))
+  return entries.map((entry) => ({
+    params: { slug: entry.data.path.split('/').filter(Boolean)[1] },
+    props: { entry },
+  }))
+}
+const { entry } = Astro.props
+---
+
+<MarketingLayout title={entry.data.title}>
+  <Page data={{ markdownRemark: { frontmatter: entry.data, html: entry.rendered?.html } }} />
+</MarketingLayout>

@@ -1,0 +1,29 @@
+{
+  "name": "redash-website",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.30.3",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "test:visual": "playwright test --config tests/visual/playwright.config.ts"
+  },
+  "dependencies": {
+    "@astrojs/react": "7.1.1",
+    "@astrojs/sitemap": "3.7.4",
+    "@astrojs/starlight": "0.42.7",
+    "astro": "7.4.2",
+    "bootstrap-sass": "3.4.1",
+    "font-awesome": "4.7.0",
+    "prop-types": "^15.8.1",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "sass": "1.106.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "pixelmatch": "8.0.0",
+    "pngjs": "7.0.0"
+  }
+}

@@ -1,0 +1,14 @@
+# Makes website/ its own pnpm workspace root, independent of the Redash app
+# workspace in the repository root (separate lockfile, separate node_modules).
+packages:
+  - "."
+
+# Hoist dependencies into website/node_modules. Astro's prerender bundle imports
+# its dependencies by bare name; without hoisting, Node resolution walks up to
+# the repository root's node_modules and picks the Redash app's versions.
+shamefullyHoist: true
+
+onlyBuiltDependencies:
+  - "@parcel/watcher"
+  - esbuild
+  - sharp

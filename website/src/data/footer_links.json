@@ -1,0 +1,45 @@
+[
+  {
+    "name": "Redash",
+    "links": [
+      {
+        "name": "Product",
+        "url": "/product/"
+      },
+      {
+        "name": "Integrations",
+        "url": "/integrations/"
+      },
+      {
+        "name": "Users",
+        "url": "/customers/"
+      },
+      {
+        "name": "Case Studies",
+        "url": "/case-studies/"
+      }
+    ]
+  },
+  {
+    "name": "Community",
+    "links": [
+      {
+        "name": "About",
+        "url": "/community/"
+      }
+    ]
+  },
+  {
+    "name": "Help",
+    "links": [
+      {
+        "name": "Knowledge Base",
+        "url": "/help/"
+      },
+      {
+        "name": "GitHub Discussions",
+        "url": "https://github.com/getredash/redash/discussions"
+      }
+    ]
+  }
+]
