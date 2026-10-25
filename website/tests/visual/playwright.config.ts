@@ -2,7 +2,7 @@ import { defineConfig, devices } from '@playwright/test'
 
 // Visual parity check between the old Gatsby site (REFERENCE_URL, the live
 // redash.io until cutover) and this build (served by `astro preview`).
-// See tests/visual/README.md.
+// See website/README.md.
 const PORT = 4329
 
 export default defineConfig({

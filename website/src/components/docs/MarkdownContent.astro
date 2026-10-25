@@ -3,7 +3,6 @@
 // pages list their articles, and the /help/ index lists sections and categories.
 import { getCollection } from 'astro:content'
 import Default from '@astrojs/starlight/components/MarkdownContent.astro'
-// @ts-expect-error -- plain JS module shared with astro.config.mjs
 import { SECTIONS, DOCS_BASE } from '../../lib/kb.mjs'
 
 const { id } = Astro.locals.starlightRoute.entry

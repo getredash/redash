@@ -1,0 +1,121 @@
+name: Website
+# redash.io: marketing site (website/) and knowledge base (docs/).
+# Deploys to Cloudflare once the CLOUDFLARE_ACCOUNT_ID variable and
+# CLOUDFLARE_API_TOKEN secret are configured; until then only builds and checks.
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'docs/**'
+      - 'website/**'
+      - '.github/workflows/website.yml'
+  pull_request:
+    branches:
+      - master
+    paths:
+      - 'docs/**'
+      - 'website/**'
+      - '.github/workflows/website.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: website-${{ github.ref }}
+  cancel-in-progress: true
+env:
+  NODE_VERSION: 24
+  PNPM_VERSION: 10.30.3
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: website
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch docs version tags
+        run: git fetch --no-tags --depth=1 origin '+refs/tags/docs/*:refs/tags/docs/*' || true
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+          cache-dependency-path: website/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/cache@v4
+        with:
+          path: website/.archive-cache
+          key: website-archives-${{ hashFiles('website/versions.json') }}-${{ github.sha }}
+          restore-keys: website-archives-${{ hashFiles('website/versions.json') }}-
+      - name: Build site and archived docs versions
+        run: pnpm build:site
+      - name: Check that no URL breaks
+        run: pnpm check:redirects
+      - name: Save the pull request number for website-preview.yml
+        if: github.event_name == 'pull_request'
+        run: echo "${{ github.event.pull_request.number }}" > dist/.pr-number
+      - uses: actions/upload-artifact@v4
+        with:
+          name: website-dist
+          path: website/dist
+          include-hidden-files: true
+          retention-days: 7
+
+  # Pixel comparison of every marketing page with the live (Gatsby) redash.io.
+  # Remove after cutover, when redash.io serves this site.
+  visual-parity:
+    runs-on: ubuntu-24.04
+    needs: build
+    defaults:
+      run:
+        working-directory: website
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+          cache-dependency-path: website/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/download-artifact@v4
+        with:
+          name: website-dist
+          path: website/dist
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm test:visual
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-parity-report
+          path: |
+            website/playwright-report
+            website/test-results
+          retention-days: 7
+
+  deploy:
+    if: github.event_name == 'push' && vars.CLOUDFLARE_ACCOUNT_ID != ''
+    runs-on: ubuntu-24.04
+    needs: build
+    environment:
+      name: production
+      url: https://redash.io
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: website/wrangler.jsonc
+      - uses: actions/download-artifact@v4
+        with:
+          name: website-dist
+          path: website/dist
+      - uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: website
+          command: deploy

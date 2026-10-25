@@ -2,7 +2,6 @@ import { defineCollection } from 'astro:content'
 import { z } from 'astro/zod'
 import { glob } from 'astro/loaders'
 import { docsSchema } from '@astrojs/starlight/schema'
-// @ts-expect-error -- plain JS module shared with astro.config.mjs
 import { DOCS_DIR, docId } from './lib/kb.mjs'
 
 // Data source / integration landing pages (/data-sources/*, /integrations/*).

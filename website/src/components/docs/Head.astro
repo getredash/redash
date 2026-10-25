@@ -4,7 +4,6 @@
 // are kept out of search engines and point to the latest page.
 import IframeBridge from '../IframeBridge.astro'
 import Analytics from '../Analytics.astro'
-// @ts-expect-error -- plain JS module shared with astro.config.mjs
 import { IS_ARCHIVE, LATEST_BASE, pathInVersion } from '../../lib/kb.mjs'
 
 const { head, entry } = Astro.locals.starlightRoute

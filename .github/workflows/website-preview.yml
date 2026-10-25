@@ -1,0 +1,55 @@
+name: Website preview
+# Uploads the site built by website.yml for a pull request as a Cloudflare
+# preview version and comments its URL. Runs in the base repository's context
+# (secrets available) but never runs code from the pull request: it only
+# uploads the static files the PR build produced.
+on:
+  workflow_run:
+    workflows: [Website]
+    types: [completed]
+permissions:
+  contents: read
+jobs:
+  preview:
+    if: >-
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      vars.CLOUDFLARE_ACCOUNT_ID != ''
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: website/wrangler.jsonc
+      - uses: actions/download-artifact@v4
+        with:
+          name: website-dist
+          path: website/dist
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+      - id: pr
+        run: |
+          pr=$(cat website/dist/.pr-number)
+          [[ "$pr" =~ ^[0-9]+$ ]] || { echo "invalid PR number"; exit 1; }
+          echo "number=$pr" >> "$GITHUB_OUTPUT"
+          rm website/dist/.pr-number
+      - id: upload
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: website
+          command: versions upload --preview-alias pr-${{ steps.pr.outputs.number }}
+      - name: Comment the preview URL
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ steps.pr.outputs.number }}
+          OUTPUT: ${{ steps.upload.outputs.command-output }}
+        run: |
+          url=$(echo "$OUTPUT" | grep -oE 'https://pr-[0-9]+-[^ ]+\.workers\.dev' | head -1)
+          [ -n "$url" ] || { echo "$OUTPUT"; exit 1; }
+          gh pr comment "$PR" --repo "${{ github.repository }}" --edit-last --create-if-none \
+            --body "Website preview: $url (commit ${{ github.event.workflow_run.head_sha }})"

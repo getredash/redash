@@ -12,8 +12,39 @@ env:
   NODE_VERSION: 24
   PNPM_VERSION: 10.30.3
 jobs:
+  # Skip the app jobs for pull requests that only change the website or docs
+  # (see .github/workflows/website.yml). Skipped jobs count as passing for
+  # required status checks; jobs that `need` a skipped job are skipped too.
+  changes:
+    runs-on: ubuntu-22.04
+    permissions:
+      pull-requests: read
+    outputs:
+      app: ${{ steps.filter.outputs.app }}
+    steps:
+      - id: filter
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          if [ -z "$PR_NUMBER" ]; then
+            echo "app=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          files=$(gh api "repos/$REPO/pulls/$PR_NUMBER/files" --paginate --jq '.[].filename')
+          echo "$files"
+          other=$(echo "$files" | grep -cvE '^(docs/|website/|\.github/workflows/website(-preview)?\.yml$)' || true)
+          if [ "$other" -gt 0 ]; then
+            echo "app=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "app=false" >> "$GITHUB_OUTPUT"
+          fi
+
   backend-lint:
     runs-on: ubuntu-22.04
+    needs: changes
+    if: needs.changes.outputs.app == 'true'
     steps:
       - if: github.event.pull_request.mergeable == 'false'
         name: Exit if PR is not mergeable
@@ -83,6 +114,8 @@ jobs:
 
   frontend-lint:
     runs-on: ubuntu-22.04
+    needs: changes
+    if: needs.changes.outputs.app == 'true'
     steps:
       - if: github.event.pull_request.mergeable == 'false'
         name: Exit if PR is not mergeable

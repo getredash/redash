@@ -1,7 +1,6 @@
 ---
 // Version switcher, shown next to the header icons.
 import Default from '@astrojs/starlight/components/SocialIcons.astro'
-// @ts-expect-error -- plain JS module shared with astro.config.mjs
 import { getVersions, DOCS_BASE, pathInVersion } from '../../lib/kb.mjs'
 const VERSIONS = getVersions()
 ---
