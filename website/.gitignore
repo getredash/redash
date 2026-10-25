@@ -4,3 +4,4 @@ dist/
 .vrt-cache/
 test-results/
 playwright-report/
+.wrangler/

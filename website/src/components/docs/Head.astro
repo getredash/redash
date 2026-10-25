@@ -1,0 +1,14 @@
+---
+// Starlight <head> plus what the old knowledge base pages had: the in-app help
+// drawer contract, analytics, and the `keywords` meta tag.
+import Default from '@astrojs/starlight/components/Head.astro'
+import IframeBridge from '../IframeBridge.astro'
+import Analytics from '../Analytics.astro'
+
+const { keywords } = Astro.locals.starlightRoute.entry.data
+---
+
+<Default />
+{keywords?.length ? <meta name="keywords" content={keywords.join(', ')} /> : null}
+<IframeBridge drawerClass />
+<Analytics />

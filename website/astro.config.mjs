@@ -2,6 +2,10 @@ import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'astro/config'
 import react from '@astrojs/react'
 import sitemap from '@astrojs/sitemap'
+import starlight from '@astrojs/starlight'
+import { unified } from '@astrojs/markdown-remark'
+import rehypeLegacyAnchors from './src/plugins/rehype-legacy-anchors.mjs'
+import { buildSidebar } from './src/lib/kb.mjs'
 
 const r = (p) => fileURLToPath(new URL(p, import.meta.url))
 
@@ -10,8 +14,32 @@ export default defineConfig({
   // URLs match the Gatsby site: every page is a directory with a trailing slash.
   trailingSlash: 'always',
   build: { format: 'directory' },
-  integrations: [react(), sitemap()],
+  integrations: [
+    starlight({
+      title: 'Redash Knowledge Base',
+      logo: { src: './src/assets/redash-logo.svg', alt: 'Redash' },
+      favicon: '/assets/images/favicon.ico',
+      social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/getredash/redash' }],
+      editLink: { baseUrl: 'https://github.com/getredash/redash/edit/master/website/' },
+      sidebar: buildSidebar(),
+      customCss: ['./src/styles/docs.css'],
+      components: {
+        Head: './src/components/docs/Head.astro',
+        MarkdownContent: './src/components/docs/MarkdownContent.astro',
+      },
+      // The marketing site provides /404.
+      disable404Route: true,
+    }),
+    react(),
+    sitemap(),
+  ],
+  markdown: {
+    // remark/rehype pipeline (Starlight's asides need it).
+    processor: unified({ rehypePlugins: [rehypeLegacyAnchors] }),
+  },
   vite: {
+    // /docs lives outside the Astro project root.
+    server: { fs: { allow: ['..'] } },
     resolve: {
       alias: {
         // Import aliases used by the components ported from the Gatsby site.

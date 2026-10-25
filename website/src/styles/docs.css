@@ -1,0 +1,62 @@
+/* Knowledge base (Starlight) styles. */
+:root {
+  /* Redash blue, from the marketing site's $primary. */
+  --sl-color-accent-low: #0d2a45;
+  --sl-color-accent: #2196f3;
+  --sl-color-accent-high: #bbdefb;
+}
+:root[data-theme='light'] {
+  --sl-color-accent-low: #d6ecfd;
+  --sl-color-accent: #1976d2;
+  --sl-color-accent-high: #0d47a1;
+}
+
+/* Generated lists on category pages and the /help/ index. */
+.kb-articles,
+.kb-cards {
+  list-style: none;
+  padding: 0;
+  margin-top: 1.5rem;
+}
+.kb-articles li {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--sl-color-hairline);
+}
+.kb-articles p {
+  margin: 0.25rem 0 0;
+  color: var(--sl-color-gray-3);
+}
+.kb-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  gap: 0.75rem;
+}
+.kb-cards li {
+  margin: 0 !important;
+}
+.kb-cards a {
+  display: block;
+  padding: 1rem;
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 0.5rem;
+  text-decoration: none;
+  font-weight: 600;
+}
+.kb-cards a:hover {
+  border-color: var(--sl-color-accent);
+}
+
+/* In-app help drawer (the page is framed by the Redash app): content only. */
+body.drawer .header,
+body.drawer .sidebar,
+body.drawer .right-sidebar-container,
+body.drawer mobile-starlight-toc {
+  display: none !important;
+}
+html.drawer {
+  --sl-nav-height: 0rem;
+  --sl-mobile-toc-height: 0rem;
+}
+html.drawer .main-frame {
+  padding-inline-start: 0 !important;
+}
