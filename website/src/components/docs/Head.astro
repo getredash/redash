@@ -1,14 +1,22 @@
 ---
 // Starlight <head> plus what the old knowledge base pages had: the in-app help
-// drawer contract, analytics, and the `keywords` meta tag.
-import Default from '@astrojs/starlight/components/Head.astro'
+// drawer contract, analytics, and the `keywords` meta tag. Archived versions
+// are kept out of search engines and point to the latest page.
 import IframeBridge from '../IframeBridge.astro'
 import Analytics from '../Analytics.astro'
+// @ts-expect-error -- plain JS module shared with astro.config.mjs
+import { IS_ARCHIVE, LATEST_BASE, pathInVersion } from '../../lib/kb.mjs'
 
-const { keywords } = Astro.locals.starlightRoute.entry.data
+const { head, entry } = Astro.locals.starlightRoute
+const { keywords } = entry.data
+// Same as Starlight's Head component, minus its canonical link in archives.
+const tags = head.filter(({ tag, attrs }) => !(IS_ARCHIVE && tag === 'link' && attrs?.rel === 'canonical'))
+const latest = new URL(pathInVersion(Astro.url.pathname, LATEST_BASE), Astro.site)
 ---
 
-<Default />
+{tags.map(({ tag: Tag, attrs, content }) => <Tag {...attrs} set:html={content} />)}
 {keywords?.length ? <meta name="keywords" content={keywords.join(', ')} /> : null}
+{IS_ARCHIVE && <meta name="robots" content="noindex" />}
+{IS_ARCHIVE && <link rel="canonical" href={latest.href} data-archive-canonical />}
 <IframeBridge drawerClass />
 <Analytics />

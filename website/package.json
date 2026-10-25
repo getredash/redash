@@ -6,9 +6,10 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "preview": "astro preview",
-    "test:visual": "playwright test --config tests/visual/playwright.config.ts",
-    "check:redirects": "node scripts/check-redirects.mjs"
+    "build:site": "node scripts/build-site.mjs",
+    "preview": "astro preview --ignore-lock",
+    "check:redirects": "node scripts/check-redirects.mjs",
+    "test:visual": "playwright test --config tests/visual/playwright.config.ts"
   },
   "dependencies": {
     "@astrojs/markdown-remark": "^7.3.4",

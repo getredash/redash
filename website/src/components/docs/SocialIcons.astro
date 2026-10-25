@@ -1,0 +1,23 @@
+---
+// Version switcher, shown next to the header icons.
+import Default from '@astrojs/starlight/components/SocialIcons.astro'
+// @ts-expect-error -- plain JS module shared with astro.config.mjs
+import { getVersions, DOCS_BASE, pathInVersion } from '../../lib/kb.mjs'
+const VERSIONS = getVersions()
+---
+
+{
+  VERSIONS.length > 1 && (
+    <label class="version-select">
+      <span class="sr-only">Redash version</span>
+      <select onchange="location.href = this.value">
+        {VERSIONS.map((v: { label: string; base: string }) => (
+          <option value={pathInVersion(Astro.url.pathname, v.base)} selected={v.base === DOCS_BASE}>
+            {v.label}
+          </option>
+        ))}
+      </select>
+    </label>
+  )
+}
+<Default />

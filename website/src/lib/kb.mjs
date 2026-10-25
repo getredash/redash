@@ -10,6 +10,25 @@ export const DOCS_DIR = fileURLToPath(new URL('../../../docs', import.meta.url))
 
 // URL prefix of the docs: `help` normally; e.g. `help/v/26.9` for archived versions.
 export const DOCS_BASE = (process.env.DOCS_BASE ?? 'help').replace(/^\/|\/$/g, '')
+export const LATEST_BASE = 'help'
+export const IS_ARCHIVE = DOCS_BASE !== LATEST_BASE
+
+// Version switcher entries, from DOCS_VERSIONS (JSON list of archives). The
+// Astro config sets it from versions.json; scripts/build-site.mjs passes the
+// current checkout's list to archive builds of older refs.
+export function getVersions() {
+  const archives = JSON.parse(process.env.DOCS_VERSIONS || '[]')
+  return [
+    { label: 'Latest', base: LATEST_BASE },
+    ...archives.map(({ version }) => ({ label: version, base: `help/v/${version}` })),
+  ]
+}
+
+/** The same page in another docs version: /help/v/26.9/x/ → /help/x/. */
+export function pathInVersion(pathname, base) {
+  const current = '/' + DOCS_BASE + '/'
+  return pathname.startsWith(current) ? `/${base}/` + pathname.slice(current.length) : `/${base}/`
+}
 
 // Top-level sections of the knowledge base, in display order.
 export const SECTIONS = [

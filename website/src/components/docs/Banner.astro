@@ -1,0 +1,19 @@
+---
+// Archived versions show which Redash version they document.
+import Default from '@astrojs/starlight/components/Banner.astro'
+// @ts-expect-error -- plain JS module shared with astro.config.mjs
+import { IS_ARCHIVE, LATEST_BASE, getVersions, DOCS_BASE, pathInVersion } from '../../lib/kb.mjs'
+
+const version = getVersions().find((v: { base: string }) => v.base === DOCS_BASE)?.label
+---
+
+{
+  IS_ARCHIVE ? (
+    <div class="sl-banner archive-banner">
+      This is the documentation for Redash {version}.{' '}
+      <a href={pathInVersion(Astro.url.pathname, LATEST_BASE)}>See the latest version</a>.
+    </div>
+  ) : (
+    <Default />
+  )
+}

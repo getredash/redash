@@ -5,3 +5,4 @@ dist/
 test-results/
 playwright-report/
 .wrangler/
+.archive-cache/

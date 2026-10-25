@@ -1,3 +1,4 @@
+import fs from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'astro/config'
 import react from '@astrojs/react'
@@ -5,9 +6,13 @@ import sitemap from '@astrojs/sitemap'
 import starlight from '@astrojs/starlight'
 import { unified } from '@astrojs/markdown-remark'
 import rehypeLegacyAnchors from './src/plugins/rehype-legacy-anchors.mjs'
-import { buildSidebar } from './src/lib/kb.mjs'
+import rehypeDocsBase from './src/plugins/rehype-docs-base.mjs'
+import { buildSidebar, DOCS_BASE, IS_ARCHIVE } from './src/lib/kb.mjs'
 
 const r = (p) => fileURLToPath(new URL(p, import.meta.url))
+
+// Archived docs versions for the version switcher (see src/lib/kb.mjs).
+process.env.DOCS_VERSIONS ??= JSON.stringify(JSON.parse(fs.readFileSync(r('./versions.json'), 'utf8')).archives)
 
 export default defineConfig({
   site: 'https://redash.io',
@@ -26,7 +31,11 @@ export default defineConfig({
       components: {
         Head: './src/components/docs/Head.astro',
         MarkdownContent: './src/components/docs/MarkdownContent.astro',
+        Banner: './src/components/docs/Banner.astro',
+        SocialIcons: './src/components/docs/SocialIcons.astro',
       },
+      // Archived versions are searched through the latest index (see build-site.mjs).
+      pagefind: !IS_ARCHIVE,
       // The marketing site provides /404.
       disable404Route: true,
     }),
@@ -35,7 +44,7 @@ export default defineConfig({
   ],
   markdown: {
     // remark/rehype pipeline (Starlight's asides need it).
-    processor: unified({ rehypePlugins: [rehypeLegacyAnchors] }),
+    processor: unified({ rehypePlugins: [rehypeLegacyAnchors, [rehypeDocsBase, { base: DOCS_BASE }]] }),
   },
   vite: {
     // /docs lives outside the Astro project root.

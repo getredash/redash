@@ -1,0 +1,4 @@
+{
+  "$comment": "Archived knowledge base versions, built from git refs by scripts/build-site.mjs and served at /help/v/<version>/. The latest docs (/help/) are built from the current checkout.",
+  "archives": [{ "version": "26.9", "ref": "docs/v26.9" }]
+}
