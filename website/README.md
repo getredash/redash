@@ -96,9 +96,14 @@ On a release (e.g. 27.3):
 `.github/workflows/website.yml` builds and checks every change to `docs/` or
 `website/`. On `master` it deploys `dist/` to Cloudflare as an assets-only
 Worker (`wrangler.jsonc`, no Worker script, so free static-asset requests only).
-`website-preview.yml` uploads pull request builds as preview versions and
-comments the URL. Both need the `CLOUDFLARE_ACCOUNT_ID` repository variable
-and the `CLOUDFLARE_API_TOKEN` secret; without them they're skipped.
+`website-preview.yml` uploads pull request builds (from branches in this
+repository, not forks) as preview versions and comments the URL.
+
+Both use the `CLOUDFLARE_ACCOUNT_ID` repository variable and the
+`CLOUDFLARE_API_TOKEN` secret of the `cloudflare` GitHub environment, which is
+limited to `master` (preview jobs run on `master` too). The token has only the
+Editor role on the `redash-website` Worker: it can't create or delete Workers,
+or change DNS, routes or custom domains (those are managed in the dashboard).
 
 Analytics: set `PUBLIC_GA_MEASUREMENT_ID` at build time to enable GA4.
 

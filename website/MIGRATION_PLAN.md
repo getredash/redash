@@ -585,8 +585,10 @@ Optional: also mirror `dist` to GitHub Pages? No. It adds a second source of tru
 ## 8. Step-by-step migration plan
 
 **Phase 0: prep (no user-visible change), ~1 day**
-1. Create the Cloudflare Worker/Pages project on the **Free plan**, and an API token scoped
-   to it (Workers/Pages edit for this account only). Add repo secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`.
+1. Create the `redash-website` Worker on the **Free plan** (from the dashboard, so it exists
+   before the token), and an API token with the Editor role on that Worker only. Add it as
+   `CLOUDFLARE_API_TOKEN` in a `cloudflare` GitHub environment limited to `master`; the
+   `CLOUDFLARE_ACCOUNT_ID` repository variable is set.
 2. Crawl the live site: save URL list, status, title, canonical and redirect hops for
    sitemap URLs, `_redirects` sources, docs-redirector sources and the app URLs from §1.7.
    This becomes `website/scripts/fixtures/legacy-urls.json`.

@@ -2,7 +2,9 @@ name: Website preview
 # Uploads the site built by website.yml for a pull request as a Cloudflare
 # preview version and comments its URL. Runs in the base repository's context
 # (secrets available) but never runs code from the pull request: it only
-# uploads the static files the PR build produced.
+# uploads the static files the PR build produced. Only for pull requests from
+# branches in this repository, so outside contributors can't publish pages on
+# our Cloudflare account; push a fork's branch here to preview it.
 on:
   workflow_run:
     workflows: [Website]
@@ -14,8 +16,12 @@ jobs:
     if: >-
       github.event.workflow_run.event == 'pull_request' &&
       github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_repository.full_name == github.repository &&
       vars.CLOUDFLARE_ACCOUNT_ID != ''
     runs-on: ubuntu-24.04
+    # Holds CLOUDFLARE_API_TOKEN. workflow_run jobs run on master, so the
+    # environment's master-only branch rule allows them.
+    environment: cloudflare
     permissions:
       contents: read
       actions: read
