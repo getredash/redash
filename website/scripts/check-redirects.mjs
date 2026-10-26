@@ -96,8 +96,8 @@ for (const u of new Set([...repoUrls, ...helpTrigger])) check(u.split('?')[0] ||
 // 3. docs.redash.io Bulk Redirect targets.
 for (const line of fs.readFileSync(path.join(root, 'infra/docs-redash-io-redirects.csv'), 'utf8').split('\n')) {
   const target = line.split(',')[1]
-  if (target?.startsWith('https://redash.io')) {
-    const p = target.replace('https://redash.io', '')
+  if (target?.startsWith('https://redash.io/')) {
+    const p = target.slice('https://redash.io'.length)
     if (request(p).status !== 200) problems.push(`${line.split(',')[0]} → ${p}: not a page`)
   }
 }

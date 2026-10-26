@@ -32,7 +32,8 @@ jobs:
             echo "app=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          files=$(gh api "repos/$REPO/pulls/$PR_NUMBER/files" --paginate --jq '.[].filename')
+          # Both paths of a renamed file: moving an app file into docs/ changes the app.
+          files=$(gh api "repos/$REPO/pulls/$PR_NUMBER/files" --paginate --jq '.[] | .filename, (.previous_filename // empty)')
           echo "$files"
           other=$(echo "$files" | grep -cvE '^(docs/|website/|\.github/workflows/website(-preview)?\.yml$)' || true)
           if [ "$other" -gt 0 ]; then
