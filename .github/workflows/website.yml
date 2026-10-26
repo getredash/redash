@@ -84,40 +84,6 @@ jobs:
           include-hidden-files: true
           retention-days: 7
 
-  # Pixel comparison of every marketing page with the live (Gatsby) redash.io.
-  # Remove after cutover, when redash.io serves this site.
-  visual-parity:
-    runs-on: ubuntu-24.04
-    needs: build
-    defaults:
-      run:
-        working-directory: website
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: pnpm
-          cache-dependency-path: website/pnpm-lock.yaml
-      - run: pnpm install --frozen-lockfile
-      - uses: actions/download-artifact@v4
-        with:
-          name: website-dist
-          path: website/dist
-      - run: pnpm exec playwright install --with-deps chromium
-      - run: pnpm test:visual
-      - if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: visual-parity-report
-          path: |
-            website/playwright-report
-            website/test-results
-          retention-days: 7
-
   deploy:
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master' && vars.CLOUDFLARE_ACCOUNT_ID != ''
     runs-on: ubuntu-24.04

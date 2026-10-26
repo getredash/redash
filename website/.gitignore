@@ -1,8 +1,5 @@
 node_modules/
 dist/
 .astro/
-.vrt-cache/
-test-results/
-playwright-report/
 .wrangler/
 .archive-cache/

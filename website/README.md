@@ -23,7 +23,6 @@ pnpm dev                # http://localhost:4321
 pnpm build              # site → dist/
 pnpm build:site         # site + all docs versions → dist/ (what CI deploys)
 pnpm check:redirects    # after a build: no old URL may break (see below)
-pnpm test:visual        # after a build: compare marketing pages with the live site
 ```
 
 ## Layout
@@ -40,7 +39,6 @@ pnpm test:visual        # after a build: compare marketing pages with the live s
 | `public/` | Static files served as-is, including `_redirects`, `_headers` and legacy `/assets/` |
 | `infra/` | Cloudflare configuration that lives outside this deployment (docs.redash.io Bulk Redirects) |
 | `scripts/` | Build orchestration, URL checks, one-time migration scripts |
-| `tests/visual/` | Visual parity tests against the old site |
 
 ## URLs and redirects
 
@@ -106,15 +104,3 @@ Editor role on the `redash-website` Worker: it can't create or delete Workers,
 or change DNS, routes or custom domains (those are managed in the dashboard).
 
 Analytics: set `PUBLIC_GA_MEASUREMENT_ID` at build time to enable GA4.
-
-## Visual parity tests
-
-`tests/visual/` screenshots every marketing page, plus the navbar menus, on
-the reference site (`REFERENCE_URL`, default `https://redash.io`, still the
-Gatsby site) and on this build. It does this at desktop, tablet and mobile
-widths and fails on any pixel difference. Reference screenshots are cached in
-`.vrt-cache/`; set `REFRESH_REFERENCE=1` to retake them. Failures write
-`reference.png`, `candidate.png` and `diff.png` to `test-results/`.
-
-Remove these tests (and the CI job) after cutover, when the reference would be
-this site itself.

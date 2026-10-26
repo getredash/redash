@@ -13,7 +13,7 @@ hosting are unchanged.
 
 | Item | Status |
 |---|---|
-| Marketing site, pixel-identical to the old site | ✅ All 49 pages plus navbar menus match the live redash.io pixel for pixel at 1280, 800 and 375 px (`pnpm test:visual`, 150 checks) |
+| Marketing site, pixel-identical to the old site | ✅ All 49 pages plus navbar menus match the live redash.io pixel for pixel at 1280, 800 and 375 px (150 Playwright checks; the suite was removed before merge, see the PR history) |
 | Knowledge base in `/docs`, rendered by Starlight at the same URLs | ✅ 79 pages + `/help/` index; Pagefind search; sidebar in the old order |
 | In-app help drawer (iframe, `iframe_url` messages, drawer mode, `#Legacy-Anchors`) | ✅ Verified in a framed page; anchors now work without JS |
 | Redirects (`_redirects`, chains collapsed) + docs.redash.io Bulk Redirect CSV | ✅ `pnpm check:redirects` passes; behaviour checked with `wrangler dev` |

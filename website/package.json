@@ -8,8 +8,7 @@
     "build": "astro build",
     "build:site": "node scripts/build-site.mjs",
     "preview": "astro preview --ignore-lock",
-    "check:redirects": "node scripts/check-redirects.mjs",
-    "test:visual": "playwright test --config tests/visual/playwright.config.ts"
+    "check:redirects": "node scripts/check-redirects.mjs"
   },
   "dependencies": {
     "@astrojs/markdown-remark": "^7.3.4",
@@ -23,10 +22,5 @@
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "sass": "1.106.1"
-  },
-  "devDependencies": {
-    "@playwright/test": "1.63.0",
-    "pixelmatch": "8.0.0",
-    "pngjs": "7.0.0"
   }
 }
