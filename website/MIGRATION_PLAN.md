@@ -58,7 +58,7 @@ Deviations from the plan below, and why:
 | 1. Monorepo? | **Yes.** Docs content goes in a top-level **`/docs`** folder (plain Markdown, what contributors see). The Astro/Starlight site that renders it, plus the marketing pages, goes in **`/website`**. Both live in `getredash/redash`. Use a separate lockfile, path-gated CI and no git history import. Archive `getredash/website` read-only. The full trade-off analysis is in §2. |
 | 2. Stack | **Astro + Starlight.** Starlight handles `/help`. Plain Astro pages and content collections handle marketing and data-source pages. Pagefind for search, with Algolia DocSearch as an optional later upgrade. |
 | 3. Hosting | **Cloudflare, free tier only**, with builds in GitHub Actions and deploys via `wrangler`. Cloudflare now points new projects at Workers Static Assets; Pages direct-upload is a fine fallback. Use no Worker script, no R2 and no paid add-ons, so every request stays on the free, unmetered static-asset path. **Not GitHub Pages**, because it has no server-side 301s, no custom headers and no PR previews. |
-| Versioning | **Confirmed scope: stable + next + archives, with a frozen 26.9 archive.** Phase 1 (cutover): a single docs tree at `/help/`, plus `/help/v/26.9/` frozen from the migrated content. Phase 2 (next release): versions built from git refs. Stable `/help/` comes from the latest release tag, `/help/next/` from `master` (noindex), and archives from older refs. Docs content is never copied between versions in the repo. |
+| Versioning | **Confirmed scope: stable + next + archives, with a frozen 26.9 archive.** As implemented (see Implementation status): stable `/help/` is built from the 26.9 release branch (`docs/v26.9`), `/help/next/` from `master` (noindex), and archives from older refs. `/help/v/26.9/` redirects to `/help/` until 26.9 is archived at the next release. Docs content is never copied between versions in the repo. |
 | Analytics | **Drop Segment.** Keep Search Console. How GA is wired after Segment is **TBD, to follow up** (§1.6, §11). |
 | Contact form | Replace the Netlify Form with a **static contact page that links to GitHub Discussions** (no email, no backend, no cost; §1.6). |
 | Effort | About **7–11 working days** for one engineer to reach a like-for-like cutover. Add about 2–3 days for Phase 2 versioning. The redesign is separate. |
@@ -375,7 +375,7 @@ The self-hosting pages (setup, env vars, upgrade, auth) are what genuinely diffe
 
 How it works:
 - The Astro config takes `DOCS_BASE` (e.g. `/help`, `/help/next`, `/help/v/26.3`) and
-  `SITE_PART` (`all` | `docs-only`). The deploy workflow builds `master` → marketing + `/help/next`.
+  `DOCS_ONLY` (set for ref builds; was `SITE_PART` in the first draft). The deploy workflow builds `master` → marketing + `/help/next`.
   It builds `docs/stable` → `/help` (docs-only), and builds each archive ref → `/help/v/<ver>`
   (docs-only). Then it merges the `dist/` trees and deploys **one** static bundle. Each part
   has its own Pagefind index.
@@ -492,7 +492,7 @@ docs/                     # ← help/KB content; docs/<path>.md → redash.io/he
 website/
   package.json            # own deps; NOT in pnpm-workspace.yaml
   pnpm-lock.yaml
-  astro.config.mjs        # Starlight; DOCS_BASE / SITE_PART env; editLink → docs/
+  astro.config.mjs        # Starlight; DOCS_BASE / DOCS_ONLY env; editLink → docs/
   src/content.config.ts   # docs collection = glob('../docs') + docsSchema()
   wrangler.jsonc          # Workers static-assets config (or Pages project name)
   public/
@@ -531,7 +531,9 @@ Instead:
   `paths: [docs/**, website/**, .github/workflows/website.yml]`. Steps: build, astro check,
   `starlight-links-validator`, redirect/URL-parity test, then deploy a preview or production
   with `wrangler`. Release tags also trigger it (Phase 2, to rebuild stable).
-- **Fork PRs** (most community doc PRs) have no secrets on `pull_request`. Use the standard
+- **Fork PRs:** as implemented, fork PRs only build (no preview), so outside contributors
+  can't publish on our Cloudflare account; push a fork's branch to the repo to preview it.
+  The original idea, for reference: fork PRs have no secrets on `pull_request`. Use the standard
   two-stage pattern: `pull_request` builds and uploads `dist` as an artifact (no secrets),
   then a `workflow_run`-triggered job deploys the preview and comments the URL. It never
   executes PR code with secrets.
@@ -662,7 +664,7 @@ previous version.
 
 **Phase 4: full versioning, at the next release, ~1.5–2 days**
 20. Stable-from-tag `/help/`, `/help/next/` from `master`, `docs/stable` branch automation
-    and the backport-label bot. (`DOCS_BASE`/`SITE_PART` build modes, the archive pipeline,
+    and the backport-label bot. (`DOCS_BASE`/`DOCS_ONLY` build modes, the archive pipeline,
     the switcher and `noindex`/canonical ship in Phase 1 for the 26.9 archive.)
 
 **Later (not in scope):** the visual redesign, replacing the marketing CSS on top of the

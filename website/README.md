@@ -48,7 +48,8 @@ URLs must not break. The Redash app links to docs pages and anchors
 to a page in at most one redirect:
 
 - every URL of the old site (`tests/fixtures/legacy-urls.txt`)
-- every `redash.io` URL hard-coded in this repository, including anchors
+- every `redash.io` URL hard-coded in the app (everything outside `docs/` and
+  `website/`), including the `HelpTrigger.jsx` paths and anchors
 - the docs.redash.io redirect list (`infra/docs-redash-io-redirects.csv`)
 
 When you move a page, add a rule to `public/_redirects` pointing to the final

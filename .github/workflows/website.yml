@@ -15,6 +15,7 @@ on:
       - 'docs/**'
       - 'website/**'
       - '.github/workflows/website.yml'
+      - '.github/workflows/website-preview.yml'
   pull_request:
     branches:
       - master
@@ -22,6 +23,7 @@ on:
       - 'docs/**'
       - 'website/**'
       - '.github/workflows/website.yml'
+      - '.github/workflows/website-preview.yml'
   workflow_dispatch:
 permissions:
   contents: read
