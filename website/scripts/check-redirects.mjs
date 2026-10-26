@@ -20,7 +20,7 @@ const dist = path.join(root, 'dist')
 if (!fs.existsSync(dist)) throw new Error('dist/ not found: run `pnpm build` first')
 
 const rules = fs
-  .readFileSync(path.join(root, 'public/_redirects'), 'utf8')
+  .readFileSync(path.join(dist, '_redirects'), 'utf8')
   .split('\n')
   .filter((l) => l.trim() && !l.startsWith('#'))
   .map((l) => {
@@ -105,7 +105,8 @@ for (const line of fs.readFileSync(path.join(root, 'infra/docs-redash-io-redirec
 // 4. Rule hygiene: no rule shadows a page, every target is final.
 for (const r of rules) {
   if (!r.from.includes('*') && pageAt(r.from)) problems.push(`rule ${r.from} shadows an existing page`)
-  if (!/^https?:/.test(r.to) && request(r.to.split('#')[0]).status !== 200)
+  // Splat targets are checked through the URLs above.
+  if (!/^https?:/.test(r.to) && !r.to.includes(':splat') && request(r.to.split('#')[0]).status !== 200)
     problems.push(`rule ${r.from} → ${r.to}: target is not a page (point it at the final URL)`)
 }
 

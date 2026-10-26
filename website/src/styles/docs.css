@@ -75,8 +75,8 @@ html.drawer .main-frame {
   scroll-margin-top: calc(var(--sl-nav-height) + 1.5rem);
 }
 
-/* "This is the documentation for Redash X" banner on archived versions. */
-.archive-banner {
+/* Banner on the next and archived versions (see components/docs/Banner.astro). */
+.version-banner {
   padding: var(--sl-nav-pad-y) var(--sl-nav-pad-x);
   background-color: var(--sl-color-bg-accent);
   color: var(--sl-color-text-invert);
@@ -84,7 +84,7 @@ html.drawer .main-frame {
   text-align: center;
   text-wrap: balance;
 }
-.archive-banner a {
+.version-banner a {
   color: inherit;
   font-weight: 600;
 }

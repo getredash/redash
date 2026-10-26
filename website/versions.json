@@ -1,4 +1,5 @@
 {
-  "$comment": "Archived knowledge base versions, built from git refs by scripts/build-site.mjs and served at /help/v/<version>/. The latest docs (/help/) are built from the current checkout.",
-  "archives": [{ "version": "26.9", "ref": "docs/v26.9" }]
+  "$comment": "Docs versions, see scripts/build-site.mjs. /help/ shows `stable` (the latest release), built from its ref: a branch, so docs fixes can be backported to it. /help/next/ shows master. Archives (/help/v/<version>/) are older releases, built from their release tag or branch. On a release: move the current stable into archives, and point stable at the new release's branch.",
+  "stable": { "version": "26.9", "ref": "docs/v26.9" },
+  "archives": []
 }

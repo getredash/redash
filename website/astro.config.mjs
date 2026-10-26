@@ -7,12 +7,15 @@ import starlight from '@astrojs/starlight'
 import { unified } from '@astrojs/markdown-remark'
 import rehypeLegacyAnchors from './src/plugins/rehype-legacy-anchors.mjs'
 import rehypeDocsBase from './src/plugins/rehype-docs-base.mjs'
-import { buildSidebar, DOCS_BASE, IS_ARCHIVE } from './src/lib/kb.mjs'
+import { buildSidebar, DOCS_BASE, IS_STABLE } from './src/lib/kb.mjs'
 
 const r = (p) => fileURLToPath(new URL(p, import.meta.url))
 
-// Archived docs versions for the version switcher (see src/lib/kb.mjs).
-process.env.DOCS_VERSIONS ??= JSON.stringify(JSON.parse(fs.readFileSync(r('./versions.json'), 'utf8')).archives)
+// Docs versions for the version switcher (see src/lib/kb.mjs).
+process.env.DOCS_VERSIONS ??= JSON.stringify(JSON.parse(fs.readFileSync(r('./versions.json'), 'utf8')))
+// Set by scripts/build-site.mjs when a ref is built only for its docs.
+const DOCS_ONLY = !!process.env.DOCS_ONLY
+const isDocsPage = (url) => new URL(url).pathname.startsWith('/help/')
 
 export default defineConfig({
   site: 'https://redash.io',
@@ -34,13 +37,15 @@ export default defineConfig({
         Banner: './src/components/docs/Banner.astro',
         SocialIcons: './src/components/docs/SocialIcons.astro',
       },
-      // Archived versions are searched through the latest index (see build-site.mjs).
-      pagefind: !IS_ARCHIVE,
+      // Only the stable docs are searchable: the site has a single /pagefind/ index.
+      pagefind: IS_STABLE,
       // The marketing site provides /404.
       disable404Route: true,
     }),
     react(),
-    sitemap(),
+    // Marketing pages from the main build, docs from the stable build only
+    // (build-site.mjs merges the two sitemaps).
+    sitemap({ filter: (page) => (isDocsPage(page) ? IS_STABLE : !DOCS_ONLY) }),
   ],
   markdown: {
     // remark/rehype pipeline (Starlight's asides need it).

@@ -30,6 +30,14 @@ The site that renders it lives in [`/website`](../website).
   link to them.
 - Link to other pages with absolute paths like `/help/user-guide/querying/writing-queries/`.
 
+## Versions
+
+`master` is published at `/help/next/` as the unreleased docs. `/help/` shows the
+latest release, so changes appear there when they're released. If a fix also
+applies to the current release (a typo, a wrong instruction), mention it in the
+pull request: maintainers cherry-pick it onto the release branch. See
+[website/README.md](../website/README.md#docs-versions).
+
 ## Previewing
 
 ```sh

@@ -17,7 +17,7 @@ hosting are unchanged.
 | Knowledge base in `/docs`, rendered by Starlight at the same URLs | ✅ 79 pages + `/help/` index; Pagefind search; sidebar in the old order |
 | In-app help drawer (iframe, `iframe_url` messages, drawer mode, `#Legacy-Anchors`) | ✅ Verified in a framed page; anchors now work without JS |
 | Redirects (`_redirects`, chains collapsed) + docs.redash.io Bulk Redirect CSV | ✅ `pnpm check:redirects` passes; behaviour checked with `wrangler dev` |
-| Versioning groundwork: `/help/v/26.9/` archive, switcher, noindex/canonical | ✅ Built from git ref `docs/v26.9` (to tag at merge; falls back to HEAD until then) |
+| Versioning: stable `/help/` (26.9, from its release branch), `/help/next/` (master), archives, switcher, noindex/canonical | ✅ Pulled forward from Phase 4. Stable is built from the `docs/v26.9` branch (create from the merge commit; PR builds fall back to the checkout, deploys require it) |
 | CI: `changes` gate in Tests, `website.yml`, `website-preview.yml` | ✅ actionlint-clean; deploy jobs skip until `CLOUDFLARE_ACCOUNT_ID` / `CLOUDFLARE_API_TOKEN` exist |
 | Root `netlify.toml` (dead app previews) | ✅ Removed |
 | GA4 | ⏸ Component ready, off until `PUBLIC_GA_MEASUREMENT_ID` is set (follow-up) |
@@ -35,8 +35,14 @@ Deviations from the plan below, and why:
 - **Existing KB images keep their `/assets/images/docs/...` URLs** in
   `website/public/` instead of being co-located in `/docs`. That preserves
   hotlinks and keeps the migration diff reviewable. New images can be co-located.
-- **Archived versions have no search of their own.** Pagefind indexes the latest
-  docs only.
+- **Stable from a release branch, not a tag, and no separate 26.9 archive yet.**
+  `/help/` follows the latest release from the start (not `master`), and
+  `/help/next/` ships now. While 26.9 is stable, `/help/v/26.9/` redirects (302)
+  to `/help/`; it becomes a real archive at the next release. Fixes are
+  backported to the release branch by cherry-pick, like security fixes (a bot
+  can come later). Release branches (`docs/v*`, `security/v*`) trigger deploys.
+- **Only stable has search.** The site has one Pagefind index; next and
+  archives have no search box.
 - Cloudflare's automatic `/page` → `/page/` redirect is a **307** (Netlify
   used 301). Sitemap and canonical URLs use the slash form, so impact should be nil.
 - Two redirect targets that 404 on the live site today are fixed
@@ -616,15 +622,16 @@ Optional: also mirror `dist` to GitHub Pages? No. It adds a second source of tru
     page linking to Discussions, with `/contact/thank-you/` → 301 `/contact/`.
     **Remove Segment.** Add the GA placeholder component (off until the GA follow-up is
     resolved). Delete the root `netlify.toml` (dead app previews).
-11b. Versioning groundwork: `DOCS_BASE`/`SITE_PART` build modes, the merge-`dist` deploy
-    step, the version switcher (`versions.json`), `noindex`/canonical for archives, and an
-    archive build of the migrated content at `/help/v/26.9/`. The preview builds the archive
-    from the PR head. The `docs/v26.9` tag is created at merge (step 13).
+11b. Versioning: `DOCS_BASE`/`DOCS_ONLY` build modes, the merge-`dist` build step, the
+    version switcher (`versions.json`), stable `/help/` built from the 26.9 release branch,
+    `/help/next/` from `master`, and `noindex`/canonical for next and archives. The preview
+    builds stable from the PR head. The `docs/v26.9` branch is created at merge (step 13).
 12. Review on the preview URL: link check, redirect test green, Lighthouse, visual spot-check
     of the top 20 pages, and an in-app help drawer test against the preview.
 
 **Phase 2: cutover, ~0.5 day, low-traffic window**
-13. Merge, and tag the merge commit `docs/v26.9`. Production deploy goes to the Workers/Pages project, verified on its `*.workers.dev`
+13. Merge, and create the `docs/v26.9` branch from the merge commit (the deploy fails until
+    it exists, by design; re-run it). Production deploy goes to the Workers/Pages project, verified on its `*.workers.dev`
     or `*.pages.dev` hostname, plus a temporary `next.redash.io` custom domain.
 14. Lower the TTL on the apex/www records the day before. Then switch the `redash.io` DNS
     records from Netlify's IPs to the Cloudflare custom domain/route (proxied). Leave the

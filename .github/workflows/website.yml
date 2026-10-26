@@ -4,8 +4,12 @@ name: Website
 # CLOUDFLARE_API_TOKEN secret are configured; until then only builds and checks.
 on:
   push:
+    # master, plus the release branches /help/ and the archives are built from
+    # (website/versions.json), so a docs backport redeploys the site.
     branches:
       - master
+      - 'docs/v*'
+      - 'security/v*'
     paths:
       - 'docs/**'
       - 'website/**'
@@ -21,7 +25,8 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: website-${{ github.ref }}
+  # Every push deploys the whole site (built from master), so pushes share one group.
+  group: website-${{ github.event_name == 'push' && 'deploy' || github.ref }}
   cancel-in-progress: true
 env:
   NODE_VERSION: 24
@@ -34,8 +39,9 @@ jobs:
         working-directory: website
     steps:
       - uses: actions/checkout@v4
-      - name: Fetch docs version tags
-        run: git fetch --no-tags --depth=1 origin '+refs/tags/docs/*:refs/tags/docs/*' || true
+        with:
+          # The site is always built from master; release branches only supply docs.
+          ref: ${{ github.event_name == 'push' && 'master' || '' }}
       - uses: pnpm/action-setup@v4
         with:
           version: ${{ env.PNPM_VERSION }}
@@ -50,8 +56,12 @@ jobs:
           path: website/.archive-cache
           key: website-archives-${{ hashFiles('website/versions.json') }}-${{ github.sha }}
           restore-keys: website-archives-${{ hashFiles('website/versions.json') }}-
-      - name: Build site and archived docs versions
+      # Fetches the docs version refs from versions.json. Deploys must not fall
+      # back to master's docs for /help/ if a ref is missing.
+      - name: Build site and docs versions
         run: pnpm build:site
+        env:
+          REQUIRE_REFS: ${{ github.event_name == 'push' }}
       - name: Check that no URL breaks
         run: pnpm check:redirects
       - name: Save the pull request number for website-preview.yml

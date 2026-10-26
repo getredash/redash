@@ -21,7 +21,7 @@ cd website
 pnpm install
 pnpm dev                # http://localhost:4321
 pnpm build              # site → dist/
-pnpm build:site         # site + archived docs versions → dist/ (what CI deploys)
+pnpm build:site         # site + all docs versions → dist/ (what CI deploys)
 pnpm check:redirects    # after a build: no old URL may break (see below)
 pnpm test:visual        # after a build: compare marketing pages with the live site
 ```
@@ -34,7 +34,7 @@ pnpm test:visual        # after a build: compare marketing pages with the live s
 | `src/react/` | Marketing page components ported from the Gatsby site |
 | `src/content/` | Data source / integration landing pages and the legal pages (Markdown) |
 | `src/data/` | Customers, footer links, contributors |
-| `src/lib/kb.mjs` | Knowledge base structure: URL ids, sidebar, versions |
+| `src/lib/kb.mjs` | Docs structure: URL ids, sidebar, versions |
 | `src/components/docs/` | Starlight overrides: head tags, category article lists, version switcher |
 | `src/plugins/` | Rehype plugins: legacy heading anchors, version-local links |
 | `public/` | Static files served as-is, including `_redirects`, `_headers` and legacy `/assets/` |
@@ -64,12 +64,32 @@ capitalised heading anchors (`#Value-Source-Options`) are kept by
 
 ## Docs versions
 
-`/help/` is the latest documentation, built from the current checkout.
-Archived versions listed in `versions.json` are built from their git refs by
-`scripts/build-site.mjs` and served at `/help/v/<version>/`. They're
-`noindex`, carry a banner and canonical link to the latest page, and appear in
-the version switcher. To archive a release, tag the commit (`docs/v<version>`)
-and add it to `versions.json`.
+`scripts/build-site.mjs` combines several docs versions, listed in `versions.json`:
+
+| URL | Built from | Switcher label |
+|---|---|---|
+| `/help/` | `stable.ref`: the latest release's branch | `26.9 (latest)` |
+| `/help/next/` | `master` (this checkout) | `Next (unreleased)` |
+| `/help/v/<version>/` | each archive's release tag or branch | `<version>` |
+
+Each ref is built with its own `website/` and `docs/`, and only its docs are
+merged into the site; the marketing pages always come from `master`. Only
+stable is searchable (Pagefind) and in the sitemap. Next and archives are
+`noindex`, carry a banner, and point their canonical link at the stable page.
+`/help/v/<stable version>/` redirects to `/help/` until that version is archived.
+
+Docs changes land on `master` first. A fix that also applies to the current
+release is cherry-picked onto the stable branch, the same way security fixes
+are backported; pushing it redeploys the site. Archives aren't updated.
+
+The 26.9 release predates the docs moving into this repository, so its stable
+ref is the `docs/v26.9` branch, created from the cutover commit. Until it exists,
+local and pull request builds use the current checkout; deploys fail
+(`REQUIRE_REFS`), so `/help/` can't silently show unreleased docs.
+
+On a release (e.g. 27.3):
+1. Add the old stable to `archives`: `{ "version": "26.9", "ref": "docs/v26.9" }`.
+2. Point `stable` at the new release branch: `{ "version": "27.3", "ref": "security/v27.3" }`.
 
 ## Deployment
 
