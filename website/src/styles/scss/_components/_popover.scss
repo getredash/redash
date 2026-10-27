@@ -1,0 +1,11 @@
+.popover {
+  border-radius: $border-radius;
+  background: rgba(255, 255, 255, 0.95);
+  text-align: center;
+  border: none;
+  box-shadow: 0 3px 15px -2px rgba(175, 175, 175, 0.5);
+
+  .arrow {
+    border: none;
+  }
+}

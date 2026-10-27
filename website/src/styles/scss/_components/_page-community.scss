@@ -1,0 +1,52 @@
+.section__os--hero {
+  h1 {
+    margin-top: 150px;
+  }
+
+  #open-source-illustrated {
+    width: 95%;
+    transform: translatey(0px);
+    animation: float 6s ease-in-out infinite;
+  }
+}
+
+@keyframes float {
+  0% {
+    transform: translatey(0px);
+  }
+  50% {
+    transform: translatey(-20px);
+  }
+  100% {
+    transform: translatey(0px);
+  }
+}
+
+.contributor-list {
+  display: flex;
+  align-items: flex-start;
+  align-content: flex-start;
+  flex-wrap: wrap;
+}
+
+.contributor-pics {
+  margin: 5px;
+  img {
+    border-radius: 50%;
+  }
+}
+
+.contributor-card {
+  text-align: center;
+  box-shadow: 0 4px 9px rgba(0, 0, 0, 0.05125);
+  border: 1px solid #eaeaea;
+  border-radius: $border-radius;
+  margin: 15px;
+  margin-top: 25px;
+  padding: 25px;
+  min-width: 195px;
+}
+
+.section__os--contributor-list {
+  overflow: hidden;
+}

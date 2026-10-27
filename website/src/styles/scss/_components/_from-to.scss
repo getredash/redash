@@ -1,0 +1,41 @@
+/* FROM TO */
+
+.from-to-holder {
+  text-align: center;
+  position: relative;
+}
+.from-to-holder__item {
+  display: inline-block;
+  max-width: 175px;
+  vertical-align: middle;
+  & + .from-to-holder__item {
+    margin-left: 220px;
+    @include respond-to(xs) {
+      margin-left: 100px;
+    }
+  }
+}
+
+.from-to-plus {
+  font-size: 54px;
+  display: inline-block;
+  font-weight: 200;
+  margin: 0 25px;
+  opacity: 0.3;
+}
+
+.from-to-holder__logo {
+  width: 100%;
+  max-width: 96px;
+  display: inline-block;
+}
+.from-to-holder__redash {
+  width: 100%;
+  max-width: 50px;
+  display: inline-block;
+  margin-bottom: 10px;
+}
+.from-to-holder__title {
+  font-size: 18px;
+  font-weight: 500;
+}

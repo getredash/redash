@@ -1,0 +1,16 @@
+.algolia__result-highlight {
+  background-color: #daeeff;
+}
+
+.underline-link-holder {
+  a {
+    color: $primary;
+    //border-bottom: 1px solid $primary;
+    transition: all 0.25s cubic-bezier(0.2, 1, 0.4, 1);
+    &:hover,
+    &:focus {
+      color: $primary;
+      background-color: #daeeff;
+    }
+  }
+}

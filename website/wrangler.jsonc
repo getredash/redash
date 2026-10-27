@@ -1,0 +1,13 @@
+// Cloudflare deployment: an assets-only Worker (no script), so every request is
+// a free static-asset request. _redirects and _headers in public/ apply.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "redash-website",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./dist",
+    // /help/x → /help/x/ like the old site.
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page"
+  }
+}

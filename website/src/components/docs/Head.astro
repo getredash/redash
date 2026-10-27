@@ -1,0 +1,21 @@
+---
+// Starlight <head> plus what the old knowledge base pages had: the in-app help
+// drawer contract, analytics, and the `keywords` meta tag. Next and archived
+// versions are kept out of search engines and point to the stable page.
+import IframeBridge from '../IframeBridge.astro'
+import Analytics from '../Analytics.astro'
+import { IS_STABLE, STABLE_BASE, pathInVersion } from '../../lib/kb.mjs'
+
+const { head, entry } = Astro.locals.starlightRoute
+const { keywords } = entry.data
+// Same as Starlight's Head component, minus its canonical link outside stable.
+const tags = head.filter(({ tag, attrs }) => IS_STABLE || !(tag === 'link' && attrs?.rel === 'canonical'))
+const stable = new URL(pathInVersion(Astro.url.pathname, STABLE_BASE), Astro.site)
+---
+
+{tags.map(({ tag: Tag, attrs, content }) => <Tag {...attrs} set:html={content} />)}
+{keywords?.length ? <meta name="keywords" content={keywords.join(', ')} /> : null}
+{!IS_STABLE && <meta name="robots" content="noindex" />}
+{!IS_STABLE && <link rel="canonical" href={stable.href} data-version-canonical />}
+<IframeBridge drawerClass />
+<Analytics />

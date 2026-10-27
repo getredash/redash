@@ -1,0 +1,110 @@
+name: Website
+# redash.io: marketing site (website/) and knowledge base (docs/).
+# Deploys to Cloudflare with the CLOUDFLARE_ACCOUNT_ID repository variable and the
+# CLOUDFLARE_API_TOKEN secret of the `cloudflare` environment (limited to master;
+# website-preview.yml uses the same environment).
+on:
+  push:
+    # master, plus the release branches /help/ and the archives are built from
+    # (website/versions.json): a docs backport there triggers a deploy from master.
+    branches:
+      - master
+      - 'docs/v*'
+      - 'security/v*'
+    paths:
+      - 'docs/**'
+      - 'website/**'
+      - '.github/workflows/website.yml'
+      - '.github/workflows/website-preview.yml'
+  pull_request:
+    branches:
+      - master
+    paths:
+      - 'docs/**'
+      - 'website/**'
+      - '.github/workflows/website.yml'
+      - '.github/workflows/website-preview.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: website-${{ github.ref }}
+  cancel-in-progress: true
+env:
+  NODE_VERSION: 24
+  PNPM_VERSION: 10.30.3
+jobs:
+  # A push to a release branch only changes the docs built from it: rebuild and
+  # deploy from master, where the `cloudflare` environment (and its token) is allowed.
+  redeploy-from-master:
+    if: github.event_name == 'push' && github.ref != 'refs/heads/master'
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: write
+    steps:
+      - run: gh workflow run website.yml --repo "$GITHUB_REPOSITORY" --ref master
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+  build:
+    if: github.event_name != 'push' || github.ref == 'refs/heads/master'
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: website
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+          cache-dependency-path: website/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/cache@v4
+        with:
+          path: website/.archive-cache
+          key: website-archives-${{ hashFiles('website/versions.json') }}-${{ github.sha }}
+          restore-keys: website-archives-${{ hashFiles('website/versions.json') }}-
+      # Fetches the docs version refs from versions.json. Deploys must not fall
+      # back to master's docs for /help/ if a ref is missing.
+      - name: Build site and docs versions
+        run: pnpm build:site
+        env:
+          REQUIRE_REFS: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/master' }}
+      - name: Check that no URL breaks
+        run: pnpm check:redirects
+      - name: Save the pull request number for website-preview.yml
+        if: github.event_name == 'pull_request'
+        run: echo "${{ github.event.pull_request.number }}" > dist/.pr-number
+      - uses: actions/upload-artifact@v4
+        with:
+          name: website-dist
+          path: website/dist
+          include-hidden-files: true
+          retention-days: 7
+
+  deploy:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master' && vars.CLOUDFLARE_ACCOUNT_ID != ''
+    runs-on: ubuntu-24.04
+    needs: build
+    environment:
+      name: cloudflare
+      url: https://redash.io
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: website/wrangler.jsonc
+          sparse-checkout-cone-mode: false
+      - uses: actions/download-artifact@v4
+        with:
+          name: website-dist
+          path: website/dist
+      - uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: website
+          command: deploy
