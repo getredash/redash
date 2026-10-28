@@ -1,6 +1,6 @@
 """A requests Session that refuses to connect to private addresses.
 
-Adapted from Advocate (https://github.com/JordanMilne/Advocate, Apache License 2.0, see LICENSE.advocate),
+Adapted from Advocate (https://github.com/JordanMilne/Advocate, Apache License 2.0, see LICENSE),
 which is no longer maintained and doesn't support urllib3 2. Only the parts Redash
 uses are kept, with Advocate's default rules:
 
