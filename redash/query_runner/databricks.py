@@ -90,8 +90,14 @@ class Databricks(BaseSQLQueryRunner):
                     "title": "Use Query Annotation",
                     "default": False,
                 },
+                "row_limit": {
+                    "type": "number",
+                    "minimum": 1,
+                    "multipleOf": 1,
+                    "title": "Row Limit (leave empty to use the default of {})".format(ROW_LIMIT),
+                },
             },
-            "order": ["host", "http_path", "catalog", "http_password", "useQueryAnnotation"],
+            "order": ["host", "http_path", "catalog", "http_password", "useQueryAnnotation", "row_limit"],
             "secret": ["http_password"],
             "required": ["host", "http_path", "http_password"],
         }
@@ -127,6 +133,9 @@ class Databricks(BaseSQLQueryRunner):
         )
 
     def run_query(self, query, user):
+        # Falls back to DATABRICKS_ROW_LIMIT when the data source doesn't set its own limit.
+        row_limit = int(self.configuration.get("row_limit") or ROW_LIMIT)
+
         try:
             with self._get_connection() as connection:
                 with connection.cursor() as cursor:
@@ -135,7 +144,7 @@ class Databricks(BaseSQLQueryRunner):
                         cursor.execute(stmt)
 
                     if cursor.description is not None:
-                        result_set = cursor.fetchmany(ROW_LIMIT)
+                        result_set = cursor.fetchmany(row_limit)
                         columns = self.fetch_columns(
                             [(i[0], TYPES_MAP.get(i[1], TYPE_STRING)) for i in cursor.description]
                         )
@@ -144,7 +153,7 @@ class Databricks(BaseSQLQueryRunner):
 
                         data = {"columns": columns, "rows": rows}
 
-                        if len(result_set) >= ROW_LIMIT and cursor.fetchone() is not None:
+                        if len(result_set) >= row_limit and cursor.fetchone() is not None:
                             logger.warning("Truncated result set.")
                             statsd_client.incr("redash.query_runner.databricks.truncated")
                             data["truncated"] = True
