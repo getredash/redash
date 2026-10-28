@@ -146,15 +146,20 @@ class SqlServer(BaseSQLQueryRunner):
         connection = None
 
         try:
-            connection = mssql_python.connect(autocommit=True, **self._connection_params())
+            connection = mssql_python.connect(autocommit=False, **self._connection_params())
 
             cursor = connection.cursor()
             logger.debug("SqlServer running query: %s", query)
 
             cursor.execute(query)
-            data = cursor.fetchall()
+
+            # Skip the row counts of statements that don't return rows (such as an
+            # INSERT into a temporary table) to get to the first result set.
+            while cursor.description is None and cursor.nextset():
+                pass
 
             if cursor.description is not None:
+                data = cursor.fetchall()
                 columns = self.fetch_columns([(i[0], types_map.get(i[1], None)) for i in cursor.description])
                 rows = [dict(zip((column["name"] for column in columns), row)) for row in data]
 
@@ -165,6 +170,9 @@ class SqlServer(BaseSQLQueryRunner):
                 data = None
 
             cursor.close()
+            # Commit only once the whole batch succeeded, so a failed query
+            # doesn't leave earlier statements' writes behind.
+            connection.commit()
         except mssql_python.Error as e:
             error = getattr(e, "ddbc_error", None) or str(e)
             data = None

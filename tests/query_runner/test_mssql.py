@@ -80,17 +80,52 @@ class TestRunQuery(TestCase):
             [("id", TYPE_INTEGER), ("name", TYPE_STRING), ("amount", TYPE_FLOAT), ("created_at", TYPE_DATETIME)],
         )
         self.assertEqual(data["rows"][0]["name"], "a")
-        connect.assert_called_once_with(autocommit=True, **self.runner._connection_params())
+        connect.assert_called_once_with(autocommit=False, **self.runner._connection_params())
+        connect.return_value.commit.assert_called_once()
         connect.return_value.close.assert_called_once()
 
     @mock.patch("redash.query_runner.mssql.mssql_python.connect")
     def test_no_result_set(self, connect):
-        connect.return_value.cursor.return_value.description = None
+        cursor = connect.return_value.cursor.return_value
+        cursor.description = None
+        cursor.nextset.return_value = False
 
         data, error = self.runner.run_query("UPDATE t SET a = 1", None)
 
         self.assertIsNone(data)
         self.assertEqual(error, "No data was returned.")
+        cursor.fetchall.assert_not_called()
+        connect.return_value.commit.assert_called_once()
+
+    @mock.patch("redash.query_runner.mssql.mssql_python.connect")
+    def test_skips_row_counts_before_result_set(self, connect):
+        cursor = connect.return_value.cursor.return_value
+        cursor.description = None
+
+        def nextset():
+            cursor.description = [("id", int, None, 10, 10, 0, False)]
+            return True
+
+        cursor.nextset.side_effect = nextset
+        cursor.fetchall.return_value = [(1,)]
+
+        data, error = self.runner.run_query("INSERT INTO #t VALUES (1); SELECT id FROM #t", None)
+
+        self.assertIsNone(error)
+        self.assertEqual(data["rows"], [{"id": 1}])
+
+    @mock.patch("redash.query_runner.mssql.mssql_python.connect")
+    def test_failed_query_is_not_committed(self, connect):
+        connect.return_value.cursor.return_value.execute.side_effect = mssql_python.ProgrammingError(
+            "Query failed", "Divide by zero error encountered."
+        )
+
+        data, error = self.runner.run_query("INSERT INTO t VALUES (1); SELECT 1/0", None)
+
+        self.assertIsNone(data)
+        self.assertEqual(error, "Divide by zero error encountered.")
+        connect.return_value.commit.assert_not_called()
+        connect.return_value.close.assert_called_once()
 
     @mock.patch("redash.query_runner.mssql.mssql_python.connect")
     def test_driver_error_is_returned(self, connect):

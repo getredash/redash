@@ -14,6 +14,8 @@ services:
       POSTGRES_PASSWORD: "FmTKs5vX52ufKR1rd8tn4MoSP7zvCJwb"
       REDASH_DATABASE_URL: "postgresql://postgres:FmTKs5vX52ufKR1rd8tn4MoSP7zvCJwb@postgres/postgres"
       REDASH_COOKIE_SECRET: "2H9gNG9obnAQ9qnR9BDTQUph6CbXKCzF"
+      REDASH_TEST_MSSQL_SERVER: "mssql"
+      REDASH_TEST_MSSQL_PASSWORD: "Redash-Tests-1"
   redis:
     image: redis:7-alpine
     restart: unless-stopped
@@ -23,3 +25,9 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_HOST_AUTH_METHOD: "trust"
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    restart: unless-stopped
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "Redash-Tests-1"
