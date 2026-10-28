@@ -147,6 +147,13 @@ GOOGLE_CLIENT_ID = os.environ.get("REDASH_GOOGLE_CLIENT_ID", "")
 GOOGLE_CLIENT_SECRET = os.environ.get("REDASH_GOOGLE_CLIENT_SECRET", "")
 GOOGLE_OAUTH_ENABLED = bool(GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET)
 
+OIDC_CLIENT_ID = os.environ.get("REDASH_OIDC_CLIENT_ID", "")
+OIDC_CLIENT_SECRET = os.environ.get("REDASH_OIDC_CLIENT_SECRET", "")
+OIDC_ISSUER_URL = os.environ.get("REDASH_OIDC_ISSUER_URL", "")
+OIDC_ENABLED = bool(OIDC_CLIENT_ID and OIDC_CLIENT_SECRET and OIDC_ISSUER_URL)
+OIDC_SCOPE = os.environ.get("REDASH_OIDC_SCOPE", "openid email profile")
+OIDC_SCHEME_OVERRIDE = os.environ.get("REDASH_OIDC_SCHEME_OVERRIDE", "")
+
 # If Redash is behind a proxy it might sometimes receive a X-Forwarded-Proto of HTTP
 # even if your actual Redash URL scheme is HTTPS. This will cause Flask to build
 # the SAML redirect URL incorrect thus failing auth. This is especially common if
@@ -309,14 +316,12 @@ default_query_runners = [
     "redash.query_runner.tinybird",
     "redash.query_runner.yandex_metrica",
     "redash.query_runner.yandex_disk",
-    "redash.query_runner.rockset",
     "redash.query_runner.treasuredata",
     "redash.query_runner.sqlite",
     "redash.query_runner.mssql",
     "redash.query_runner.mssql_odbc",
     "redash.query_runner.memsql_ds",
     "redash.query_runner.jql",
-    "redash.query_runner.google_analytics",
     "redash.query_runner.axibase_tsd",
     "redash.query_runner.salesforce",
     "redash.query_runner.query_results",
@@ -456,6 +461,17 @@ SQLPARSE_FORMAT_OPTIONS = {
     "reindent": parse_boolean(os.environ.get("SQLPARSE_FORMAT_REINDENT", "true")),
     "keyword_case": os.environ.get("SQLPARSE_FORMAT_KEYWORD_CASE", "upper"),
 }
+
+# sqlparse refuses to group statements beyond these limits, raising SQLParseError,
+# to bound the CPU it will spend on a single statement. The defaults match
+# sqlparse's own. Raise them if your users run legitimately huge queries (long
+# IN lists, wide SELECTs, many VALUES tuples) and you would rather pay the CPU
+# than lose auto limit and query formatting on them. Set to 0 to disable a limit
+# entirely -- note that formatting cost grows faster than linearly with
+# statement size, so an unbounded limit lets one request occupy a worker for a
+# long time.
+SQLPARSE_MAX_GROUPING_TOKENS = int(os.environ.get("SQLPARSE_MAX_GROUPING_TOKENS", 10000))
+SQLPARSE_MAX_GROUPING_DEPTH = int(os.environ.get("SQLPARSE_MAX_GROUPING_DEPTH", 100))
 
 # requests
 REQUESTS_ALLOW_REDIRECTS = parse_boolean(os.environ.get("REDASH_REQUESTS_ALLOW_REDIRECTS", "false"))

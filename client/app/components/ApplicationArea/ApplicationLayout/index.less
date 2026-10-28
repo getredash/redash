@@ -67,19 +67,3 @@ body.headless #application-root {
     margin-top: 0;
   }
 }
-
-// Fixes for proper snapshots in Percy (move vertical scroll to body level
-// to capture entire page, otherwise it wll be cut by viewport)
-@media only percy {
-  body #application-root {
-    height: auto;
-
-    .application-layout-side-menu {
-      height: auto;
-    }
-
-    .application-layout-content {
-      overflow: visible;
-    }
-  }
-}

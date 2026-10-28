@@ -7,6 +7,7 @@ from functools import wraps
 import sqlparse
 from dateutil import parser
 from rq.timeouts import JobTimeoutException
+from sqlparse.exceptions import SQLParseError
 from sshtunnel import open_tunnel
 
 from redash import settings, utils
@@ -345,8 +346,14 @@ class BaseSQLQueryRunner(BaseQueryRunner):
         if should_apply_auto_limit:
             # we only check for last one in the list because it is the one that we show result
             last_query = queries[-1]
-            if self.query_is_select_no_limit(last_query):
-                queries[-1] = self.add_limit_to_query(last_query)
+            try:
+                if self.query_is_select_no_limit(last_query):
+                    queries[-1] = self.add_limit_to_query(last_query)
+            except SQLParseError:
+                # sqlparse refuses to group statements past its grouping limits. Run the
+                # query unmodified rather than failing it, which is what we already do for
+                # any other query we cannot make sense of.
+                logger.warning("Failed to apply auto limit: statement too large for sqlparse to group")
         return combine_sql_statements(queries)
 
 
@@ -466,7 +473,14 @@ def get_configuration_schema_for_query_runner_type(query_runner_type):
 
 def import_query_runners(query_runner_imports):
     for runner_import in query_runner_imports:
-        __import__(runner_import)
+        try:
+            __import__(runner_import)
+        except ModuleNotFoundError as e:
+            # Skip runners that no longer exist (e.g. removed ones still listed in
+            # REDASH_ENABLED_QUERY_RUNNERS), but not a runner's own missing dependencies.
+            if e.name != runner_import:
+                raise
+            logger.warning("Query runner module %s not found, skipping.", runner_import)
 
 
 def guess_type(value):

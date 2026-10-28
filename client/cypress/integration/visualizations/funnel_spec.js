@@ -1,4 +1,4 @@
-/* global cy, Cypress */
+/* global cy */
 
 const SQL = `
   SELECT 'a.01' AS a, 1.758831600227 AS b UNION ALL
@@ -19,8 +19,6 @@ const SQL = `
 `;
 
 describe("Funnel", () => {
-  const viewportWidth = Cypress.config("viewportWidth");
-
   beforeEach(() => {
     cy.login();
     cy.createQuery({ query: SQL }).then(({ id }) => {
@@ -61,7 +59,6 @@ describe("Funnel", () => {
     // Wait for proper initialization of visualization
     cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
     cy.getByTestId("VisualizationPreview").find("table").should("exist");
-    cy.percySnapshot("Visualizations - Funnel (basic)", { widths: [viewportWidth] });
 
     cy.clickThrough(`
       VisualizationEditor.Tabs.Appearance
@@ -81,6 +78,5 @@ describe("Funnel", () => {
     // Wait for proper initialization of visualization
     cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
     cy.getByTestId("VisualizationPreview").find("table").should("exist");
-    cy.percySnapshot("Visualizations - Funnel (extra options)", { widths: [viewportWidth] });
   });
 });

@@ -1,4 +1,4 @@
-import { includes, has, get, map, first, isFunction, isEmpty, startsWith } from "lodash";
+import { includes, find, has, get, map, first, isFunction, isEmpty, startsWith } from "lodash";
 import { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import notification from "@/services/notification";
 import DatabricksDataSource from "@/services/databricks-data-source";
@@ -156,8 +156,11 @@ export default function useDatabricksSchema(dataSource, options = null, onOption
           // 2. Last used stored in localStorage.
           // 3. default database.
           // 4. first database in the list.
-          let lastUsedDatabase =
-            defaultDatabaseNameRef.current || localStorage.getItem(`lastSelectedDatabricksDatabase_${dataSource.id}`);
+          // A stored database may no longer exist, e.g. after the data source's catalog was changed.
+          let lastUsedDatabase = find(
+            [defaultDatabaseNameRef.current, localStorage.getItem(`lastSelectedDatabricksDatabase_${dataSource.id}`)],
+            (databaseName) => includes(data, databaseName)
+          );
 
           if (!lastUsedDatabase) {
             lastUsedDatabase = includes(data, "default") ? "default" : first(data) || null;

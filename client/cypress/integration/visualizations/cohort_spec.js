@@ -1,4 +1,4 @@
-/* global cy, Cypress */
+/* global cy */
 
 const SQL = `
   SELECT '2019-01-01' AS "date", 21 AS "bucket", 5 AS "value", 1 AS "stage" UNION ALL
@@ -18,8 +18,6 @@ const SQL = `
 `;
 
 describe("Cohort", () => {
-  const viewportWidth = Cypress.config("viewportWidth");
-
   beforeEach(() => {
     cy.login();
     cy.createQuery({ query: SQL }).then(({ id }) => {
@@ -53,7 +51,6 @@ describe("Cohort", () => {
     // Wait for proper initialization of visualization
     cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
     cy.getByTestId("VisualizationPreview").find("table").should("exist");
-    cy.percySnapshot("Visualizations - Cohort (simple)", { widths: [viewportWidth] });
 
     cy.clickThrough(`
       VisualizationEditor.Tabs.Options
@@ -64,6 +61,5 @@ describe("Cohort", () => {
     // Wait for proper initialization of visualization
     cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
     cy.getByTestId("VisualizationPreview").find("table").should("exist");
-    cy.percySnapshot("Visualizations - Cohort (diagonal)", { widths: [viewportWidth] });
   });
 });

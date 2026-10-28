@@ -16,7 +16,7 @@ describe("Create Data Source", () => {
     });
   });
 
-  it("renders the page and takes a screenshot", function () {
+  it("renders the page", function () {
     cy.visit("/data_sources/new");
     cy.server();
     cy.route("**/api/data_sources/types").as("DataSourceTypesRequest");
@@ -32,7 +32,6 @@ describe("Create Data Source", () => {
 
     cy.getByTestId("CreateSourceDialog").should("contain", "PostgreSQL");
     cy.wait(1000); // eslint-disable-line cypress/no-unnecessary-waiting
-    cy.percySnapshot("Create Data Source - Types");
   });
 
   it("creates a new PostgreSQL data source", () => {

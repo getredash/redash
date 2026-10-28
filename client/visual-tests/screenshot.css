@@ -1,0 +1,6 @@
+/* Applied while taking screenshots: hide content that changes between runs. */
+
+/* "Updated x minutes ago" - its text (and width) depends on when the examples were loaded */
+[data-test="TimeAgo"] {
+  visibility: hidden;
+}

@@ -1,0 +1,23 @@
+---
+// Next and archived versions say which Redash version they document.
+import Default from '@astrojs/starlight/components/Banner.astro'
+import { IS_STABLE, IS_NEXT, STABLE_BASE, getVersions, DOCS_BASE, pathInVersion } from '../../lib/kb.mjs'
+
+const versions = getVersions()
+const version = versions.find((v: { base: string }) => v.base === DOCS_BASE)?.version
+const stableVersion = versions.find((v: { base: string }) => v.base === STABLE_BASE)?.version
+const stableHref = pathInVersion(Astro.url.pathname, STABLE_BASE)
+---
+
+{
+  IS_STABLE ? (
+    <Default />
+  ) : (
+    <div class="sl-banner version-banner">
+      {IS_NEXT
+        ? 'This documents the unreleased development version of Redash. '
+        : `This is the documentation for Redash ${version}. `}
+      <a href={stableHref}>See the docs for the latest release{stableVersion ? ` (${stableVersion})` : ''}</a>.
+    </div>
+  )
+}

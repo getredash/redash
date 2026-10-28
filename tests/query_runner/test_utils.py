@@ -1,4 +1,5 @@
 from unittest import TestCase
+from unittest.mock import patch
 
 from redash.query_runner import (
     TYPE_BOOLEAN,
@@ -7,6 +8,7 @@ from redash.query_runner import (
     TYPE_INTEGER,
     TYPE_STRING,
     guess_type,
+    import_query_runners,
 )
 
 
@@ -38,3 +40,14 @@ class TestGuessType(TestCase):
 
     def test_detects_date(self):
         self.assertEqual(guess_type("2018-10-31"), TYPE_DATETIME)
+
+
+class TestImportQueryRunners(TestCase):
+    def test_skips_missing_runner_module(self):
+        with self.assertLogs("redash.query_runner", level="WARNING"):
+            import_query_runners(["redash.query_runner.does_not_exist"])
+
+    def test_raises_on_missing_runner_dependency(self):
+        with patch("builtins.__import__", side_effect=ModuleNotFoundError(name="some_driver")):
+            with self.assertRaises(ModuleNotFoundError):
+                import_query_runners(["redash.query_runner.pg"])

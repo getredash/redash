@@ -98,7 +98,6 @@ describe("Sankey and Sunburst", () => {
 
           // wait a bit before taking snapshot
           cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
-          cy.percySnapshot("Visualizations - Sunburst");
         });
     });
   });
@@ -124,7 +123,6 @@ describe("Sankey and Sunburst", () => {
 
           // wait a bit before taking snapshot
           cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
-          cy.percySnapshot("Visualizations - Sankey");
         });
     });
   });
