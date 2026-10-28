@@ -31,6 +31,27 @@ class TestElasticSearch(TestCase):
         }
         self.assertDictEqual(ElasticSearch2._parse_mappings(mapping_data), expected)
 
+    def test_parse_mappings_with_dynamic_keys(self):
+        mapping_data = {
+            "products": {
+                "mappings": {
+                    "dynamic": False,
+                    "dynamic_templates": [{"strings": {"mapping": {"type": "keyword"}}}],
+                    "properties": {
+                        "sku": {"type": "keyword"},
+                        "price": {"type": "long"},
+                    },
+                }
+            }
+        }
+        expected = {
+            "products": {
+                "sku": "string",
+                "price": "integer",
+            }
+        }
+        self.assertDictEqual(ElasticSearch2._parse_mappings(mapping_data), expected)
+
     def test_parse_aggregation(self):
         response = {
             "took": 3,
