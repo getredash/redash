@@ -44,6 +44,12 @@ export function prepareFeatureProperties(feature: any, valueFormatted: any, data
   });
   // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
   result["@@value"] = valueFormatted;
+  // Alias @@name to the target field so the default tooltip template works with any GeoJSON
+  // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
+  if (targetField && feature.properties[targetField] != null && !result["@@name"]) {
+    // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
+    result["@@name"] = feature.properties[targetField];
+  }
   const datum = data[feature.properties[targetField]] || {};
   return extend(result, datum.item);
 }
