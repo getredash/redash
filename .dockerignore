@@ -10,5 +10,6 @@ venv/
 /coverage.xml
 /.circleci/
 /.github/
-/netlify.toml
 /setup/
+/website/
+/docs/

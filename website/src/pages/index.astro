@@ -1,0 +1,17 @@
+---
+import MarketingLayout from '../layouts/MarketingLayout.astro'
+import Page from '../react/pages/Index.jsx'
+---
+
+<MarketingLayout
+  title="Redash helps you make sense of your data"
+  description="Use Redash to connect to any data source (PostgreSQL, MySQL, Redshift, BigQuery, MongoDB and many others), query, visualize and share your data to make your company data driven."
+>
+  <Page />
+  <script>
+    // Show the intro video's controls on hover (React state on the Gatsby site).
+    const video = document.getElementById('main-video')
+    video?.addEventListener('mouseenter', () => video.setAttribute('controls', 'controls'))
+    video?.addEventListener('mouseleave', () => video.removeAttribute('controls'))
+  </script>
+</MarketingLayout>

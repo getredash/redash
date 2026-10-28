@@ -1,0 +1,86 @@
+.topics__list__link {
+  p,
+  h4 {
+    margin-bottom: 0;
+  }
+
+  h4:hover {
+    color: $primary;
+  }
+}
+
+.topics__list__item a:hover {
+  background: none;
+}
+
+.hits-rest {
+  margin-top: 15px;
+}
+
+.edit-on-github {
+  opacity: 0.5;
+  transition: all 0.75s cubic-bezier(0.2, 1, 0.4, 1);
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+.h2--kb-page-title {
+  margin-top: 10px;
+}
+
+code {
+  padding: 0px 5px;
+  font-size: 75%;
+  color: #c7254e;
+  background-color: #f9f2f4;
+  border-radius: 2px;
+  border: 1px solid #f5ecef;
+  display: inline-block;
+  line-height: 20px;
+  font-family:
+    Source Code Pro,
+    Menlo,
+    monospace;
+}
+
+pre {
+  border: none;
+  border-radius: $border-radius;
+  background: #071010;
+  color: #fff;
+
+  code {
+    border: none;
+  }
+}
+
+div.docs img {
+  padding: 25px;
+  background-color: #f6f7f9;
+  border-radius: $border-radius;
+
+  @include img-responsive;
+  @include center-block;
+}
+
+div.docs table {
+  @extend .table;
+  @extend .table-bordered;
+}
+
+div.docs h2,
+div.docs h3 {
+  padding-top: 80px;
+  margin-top: -80px;
+}
+
+.sticky-in-parent {
+  position: sticky;
+  top: 100px;
+}
+
+body.drawer div.quick-nav {
+  display: none;
+}

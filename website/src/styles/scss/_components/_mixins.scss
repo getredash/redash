@@ -1,0 +1,78 @@
+/* MIXINS */
+// Different devices resolutions
+@mixin respond-to($media) {
+  @if $media == xs-phone {
+    @media only screen and (max-width: 550px) {
+      @content;
+    }
+  }
+  @if $media == xs {
+    @media only screen and (max-width: $screen-xs-max) {
+      @content;
+    }
+  }
+  @if $media == xs-min {
+    @media only screen and (min-width: $screen-xs-max) {
+      @content;
+    }
+  } @else if $media == sm {
+    @media only screen and (max-width: $screen-sm-max) {
+      @content;
+    }
+  } @else if $media == sm-min {
+    @media only screen and (min-width: $screen-sm-max) {
+      @content;
+    }
+  } @else if $media == md {
+    @media only screen and (max-width: $screen-md-max) {
+      @content;
+    }
+  } @else if $media == md-min {
+    @media only screen and (min-width: $screen-md-max) {
+      @content;
+    }
+  } @else if $media == lg {
+    @media only screen and (min-width: $screen-lg-min) {
+      @content;
+    }
+  }
+}
+
+// Placeholder text
+@mixin custom-placeholder(
+  $color: $placeholder-color,
+  $font-size: $placeholder-font-size
+) {
+  &:-moz-placeholder {
+    color: $color;
+    font-size: $font-size;
+  }
+  &::-moz-placeholder {
+    color: $color;
+    font-size: $font-size;
+  }
+  &:-ms-input-placeholder {
+    color: $color;
+    font-size: $font-size;
+  }
+  &::-webkit-input-placeholder {
+    color: $color;
+    font-size: $font-size;
+  }
+}
+
+//Placeholder opacity
+@mixin custom-placeholder-opacity($opacity: $placeholder-opacity) {
+  &:-moz-placeholder {
+    opacity: $opacity;
+  }
+  &::-moz-placeholder {
+    opacity: $opacity;
+  }
+  &:-ms-input-placeholder {
+    opacity: $opacity;
+  }
+  &::-webkit-input-placeholder {
+    opacity: $opacity;
+  }
+}

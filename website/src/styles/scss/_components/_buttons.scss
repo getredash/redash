@@ -1,0 +1,107 @@
+/* BUTTONS */
+.btn {
+  font-size: 13px;
+  border-radius: $border-radius;
+  font-weight: 500;
+  padding: 8px 16px;
+  min-height: 34px;
+  font-family: $font-regular;
+  &.btn-danger {
+    background: $danger;
+    border-color: $danger;
+    &:hover,
+    &:focus {
+      background-color: darken($danger, 7%);
+      border-color: darken($danger, 10%);
+    }
+  }
+  &.btn-white {
+    background: $white;
+    border-color: $danger;
+    color: $danger;
+    &:hover,
+    &:focus {
+      background: $danger;
+      border-color: $danger;
+      color: $white;
+    }
+  }
+  &.btn-brand {
+    border-color: darken($bridesmaid, 30%);
+    background: white;
+    color: darken($bridesmaid, 30%);
+    &:hover,
+    &:focus {
+      border-color: darken($bridesmaid, 40%);
+      background: rgba($bridesmaid, 0.25);
+      color: darken($bridesmaid, 40%);
+    }
+  }
+  &.btn-danger-ghost {
+    background: transparent;
+    border-color: $danger;
+    color: $danger;
+    &:hover,
+    &:focus {
+      background-color: $danger;
+      border-color: $danger;
+      color: white;
+    }
+  }
+  &.btn-primary {
+    background: $primary;
+    border-color: $primary;
+    &:hover,
+    &:focus {
+      background-color: lighten($primary, 10%);
+      border-color: lighten($primary, 10%);
+    }
+  }
+  &.btn-long {
+    padding-left: 44px;
+    padding-right: 44px;
+  }
+  &.navbar-btn {
+    font-size: 14px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+  }
+  &.btn-small {
+    padding-top: 4px;
+    padding-bottom: 4px;
+  }
+  & + .btn {
+    margin-left: 10px;
+  }
+  &.btn-input-group {
+    padding-top: 5px;
+    padding-bottom: 5px;
+  }
+  &.btn-input-lg {
+    padding-top: 11px;
+    padding-bottom: 11px;
+  }
+}
+
+.btn-secondary {
+  background: #ffffff;
+  border: 1px solid rgba(33, 150, 243, 0.2);
+  box-shadow: 0 6px 13px -6px rgba(33, 150, 243, 0.25);
+  border-radius: $border-radius;
+  font-weight: 500;
+  font-size: 13px;
+  color: #2196f3;
+  text-align: center;
+  transition: all 0.3s ease;
+
+  &:hover {
+    border: 1px solid rgba(33, 150, 243, 0.4);
+    box-shadow: 0 6px 17px -3px rgba(33, 150, 243, 0.2);
+    color: #2196f3;
+  }
+}
+
+.btn-lg {
+  padding: 10px 18px;
+  font-size: 105%;
+}

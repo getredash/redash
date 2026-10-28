@@ -1,0 +1,133 @@
+/* CARD */
+
+$card-border: $silver;
+$card-hover-color: $hoki;
+
+.cards {
+  @extend .flex, .flex-wrap;
+}
+
+.card--red {
+  background: rgba(255, 239, 233, 0.6);
+}
+
+.card--blue {
+  background: rgba(233, 242, 255, 0.6);
+}
+
+.card--yellow {
+  background: rgba(255, 251, 236, 0.6);
+}
+
+.cards--elastic {
+  .card__item {
+    flex: 1;
+    @include respond-to(md) {
+      flex: 1 0 33%;
+    }
+    @include respond-to(xs) {
+      flex: 1 0 50%;
+    }
+  }
+  .card__item-title {
+    @include text-overflow();
+  }
+}
+
+.card--customer {
+  transition: all 0.25s ease;
+  margin-bottom: 30px;
+  padding: 25px !important;
+  transform: scale(0.95, 0.95);
+
+  h4 {
+    font-size: 19px;
+  }
+
+  .customer-logo {
+    max-width: 125px;
+    max-height: 40px;
+    margin-bottom: 15px;
+  }
+
+  border: 1px solid #f5f5f5;
+  border-radius: $border-radius;
+
+  &:hover {
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05125);
+    transform: scale(0.96, 0.96);
+  }
+}
+
+.card__item {
+  //display: block;
+  position: relative;
+  text-align: center;
+  margin-bottom: 40px;
+  flex-basis: 190px;
+  padding-left: 15px;
+  padding-right: 15px;
+  @include respond-to(md) {
+    flex-basis: 20%;
+  }
+  @include respond-to(sm) {
+    flex-basis: 25%;
+  }
+  @include respond-to(xs) {
+    flex-basis: 33%;
+  }
+  @include respond-to(xs-phone) {
+    flex-basis: 50%;
+    margin-bottom: 20px;
+  }
+  &:hover,
+  &:focus {
+    color: inherit;
+    .card__item-brand {
+      border: 1px solid $primary;
+    }
+    .card__item-title {
+      color: $primary;
+    }
+  }
+}
+.card__item-content {
+  height: 100%;
+  @extend .flex, .flex-column;
+}
+.card__item-brand {
+  @include transition(250ms);
+  box-shadow: 0 4px 9px rgba(0, 0, 0, 0.05125);
+  border: 1px solid #eaeaea;
+  border-radius: $border-radius;
+  padding: 30px;
+  @extend .flex, .flex-content-center, .flex-item-center;
+  background: $white;
+  flex: 1;
+  width: 100%;
+  @include respond-to(md) {
+    //min-height: 190px;
+  }
+  @include respond-to(xs) {
+    //min-height: 250px;
+  }
+  @include respond-to(xs-phone) {
+    //min-height: 250px;
+    padding: 15px;
+  }
+  &:not(:last-child) {
+    margin-bottom: 10px;
+  }
+}
+.card__item-brand_img {
+  @extend .img-responsive;
+}
+.card__item-title {
+  @include transition(250ms);
+  font-size: 16px;
+  color: $scorpion;
+  //@include text-overflow();
+  @include respond-to(xs-phone) {
+    font-size: 12px;
+  }
+}

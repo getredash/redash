@@ -1,0 +1,17 @@
+---
+import MarketingLayout from '../../layouts/MarketingLayout.astro'
+import Page from '../../react/pages/Community.jsx'
+import contributors from '../../data/contributors.json'
+
+const edges = contributors.map(({ id, html_url, avatar_url }) => ({
+  node: { id, html_url, avatar_url },
+}))
+---
+
+<MarketingLayout
+  title="Redash is built by the open source community"
+  description="More than 300 contributors and years of constant development..."
+>
+  <script slot="head" is:inline async defer src="https://buttons.github.io/buttons.js"></script>
+  <Page data={{ allContributorsJson: { totalCount: edges.length, edges } }} />
+</MarketingLayout>

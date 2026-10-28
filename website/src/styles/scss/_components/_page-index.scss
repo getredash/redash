@@ -1,0 +1,44 @@
+.weekly-signups {
+  span {
+    //background: rgba(255,251,236,.9);
+    padding: 3px 7px;
+    color: rgba(0, 0, 0, 0.9);
+    border-radius: $border-radius;
+    //border: 1px solid rgba(236, 236, 236, 0.6);
+    opacity: 0.8;
+    transition: all 1.5s cubic-bezier(0.2, 1, 0.4, 1);
+  }
+}
+
+.section--hero:hover {
+  .weekly-signups span {
+    opacity: 1;
+  }
+}
+
+section.subscribe {
+  padding: 75px 0;
+
+  @media (max-width: 767px) {
+    display: inline-block;
+    padding: 25px 0;
+
+    h4 {
+      font-size: 90%;
+      line-height: 1.5;
+    }
+  }
+
+  .form-control {
+    font-size: 17px;
+    width: 300px;
+
+    @media (max-width: 767px) {
+      display: inline-block;
+    }
+
+    @media (max-width: 400px) {
+      width: 100%;
+    }
+  }
+}
