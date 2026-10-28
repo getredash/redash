@@ -6,9 +6,11 @@ from unittest import TestCase
 import mock
 import pytest
 
+from redash.query_runner import TYPE_DATETIME, TYPE_INTEGER, TYPE_STRING
 from redash.query_runner.query_results import (
     CreateTableError,
     PermissionError,
+    Results,
     _load_query,
     create_table,
     extract_cached_query_ids,
@@ -140,6 +142,28 @@ class TestCreateTable(TestCase):
         table_name = "query_123"
         create_table(connection, table_name, results)
         self.assertEqual(len(list(connection.execute("SELECT * FROM query_123"))), 2)
+
+
+class TestResultsColumnTypes(TestCase):
+    def _column_types(self, query):
+        data, error = Results({}).run_query(query, None)
+        self.assertIsNone(error)
+        return {column["name"]: column["type"] for column in data["columns"]}
+
+    def test_null_values_do_not_change_column_type(self):
+        types = self._column_types(
+            "SELECT 1 AS num, NULL AS ts UNION ALL SELECT NULL, '2024-01-01 10:00:00' UNION ALL SELECT 3, NULL"
+        )
+        self.assertEqual(types["num"], TYPE_INTEGER)
+        self.assertEqual(types["ts"], TYPE_DATETIME)
+
+    def test_all_null_column_has_no_inferred_type(self):
+        types = self._column_types("SELECT NULL AS empty_col UNION ALL SELECT NULL")
+        self.assertIsNone(types["empty_col"])
+
+    def test_mixed_value_types_fall_back_to_string(self):
+        types = self._column_types("SELECT 1 AS val UNION ALL SELECT 'text'")
+        self.assertEqual(types["val"], TYPE_STRING)
 
 
 class TestGetQuery(BaseTestCase):
