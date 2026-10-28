@@ -145,10 +145,12 @@ export function uniqueName(prefix: string): string {
   return `${prefix} ${Date.now().toString(36)}${Math.floor(Math.random() * 1296).toString(36)}`;
 }
 
-/** The mail catcher (maildev). The mailbox is shared by all tests: look for your own recipient or subject. */
+/** The mail catcher (maildev 3, whose REST API is under /api). The mailbox is shared by all tests: look for your own recipient or subject. */
 export const mailbox = {
   async all(): Promise<Mail[]> {
-    return (await fetch(`${MAIL_URL}/email`)).json();
+    const response = await fetch(`${MAIL_URL}/api/email`);
+    if (!response.ok) throw new Error(`The mail catcher answered ${response.status}: ${await response.text()}`);
+    return response.json();
   },
   async waitFor(matches: (mail: Mail) => boolean, timeout = 60_000): Promise<Mail> {
     let found: Mail | undefined;
