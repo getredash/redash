@@ -71,6 +71,7 @@ class TestRunQuery(TestCase):
             ("created_at", datetime.datetime, None, 23, 23, 3, True),
         ]
         cursor.fetchall.return_value = [(1, "a", decimal.Decimal("1.50"), datetime.datetime(2026, 1, 1))]
+        cursor.nextset.return_value = False
 
         data, error = self.runner.run_query("SELECT * FROM t", None)
 
@@ -103,6 +104,8 @@ class TestRunQuery(TestCase):
         cursor.description = None
 
         def nextset():
+            if cursor.description is not None:
+                return False
             cursor.description = [("id", int, None, 10, 10, 0, False)]
             return True
 
@@ -113,6 +116,19 @@ class TestRunQuery(TestCase):
 
         self.assertIsNone(error)
         self.assertEqual(data["rows"], [{"id": 1}])
+
+    @mock.patch("redash.query_runner.mssql.mssql_python.connect")
+    def test_error_in_later_result_set_is_not_committed(self, connect):
+        cursor = connect.return_value.cursor.return_value
+        cursor.description = [("n", int, None, 10, 10, 0, False)]
+        cursor.fetchall.return_value = [(1,)]
+        cursor.nextset.side_effect = mssql_python.ProgrammingError("Query failed", "Divide by zero error encountered.")
+
+        data, error = self.runner.run_query("SELECT 1 AS n; INSERT INTO t VALUES (1); SELECT 1/0", None)
+
+        self.assertIsNone(data)
+        self.assertEqual(error, "Divide by zero error encountered.")
+        connect.return_value.commit.assert_not_called()
 
     @mock.patch("redash.query_runner.mssql.mssql_python.connect")
     def test_failed_query_is_not_committed(self, connect):

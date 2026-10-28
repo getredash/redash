@@ -169,6 +169,11 @@ class SqlServer(BaseSQLQueryRunner):
                 error = "No data was returned."
                 data = None
 
+            # Run the rest of the batch, so errors in later statements are
+            # raised before committing. Only the first result set is returned.
+            while cursor.nextset():
+                pass
+
             cursor.close()
             # Commit only once the whole batch succeeded, so a failed query
             # doesn't leave earlier statements' writes behind.

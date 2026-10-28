@@ -210,6 +210,22 @@ class TestSqlServerIntegration(TestCase):
         self.assertIn("Divide by zero", error)
         self.assertEqual(self.count_events(), 0)
 
+    def test_error_after_first_result_set_is_rolled_back(self):
+        data, error = self.runner().run_query(
+            "SELECT 1 AS n; INSERT INTO events VALUES (1, N'a'); SELECT 1 / 0 AS m", None
+        )
+
+        self.assertIsNone(data)
+        self.assertIn("Divide by zero", error)
+        self.assertEqual(self.count_events(), 0)
+
+    def test_statements_after_first_result_set_run(self):
+        data, error = self.runner().run_query("SELECT 1 AS n; INSERT INTO events VALUES (1, N'a')", None)
+
+        self.assertIsNone(error)
+        self.assertEqual(data["rows"], [{"n": 1}])
+        self.assertEqual(self.count_events(), 1)
+
     def test_query_error_is_returned(self):
         data, error = self.runner().run_query("SELECT * FROM no_such_table", None)
 
