@@ -216,6 +216,24 @@ text.slicetext {
     font-size: 19px;
     margin-right: 10px;
   }
+
+  // While the title is being edited, the input takes the whole title row and the title's font
+  &:has(.edit-in-place.active) {
+    flex: 1 1 auto;
+
+    > .d-flex,
+    h3 {
+      flex: 1;
+    }
+
+    .edit-in-place.active {
+      display: block;
+    }
+
+    .ant-input {
+      font: inherit;
+    }
+  }
 }
 
 .page-header--new {
