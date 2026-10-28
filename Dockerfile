@@ -47,7 +47,7 @@ RUN useradd --create-home redash
 
 # Ubuntu packages
 RUN apt-get update && \
-  apt-get upgrade -y && \
+  DEBIAN_FRONTEND=noninteractive apt-get upgrade -y && \
   apt-get install -y --no-install-recommends \
   pkg-config \
   curl \
