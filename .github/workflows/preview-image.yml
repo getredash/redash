@@ -95,6 +95,10 @@ jobs:
           VERSION_TAG=$(jq -r .version package.json)
           echo "VERSION_TAG=$VERSION_TAG" >> "$GITHUB_OUTPUT"
 
+      - name: Set apt refresh week
+        id: apt-refresh
+        run: echo "APT_REFRESH=$(date -u +%G-%V)" >> "$GITHUB_OUTPUT"
+
       - name: Build and push preview image to Docker Hub
         id: build-preview
         uses: docker/build-push-action@v4
@@ -106,6 +110,7 @@ jobs:
           context: .
           build-args: |
             test_all_deps=true
+            APT_REFRESH=${{ steps.apt-refresh.outputs.APT_REFRESH }}
           outputs: type=image,push-by-digest=true,push=true
           cache-from: type=gha,scope=${{ matrix.arch }}
           cache-to: type=gha,mode=max,scope=${{ matrix.arch }}
@@ -122,6 +127,7 @@ jobs:
           context: .
           build-args: |
             test_all_deps=true
+            APT_REFRESH=${{ steps.apt-refresh.outputs.APT_REFRESH }}
           outputs: type=image,push-by-digest=false,push=true
           cache-from: type=gha,scope=${{ matrix.arch }}
           cache-to: type=gha,mode=max,scope=${{ matrix.arch }}

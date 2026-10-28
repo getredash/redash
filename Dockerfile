@@ -46,6 +46,7 @@ EXPOSE 5000
 RUN useradd --create-home redash
 
 # Ubuntu packages
+ARG APT_REFRESH
 RUN apt-get update && \
   DEBIAN_FRONTEND=noninteractive apt-get upgrade -y && \
   apt-get install -y --no-install-recommends \
