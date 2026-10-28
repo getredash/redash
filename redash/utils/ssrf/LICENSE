@@ -1,4 +1,4 @@
-redash/utils/ssrf.py is adapted from Advocate (https://github.com/JordanMilne/Advocate).
+This package is adapted from Advocate (https://github.com/JordanMilne/Advocate).
 
 Copyright 2015 Jordan Milne
 
