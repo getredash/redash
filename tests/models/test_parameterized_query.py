@@ -1,4 +1,5 @@
 from collections import namedtuple
+from datetime import datetime, timezone
 from unittest import TestCase
 
 import pytest
@@ -374,3 +375,94 @@ class TestParameterizedQuery(TestCase):
     def test_dropdown_values_raises_when_query_is_detached_from_data_source(self, _):
         with pytest.raises(QueryDetachedFromDataSourceError):
             dropdown_values(1, None)
+
+
+NOW = datetime(2024, 3, 13, 15, 42, 7, tzinfo=timezone.utc)  # a Wednesday
+
+
+@patch("redash.models.parameterized_query.utcnow", return_value=NOW)
+class TestDynamicDateValues(TestCase):
+    """
+    Dynamic date and date range values ("d_*") are resolved the same way the
+    frontend resolves them before running a query.
+    """
+
+    def apply(self, parameter_type, value, template="{{p}}"):
+        schema = [{"name": "p", "type": parameter_type}]
+        return ParameterizedQuery(template, schema).apply({"p": value})
+
+    def test_resolves_dynamic_date(self, _):
+        query = self.apply("date", "d_now")
+
+        self.assertEqual("2024-03-13", query.text)
+        self.assertEqual({"p": "2024-03-13"}, query.parameters)
+
+    def test_resolves_dynamic_date_with_time(self, _):
+        self.assertEqual("2024-03-13 15:42", self.apply("datetime-local", "d_now").text)
+        self.assertEqual("2024-03-12 15:42:07", self.apply("datetime-with-seconds", "d_yesterday").text)
+
+    def test_resolves_dynamic_date_range(self, _):
+        query = self.apply("date-range", "d_last_7_days", "{{p.start}} to {{p.end}}")
+
+        self.assertEqual("2024-03-06 to 2024-03-13", query.text)
+        self.assertEqual({"p": {"start": "2024-03-06", "end": "2024-03-13"}}, query.parameters)
+        self.assertEqual(set(), query.missing_params)
+
+    def test_resolves_dynamic_date_range_with_time(self, _):
+        template = "{{p.start}} to {{p.end}}"
+
+        self.assertEqual(
+            "2024-03-06 00:00 to 2024-03-13 15:42",
+            self.apply("datetime-range", "d_last_7_days", template).text,
+        )
+        self.assertEqual(
+            "2024-03-13 14:42:07 to 2024-03-13 15:42:07",
+            self.apply("datetime-range-with-seconds", "d_last_hour", template).text,
+        )
+        self.assertEqual(
+            "2024-03-13 00:00:00 to 2024-03-13 23:59:59",
+            self.apply("datetime-range-with-seconds", "d_today", template).text,
+        )
+
+    def test_resolves_every_dynamic_date_range_preset(self, _):
+        expected = {
+            "d_today": ("2024-03-13", "2024-03-13"),
+            "d_yesterday": ("2024-03-12", "2024-03-12"),
+            "d_this_week": ("2024-03-10", "2024-03-16"),
+            "d_this_month": ("2024-03-01", "2024-03-31"),
+            "d_this_year": ("2024-01-01", "2024-12-31"),
+            "d_last_week": ("2024-03-03", "2024-03-09"),
+            "d_last_month": ("2024-02-01", "2024-02-29"),
+            "d_last_year": ("2023-01-01", "2023-12-31"),
+            "d_last_hour": ("2024-03-13", "2024-03-13"),
+            "d_last_8_hours": ("2024-03-13", "2024-03-13"),
+            "d_last_24_hours": ("2024-03-12", "2024-03-13"),
+            "d_last_7_days": ("2024-03-06", "2024-03-13"),
+            "d_last_14_days": ("2024-02-28", "2024-03-13"),
+            "d_last_30_days": ("2024-02-12", "2024-03-13"),
+            "d_last_60_days": ("2024-01-13", "2024-03-13"),
+            "d_last_90_days": ("2023-12-14", "2024-03-13"),
+            "d_last_12_months": ("2023-03-13", "2024-03-13"),
+            "d_last_2_years": ("2022-03-13", "2024-03-13"),
+            "d_last_3_years": ("2021-03-13", "2024-03-13"),
+            "d_last_10_years": ("2014-03-13", "2024-03-13"),
+        }
+
+        for value, (start, end) in expected.items():
+            query = self.apply("date-range", value, "{{p.start}} to {{p.end}}")
+            self.assertEqual("{} to {}".format(start, end), query.text, value)
+
+    def test_rejects_unknown_dynamic_values(self, _):
+        with pytest.raises(InvalidParameterError):
+            self.apply("date-range", "d_last_5_days")
+
+        with pytest.raises(InvalidParameterError):
+            self.apply("date", "d_last_7_days")
+
+    def test_leaves_other_parameter_types_alone(self, _):
+        self.assertEqual("d_today", self.apply("text", "d_today").text)
+
+    def test_leaves_concrete_values_alone(self, _):
+        query = self.apply("date-range", {"start": "2000-01-01", "end": "2000-12-31"}, "{{p.start}} {{p.end}}")
+
+        self.assertEqual("2000-01-01 2000-12-31", query.text)
