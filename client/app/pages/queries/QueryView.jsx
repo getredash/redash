@@ -36,6 +36,7 @@ import useQueryParameters from "./hooks/useQueryParameters";
 import useEditScheduleDialog from "./hooks/useEditScheduleDialog";
 import useEditVisualizationDialog from "./hooks/useEditVisualizationDialog";
 import useDeleteVisualization from "./hooks/useDeleteVisualization";
+import useReorderVisualizations from "./hooks/useReorderVisualizations";
 import useFullscreenHandler from "../../lib/hooks/useFullscreenHandler";
 
 import "./QueryView.less";
@@ -73,6 +74,7 @@ function QueryView(props) {
   });
   const editVisualization = useEditVisualizationDialog(query, queryResult, (newQuery) => setQuery(newQuery));
   const deleteVisualization = useDeleteVisualization(query, setQuery);
+  const reorderVisualizations = useReorderVisualizations(query, setQuery);
 
   const doExecuteQuery = useCallback(
     (skipParametersDirtyFlag = false) => {
@@ -169,10 +171,12 @@ function QueryView(props) {
               visualizations={query.visualizations}
               showNewVisualizationButton={queryFlags.canEdit && queryResultData.status === ExecutionStatus.DONE}
               canDeleteVisualizations={queryFlags.canEdit}
+              canReorderVisualizations={queryFlags.canEdit}
               selectedTab={selectedVisualization}
               onChangeTab={setSelectedVisualization}
               onAddVisualization={addVisualization}
               onDeleteVisualization={deleteVisualization}
+              onReorderVisualizations={reorderVisualizations}
               refreshButton={
                 policy.canRun(query) && (
                   <Button

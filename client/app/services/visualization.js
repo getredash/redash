@@ -5,6 +5,7 @@ const saveOrCreateUrl = (data) => (data.id ? `api/visualizations/${data.id}` : "
 const Visualization = {
   save: (data) => axios.post(saveOrCreateUrl(data), data),
   delete: (data) => axios.delete(`api/visualizations/${data.id}`),
+  reorder: ({ queryId, ids }) => axios.post(`api/queries/${queryId}/visualizations/reorder`, { ids }),
 };
 
 export default Visualization;
