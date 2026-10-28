@@ -72,6 +72,8 @@ class TestSqlServerIntegration(TestCase):
                 USER, USER_PASSWORD
             )
         )
+        # Lets the SSL tests read sys.dm_exec_connections.
+        cursor.execute("GRANT VIEW SERVER STATE TO {}".format(USER))
         connection.close()
 
         connection = admin_connection(DATABASE)
