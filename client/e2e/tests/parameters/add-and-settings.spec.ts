@@ -23,6 +23,9 @@ import {
   valueInput,
 } from "./helpers";
 
+// Long enough to overflow the parameter block with any font, so the label has to be cut with an ellipsis
+const LONG_HTML_TITLE = "Second <b>param</b> & co, with a title much longer than the parameter field";
+
 const TYPES = [
   "Text",
   "Text Pattern",
@@ -200,12 +203,12 @@ test.describe("Parameter settings dialog", () => {
 
     await openSettings(page, "p2");
     await byTest(page, "ParameterTitleInput").click();
-    await retype(page, "Second <b>param</b> & co");
+    await retype(page, LONG_HTML_TITLE);
     await chooseType(page, "Number");
     await confirmSettings(page);
 
     const label = param(page, "p2").locator("label");
-    await expect(label).toHaveText("Second <b>param</b> & co");
+    await expect(label).toHaveText(LONG_HTML_TITLE);
     await expect(label.locator("b")).toHaveCount(0);
     // The label is cut with an ellipsis instead of widening the block
     expect(await label.evaluate((element) => element.scrollWidth > element.clientWidth)).toBe(true);
@@ -214,7 +217,7 @@ test.describe("Parameter settings dialog", () => {
     // "vp2" is not a number: the field is empty and running reports the missing value
     await expect(field(page, "p2")).toHaveValue("");
     await byTest(page, "ExecuteButton").click();
-    await expect(runError(page)).toContainText("Missing value for Second <b>param</b> & co parameter", {
+    await expect(runError(page)).toContainText(`Missing value for ${LONG_HTML_TITLE} parameter`, {
       ignoreCase: true,
     });
 
@@ -243,7 +246,7 @@ test.describe("Parameter settings dialog", () => {
       .poll(async () => (await savedParameters(api, id)).map((p) => [p.name, p.type, p.title]))
       .toEqual([
         ["p1", "text", "p1"],
-        ["p2", "number", "Second <b>param</b> & co"],
+        ["p2", "number", LONG_HTML_TITLE],
       ]);
   });
 
