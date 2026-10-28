@@ -94,6 +94,8 @@ class TestBaseHTTPQueryRunner(TestCase):
         mock_get.assert_called_once_with("get", url, auth=None)
         self.assertIsNotNone(error)
         self.assertIn("Failed to execute query", error)
+        self.assertIn("Return Code: 500", error)
+        self.assertIn("Server Error", error)
 
     @mock.patch.object(ConfiguredSession, "request")
     def test_get_response_requests_exception(self, mock_get):

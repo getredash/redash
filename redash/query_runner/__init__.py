@@ -421,8 +421,7 @@ class BaseHTTPQueryRunner(BaseQueryRunner):
 
         except requests_or_advocate.HTTPError as exc:
             logger.exception(exc)
-            error = "Failed to execute query. "
-            f"Return Code: {response.status_code} Reason: {response.text}"
+            error = f"Failed to execute query. Return Code: {response.status_code} Reason: {response.text}"
         except UnacceptableAddressException as exc:
             logger.exception(exc)
             error = "Can't query private addresses."
