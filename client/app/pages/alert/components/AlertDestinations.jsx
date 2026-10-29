@@ -150,11 +150,9 @@ export default class AlertDestinations extends React.Component {
       sub.destination_id = dest.id;
     }
 
+    // Updater functions: several subscriptions can be saved at once, and React batches their updates
     return AlertSubscription.create(sub).then((sub) => {
-      const { subs } = this.state;
-      this.setState({
-        subs: [...subs, normalizeSub(sub)],
-      });
+      this.setState(({ subs }) => ({ subs: [...subs, normalizeSub(sub)] }));
     });
   };
 
@@ -162,10 +160,7 @@ export default class AlertDestinations extends React.Component {
     AlertSubscription.delete(sub)
       .then(() => {
         // not showing subscribe notification cause it's redundant here
-        const { subs } = this.state;
-        this.setState({
-          subs: without(subs, sub),
-        });
+        this.setState(({ subs }) => ({ subs: without(subs, sub) }));
       })
       .catch(() => {
         notification.error("Failed unsubscribing.");
