@@ -89,7 +89,7 @@ def rq_queues():
             "started": fetch_jobs(StartedJobRegistry(queue=q).get_job_ids()),
             "queued": len(q.job_ids),
         }
-        for q in sorted(Queue.all(), key=lambda q: q.name)
+        for q in sorted(Queue.all(connection=rq_redis_connection), key=lambda q: q.name)
     }
 
 
@@ -112,7 +112,7 @@ def rq_workers():
             "failed_jobs": w.failed_job_count,
             "total_working_time": w.total_working_time,
         }
-        for w in Worker.all()
+        for w in Worker.all(connection=rq_redis_connection)
     ]
 
 
