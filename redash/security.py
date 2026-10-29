@@ -67,4 +67,7 @@ def init_app(app):
         referrer_policy=settings.REFERRER_POLICY,
         session_cookie_secure=settings.SESSION_COOKIE_SECURE,
         session_cookie_http_only=settings.SESSION_COOKIE_HTTPONLY,
+        # Flask-Talisman 1.x sets SameSite=Lax by default, which would stop embeds on other
+        # sites from sending the session cookie.
+        session_cookie_samesite=settings.SESSION_COOKIE_SAMESITE,
     )
