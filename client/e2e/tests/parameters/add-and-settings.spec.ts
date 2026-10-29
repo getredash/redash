@@ -102,8 +102,8 @@ test.describe("Adding a parameter", () => {
     await page.keyboard.press(`${MOD}+p`);
     await expect(dialog(page).locator(".ant-modal-title")).toHaveText("Add Parameter");
 
-    // Not `toBeFocused()`: see the fixme below
-    await dialog(page).locator("input").first().click();
+    // The Keyword field has the focus, so typing goes straight into it
+    await expect(dialog(page).locator("input").first()).toBeFocused();
     await page.keyboard.type("cc");
     await chooseType(page, "Date Range");
     await expect(dialogHelp(page).first()).toHaveText("Appears in query as {{cc.start}} {{cc.end}}");
@@ -117,10 +117,9 @@ test.describe("Adding a parameter", () => {
     await expectRows(page, [{ name: "Paris" }]);
   });
 
-  // Intermittent in the product, so neither a normal test nor an expected failure: on a busy server about one
-  // run in five ends with the focus on the dialog's wrapper instead of the Keyword field, and typing goes nowhere.
-  // The field's `autoFocus` seems to run while the dialog is still hidden (EditParameterSettingsDialog.jsx).
-  test.fixme("Cmd/Ctrl+P puts the focus in the Keyword field of the Add Parameter dialog", async ({ page }) => {
+  // Used to fail about one run in five: `autoFocus` ran before the dialog was attached to the page, and the dialog
+  // then focused its own wrapper, so typing went nowhere
+  test("Cmd/Ctrl+P puts the focus in the Keyword field of the Add Parameter dialog", async ({ page }) => {
     await newQuery(page, "select name from cities");
     await focusEndOfSql(page);
     await page.keyboard.press(`${MOD}+p`);
