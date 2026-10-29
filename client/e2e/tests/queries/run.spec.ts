@@ -74,7 +74,6 @@ test.describe("Running a query", () => {
   });
 
   test("typing at about ten keys a second keeps every character", async ({ page }) => {
-    knownIssue("editor-drops-keystrokes");
     test.setTimeout(180_000);
     await openNewQuery(page, DATA_SOURCES.postgres);
     const text = "select 1234567890 as abcdefghij, 0987654321 as klmnopqrst -- 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0";

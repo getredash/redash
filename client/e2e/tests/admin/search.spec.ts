@@ -170,13 +170,10 @@ test.describe("Search in the queries list", () => {
     await expectNothingFound(page);
   });
 
-  // Seen while exploring by hand, never reproduced reliably (about 1 in 7 timed attempts): when the box is
-  // cleared and typing continues roughly 200 ms later, just as the previous (debounced, asynchronous) search
-  // completes, the box is reset to the older term and the first character typed in between is lost ("orders"
-  // becomes "rders"), so the wrong term is searched and stored in the URL. Probably `SearchInput` in
-  // components/items-list/components/Sidebar.jsx copying a late `value` prop over newer keystrokes. The race
-  // depends on the response time of the server, so a test for it would be flaky in both directions.
-  test.fixme("typing while the previous search is still running keeps every typed character", async ({ page }) => {
+  // Used to lose a character about one time in seven: the search is debounced and waits for the previous one, so
+  // SearchInput (items-list/components/Sidebar.jsx) got the cleared term back after typing had continued, and
+  // copied it over the new keystrokes ("orders" became "rders")
+  test("typing while the previous search is still running keeps every typed character", async ({ page }) => {
     await page.goto("/queries");
     const box = page.getByPlaceholder(QUERIES_BOX);
     await searchFor(page, QUERIES_BOX, "select");
