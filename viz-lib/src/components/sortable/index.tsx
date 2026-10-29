@@ -1,99 +1,193 @@
-import { isFunction, wrap } from "lodash";
-import React, { useRef, useState } from "react";
+import { range } from "lodash";
+import React, { createContext, useCallback, useContext, useMemo, useState } from "react";
 import cx from "classnames";
-// @ts-expect-error ts-migrate(2724) FIXME: Module '"../../../node_modules/react-sortable-hoc/... Remove this comment to see the full error message
-import { sortableContainer, sortableElement, sortableHandle } from "react-sortable-hoc";
+import {
+  DndContext,
+  KeyboardSensor,
+  MouseSensor,
+  TouchSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+  type Modifier,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  rectSortingStrategy,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { restrictToParentElement, restrictToVerticalAxis } from "@dnd-kit/modifiers";
+import { CSS } from "@dnd-kit/utilities";
 
 import "./style.less";
 
-export const DragHandle = sortableHandle(({ className, ...restProps }: any) => (
-  <div className={cx("drag-handle", className)} {...restProps} />
-));
+// Sortable lists built on dnd-kit. Items are identified by their position: wrap each one in
+// `SortableElement` (or a component made with `sortableElement`) with its `index`, render a
+// `DragHandle` inside it, and handle `onSortEnd({ oldIndex, newIndex })` on the container.
 
-export const SortableContainerWrapper = sortableContainer(({ children }: any) => children);
+const SORTABLE_ELEMENT_CLASS = "sortable-element";
 
-export const SortableElement = sortableElement(({ children }: any) => children);
+const itemId = (index: number) => `item-${index}`;
+const itemIndex = (id: string | number) => Number(String(id).slice("item-".length));
+
+type SortableItemContextValue = ReturnType<typeof useSortable> | null;
+
+const SortableItemContext = createContext<SortableItemContextValue>(null);
+const HelperClassContext = createContext<string | undefined>(undefined);
+
+export function DragHandle({ className, ...restProps }: any) {
+  const item = useContext(SortableItemContext);
+  const setNodeRef = item?.setNodeRef;
+  const setActivatorNodeRef = item?.setActivatorNodeRef;
+
+  // The handle is inside the sortable element, so it can find that element's DOM node. This works
+  // for elements that don't expose their DOM node through a ref (like antd's Collapse.Panel).
+  const ref = useCallback(
+    (node: HTMLElement | null) => {
+      setActivatorNodeRef?.(node);
+      setNodeRef?.(node ? (node.closest(`.${SORTABLE_ELEMENT_CLASS}`) as HTMLElement) : null);
+    },
+    [setNodeRef, setActivatorNodeRef]
+  );
+
+  return (
+    <div
+      ref={ref}
+      className={cx("drag-handle", className)}
+      {...(item ? item.attributes : {})}
+      {...(item ? item.listeners : {})}
+      {...restProps}
+    />
+  );
+}
+
+function useSortableElementProps(index: number, className?: string, style?: React.CSSProperties) {
+  const sortable = useSortable({ id: itemId(index) });
+  const helperClass = useContext(HelperClassContext);
+  const { transform, transition, isDragging } = sortable;
+
+  return {
+    sortable,
+    className: cx(SORTABLE_ELEMENT_CLASS, className, { [helperClass || ""]: isDragging && helperClass }),
+    style: {
+      ...style,
+      transform: CSS.Translate.toString(transform),
+      transition,
+      ...(isDragging ? { position: "relative", zIndex: 1 } : {}),
+    } as React.CSSProperties,
+  };
+}
+
+// Wraps a component so it can be used as a sortable element; it takes an extra `index` prop.
+// The component must pass `className` and `style` through to its root DOM element.
+export function sortableElement(Component: React.ComponentType<any>) {
+  function SortableElementComponent({ index, ...props }: any) {
+    const { sortable, className, style } = useSortableElementProps(index, props.className, props.style);
+    return (
+      <SortableItemContext.Provider value={sortable}>
+        <Component {...props} className={className} style={style} />
+      </SortableItemContext.Provider>
+    );
+  }
+  SortableElementComponent.displayName = `sortableElement(${Component.displayName || Component.name || "Component"})`;
+  return SortableElementComponent;
+}
+
+// Makes its only child (which must accept `className` and `style`) a sortable element.
+export function SortableElement({ index, children }: { index: number; children: React.ReactElement<any> }) {
+  const { sortable, className, style } = useSortableElementProps(index, children.props.className, children.props.style);
+  return (
+    <SortableItemContext.Provider value={sortable}>
+      {React.cloneElement(children, { className, style })}
+    </SortableItemContext.Provider>
+  );
+}
 
 type OwnProps = {
   disabled?: boolean;
-  containerComponent?: React.ReactElement;
+  itemCount: number;
+  axis?: "y" | "xy";
+  lockAxis?: "y";
+  lockToContainerEdges?: boolean;
+  helperClass?: string;
+  onSortEnd?: (sort: { oldIndex: number; newIndex: number }) => void;
+  containerComponent?: React.ElementType;
   containerProps?: any;
   children?: React.ReactNode;
 };
 
-const sortableContainerDefaultProps = {
-  disabled: false,
-  containerComponent: "div",
-  containerProps: {},
-  children: null,
-};
-
-type Props = OwnProps & typeof sortableContainerDefaultProps;
-
-export function SortableContainer({ disabled, containerComponent, containerProps, children, ...wrapperProps }: Props) {
-  const containerRef = useRef();
+export function SortableContainer({
+  disabled = false,
+  itemCount,
+  axis = "y",
+  lockAxis,
+  lockToContainerEdges = false,
+  helperClass,
+  onSortEnd,
+  containerComponent: ContainerComponent = "div",
+  containerProps = {},
+  children = null,
+}: OwnProps) {
   const [isDragging, setIsDragging] = useState(false);
+  // Mouse (rather than pointer) events, so that e2e tests can drag by triggering mouse events
+  const sensors = useSensors(
+    useSensor(MouseSensor),
+    useSensor(TouchSensor),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+  const items = useMemo(() => range(itemCount).map(itemId), [itemCount]);
+  const modifiers = useMemo(() => {
+    const result: Modifier[] = [];
+    if (lockAxis === "y") {
+      result.push(restrictToVerticalAxis);
+    }
+    if (lockToContainerEdges) {
+      result.push(restrictToParentElement);
+    }
+    return result;
+  }, [lockAxis, lockToContainerEdges]);
 
-  wrapperProps = { ...wrapperProps };
-  containerProps = { ...containerProps };
+  const handleDragEnd = useCallback(
+    ({ active, over }: DragEndEvent) => {
+      setIsDragging(false);
+      if (over && onSortEnd) {
+        onSortEnd({ oldIndex: itemIndex(active.id), newIndex: itemIndex(over.id) });
+      }
+    },
+    [onSortEnd]
+  );
+
+  const container = (
+    <ContainerComponent
+      {...containerProps}
+      className={cx(
+        { "sortable-container": !disabled, "sortable-container-dragging": isDragging },
+        containerProps.className
+      )}
+    >
+      {children}
+    </ContainerComponent>
+  );
 
   if (disabled) {
-    // Disabled state:
-    // - forbid drag'n'drop (and therefore no need to hook events
-    // - don't override anything on container element
-    // @ts-expect-error ts-migrate(2339) FIXME: Property 'shouldCancelStart' does not exist on typ... Remove this comment to see the full error message
-    wrapperProps.shouldCancelStart = () => true;
-  } else {
-    // Enabled state:
-
-    // - use container element as a default helper element
-    // @ts-expect-error
-    wrapperProps.helperContainer = wrap(wrapperProps.helperContainer, (helperContainer) =>
-      isFunction(helperContainer) ? helperContainer(containerRef.current) : containerRef.current
-    );
-
-    // - hook drag start/end events
-    // @ts-expect-error ts-migrate(2339) FIXME: Property 'updateBeforeSortStart' does not exist on... Remove this comment to see the full error message
-    wrapperProps.updateBeforeSortStart = wrap(wrapperProps.updateBeforeSortStart, (updateBeforeSortStart, ...args) => {
-      setIsDragging(true);
-      if (isFunction(updateBeforeSortStart)) {
-        updateBeforeSortStart(...args);
-      }
-    });
-    // @ts-expect-error
-    wrapperProps.onSortStart = wrap(wrapperProps.onSortStart, (onSortStart, ...args) => {
-      if (isFunction(onSortStart)) {
-        onSortStart(...args);
-      } else {
-        const event = args[1] as DragEvent;
-        event.preventDefault();
-      }
-    });
-
-    // @ts-expect-error ts-migrate(2339) FIXME: Property 'onSortEnd' does not exist on type '{}'.
-    wrapperProps.onSortEnd = wrap(wrapperProps.onSortEnd, (onSortEnd, ...args) => {
-      setIsDragging(false);
-      if (isFunction(onSortEnd)) {
-        onSortEnd(...args);
-      }
-    });
-
-    // - update container element: add classes and take a ref
-    containerProps.className = cx(
-      "sortable-container",
-      { "sortable-container-dragging": isDragging },
-      containerProps.className
-    );
-    containerProps.ref = containerRef;
+    return container;
   }
 
-  const ContainerComponent = containerComponent;
   return (
-    <SortableContainerWrapper {...wrapperProps}>
-      {/* @ts-expect-error ts-migrate(2604) FIXME: JSX element type 'ContainerComponent' does not hav... Remove this comment to see the full error message */}
-      <ContainerComponent {...containerProps}>{children}</ContainerComponent>
-    </SortableContainerWrapper>
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      modifiers={modifiers}
+      onDragStart={() => setIsDragging(true)}
+      onDragCancel={() => setIsDragging(false)}
+      onDragEnd={handleDragEnd}
+    >
+      <SortableContext items={items} strategy={axis === "xy" ? rectSortingStrategy : verticalListSortingStrategy}>
+        <HelperClassContext.Provider value={helperClass}>{container}</HelperClassContext.Provider>
+      </SortableContext>
+    </DndContext>
   );
 }
-
-SortableContainer.defaultProps = sortableContainerDefaultProps;
