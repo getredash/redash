@@ -13,7 +13,7 @@ body #application-root {
     height: 100%;
     position: relative;
 
-    @media @mobileBreakpoint {
+    @media @{mobileBreakpoint} {
       display: none;
     }
   }
@@ -28,7 +28,7 @@ body #application-root {
     box-sizing: border-box;
     z-index: 1000;
 
-    @media @mobileBreakpoint {
+    @media @{mobileBreakpoint} {
       display: block;
     }
   }
@@ -41,7 +41,7 @@ body #application-root {
     flex: 1 1 auto;
     padding-bottom: 15px;
 
-    @media @mobileBreakpoint {
+    @media @{mobileBreakpoint} {
       margin-top: @topMenuHeight; // compensate for app header fixed position
     }
   }
