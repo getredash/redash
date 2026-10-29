@@ -74,6 +74,7 @@ export default function DesktopNavbar() {
   return (
     <nav className="desktop-navbar">
       <NavbarSection className="desktop-navbar-logo">
+        {/* biome-ignore lint/a11y/useFocusableInteractive: the link inside is the focusable element */}
         <div role="menuitem">
           <Link href="./">
             <img src={logoUrl} alt="Redash" />

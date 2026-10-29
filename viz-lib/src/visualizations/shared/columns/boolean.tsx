@@ -66,7 +66,6 @@ export default function initBooleanColumn(column: any) {
   }
 
   function BooleanColumn({ row }: any) {
-    // eslint-disable-line react/prop-types
     const { text } = prepareData(row);
     return text;
   }

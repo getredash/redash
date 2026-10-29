@@ -34,7 +34,7 @@ describe("Dashboard Sharing", () => {
 
         cy.logout();
         cy.visit(secretAddress);
-        cy.wait(1500); // eslint-disable-line cypress/no-unnecessary-waiting
+        cy.wait(1500);
         cy.getByTestId("TableVisualization").should("not.exist");
 
         cy.login();

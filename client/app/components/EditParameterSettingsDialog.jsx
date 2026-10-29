@@ -123,7 +123,7 @@ function EditParameterSettingsDialog(props) {
       new RegExp(e.target.value);
       setParam({ ...param, regex: e.target.value });
       setIsValidRegex(true);
-    } catch (error) {
+    } catch {
       setIsValidRegex(false);
     }
   };
@@ -289,7 +289,7 @@ function EditParameterSettingsDialog(props) {
 }
 
 EditParameterSettingsDialog.propTypes = {
-  parameter: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  parameter: PropTypes.object.isRequired,
   dialog: DialogPropType.isRequired,
   existingParams: PropTypes.arrayOf(PropTypes.string),
 };

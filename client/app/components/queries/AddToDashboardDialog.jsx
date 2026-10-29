@@ -131,7 +131,7 @@ function AddToDashboardDialog({ dialog, visualization }) {
 
 AddToDashboardDialog.propTypes = {
   dialog: DialogPropType.isRequired,
-  visualization: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  visualization: PropTypes.object.isRequired,
 };
 
 export default wrapDialog(AddToDashboardDialog);

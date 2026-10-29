@@ -31,7 +31,7 @@ describe("Create Data Source", () => {
       .then((availableTypes) => expect(availableTypes).not.to.contain.members(this.deprecatedTypes));
 
     cy.getByTestId("CreateSourceDialog").should("contain", "PostgreSQL");
-    cy.wait(1000); // eslint-disable-line cypress/no-unnecessary-waiting
+    cy.wait(1000);
   });
 
   it("creates a new PostgreSQL data source", () => {

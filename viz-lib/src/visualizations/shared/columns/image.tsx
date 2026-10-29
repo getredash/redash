@@ -133,7 +133,6 @@ export default function initImageColumn(column: any) {
 
   function ImageColumn({ row }: any) {
     // @ts-expect-error ts-migrate(2339) FIXME: Property 'text' does not exist on type '{}'.
-    // eslint-disable-line react/prop-types
     const { text, ...props } = prepareData(row);
     return <img alt="" {...props} />;
   }

@@ -1,5 +1,3 @@
-/* eslint-disable react/no-multi-comp */
-
 import { isString, extend, each, has, map, includes, findIndex, find, fromPairs, clone, isEmpty } from "lodash";
 import React, { Fragment } from "react";
 import PropTypes from "prop-types";
@@ -121,7 +119,7 @@ export function synchronizeWidgetTitles(sourceMappings, widgets) {
 
 export class ParameterMappingInput extends React.Component {
   static propTypes = {
-    mapping: PropTypes.object, // eslint-disable-line react/forbid-prop-types
+    mapping: PropTypes.object,
     existingParamNames: PropTypes.arrayOf(PropTypes.string),
     onChange: PropTypes.func,
     inputError: PropTypes.string,
@@ -271,7 +269,7 @@ export class ParameterMappingInput extends React.Component {
 
 class MappingEditor extends React.Component {
   static propTypes = {
-    mapping: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+    mapping: PropTypes.object.isRequired,
     existingParamNames: PropTypes.arrayOf(PropTypes.string).isRequired,
     onChange: PropTypes.func.isRequired,
   };
@@ -365,7 +363,7 @@ class MappingEditor extends React.Component {
 class TitleEditor extends React.Component {
   static propTypes = {
     existingParams: PropTypes.arrayOf(PropTypes.object),
-    mapping: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+    mapping: PropTypes.object.isRequired,
     onChange: PropTypes.func.isRequired,
   };
 
@@ -449,7 +447,7 @@ class TitleEditor extends React.Component {
     if (mapping.type === MappingType.StaticValue) {
       return (
         <Tooltip placement="right" title="Titles for static values don't appear in widgets">
-          {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex */}
+          {/* biome-ignore lint/a11y/noNoninteractiveTabindex: Tooltip trigger, focusable so keyboard users can open the tooltip */}
           <span tabIndex={0}>
             <i className="fa fa-eye-slash" aria-hidden="true" />
           </span>
@@ -576,7 +574,7 @@ export class ParameterMappingListInput extends React.Component {
   }
 
   render() {
-    const { existingParams } = this.props; // eslint-disable-line react/prop-types
+    const { existingParams } = this.props;
     const dataSource = this.props.mappings.map((mapping) => ({ mapping }));
 
     return (

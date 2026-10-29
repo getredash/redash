@@ -110,8 +110,8 @@ function DateRangeParameter(props) {
 DateRangeParameter.propTypes = {
   type: PropTypes.string,
   className: PropTypes.string,
-  value: PropTypes.any, // eslint-disable-line react/forbid-prop-types
-  parameter: PropTypes.any, // eslint-disable-line react/forbid-prop-types
+  value: PropTypes.any,
+  parameter: PropTypes.any,
   onSelect: PropTypes.func,
 };
 
