@@ -237,6 +237,7 @@ class Factory:
         args.update(kwargs)
 
         g = redash.models.Group(**args)
+        db.session.add(g)
         return g
 
     def create_alert(self, **kwargs):

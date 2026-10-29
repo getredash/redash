@@ -2,6 +2,7 @@ from funcy import flatten
 from rq import Queue, Worker
 from rq.job import Job
 from rq.registry import StartedJobRegistry
+from sqlalchemy import text
 
 from redash import __version__, redis_connection, rq_redis_connection, settings
 from redash.models import Dashboard, Query, QueryResult, Widget, db
@@ -40,7 +41,7 @@ def get_db_sizes():
         ["Redash DB Size", "select pg_database_size(current_database()) as size"],
     ]
     for query_name, query in queries:
-        result = db.session.execute(query).first()
+        result = db.session.execute(text(query)).first()
         database_metrics.append([query_name, result[0]])
 
     return database_metrics
