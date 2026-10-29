@@ -81,7 +81,7 @@ jobs:
         run: |
           set -x
           docker compose build --build-arg install_groups="main,all_ds,dev" --build-arg skip_frontend_build=true
-          docker compose up -d --wait postgres redis
+          docker compose up -d --wait postgres redis mssql
       - name: Smoke Test Redash Image
         run: docker compose -p redash run --rm redash manage version
       - name: Create Test Database

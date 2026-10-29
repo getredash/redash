@@ -50,42 +50,31 @@ RUN apt-get update && \
   apt-get install -y --no-install-recommends \
   pkg-config \
   curl \
-  gnupg \
   build-essential \
   pwgen \
   libffi-dev \
   sudo \
   git-core \
-  # Kerberos, needed for MS SQL Python driver to compile on arm64
+  # Kerberos, needed to compile gssapi (used by phoenixdb) and at runtime by
+  # the SQL Server driver bundled with mssql-python
   libkrb5-dev \
   # Postgres client
   libpq-dev \
-  # ODBC support:
+  # ODBC support (pyodbc):
   g++ unixodbc-dev \
+  # Needed at runtime by the SQL Server driver bundled with mssql-python
+  libltdl7 \
   # for SAML
   xmlsec1 \
   # Additional packages required for data sources:
   libssl-dev \
   default-libmysqlclient-dev \
-  freetds-dev \
   libsasl2-dev \
   unzip \
   libsasl2-modules-gssapi-mit && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/*
 
-
-ARG TARGETPLATFORM
-RUN <<EOF
-  if [ "$TARGETPLATFORM" = "linux/amd64" ]; then
-    curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg
-    curl https://packages.microsoft.com/config/debian/12/prod.list > /etc/apt/sources.list.d/mssql-release.list
-    apt-get update
-    ACCEPT_EULA=Y apt-get install  -y --no-install-recommends msodbcsql18
-    apt-get clean
-    rm -rf /var/lib/apt/lists/*
-  fi
-EOF
 
 WORKDIR /app
 
