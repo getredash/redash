@@ -48,20 +48,20 @@
     "@redash/viz": "workspace:*",
     "ace-builds": "^1.44.0",
     "antd": "4.4.3",
-    "axios": "0.33.0",
-    "axios-auth-refresh": "3.3.6",
+    "axios": "1.20.0",
+    "axios-auth-refresh": "5.0.2",
     "bootstrap": "^3.4.1",
     "classnames": "^2.2.6",
     "d3": "^3.5.17",
     "debug": "^4.4.3",
-    "dompurify": "^2.0.17",
+    "dompurify": "^3.4.16",
     "font-awesome": "^4.7.0",
     "history": "^4.10.1",
     "hoist-non-react-statics": "^3.3.0",
-    "markdown": "0.5.0",
+    "marked": "^18.0.14",
     "material-design-iconic-font": "^2.2.0",
     "mousetrap": "^1.6.1",
-    "mustache": "^2.3.0",
+    "mustache": "^4.2.0",
     "numeral": "^2.0.6",
     "path-to-regexp": "^3.3.0",
     "prop-types": "^15.6.1",
@@ -158,6 +158,17 @@
   "jest": {
     "testEnvironment": "jsdom",
     "rootDir": "./client",
+    "transform": {
+      "[\\\\/]node_modules[\\\\/].+\\.m?js$": [
+        "babel-jest",
+        { "presets": [["@babel/preset-env", { "targets": { "node": "current" } }]] }
+      ],
+      "\\.[jt]sx?$": "babel-jest"
+    },
+    "transformIgnorePatterns": [
+      "/node_modules/(?!\\.pnpm/|(marked)/)",
+      "/node_modules/\\.pnpm/(?!(marked)@)"
+    ],
     "setupFiles": [
       "./app/__tests__/enzyme_setup.js",
       "./app/__tests__/mocks.js"

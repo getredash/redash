@@ -97,6 +97,8 @@ const config = {
   ignoreWarnings: [
     // Less 4 deprecation warnings from antd 4's own Less sources, which we can't change
     { message: /DEPRECATED WARNING: .* in .*[\\/]node_modules[\\/].*[\\/]antd[\\/]/ },
+    // axios-auth-refresh publishes source maps pointing at source files it doesn't ship
+    { module: /[\\/]node_modules[\\/].*axios-auth-refresh[\\/]/, message: /Failed to parse source map/ },
   ],
   plugins: [
     new WebpackBuildNotifierPlugin({ title: "Redash" }),
