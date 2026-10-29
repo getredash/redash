@@ -5,7 +5,6 @@ RUN npm install --global pnpm@10.30.3
 # Controls whether to build the frontend assets
 ARG skip_frontend_build
 
-ENV CYPRESS_INSTALL_BINARY=0
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1
 
 RUN useradd -m -d /frontend redash
@@ -15,10 +14,6 @@ WORKDIR /frontend
 COPY --chown=redash package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc /frontend/
 COPY --chown=redash viz-lib /frontend/viz-lib
 COPY --chown=redash scripts /frontend/scripts
-
-# Controls whether to instrument code for coverage information
-ARG code_coverage
-ENV BABEL_ENV=${code_coverage:+test}
 
 # Use BuildKit cache mount for pnpm store to speed rebuilds
 RUN --mount=type=cache,id=pnpm-store,target=/frontend/.cache/pnpm,uid=1001,gid=1001 \

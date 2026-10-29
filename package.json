@@ -23,9 +23,10 @@
     "jest": "TZ=Africa/Khartoum jest",
     "test": "run-s type-check jest",
     "test:watch": "jest --watch",
-    "cypress": "node client/cypress/cypress.js",
     "visual-tests": "playwright test --config client/visual-tests/playwright.config.ts",
     "visual-tests:docker": "sh client/visual-tests/docker.sh",
+    "e2e": "playwright test --config client/e2e/playwright.config.ts",
+    "e2e:type-check": "tsc --noEmit --project client/e2e/tsconfig.json",
     "postinstall": "pnpm run build:viz"
   },
   "repository": {
@@ -50,6 +51,7 @@
     "axios": "1.20.0",
     "axios-auth-refresh": "5.0.2",
     "bootstrap": "^3.4.1",
+    "buffer": "^5.7.1",
     "classnames": "^2.2.6",
     "core-js": "^3.50.0",
     "d3": "^7.9.0",
@@ -84,10 +86,8 @@
     "@babel/preset-react": "^8.0.1",
     "@babel/preset-typescript": "^8.0.1",
     "@biomejs/biome": "2.5.14",
-    "@cypress/code-coverage": "^3.11.0",
     "@playwright/test": "1.63.0",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.6.3",
-    "@testing-library/cypress": "^8.0.7",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/react": "^16.3.3",
     "@types/hoist-non-react-statics": "^3.3.1",
@@ -105,7 +105,6 @@
     "babel-plugin-polyfill-corejs3": "^1.0.0",
     "copy-webpack-plugin": "^14.0.0",
     "css-loader": "^7.1.5",
-    "cypress": "^11.2.0",
     "dayjs": "^1.11.23",
     "html-webpack-plugin": "^5.6.8",
     "identity-obj-proxy": "^3.0.0",
@@ -171,13 +170,8 @@
     },
     "testPathIgnorePatterns": [
       "<rootDir>/app/__tests__/",
-      "<rootDir>/visual-tests/"
-    ]
-  },
-  "nyc": {
-    "include": [
-      "client/app/**",
-      "viz-lib/**"
+      "<rootDir>/visual-tests/",
+      "<rootDir>/e2e/"
     ]
   },
   "browser": {
