@@ -16,9 +16,10 @@ import {
   isNumber,
   isString,
 } from "lodash";
-import d3 from "d3";
+import * as d3 from "d3";
 import d3sankey, { NodeType, LinkType, SourceTargetType, DType } from "./d3sankey";
 import { SankeyDataType } from ".";
+import { D3Category20 } from "../ColorPalette";
 
 export type ExtendedSankeyDataType = Partial<SankeyDataType> & { nodes: any[]; links: any[] };
 
@@ -99,8 +100,7 @@ function graph(data: ExtendedSankeyDataType["rows"]) {
     addLink(row[dataKeys[4]], null, row.value || 0, 5); // this line ensures that the last stage has a corresponding exit node
   });
 
-  // @ts-expect-error ts-migrate(2339) FIXME: Property 'scale' does not exist on type 'typeof im... Remove this comment to see the full error message
-  const color = d3.scale.category20();
+  const color = d3.scaleOrdinal(D3Category20);
 
   return {
     nodes: map(nodes, (d) => extend(d, { color: color(d.name.replace(/ .*/, "")) })),
@@ -109,13 +109,7 @@ function graph(data: ExtendedSankeyDataType["rows"]) {
 }
 
 function spreadNodes(height: any, data: ExtendedSankeyDataType) {
-  const nodesByBreadth = d3
-    // @ts-expect-error ts-migrate(2339) FIXME: Property 'nest' does not exist on type 'typeof imp... Remove this comment to see the full error message
-    .nest()
-    .key((d: DType) => d.x)
-    .entries(data.nodes)
-    // @ts-expect-error
-    .map((d: DType) => d.values);
+  const nodesByBreadth = Array.from(d3.group(data.nodes, (d: DType) => d.x).values());
 
   nodesByBreadth.forEach((nodes: any) => {
     nodes = filter(
@@ -123,8 +117,7 @@ function spreadNodes(height: any, data: ExtendedSankeyDataType) {
       (node) => node.name !== "Exit"
     );
 
-    // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
-    const sum = d3.sum(nodes, (o) => o.dy);
+    const sum = d3.sum(nodes, (o: any) => o.dy);
     const padding = (height - sum) / nodes.length;
 
     reduce(
@@ -263,7 +256,7 @@ export default function initSankey(data: ExtendedSankeyDataType) {
     }
 
     // add in the nodes
-    node.on("mouseover", nodeMouseOver).on("mouseout", nodeMouseOut);
+    node.on("mouseover", (event, d) => nodeMouseOver(d)).on("mouseout", nodeMouseOut);
 
     // add the rectangles for the nodes
     // FIXME: d is DType, but d3 will not accept a nonstandard function
