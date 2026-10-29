@@ -5,6 +5,7 @@ import moment from "moment";
 import markdownToHtml from "@/lib/markdown";
 
 import Button from "antd/lib/button";
+import LoadingOutlinedIcon from "@ant-design/icons/LoadingOutlined";
 import Dropdown from "antd/lib/dropdown";
 import Menu from "antd/lib/menu";
 import Tooltip from "@/components/Tooltip";
@@ -129,7 +130,10 @@ function VisualizationEmbedFooter({
           </Tooltip>
           {!query.hasParameters() && (
             <Dropdown overlay={downloadMenu} disabled={!queryResults} trigger={["click"]} placement="topLeft">
-              <Button loading={!queryResults && !!refreshStartedAt} className="m-l-5">
+              <Button className="m-l-5">
+                {/* Not the button's `loading` prop: when loading ends right after it starts, antd 4.24 leaves
+                    its animated loading icon in the middle of its transition forever */}
+                {!queryResults && !!refreshStartedAt && <LoadingOutlinedIcon className="m-r-5" />}
                 Download Dataset
                 <i className="fa fa-caret-up m-l-5" aria-hidden="true" />
               </Button>
