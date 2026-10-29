@@ -16,7 +16,7 @@ type Props = {
 };
 
 function Editor({ column, onChange }: Props) {
-  const [onChangeDebounced] = useDebouncedCallback(onChange, 200);
+  const onChangeDebounced = useDebouncedCallback(onChange, 200);
 
   return (
     <React.Fragment>

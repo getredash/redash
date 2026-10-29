@@ -23,7 +23,7 @@ function TextboxDialog({ dialog, isNew, ...props }) {
     setPreview(markdownToHtml(props.text));
   }, [props.text]);
 
-  const [updatePreview] = useDebouncedCallback(() => {
+  const updatePreview = useDebouncedCallback(() => {
     setPreview(markdownToHtml(text));
   }, 200);
 

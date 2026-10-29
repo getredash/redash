@@ -81,7 +81,7 @@ function QuerySource(props) {
   const [autocompleteAvailable, autocompleteEnabled, toggleAutocomplete] = useAutocompleteFlags(schema);
   const [autoLimitAvailable, autoLimitChecked, setAutoLimit] = useAutoLimitFlags(dataSource, query, setQuery);
 
-  const [handleQueryEditorChange] = useDebouncedCallback((queryText) => {
+  const handleQueryEditorChange = useDebouncedCallback((queryText) => {
     setQuery(extend(query.clone(), { query: queryText }));
   }, 100);
 

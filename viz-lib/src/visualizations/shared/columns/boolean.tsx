@@ -19,7 +19,7 @@ function Editor({ column, onChange }: Props) {
     onChange({ booleanValues });
   }
 
-  const [handleChangeDebounced] = useDebouncedCallback(handleChange, 200);
+  const handleChangeDebounced = useDebouncedCallback(handleChange, 200);
 
   return (
     <React.Fragment>
