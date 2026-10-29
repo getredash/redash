@@ -52,7 +52,7 @@ const inputDefaultProps = {
   onPressEnter: () => {},
 };
 
-type Props = OwnProps & typeof inputDefaultProps;
+type Props = OwnProps;
 
 export default function Input({ color, presetColors, presetColumns, onChange, onPressEnter }: Props) {
   const [inputValue, setInputValue] = useState("");

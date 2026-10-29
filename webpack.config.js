@@ -89,7 +89,7 @@ const config = {
       stream: require.resolve("stream-browserify"),
       assert: require.resolve("assert/"),
       util: require.resolve("util/"),
-      process: require.resolve("process/browser"),
+      process: require.resolve("process/browser.js"),
     }
   },
   ignoreWarnings: [
@@ -138,7 +138,7 @@ const config = {
       // Make a global `process` variable that points to the `process` package,
       // because the `util` package expects there to be a global variable named `process`.
       // Thanks to https://stackoverflow.com/a/65018686/14239942
-      process: 'process/browser'
+      process: 'process/browser.js'
     })
   ].filter(Boolean),
   optimization: {
