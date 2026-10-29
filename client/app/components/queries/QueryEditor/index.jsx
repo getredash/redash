@@ -6,6 +6,7 @@ import { srNotify } from "@/lib/accessibility";
 import { SchemaItemType } from "@/components/queries/SchemaBrowser";
 import resizeObserver from "@/services/resizeObserver";
 import QuerySnippet from "@/services/query-snippet";
+import useTypedValue from "@/lib/hooks/useTypedValue";
 
 import QueryEditorControls from "./QueryEditorControls";
 import "./index.less";
@@ -19,19 +20,17 @@ const QueryEditor = React.forwardRef(function (
   const [container, setContainer] = useState(null);
   const [editorRef, setEditorRef] = useState(null);
 
-  // For some reason, value for AceEditor should be managed in this way - otherwise it goes berserk when selecting text
-  const [currentValue, setCurrentValue] = useState(value);
-
-  useEffect(() => {
-    setCurrentValue(value);
-  }, [value]);
+  // For some reason, value for AceEditor should be managed in this way - otherwise it goes berserk when selecting text.
+  // The query page debounces `onChange`, so `value` can come back older than the text in the editor; setting it would
+  // drop the characters typed since.
+  const [currentValue, setTypedValue] = useTypedValue(value);
 
   const handleChange = useCallback(
     (str) => {
-      setCurrentValue(str);
+      setTypedValue(str);
       onChange(str);
     },
-    [onChange]
+    [onChange, setTypedValue]
   );
 
   const editorOptions = useMemo(

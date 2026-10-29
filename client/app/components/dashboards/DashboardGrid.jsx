@@ -217,6 +217,10 @@ class DashboardGrid extends React.Component {
 
   onBreakpointChange = (mode) => {
     this.mode = mode;
+    // The widgets are resized and moved (with a transition), and the grid reports its new layouts after this. A
+    // height measured meanwhile is wrong, and applying it while the grid is still reporting makes the grid and
+    // this component take each other's layout in turn, without end.
+    this.autoHeightCtrl.pause(500);
     this.props.onBreakpointChange(mode === SINGLE);
   };
 

@@ -19,7 +19,12 @@ function ParameterApplyButton({ paramCount, onClick }) {
   return (
     <div className="parameter-apply-button" data-show={!!paramCount} data-test="ParameterApplyButton">
       <Badge count={paramCount}>
-        <Tooltip title={paramCount ? `${KeyboardShortcuts.modKey} + Enter` : null}>
+        {/* The tooltip covers the parameter above the button: let the pointer through, or it stays open over
+            that field (it is kept open while hovered) and takes the clicks meant for it */}
+        <Tooltip
+          title={paramCount ? `${KeyboardShortcuts.modKey} + Enter` : null}
+          overlayStyle={{ pointerEvents: "none" }}
+        >
           <span>
             <Button onClick={onClick}>{icon} Apply Changes</Button>
           </span>

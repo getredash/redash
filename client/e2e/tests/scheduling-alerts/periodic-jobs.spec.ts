@@ -57,10 +57,8 @@ test.describe("Periodic jobs", () => {
     expect(job.status).toBe(3);
   });
 
-  // empty_schedules (hourly), cleanup_query_results (every 5 minutes, deletes unused results older than a week),
-  // send_aggregated_errors (hourly, needs failed scheduled queries and the organization's failure-report
-  // setting) and version_check (daily) leave nothing a test can wait for in reasonable time: the original run
-  // confirmed them from "Job OK" lines in the worker log over 45 minutes. Reading container logs from a test
-  // would tie the suite to Docker, so they are not covered.
-  test.fixme("empty_schedules, cleanup_query_results, send_aggregated_errors and version_check run", () => {});
+  // Not covered here: empty_schedules (hourly), cleanup_query_results (every 5 minutes, deletes unused results
+  // older than a week), send_aggregated_errors (hourly) and version_check (daily) leave nothing a test can wait
+  // for in reasonable time. The backend unit tests cover them (tests/tasks/test_empty_schedule.py,
+  // test_cleanup_query_results.py, test_failure_report.py and tests/test_version_check.py).
 });

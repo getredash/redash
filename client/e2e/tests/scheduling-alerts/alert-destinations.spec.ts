@@ -234,13 +234,9 @@ test.describe("Alert destinations", () => {
     await expect.poll(() => subscriptions(api, alert.id)).toEqual([]);
   });
 
-  // A product bug found while writing this suite; it is not in support/known-issues.ts. Both subscriptions are
-  // saved, but AlertDestinations.subscribe() appends to `this.state.subs` as read when each response arrives.
-  // React 18 batches the two updates, so when the responses arrive close together the second overwrites the
-  // first and one destination is missing from the list until the page is reloaded. It happened in roughly one
-  // run out of four here, so the test can neither pass reliably nor be marked as an expected failure. Tried:
-  // holding both responses with page.route and releasing them together - still only fails every other run.
-  test.fixme("two destinations added in one go are both listed", async ({ page, api, seed }) => {
+  // Used to fail about one run in four: AlertDestinations.subscribe() appended to `this.state.subs` as read when
+  // each response arrived, so with two responses close together the second update overwrote the first
+  test("two destinations added in one go are both listed", async ({ page, api, seed }) => {
     const { alert, email, webhook } = await alertAndDestinations(api, seed.dataSources.postgres);
     const panel = byTest(page, "AlertDestinations");
     await page.goto(`/alerts/${alert.id}`);
