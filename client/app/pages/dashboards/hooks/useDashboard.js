@@ -174,7 +174,7 @@ function useDashboard(dashboardData) {
     Dashboard.delete(dashboard).then((updatedDashboard) =>
       setDashboard((currentDashboard) => extend({}, currentDashboard, pick(updatedDashboard, ["is_archived"])))
     );
-  }, [dashboard]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [dashboard]);
 
   const showShareDashboardDialog = useCallback(() => {
     const handleDialogClose = () => setDashboard((currentDashboard) => extend({}, currentDashboard));
@@ -220,19 +220,21 @@ function useDashboard(dashboardData) {
   const [fullscreen, toggleFullscreen] = useFullscreenHandler();
   const editModeHandler = useEditModeHandler(!gridDisabled && canEditDashboard, dashboard.widgets);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: only reload when the dashboard data changes
   useEffect(() => {
     setDashboard(dashboardData);
     loadDashboard();
-  }, [dashboardData]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [dashboardData]);
 
   useEffect(() => {
     document.title = dashboard.name;
   }, [dashboard.name]);
 
   // reload dashboard when filter option changes
+  // biome-ignore lint/correctness/useExhaustiveDependencies: only reload when the filter option changes
   useEffect(() => {
     loadDashboard();
-  }, [dashboard.dashboard_filters_enabled]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [dashboard.dashboard_filters_enabled]);
 
   return {
     dashboard,

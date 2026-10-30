@@ -43,6 +43,7 @@ type OwnProps = {
   addonBefore?: React.ReactNode;
   addonAfter?: React.ReactNode;
   onChange?: (...args: any[]) => any;
+  "data-test"?: string;
 };
 
 const colorPickerDefaultProps = {
@@ -58,7 +59,7 @@ const colorPickerDefaultProps = {
   onChange: () => {},
 };
 
-type Props = OwnProps & typeof colorPickerDefaultProps;
+type Props = OwnProps;
 
 export default function ColorPicker({
   color,
@@ -71,6 +72,7 @@ export default function ColorPicker({
   triggerProps,
   addonBefore,
   addonAfter,
+  "data-test": dataTest,
 }: Props) {
   const [visible, setVisible] = useState(false);
   const validatedColor = useMemo(() => validateColor(color), [color]);
@@ -118,7 +120,7 @@ export default function ColorPicker({
   }, [validatedColor, visible]);
 
   return (
-    <span className="color-picker-wrapper">
+    <span className="color-picker-wrapper" data-test={dataTest}>
       {addonBefore}
       <Popover
         arrowPointAtCenter
@@ -139,13 +141,10 @@ export default function ColorPicker({
             actions={actions}
           >
             <ColorInput
-              // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
               color={currentColor}
               presetColors={presetColors}
               presetColumns={presetColumns}
-              // @ts-expect-error ts-migrate(2322) FIXME: Type '(newColor: any) => void' is not assignable t... Remove this comment to see the full error message
               onChange={handleInputChange}
-              // @ts-expect-error ts-migrate(2322) FIXME: Type '() => void' is not assignable to type 'never... Remove this comment to see the full error message
               onPressEnter={handleApply}
             />
           </Card>

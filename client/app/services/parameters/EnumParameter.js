@@ -63,7 +63,7 @@ class EnumParameter extends Parameter {
         try {
           const valueFromJson = JSON.parse(query[key]);
           this.setValue(isArray(valueFromJson) ? valueFromJson : query[key]);
-        } catch (e) {
+        } catch {
           this.setValue(query[key]);
         }
       } else {

@@ -306,20 +306,16 @@ class QueryRecentTest(BaseTestCase):
         ds = self.factory.create_data_source(group=self.factory.create_group())
         q2 = self.factory.create_query(data_source=ds)
         db.session.flush()
-        Event(
-            org=self.factory.org,
-            user=self.factory.user,
-            action="edit",
-            object_type="query",
-            object_id=q1.id,
-        )
-        Event(
-            org=self.factory.org,
-            user=self.factory.user,
-            action="edit",
-            object_type="query",
-            object_id=q2.id,
-        )
+        for query in (q1, q2):
+            db.session.add(
+                Event(
+                    org=self.factory.org,
+                    user=self.factory.user,
+                    action="edit",
+                    object_type="query",
+                    object_id=query.id,
+                )
+            )
 
         recent = Query.recent([self.factory.default_group.id])
 

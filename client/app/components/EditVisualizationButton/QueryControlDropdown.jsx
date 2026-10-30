@@ -83,8 +83,8 @@ export default function QueryControlDropdown(props) {
 }
 
 QueryControlDropdown.propTypes = {
-  query: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
-  queryResult: PropTypes.object, // eslint-disable-line react/forbid-prop-types
+  query: PropTypes.object.isRequired,
+  queryResult: PropTypes.object,
   queryExecuting: PropTypes.bool.isRequired,
   showEmbedDialog: PropTypes.func.isRequired,
   embed: PropTypes.bool,

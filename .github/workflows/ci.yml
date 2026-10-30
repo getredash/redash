@@ -57,7 +57,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.13'
-      - run: python -m pip install black==23.1.0 ruff==0.0.287
+      - run: python -m pip install black==23.1.0 ruff==0.16.9
       - run: ruff check .
       - run: black --check .
 
@@ -171,13 +171,12 @@ jobs:
   frontend-e2e-tests:
     runs-on: ubuntu-22.04
     needs: frontend-lint
+    timeout-minutes: 60
     env:
-      COMPOSE_FILE: .ci/compose.cypress.yaml
-      COMPOSE_PROJECT_NAME: cypress
-      CYPRESS_INSTALL_BINARY: 0
-      PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 1
-      # CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
-      # CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+      COMPOSE_FILE: .ci/compose.e2e.yaml
+      COMPOSE_PROJECT_NAME: e2e
+      # The MySQL driver, so the MySQL tests run instead of being skipped
+      E2E_INSTALL_GROUPS: main,all_ds
     steps:
       - if: github.event.pull_request.mergeable == 'false'
         name: Exit if PR is not mergeable
@@ -193,39 +192,39 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
-      - name: Enable Code Coverage Report For Master Branch
-        if: endsWith(github.ref, '/master')
-        run: |
-          echo "CODE_COVERAGE=true" >> "$GITHUB_ENV"
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
+      - name: Install Browser
+        run: pnpm exec playwright install --with-deps chromium
       - name: Setup Redash Server
         run: |
           set -x
-          pnpm run cypress build
-          pnpm run cypress start -- --skip-db-seed
-          docker compose run cypress pnpm run cypress db-seed
-      - name: Execute Cypress Tests
-        run: pnpm run cypress run-ci
+          docker compose build server worker scheduler
+          docker compose run --rm server create_db
+          docker compose up -d
+          timeout 120 sh -c 'until curl -sf http://localhost:5000/ping; do sleep 2; done'
+          # The demo databases accept TCP connections once they have loaded their data
+          timeout 180 sh -c 'until docker compose exec -T -e PGPASSWORD=demo e2e-postgres psql -h 127.0.0.1 -U demo -c "select 1 from events limit 1" demo; do sleep 2; done'
+          timeout 180 sh -c 'until docker compose exec -T e2e-mysql mysql -h 127.0.0.1 -udemo -pdemo -e "select 1 from events limit 1" demo; do sleep 2; done'
+      - name: Run End-to-End Tests
+        run: pnpm run e2e
       - name: "Failure: output container logs to console"
         if: failure()
         run: docker compose logs
-      - name: Copy Code Coverage Results
-        run: docker cp cypress:/usr/src/app/coverage ./coverage || true
-      - name: Store Coverage Results
+      - name: Store End-to-End Tests Report
+        if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: coverage
-          path: coverage
+          name: e2e-tests-report
+          path: client/e2e/.results
+          include-hidden-files: true # .results is a hidden directory
 
   frontend-visual-tests:
     runs-on: ubuntu-22.04
     needs: frontend-lint
     env:
-      COMPOSE_FILE: .ci/compose.cypress.yaml
+      COMPOSE_FILE: .ci/compose.visual-tests.yaml
       COMPOSE_PROJECT_NAME: visual-tests
-      CYPRESS_INSTALL_BINARY: 0
-      PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 1
       VISUAL_TESTS_BASE_URL: http://localhost:5000
       REDASH_FEATURE_ALLOW_CUSTOM_JS_VISUALIZATIONS: true
     steps:

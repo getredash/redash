@@ -1,22 +1,16 @@
-import warnings
+import requests
 
 from redash import settings
+from redash.utils import ssrf
+from redash.utils.ssrf import UnacceptableAddressException  # noqa: F401
 
-with warnings.catch_warnings():
-    # Supress advocate warning below
-    #   /usr/local/lib/python3.13/site-packages/advocate/api.py:102: SyntaxWarning: invalid escape sequence '\*'
-    #   server-1     |   :param \*\*kwargs: Optional arguments that ``request`` takes.
-    warnings.filterwarnings("ignore", category=SyntaxWarning, module=r".*advocate.*")
-
-    from advocate.exceptions import UnacceptableAddressException  # noqa: F401, E402
-
-    if settings.ENFORCE_PRIVATE_ADDRESS_BLOCK:
-        import advocate as requests_or_advocate
-    else:
-        import requests as requests_or_advocate
+if settings.ENFORCE_PRIVATE_ADDRESS_BLOCK:
+    requests_or_ssrf = ssrf
+else:
+    requests_or_ssrf = requests
 
 
-class ConfiguredSession(requests_or_advocate.Session):
+class ConfiguredSession(requests_or_ssrf.Session):
     def request(self, *args, **kwargs):
         if not settings.REQUESTS_ALLOW_REDIRECTS:
             kwargs.update({"allow_redirects": False})

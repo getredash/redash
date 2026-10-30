@@ -1,14 +1,11 @@
 import React from "react";
-import enzyme from "enzyme";
+import { render } from "@testing-library/react";
 
 import Column from "./text";
-
-function findByTestID(wrapper: any, testId: any) {
-  return wrapper.find(`[data-test="${testId}"]`);
-}
+import { findByTestID, findInput, setChecked } from "@/testUtils";
 
 function mount(column: any, done: any) {
-  return enzyme.mount(
+  return render(
     <Column.Editor
       // @ts-expect-error ts-migrate(2322) FIXME: Type '{ visualizationName: string; column: any; on... Remove this comment to see the full error message
       visualizationName="Test"
@@ -24,7 +21,7 @@ function mount(column: any, done: any) {
 describe("Visualizations -> Table -> Columns -> Text", () => {
   describe("Editor", () => {
     test("Enables HTML content", (done) => {
-      const el = mount(
+      mount(
         {
           name: "a",
           allowHTML: false,
@@ -33,14 +30,11 @@ describe("Visualizations -> Table -> Columns -> Text", () => {
         done
       );
 
-      findByTestID(el, "Table.ColumnEditor.Text.AllowHTML")
-        .last()
-        .find("input")
-        .simulate("change", { target: { checked: true } });
+      setChecked(findInput(findByTestID("Table.ColumnEditor.Text.AllowHTML")), true);
     });
 
     test("Enables highlight links option", (done) => {
-      const el = mount(
+      mount(
         {
           name: "a",
           allowHTML: true,
@@ -49,10 +43,7 @@ describe("Visualizations -> Table -> Columns -> Text", () => {
         done
       );
 
-      findByTestID(el, "Table.ColumnEditor.Text.HighlightLinks")
-        .last()
-        .find("input")
-        .simulate("change", { target: { checked: true } });
+      setChecked(findInput(findByTestID("Table.ColumnEditor.Text.HighlightLinks")), true);
     });
   });
 });

@@ -18,12 +18,12 @@ export const csrfRefreshInterceptor = createAuthRefreshInterceptor(
   (error) => {
     const message = get(error, "response.data.message");
     if (error.isAxiosError && includes(message, "CSRF")) {
-      return axios.get("/ping");
+      return axios.get("/ping", { skipAuthRefresh: true }); // a failing refresh must not trigger another one
     } else {
       return Promise.reject(error);
     }
   },
-  { statusCodes: [400] }
+  { statusCodes: [400], deduplicateRefresh: false }
 );
 
 export const sessionRefreshInterceptor = createAuthRefreshInterceptor(
@@ -40,7 +40,7 @@ export const sessionRefreshInterceptor = createAuthRefreshInterceptor(
   },
   {
     statusCodes: [401, 404],
-    pauseInstanceWhileRefreshing: false, // According to docs, `false` is default value, but in fact it's not :-)
+    deduplicateRefresh: false,
   }
 );
 

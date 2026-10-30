@@ -1,8 +1,9 @@
 import functools
 
-from flask_sqlalchemy import BaseQuery, SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy
+from flask_sqlalchemy.query import Query as BaseQuery
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import object_session
+from sqlalchemy.orm import configure_mappers, object_session
 from sqlalchemy.pool import NullPool
 from sqlalchemy_searchable import SearchQueryMixin, make_searchable, vectorizer
 
@@ -10,32 +11,25 @@ from redash import settings
 from redash.utils import json_dumps, json_loads
 
 
-class RedashSQLAlchemy(SQLAlchemy):
-    def apply_driver_hacks(self, app, info, options):
-        options.update(json_serializer=json_dumps)
-        if settings.SQLALCHEMY_ENABLE_POOL_PRE_PING:
-            options.update(pool_pre_ping=True)
-        return super(RedashSQLAlchemy, self).apply_driver_hacks(app, info, options)
-
-    def apply_pool_defaults(self, app, options):
-        super(RedashSQLAlchemy, self).apply_pool_defaults(app, options)
-        if settings.SQLALCHEMY_ENABLE_POOL_PRE_PING:
-            options["pool_pre_ping"] = True
-        if settings.SQLALCHEMY_DISABLE_POOL:
-            options["poolclass"] = NullPool
-            # Remove options NullPool does not support:
-            options.pop("max_overflow", None)
-        return options
+def engine_options():
+    options = {"json_serializer": json_dumps, "json_deserializer": json_loads}
+    if settings.SQLALCHEMY_ENABLE_POOL_PRE_PING:
+        options["pool_pre_ping"] = True
+    if settings.SQLALCHEMY_DISABLE_POOL:
+        options["poolclass"] = NullPool
+    else:
+        if settings.SQLALCHEMY_POOL_SIZE is not None:
+            options["pool_size"] = settings.SQLALCHEMY_POOL_SIZE
+        if settings.SQLALCHEMY_MAX_OVERFLOW is not None:
+            options["max_overflow"] = settings.SQLALCHEMY_MAX_OVERFLOW
+    return options
 
 
-db = RedashSQLAlchemy(
-    session_options={"expire_on_commit": False},
-    engine_options={"json_serializer": json_dumps, "json_deserializer": json_loads},
-)
+db = SQLAlchemy(session_options={"expire_on_commit": False}, engine_options=engine_options())
 # Make sure the SQLAlchemy mappers are all properly configured first.
 # This is required by SQLAlchemy-Searchable as it adds DDL listeners
 # on the configuration phase of models.
-db.configure_mappers()
+configure_mappers()
 
 # listen to a few database events to set up functions, trigger updates
 # and indexes for the full text search

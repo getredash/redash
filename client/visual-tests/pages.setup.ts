@@ -52,6 +52,15 @@ GROUP BY 1
 ORDER BY revenue DESC, country
 `;
 
+const CUSTOMERS_BY_NAME = `
+SELECT FirstName || ' ' || LastName AS customer, Country AS country
+FROM customers
+WHERE LastName LIKE '{{ name }}%'
+ORDER BY customer
+`;
+
+const CUSTOMERS_BY_NAME_PARAMETERS = [{ name: "name", title: "Name", type: "text", value: "S" }];
+
 const DASHBOARD_TEXT = `
 ## Sales overview
 
@@ -143,6 +152,8 @@ setup("load page examples", async ({ baseURL }) => {
     paths.queryChart = `/queries/${topCustomers.id}#${topCustomersChart.id}`;
     paths.querySource = `/queries/${topCustomers.id}/source`;
     paths.querySourceChart = `/queries/${topCustomers.id}/source#${topCustomersChart.id}`;
+    // Its parameters are all of types that public pages accept
+    paths.embedParameters = `/embed/query/${topCustomers.id}/visualization/${topCustomersChart.id}?api_key=${topCustomers.api_key}`;
 
     const invoicesByCountry = await createQuery(api, chinook.id, {
       name: `${PREFIX}Invoices by country`,
@@ -167,6 +178,21 @@ setup("load page examples", async ({ baseURL }) => {
         columnMapping: { country: "x", revenue: "y" },
       },
     });
+    const countriesTable = await api.post("/api/visualizations", {
+      query_id: invoicesByCountry.id,
+      type: "TABLE",
+      name: "Five per page",
+      description: "",
+      options: {
+        itemsPerPage: 5,
+        columns: [
+          { name: "country", visible: true, allowSearch: true },
+          { name: "invoices", visible: true },
+          { name: "revenue", visible: true },
+        ],
+      },
+    });
+    paths.queryTable = `/queries/${invoicesByCountry.id}#${countriesTable.id}`;
     await api.post(`/api/queries/${invoicesByCountry.id}/favorite`);
     paths.embed =
       `/embed/query/${invoicesByCountry.id}/visualization/${revenueByCountry.id}` +
@@ -221,20 +247,42 @@ setup("load page examples", async ({ baseURL }) => {
         parameterMappings,
       },
     ];
-    for (const { text = "", visualization_id = null, position, parameterMappings = {} } of widgets) {
-      await api.post("/api/widgets", {
-        dashboard_id: dashboard.id,
-        visualization_id,
-        text: text.trim(),
-        width: 1,
-        options: { isHidden: false, parameterMappings, position: { ...position, autoHeight: false } },
-      });
-    }
+    await addWidgets(api, dashboard.id, widgets);
     const { version } = await api.get(`/api/dashboards/${dashboard.id}`);
     await api.post(`/api/dashboards/${dashboard.id}`, { is_draft: false, tags: [PAGES_TAG], version });
     await api.post(`/api/dashboards/${dashboard.id}/favorite`);
     paths.dashboard = `/dashboards/${dashboard.id}`;
     paths.dashboardEdit = `/dashboards/${dashboard.id}?edit`;
+
+    // Public dashboards. Separate from the dashboard above, which is shown before it is shared.
+    const shared = await api.post("/api/dashboards", { name: `${PREFIX}Top customers` });
+    await addWidgets(api, shared.id, [
+      { text: DASHBOARD_TEXT, position: { col: 0, row: 0, sizeX: 6, sizeY: 5 } },
+      { visualization_id: countriesCounter.id, position: { col: 6, row: 0, sizeX: 6, sizeY: 5 } },
+      { visualization_id: topCustomersChart.id, position: { col: 0, row: 5, sizeX: 6, sizeY: 9 }, parameterMappings },
+      { visualization_id: topCustomersTable.id, position: { col: 6, row: 5, sizeX: 6, sizeY: 9 }, parameterMappings },
+    ]);
+    paths.publicDashboard = await publish(api, shared.id);
+
+    // A widget whose query has a text parameter, added after the dashboard was shared: public pages refuse to run it
+    const customersByName = await createQuery(api, chinook.id, {
+      name: `${PREFIX}Customers by name`,
+      description: "",
+      query: CUSTOMERS_BY_NAME,
+      parameters: CUSTOMERS_BY_NAME_PARAMETERS,
+    });
+    const sharedThenChanged = await api.post("/api/dashboards", { name: `${PREFIX}Customers` });
+    await addWidgets(api, sharedThenChanged.id, [
+      { visualization_id: countriesCounter.id, position: { col: 0, row: 0, sizeX: 3, sizeY: 5 } },
+    ]);
+    paths.publicDashboardUnsafe = await publish(api, sharedThenChanged.id);
+    await addWidgets(api, sharedThenChanged.id, [
+      {
+        visualization_id: customersByName.visualizations.find((viz: { type: string }) => viz.type === "TABLE").id,
+        position: { col: 3, row: 0, sizeX: 6, sizeY: 8 },
+        parameterMappings: { name: { name: "name", type: "dashboard-level", mapTo: "name", value: null, title: "" } },
+      },
+    ]);
 
     writePagesManifest({ paths });
     await api.saveStorageState(STORAGE_STATE_PATH);
@@ -242,6 +290,34 @@ setup("load page examples", async ({ baseURL }) => {
     await api.dispose();
   }
 });
+
+interface WidgetExample {
+  text?: string;
+  visualization_id?: number;
+  position: { col: number; row: number; sizeX: number; sizeY: number };
+  parameterMappings?: Record<string, unknown>;
+}
+
+async function addWidgets(api: RedashApi, dashboardId: number, widgets: WidgetExample[]) {
+  for (const { text = "", visualization_id = null, position, parameterMappings = {} } of widgets) {
+    await api.post("/api/widgets", {
+      dashboard_id: dashboardId,
+      visualization_id,
+      text: text.trim(),
+      width: 1,
+      options: { isHidden: false, parameterMappings, position: { ...position, autoHeight: false } },
+    });
+  }
+}
+
+/** Publishes and shares a dashboard; returns the path of its public page. */
+async function publish(api: RedashApi, dashboardId: number) {
+  const { version } = await api.get(`/api/dashboards/${dashboardId}`);
+  await api.post(`/api/dashboards/${dashboardId}`, { is_draft: false, tags: [PAGES_TAG], version });
+  const { public_url: publicUrl } = await api.post(`/api/dashboards/${dashboardId}/share`);
+  // Only the path: the server's own idea of its host isn't necessarily reachable from the test browser
+  return new URL(publicUrl, "http://localhost").pathname;
+}
 
 async function removeExamples(api: RedashApi) {
   const isExample = ({ name }: { name: string }) => name.startsWith(PREFIX);

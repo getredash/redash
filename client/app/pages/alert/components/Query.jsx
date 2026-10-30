@@ -58,7 +58,7 @@ export default function QueryFormItem({ query, queryResult, onChange, editMode }
 
 QueryFormItem.propTypes = {
   query: QueryType,
-  queryResult: PropTypes.object, // eslint-disable-line react/forbid-prop-types
+  queryResult: PropTypes.object,
   onChange: PropTypes.func,
   editMode: PropTypes.bool,
 };

@@ -1,8 +1,6 @@
 import { get, isArray } from "lodash";
 import { currentUser, clientConfig } from "@/services/auth";
 
-/* eslint-disable class-methods-use-this */
-
 export default class DefaultPolicy {
   refresh() {
     return Promise.resolve(this);

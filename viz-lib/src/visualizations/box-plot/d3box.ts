@@ -1,9 +1,7 @@
-/* eslint-disable */
 // Inspired by http://informationandvisualization.de/blog/box-plot
-// d3 v3 is provided as a global by the caller; using `any` since @types/d3 targets v6+
-declare const d3: any;
+import * as d3 from "d3";
 
-function box() {
+function box(): any {
   let width = 1,
     height = 1,
     duration = 0,
@@ -18,7 +16,7 @@ function box() {
     g.each(function (d: any, i: any) {
       d = d.map(value).sort(d3.ascending);
       // @ts-expect-error ts-migrate(2683) FIXME: 'this' implicitly has type 'any' because it does n... Remove this comment to see the full error message
-      let g = d3.select(this),
+      const g: any = d3.select(this),
         n = d.length,
         min = d[0],
         max = d[n - 1];
@@ -38,8 +36,8 @@ function box() {
         : d3.range(n);
 
       // Compute the new x-scale.
-      const x1 = d3.scale
-        .linear()
+      const x1 = d3
+        .scaleLinear()
         // @ts-expect-error ts-migrate(2683) FIXME: 'this' implicitly has type 'any' because it does n... Remove this comment to see the full error message
         .domain((domain && domain.call(this, d, i)) || [min, max])
         .range([height, 0]);
@@ -47,7 +45,7 @@ function box() {
       // Retrieve the old x-scale, if this is an update.
       const x0 =
         // @ts-expect-error ts-migrate(2683) FIXME: 'this' implicitly has type 'any' because it does n... Remove this comment to see the full error message
-        this.__chart__ || d3.scale.linear().domain([0, Infinity]).range(x1.range());
+        this.__chart__ || d3.scaleLinear().domain([0, Infinity]).range(x1.range());
 
       // Stash the new scale.
       // @ts-expect-error ts-migrate(2683) FIXME: 'this' implicitly has type 'any' because it does n... Remove this comment to see the full error message
@@ -236,7 +234,7 @@ function box() {
 
       whiskerTick.exit().transition().duration(duration).attr("y", x1).style("opacity", 1e-6).remove();
     });
-    d3.timer.flush();
+    d3.timerFlush();
   }
 
   box.width = function (x: any) {
@@ -265,7 +263,7 @@ function box() {
 
   box.domain = function (x: any) {
     if (!arguments.length) return domain;
-    domain = x == null ? x : d3.functor(x);
+    domain = x == null || typeof x === "function" ? x : () => x;
     return box;
   };
 

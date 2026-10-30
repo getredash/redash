@@ -231,7 +231,7 @@ export default function SchemaBrowser({
   const [schema, isLoading, refreshSchema] = useDataSourceSchema(dataSource);
   const [filterString, setFilterString] = useState("");
   const filteredSchema = useMemo(() => applyFilterOnSchema(schema, filterString), [schema, filterString]);
-  const [handleFilterChange] = useDebouncedCallback(setFilterString, 500);
+  const handleFilterChange = useDebouncedCallback(setFilterString, 500);
   const [expandedFlags, setExpandedFlags] = useState({});
 
   const handleSchemaUpdate = useImmutableCallback(onSchemaUpdate);
@@ -282,7 +282,7 @@ export default function SchemaBrowser({
 }
 
 SchemaBrowser.propTypes = {
-  dataSource: PropTypes.object, // eslint-disable-line react/forbid-prop-types
+  dataSource: PropTypes.object,
   onSchemaUpdate: PropTypes.func,
   onItemSelect: PropTypes.func,
 };

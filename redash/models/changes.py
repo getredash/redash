@@ -61,6 +61,12 @@ class ChangeTrackingMixin:
             self._clean_values[col.name] = None
 
     def __setattr__(self, key, value):
+        # SQLAlchemy sets up the instance state through setattr too; there's nothing to
+        # track until it exists.
+        if "_sa_instance_state" not in self.__dict__:
+            super(ChangeTrackingMixin, self).__setattr__(key, value)
+            return
+
         if self._clean_values is None:
             self.prep_cleanvalues()
         for attr in inspect(self.__class__).column_attrs:

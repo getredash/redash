@@ -13,7 +13,7 @@ from sshtunnel import open_tunnel
 from redash import settings, utils
 from redash.utils.requests_session import (
     UnacceptableAddressException,
-    requests_or_advocate,
+    requests_or_ssrf,
     requests_session,
 )
 
@@ -419,14 +419,14 @@ class BaseHTTPQueryRunner(BaseQueryRunner):
             if response.status_code != 200:
                 error = "{} ({}).".format(self.response_error, response.status_code)
 
-        except requests_or_advocate.HTTPError as exc:
+        except requests_or_ssrf.HTTPError as exc:
             logger.exception(exc)
             error = "Failed to execute query. "
             f"Return Code: {response.status_code} Reason: {response.text}"
         except UnacceptableAddressException as exc:
             logger.exception(exc)
             error = "Can't query private addresses."
-        except requests_or_advocate.RequestException as exc:
+        except requests_or_ssrf.RequestException as exc:
             # Catch all other requests exceptions and return the error.
             logger.exception(exc)
             error = str(exc)

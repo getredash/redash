@@ -1,4 +1,3 @@
-/* eslint-disable global-require, import/no-unresolved */
 import getChartData from "./getChartData";
 
 describe("Visualizations", () => {
