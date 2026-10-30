@@ -309,6 +309,7 @@ class UserDisableResource(BaseResource):
                 "Please ask another admin to do this for you.",  # fmt: skip
             )
         user.disable()
+        models.AlertSubscription.delete_user_email_subscriptions([user.id])
         models.db.session.commit()
 
         return user.to_dict(with_api_key=is_admin_or_owner(user_id))
