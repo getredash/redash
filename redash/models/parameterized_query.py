@@ -45,7 +45,7 @@ def join_parameter_list_values(parameters, schema):
             separator = str(multi_values_options.get("separator", ","))
             prefix = str(multi_values_options.get("prefix", ""))
             suffix = str(multi_values_options.get("suffix", ""))
-            updated_parameters[key] = separator.join([prefix + v + suffix for v in value])
+            updated_parameters[key] = separator.join([prefix + str(v) + suffix for v in value])
         else:
             updated_parameters[key] = value
     return updated_parameters
