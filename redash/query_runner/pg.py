@@ -177,6 +177,8 @@ class PostgreSQL(BaseSQLQueryRunner):
                 "sslrootcertFile": {"type": "string", "title": "SSL Root Certificate"},
                 "sslcertFile": {"type": "string", "title": "SSL Client Certificate"},
                 "sslkeyFile": {"type": "string", "title": "SSL Client Key"},
+                "awsIamAuth": {"type": "boolean", "title": "AWS IAM authentication"},
+                "awsRegion": {"type": "string", "title": "AWS Region"},
             },
             "order": ["host", "port", "user", "password"],
             "required": ["dbname"],
@@ -186,6 +188,8 @@ class PostgreSQL(BaseSQLQueryRunner):
                 "sslrootcertFile",
                 "sslcertFile",
                 "sslkeyFile",
+                "awsIamAuth",
+                "awsRegion",
             ],
         }
 
@@ -253,13 +257,40 @@ class PostgreSQL(BaseSQLQueryRunner):
         return list(schema.values())
 
     def _get_connection(self):
+        user = self.configuration.get("user")
+        password = self.configuration.get("password")
+        host = self.configuration.get("host")
+        port = self.configuration.get("port")
+
+        if self.configuration.get("awsIamAuth", False):
+            if not IAM_ENABLED:
+                raise Exception("boto3 must be installed to use AWS IAM authentication.")
+            # Pin the default so the signed and connected ports match;
+            # otherwise libpq could pick PGPORT or a service file's port.
+            if port is None:
+                port = 5432
+            # With an SSH tunnel, host/port point at the local forward; the token
+            # must be signed for the real RDS endpoint.
+            iam_host, iam_port = getattr(self, "_ssh_tunnel_remote_address", (host, port))
+            region_name = self.configuration.get("awsRegion")
+            rds_client = boto3.client("rds", region_name=region_name)
+            auth_token = rds_client.generate_db_auth_token(
+                DBHostname=iam_host,
+                Port=iam_port,
+                DBUsername=user,
+            )
+            password = auth_token
+
+        # Create the SSL cert temp files only after IAM token generation, which can raise,
+        # so they are not left behind (run_query's finally only runs once connected).
         self.ssl_config = _get_ssl_config(self.configuration)
         self.dsn = _parse_dsn(self.configuration)
+
         connection = psycopg2.connect(
-            user=self.configuration.get("user"),
-            password=self.configuration.get("password"),
-            host=self.configuration.get("host"),
-            port=self.configuration.get("port"),
+            user=user,
+            password=password,
+            host=host,
+            port=port,
             dbname=self.configuration.get("dbname"),
             async_=True,
             **self.ssl_config,
