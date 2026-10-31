@@ -260,7 +260,7 @@ class PostgreSQL(BaseSQLQueryRunner):
         user = self.configuration.get("user")
         password = self.configuration.get("password")
         host = self.configuration.get("host")
-        port = self.configuration.get("port", 5432)
+        port = self.configuration.get("port")
 
         if self.configuration.get("awsIamAuth", False):
             if not IAM_ENABLED:
@@ -272,7 +272,7 @@ class PostgreSQL(BaseSQLQueryRunner):
             rds_client = boto3.client("rds", region_name=region_name)
             auth_token = rds_client.generate_db_auth_token(
                 DBHostname=iam_host,
-                Port=iam_port,
+                Port=iam_port or 5432,
                 DBUsername=user,
             )
             password = auth_token
