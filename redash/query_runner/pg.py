@@ -257,9 +257,6 @@ class PostgreSQL(BaseSQLQueryRunner):
         return list(schema.values())
 
     def _get_connection(self):
-        self.ssl_config = _get_ssl_config(self.configuration)
-        self.dsn = _parse_dsn(self.configuration)
-
         user = self.configuration.get("user")
         password = self.configuration.get("password")
         host = self.configuration.get("host")
@@ -279,6 +276,11 @@ class PostgreSQL(BaseSQLQueryRunner):
                 DBUsername=user,
             )
             password = auth_token
+
+        # Create the SSL cert temp files only after IAM token generation, which can raise,
+        # so they are not left behind (run_query's finally only runs once connected).
+        self.ssl_config = _get_ssl_config(self.configuration)
+        self.dsn = _parse_dsn(self.configuration)
 
         connection = psycopg2.connect(
             user=user,

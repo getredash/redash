@@ -75,6 +75,7 @@ class TestAwsIamAuth(TestCase):
 
         self.query_runner._get_connection()
 
+        boto3.client.assert_called_once_with("rds", region_name="ap-northeast-1")
         boto3.client.return_value.generate_db_auth_token.assert_called_once_with(
             DBHostname="db.xxx.ap-northeast-1.rds.amazonaws.com", Port=5432, DBUsername="redash"
         )
@@ -95,6 +96,7 @@ class TestAwsIamAuth(TestCase):
         with_ssh_tunnel(self.query_runner, {"ssh_host": "bastion.example.com", "ssh_username": "ec2-user"})
         self.query_runner.run_query("SELECT 1", None)
 
+        boto3.client.assert_called_once_with("rds", region_name="ap-northeast-1")
         boto3.client.return_value.generate_db_auth_token.assert_called_once_with(
             DBHostname="db.xxx.ap-northeast-1.rds.amazonaws.com", Port=5432, DBUsername="redash"
         )
@@ -102,3 +104,14 @@ class TestAwsIamAuth(TestCase):
         self.assertEqual(kwargs["host"], "127.0.0.1")
         self.assertEqual(kwargs["port"], 12345)
         self.assertFalse(hasattr(self.query_runner, "_ssh_tunnel_remote_address"))
+
+    @mock.patch("redash.query_runner.pg.IAM_ENABLED", True)
+    @mock.patch("redash.query_runner.pg.boto3", create=True)
+    @mock.patch("redash.query_runner.pg._get_ssl_config")
+    def test_does_not_create_ssl_files_when_token_generation_fails(self, get_ssl_config, boto3):
+        boto3.client.return_value.generate_db_auth_token.side_effect = Exception("NoCredentialsError")
+
+        with self.assertRaises(Exception):
+            self.query_runner._get_connection()
+
+        get_ssl_config.assert_not_called()
