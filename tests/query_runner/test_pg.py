@@ -119,7 +119,7 @@ class TestAwsIamAuth(TestCase):
     @mock.patch("redash.query_runner.pg.IAM_ENABLED", True)
     @mock.patch("redash.query_runner.pg.boto3", create=True)
     @mock.patch("redash.query_runner.pg.psycopg2.connect")
-    def test_defaults_port_only_for_signing_when_port_is_omitted(self, connect, boto3):
+    def test_uses_default_port_for_both_signing_and_connecting_when_port_is_omitted(self, connect, boto3):
         del self.query_runner.configuration["port"]
 
         self.query_runner._get_connection()
@@ -127,5 +127,15 @@ class TestAwsIamAuth(TestCase):
         boto3.client.return_value.generate_db_auth_token.assert_called_once_with(
             DBHostname="db.xxx.ap-northeast-1.rds.amazonaws.com", Port=5432, DBUsername="redash"
         )
+        _, kwargs = connect.call_args
+        self.assertEqual(kwargs["port"], 5432)
+
+    @mock.patch("redash.query_runner.pg.psycopg2.connect")
+    def test_leaves_omitted_port_to_libpq_without_iam_auth(self, connect):
+        self.query_runner.configuration["awsIamAuth"] = False
+        del self.query_runner.configuration["port"]
+
+        self.query_runner._get_connection()
+
         _, kwargs = connect.call_args
         self.assertIsNone(kwargs["port"])

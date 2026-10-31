@@ -265,6 +265,10 @@ class PostgreSQL(BaseSQLQueryRunner):
         if self.configuration.get("awsIamAuth", False):
             if not IAM_ENABLED:
                 raise Exception("boto3 must be installed to use AWS IAM authentication.")
+            # Pin the default so the signed and connected ports match;
+            # otherwise libpq could pick PGPORT or a service file's port.
+            if port is None:
+                port = 5432
             # With an SSH tunnel, host/port point at the local forward; the token
             # must be signed for the real RDS endpoint.
             iam_host, iam_port = getattr(self, "_ssh_tunnel_remote_address", (host, port))
@@ -272,7 +276,7 @@ class PostgreSQL(BaseSQLQueryRunner):
             rds_client = boto3.client("rds", region_name=region_name)
             auth_token = rds_client.generate_db_auth_token(
                 DBHostname=iam_host,
-                Port=iam_port or 5432,
+                Port=iam_port,
                 DBUsername=user,
             )
             password = auth_token
