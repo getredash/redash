@@ -186,10 +186,13 @@ class Databricks(BaseSQLQueryRunner):
 
     def get_databases(self):
         # Database discovery bypasses run_query() so the row limit only applies to query results.
-        with self._get_connection() as connection:
-            with connection.cursor() as cursor:
-                cursor.execute("SHOW DATABASES")
-                return [row[0] for row in cursor.fetchall()]
+        try:
+            with self._get_connection() as connection:
+                with connection.cursor() as cursor:
+                    cursor.execute("SHOW DATABASES")
+                    return [row[0] for row in cursor.fetchall()]
+        except databricks_sql.Error as e:
+            self._handle_run_query_error(e.message or e.__class__.__name__)
 
     def get_database_tables(self, database_name):
         schema = {}

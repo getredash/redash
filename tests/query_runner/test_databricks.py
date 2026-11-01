@@ -253,6 +253,18 @@ class TestDatabricksRowLimit(TestCase):
         cursor.execute.assert_called_once_with("SHOW DATABASES")
         self.assertEqual(result, ["default", "analytics", "staging"])
 
+    def test_database_discovery_error_includes_reason(self, connect):
+        from databricks.sql.exc import ServerOperationError
+
+        cursor = _mock_connection(connect)
+        cursor.execute.side_effect = ServerOperationError("Catalog not found")
+
+        with self.assertLogs("redash.query_runner", level="ERROR") as logs:
+            with self.assertRaisesRegex(Exception, "Catalog not found"):
+                Databricks(CONFIGURATION).get_databases()
+
+        self.assertIn("Catalog not found", logs.output[0])
+
 
 class TestDatabricksRowLimitSchema(TestCase):
     def _validate(self, row_limit):
