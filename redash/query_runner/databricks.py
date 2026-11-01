@@ -90,8 +90,15 @@ class Databricks(BaseSQLQueryRunner):
                     "title": "Use Query Annotation",
                     "default": False,
                 },
+                "timeout": {
+                    "type": "number",
+                    "minimum": 0,
+                    "multipleOf": 1,
+                    "title": "Query Timeout in seconds (0 = no timeout)",
+                    "default": 0,
+                },
             },
-            "order": ["host", "http_path", "catalog", "http_password", "useQueryAnnotation"],
+            "order": ["host", "http_path", "catalog", "http_password", "useQueryAnnotation", "timeout"],
             "secret": ["http_password"],
             "required": ["host", "http_path", "http_password"],
         }
@@ -115,7 +122,7 @@ class Databricks(BaseSQLQueryRunner):
         cursor.execute("SELECT current_catalog()")
         return cursor.fetchone()[0]
 
-    def _get_connection(self):
+    def _get_connection(self, session_configuration=None):
         user_agent = "Redash/{}".format(__version__.split("-")[0])
         return databricks_sql.connect(
             server_hostname=_normalize_host(self.configuration["host"]),
@@ -123,12 +130,18 @@ class Databricks(BaseSQLQueryRunner):
             access_token=self.configuration["http_password"],
             catalog=self._catalog,
             user_agent_entry=user_agent,
+            session_configuration=session_configuration,
             enable_telemetry=False,
         )
 
     def run_query(self, query, user):
+        # Table/column discovery opens its own connections, so it is bounded by the schemas job timeout instead.
+        # STATEMENT_TIMEOUT is enforced by the warehouse, which cancels the statement when it expires.
+        timeout = int(self.configuration.get("timeout") or 0)
+        session_configuration = {"STATEMENT_TIMEOUT": str(timeout)} if timeout > 0 else None
+
         try:
-            with self._get_connection() as connection:
+            with self._get_connection(session_configuration) as connection:
                 with connection.cursor() as cursor:
                     statements = split_sql_statements(query)
                     for stmt in statements:

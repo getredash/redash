@@ -1,6 +1,8 @@
 from collections import namedtuple
 from unittest import TestCase, mock
 
+import jsonschema
+
 from redash.query_runner import (
     TYPE_DATETIME,
     TYPE_FLOAT,
@@ -147,6 +149,61 @@ class TestDatabricksConnection(TestCase):
 
         cursor.execute.assert_called_once_with("SELECT current_catalog()")
         cursor.tables.assert_called_once_with(catalog_name="workspace", schema_name="default")
+
+
+@mock.patch("redash.query_runner.databricks.databricks_sql.connect")
+class TestDatabricksQueryTimeout(TestCase):
+    def test_sets_statement_timeout_for_queries(self, connect):
+        _mock_connection(connect).description = None
+
+        Databricks({**CONFIGURATION, "timeout": 600}).run_query("SELECT 1", None)
+
+        self.assertEqual(connect.call_args.kwargs["session_configuration"], {"STATEMENT_TIMEOUT": "600"})
+
+    def test_no_statement_timeout_when_not_configured(self, connect):
+        for configuration in ({}, {"timeout": 0}):
+            with self.subTest(configuration=configuration):
+                _mock_connection(connect).description = None
+
+                Databricks({**CONFIGURATION, **configuration}).run_query("SELECT 1", None)
+
+                self.assertIsNone(connect.call_args.kwargs["session_configuration"])
+
+    def test_does_not_apply_timeout_to_schema_discovery(self, connect):
+        cursor = _mock_connection(connect)
+        cursor.tables.return_value.fetchall.return_value = []
+        cursor.columns.return_value.fetchall.return_value = []
+
+        Databricks({**CONFIGURATION, "catalog": "main", "timeout": 600}).get_database_tables_with_columns("default")
+
+        self.assertIsNone(connect.call_args.kwargs["session_configuration"])
+
+    def test_returns_timeout_error(self, connect):
+        from databricks.sql.exc import ServerOperationError
+
+        cursor = _mock_connection(connect)
+        cursor.execute.side_effect = ServerOperationError("Query has been timed out")
+
+        data, error = Databricks({**CONFIGURATION, "timeout": 1}).run_query("SELECT 1", None)
+
+        self.assertIsNone(data)
+        self.assertEqual(error, "Query has been timed out")
+
+
+class TestDatabricksQueryTimeoutSchema(TestCase):
+    def _validate(self, timeout):
+        jsonschema.validate({**CONFIGURATION, "timeout": timeout}, Databricks.configuration_schema())
+
+    def test_accepts_zero_and_positive_whole_numbers(self):
+        for timeout in (0, 1, 600, 600.0):
+            with self.subTest(timeout=timeout):
+                self._validate(timeout)
+
+    def test_rejects_negative_and_fractional_values(self):
+        for timeout in (-1, 0.5, 3.9):
+            with self.subTest(timeout=timeout):
+                with self.assertRaises(jsonschema.ValidationError):
+                    self._validate(timeout)
 
 
 class TestNormalizeHost(TestCase):
