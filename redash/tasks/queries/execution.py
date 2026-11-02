@@ -15,6 +15,7 @@ from redash.tasks.alerts import check_alerts_for_query
 from redash.tasks.failure_report import track_failure
 from redash.tasks.worker import Job, Queue
 from redash.utils import gen_query_hash, utcnow
+from redash.utils.locks import acquire_lock, release_lock
 from redash.worker import get_job_logger
 
 logger = get_job_logger(__name__)
@@ -34,14 +35,18 @@ def enqueue_query(query, data_source, user_id, is_api_key=False, scheduled_query
     logger.info("Inserting job for %s with metadata=%s", query_hash, metadata)
     try_count = 0
     job = None
+    job_lock_id = _job_lock_id(query_hash, data_source.id)
 
     while try_count < 5:
         try_count += 1
+        identifier = acquire_lock(job_lock_id)
+        if identifier is None:
+            continue
 
         pipe = redis_connection.pipeline()
         try:
-            pipe.watch(_job_lock_id(query_hash, data_source.id))
-            job_id = pipe.get(_job_lock_id(query_hash, data_source.id))
+            pipe.watch(job_lock_id)
+            job_id = pipe.get(job_lock_id)
             if job_id:
                 logger.info("[%s] Found existing job: %s", query_hash, job_id)
                 job_complete = None
@@ -66,7 +71,7 @@ def enqueue_query(query, data_source, user_id, is_api_key=False, scheduled_query
 
                 if lock_is_irrelevant:
                     logger.info("[%s] %s, removing lock", query_hash, message)
-                    redis_connection.delete(_job_lock_id(query_hash, data_source.id))
+                    redis_connection.delete(job_lock_id)
                     job = None
 
             if not job:
@@ -115,6 +120,7 @@ def enqueue_query(query, data_source, user_id, is_api_key=False, scheduled_query
         except redis.WatchError:
             continue
         finally:
+            release_lock(job_lock_id, identifier)
             pipe.reset()
 
     if not job:
