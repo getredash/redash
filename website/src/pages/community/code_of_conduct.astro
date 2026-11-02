@@ -1,0 +1,11 @@
+---
+import { getEntry } from 'astro:content'
+import MarketingLayout from '../../layouts/MarketingLayout.astro'
+import Page from '../../react/pages/NarrowTextPage.jsx'
+
+const entry = await getEntry('textPages', 'code_of_conduct')
+---
+
+<MarketingLayout title={entry.data.title}>
+  <Page data={{ markdownRemark: { frontmatter: entry.data, html: entry.rendered?.html } }} />
+</MarketingLayout>

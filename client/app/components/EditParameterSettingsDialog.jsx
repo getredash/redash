@@ -123,7 +123,7 @@ function EditParameterSettingsDialog(props) {
       new RegExp(e.target.value);
       setParam({ ...param, regex: e.target.value });
       setIsValidRegex(true);
-    } catch (error) {
+    } catch {
       setIsValidRegex(false);
     }
   };
@@ -167,7 +167,12 @@ function EditParameterSettingsDialog(props) {
           />
         </Form.Item>
         <Form.Item label="Type" {...formItemProps}>
-          <Select value={param.type} onChange={(type) => setParam({ ...param, type })} data-test="ParameterTypeSelect">
+          <Select
+            value={param.type}
+            onChange={(type) => setParam({ ...param, type })}
+            virtual={false} // short fixed list; virtualization re-renders options while scrolling
+            data-test="ParameterTypeSelect"
+          >
             <Option value="text" data-test="TextParameterTypeOption">
               Text
             </Option>
@@ -289,7 +294,7 @@ function EditParameterSettingsDialog(props) {
 }
 
 EditParameterSettingsDialog.propTypes = {
-  parameter: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  parameter: PropTypes.object.isRequired,
   dialog: DialogPropType.isRequired,
   existingParams: PropTypes.arrayOf(PropTypes.string),
 };

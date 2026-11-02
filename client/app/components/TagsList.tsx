@@ -38,8 +38,8 @@ function TagsList({ tagsUrl, showUnselectAll = false, onUpdate }: TagsListProps)
   }, [tagsUrl]);
 
   const toggleTag = useCallback(
-    (event, tag) => {
-      let newSelectedTags;
+    (event: React.MouseEvent, tag: string) => {
+      let newSelectedTags: string[];
       if (event.shiftKey) {
         // toggle tag
         if (includes(selectedTags, tag)) {

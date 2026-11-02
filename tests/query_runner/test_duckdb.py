@@ -1,6 +1,16 @@
+import os
+import tempfile
 from unittest import TestCase
 from unittest.mock import patch
 
+from redash.query_runner import (
+    TYPE_BOOLEAN,
+    TYPE_DATE,
+    TYPE_DATETIME,
+    TYPE_FLOAT,
+    TYPE_INTEGER,
+    TYPE_STRING,
+)
 from redash.query_runner.duckdb import DuckDB
 
 
@@ -152,3 +162,46 @@ class TestDuckDBSchema(TestCase):
         with self.assertRaises(Exception) as ctx:
             self.runner.get_schema()
         self.assertIn("boom", str(ctx.exception))
+
+    def test_local_file_reads_are_blocked(self) -> None:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".txt") as fp:
+            fp.write("secret")
+            fp.flush()
+
+            data, error = self.runner.run_query(f"SELECT * FROM read_text('{fp.name}')", None)
+
+        self.assertIsNone(data)
+        self.assertIn("LocalFileSystem has been disabled", error)
+
+    def test_local_file_writes_are_blocked(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = os.path.join(tmpdir, "duckdb-output.csv")
+
+            data, error = self.runner.run_query(f"COPY (SELECT 'pwned') TO '{output_path}'", None)
+
+            self.assertIsNone(data)
+            self.assertIn("LocalFileSystem has been disabled", error)
+            self.assertFalse(os.path.exists(output_path))
+
+    def test_filesystem_access_cannot_be_reenabled_by_query(self) -> None:
+        data, error = self.runner.run_query("SET disabled_filesystems = ''", None)
+
+        self.assertIsNone(data)
+        self.assertIn('configuration option "disabled_filesystems"', error)
+        self.assertIn("configuration has been locked", error)
+
+
+class TestDuckDBRunQuery(TestCase):
+    def test_column_types(self) -> None:
+        runner = DuckDB({"dbpath": ":memory:"})
+        data, error = runner.run_query(
+            "SELECT true AS b, 1::BIGINT AS i, 1.5::DOUBLE AS f, 1.5::DECIMAL(18,3) AS d, 'x' AS s, "
+            "DATE '2020-01-01' AS dt, TIMESTAMP '2020-01-01 00:00:00' AS ts, {'a': 1} AS st",
+            None,
+        )
+
+        self.assertIsNone(error)
+        self.assertEqual(
+            [TYPE_BOOLEAN, TYPE_INTEGER, TYPE_FLOAT, TYPE_FLOAT, TYPE_STRING, TYPE_DATE, TYPE_DATETIME, TYPE_STRING],
+            [column["type"] for column in data["columns"]],
+        )

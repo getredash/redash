@@ -1,7 +1,215 @@
-from unittest import TestCase
+from collections import namedtuple
+from unittest import TestCase, mock
 
-from redash.query_runner import split_sql_statements
-from redash.query_runner.databricks import Databricks
+import jsonschema
+
+from redash.query_runner import (
+    TYPE_DATETIME,
+    TYPE_FLOAT,
+    TYPE_INTEGER,
+    TYPE_STRING,
+    split_sql_statements,
+)
+from redash.query_runner.databricks import Databricks, _normalize_host
+
+TableRow = namedtuple("TableRow", ["TABLE_CAT", "TABLE_SCHEM", "TABLE_NAME", "TABLE_TYPE"])
+ColumnRow = namedtuple(
+    "ColumnRow", ["TABLE_CAT", "TABLE_SCHEM", "TABLE_NAME", "COLUMN_NAME", "DATA_TYPE", "TYPE_NAME"]
+)
+
+CONFIGURATION = {
+    "host": "https://dbc-12345.cloud.databricks.com/",
+    "http_path": "/sql/1.0/warehouses/abc",
+    "http_password": "dapi-token",
+}
+
+
+def _mock_connection(connect):
+    connection = connect.return_value.__enter__.return_value
+    return connection.cursor.return_value.__enter__.return_value
+
+
+@mock.patch("redash.query_runner.databricks.databricks_sql.connect")
+class TestDatabricksConnection(TestCase):
+    def test_connects_with_python_connector(self, connect):
+        cursor = _mock_connection(connect)
+        cursor.description = None
+
+        Databricks(CONFIGURATION).run_query("SELECT 1", None)
+
+        kwargs = connect.call_args.kwargs
+        self.assertEqual(kwargs["server_hostname"], "dbc-12345.cloud.databricks.com")
+        self.assertEqual(kwargs["http_path"], "/sql/1.0/warehouses/abc")
+        self.assertEqual(kwargs["access_token"], "dapi-token")
+        self.assertTrue(kwargs["user_agent_entry"].startswith("Redash/"))
+        self.assertIsNone(kwargs["catalog"])
+
+    def test_connects_with_configured_catalog(self, connect):
+        cursor = _mock_connection(connect)
+        cursor.description = None
+
+        Databricks({**CONFIGURATION, "catalog": " main "}).run_query("SELECT 1", None)
+
+        self.assertEqual(connect.call_args.kwargs["catalog"], "main")
+
+    def test_run_query_returns_rows_and_types(self, connect):
+        cursor = _mock_connection(connect)
+        cursor.description = [
+            ("id", "bigint", None, None, None, None, None),
+            ("name", "string", None, None, None, None, None),
+            ("amount", "decimal", None, None, 10, 2, None),
+            ("created_at", "timestamp", None, None, None, None, None),
+            ("tags", "array", None, None, None, None, None),
+        ]
+        cursor.fetchmany.return_value = [(1, "a", 1.5, "2024-01-01", "[]")]
+
+        data, error = Databricks(CONFIGURATION).run_query("SELECT 1; SELECT * FROM t", None)
+
+        self.assertIsNone(error)
+        self.assertEqual(cursor.execute.call_count, 2)
+        self.assertEqual(
+            [(c["name"], c["type"]) for c in data["columns"]],
+            [
+                ("id", TYPE_INTEGER),
+                ("name", TYPE_STRING),
+                ("amount", TYPE_FLOAT),
+                ("created_at", TYPE_DATETIME),
+                ("tags", TYPE_STRING),
+            ],
+        )
+        self.assertEqual(
+            data["rows"], [{"id": 1, "name": "a", "amount": 1.5, "created_at": "2024-01-01", "tags": "[]"}]
+        )
+        self.assertNotIn("truncated", data)
+
+    def test_run_query_without_results(self, connect):
+        cursor = _mock_connection(connect)
+        cursor.description = None
+
+        data, error = Databricks(CONFIGURATION).run_query("CREATE TABLE t (a INT)", None)
+
+        self.assertIsNone(error)
+        self.assertEqual(data["rows"], [{"result": "No data was returned."}])
+
+    def test_run_query_returns_error_message(self, connect):
+        from databricks.sql.exc import ServerOperationError
+
+        cursor = _mock_connection(connect)
+        cursor.execute.side_effect = ServerOperationError("Table not found")
+
+        data, error = Databricks(CONFIGURATION).run_query("SELECT * FROM missing", None)
+
+        self.assertIsNone(data)
+        self.assertEqual(error, "Table not found")
+
+    def test_get_database_tables_with_columns(self, connect):
+        cursor = _mock_connection(connect)
+        cursor.tables.return_value.fetchall.return_value = [
+            TableRow("main", "default", "empty", "TABLE"),
+            TableRow("main", "default", "users", "TABLE"),
+        ]
+        cursor.columns.return_value.fetchall.return_value = [
+            ColumnRow("main", "default", "users", "id", -5, "BIGINT"),
+            ColumnRow("main", "default", "users", "name", 12, "STRING"),
+        ]
+
+        schema = Databricks({**CONFIGURATION, "catalog": "main"}).get_database_tables_with_columns("default")
+
+        cursor.execute.assert_not_called()
+        cursor.tables.assert_called_once_with(catalog_name="main", schema_name="default")
+        cursor.columns.assert_called_once_with(catalog_name="main", schema_name="default")
+        self.assertEqual(
+            schema,
+            [
+                {"name": "default.empty", "columns": []},
+                {
+                    "name": "default.users",
+                    "columns": [{"name": "id", "type": "BIGINT"}, {"name": "name", "type": "STRING"}],
+                },
+            ],
+        )
+
+    def test_get_table_columns(self, connect):
+        cursor = _mock_connection(connect)
+        cursor.columns.return_value.fetchall.return_value = [
+            ColumnRow("main", "default", "users", "id", -5, "BIGINT"),
+        ]
+
+        columns = Databricks({**CONFIGURATION, "catalog": "main"}).get_table_columns("default", "users")
+
+        cursor.columns.assert_called_once_with(catalog_name="main", schema_name="default", table_name="users")
+        self.assertEqual(columns, [{"name": "id", "type": "BIGINT"}])
+
+    def test_schema_calls_default_to_current_catalog(self, connect):
+        cursor = _mock_connection(connect)
+        cursor.fetchone.return_value = ("workspace",)
+        cursor.tables.return_value.fetchall.return_value = []
+
+        Databricks(CONFIGURATION).get_database_tables("default")
+
+        cursor.execute.assert_called_once_with("SELECT current_catalog()")
+        cursor.tables.assert_called_once_with(catalog_name="workspace", schema_name="default")
+
+
+@mock.patch("redash.query_runner.databricks.databricks_sql.connect")
+class TestDatabricksQueryTimeout(TestCase):
+    def test_sets_statement_timeout_for_queries(self, connect):
+        _mock_connection(connect).description = None
+
+        Databricks({**CONFIGURATION, "timeout": 600}).run_query("SELECT 1", None)
+
+        self.assertEqual(connect.call_args.kwargs["session_configuration"], {"STATEMENT_TIMEOUT": "600"})
+
+    def test_no_statement_timeout_when_not_configured(self, connect):
+        for configuration in ({}, {"timeout": 0}):
+            with self.subTest(configuration=configuration):
+                _mock_connection(connect).description = None
+
+                Databricks({**CONFIGURATION, **configuration}).run_query("SELECT 1", None)
+
+                self.assertIsNone(connect.call_args.kwargs["session_configuration"])
+
+    def test_does_not_apply_timeout_to_schema_discovery(self, connect):
+        cursor = _mock_connection(connect)
+        cursor.tables.return_value.fetchall.return_value = []
+        cursor.columns.return_value.fetchall.return_value = []
+
+        Databricks({**CONFIGURATION, "catalog": "main", "timeout": 600}).get_database_tables_with_columns("default")
+
+        self.assertIsNone(connect.call_args.kwargs["session_configuration"])
+
+    def test_returns_timeout_error(self, connect):
+        from databricks.sql.exc import ServerOperationError
+
+        cursor = _mock_connection(connect)
+        cursor.execute.side_effect = ServerOperationError("Query has been timed out")
+
+        data, error = Databricks({**CONFIGURATION, "timeout": 1}).run_query("SELECT 1", None)
+
+        self.assertIsNone(data)
+        self.assertEqual(error, "Query has been timed out")
+
+
+class TestDatabricksQueryTimeoutSchema(TestCase):
+    def _validate(self, timeout):
+        jsonschema.validate({**CONFIGURATION, "timeout": timeout}, Databricks.configuration_schema())
+
+    def test_accepts_zero_and_positive_whole_numbers(self):
+        for timeout in (0, 1, 600, 600.0):
+            with self.subTest(timeout=timeout):
+                self._validate(timeout)
+
+    def test_rejects_negative_and_fractional_values(self):
+        for timeout in (-1, 0.5, 3.9):
+            with self.subTest(timeout=timeout):
+                with self.assertRaises(jsonschema.ValidationError):
+                    self._validate(timeout)
+
+
+class TestNormalizeHost(TestCase):
+    def test_strips_scheme_and_trailing_slash(self):
+        self.assertEqual(_normalize_host(" https://dbc-1.cloud.databricks.com/ "), "dbc-1.cloud.databricks.com")
+        self.assertEqual(_normalize_host("dbc-1.cloud.databricks.com"), "dbc-1.cloud.databricks.com")
 
 
 class TestDatabricksQueryAnnotation(TestCase):
@@ -11,17 +219,17 @@ class TestDatabricksQueryAnnotation(TestCase):
         self.assertTrue(query_runner.should_annotate_query)
 
         metadata = {
-            "Username": "username",
+            "user_id": 42,
             "query_id": "adhoc",
-            "Job ID": "job-id",
-            "Query Hash": "query-hash",
+            "Job ID": "12345678-1234-1234-1234-123456789abc",
+            "Query Hash": "0123456789abcdef0123456789abcdef",
             "Scheduled": False,
         }
 
         query = "SELECT a FROM tbl"
         expect = (
-            "/* Username: username, query_id: adhoc, "
-            "Query Hash: query-hash, "
+            "/* user_id: 42, query_id: adhoc, "
+            "Query Hash: 0123456789abcdef0123456789abcdef, "
             "Scheduled: False */ SELECT a FROM tbl"
         )
 
@@ -33,10 +241,10 @@ class TestDatabricksQueryAnnotation(TestCase):
         self.assertFalse(query_runner.should_annotate_query)
 
         metadata = {
-            "Username": "username",
+            "user_id": 42,
             "query_id": "adhoc",
-            "Job ID": "job-id",
-            "Query Hash": "query-hash",
+            "Job ID": "12345678-1234-1234-1234-123456789abc",
+            "Query Hash": "0123456789abcdef0123456789abcdef",
             "Scheduled": False,
         }
 

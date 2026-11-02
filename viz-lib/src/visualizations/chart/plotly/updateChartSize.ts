@@ -75,7 +75,7 @@ function placeLegendBelowPlot(plotlyElement: any, layout: any) {
   return [
     pick(layout, ["width", "height", "legend"]),
     () => {
-      const legend = plotlyElement.querySelector(".legend"); // eslint-disable-line no-shadow
+      const legend = plotlyElement.querySelector(".legend");
       if (legend) {
         // compute real height of legend - items may be split into few columnns,
         // also scrollbar may be shown
@@ -109,16 +109,20 @@ function placeLegendAuto(plotlyElement: any, layout: any) {
 export default function updateChartSize(plotlyElement: any, layout: any, options: any) {
   // update layout size to plot container
   // plot size should be at least 5x5px
-  layout.width = Math.max(5, Math.floor(plotlyElement.offsetWidth));
-  layout.height = Math.max(5, Math.floor(plotlyElement.offsetHeight));
+  const width = Math.max(5, Math.floor(plotlyElement.offsetWidth));
+  const height = Math.max(5, Math.floor(plotlyElement.offsetHeight));
 
   const [previousWidth, previousHeight] = plotlyElement.__previousSize || [];
 
-  if (layout.width === previousWidth && layout.height === previousHeight) {
+  if (width === previousWidth && height === previousHeight) {
     return;
   }
 
-  plotlyElement.__previousSize = [layout.width, layout.height];
+  // Plotly shares this layout object. Only reset its dimensions when resizing;
+  // an unchanged container must preserve the height reserved for the legend.
+  layout.width = width;
+  layout.height = height;
+  plotlyElement.__previousSize = [width, height];
 
   if (options.legend.enabled) {
     switch (options.legend.placement) {

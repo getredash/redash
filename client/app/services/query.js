@@ -157,7 +157,11 @@ export class Query {
         extend(params, param.toUrlParams());
       });
     }
-    Object.keys(params).forEach((key) => params[key] == null && delete params[key]);
+    Object.keys(params).forEach((key) => {
+      if (params[key] == null) {
+        delete params[key];
+      }
+    });
     params = map(params, (value, name) => `${encodeURIComponent(name)}=${encodeURIComponent(value)}`).join("&");
 
     if (params !== "") {
@@ -328,7 +332,11 @@ class Parameters {
     }
 
     const params = Object.assign(...this.get().map((p) => p.toUrlParams()));
-    Object.keys(params).forEach((key) => params[key] == null && delete params[key]);
+    Object.keys(params).forEach((key) => {
+      if (params[key] == null) {
+        delete params[key];
+      }
+    });
     return Object.keys(params)
       .map((k) => `${encodeURIComponent(k)}=${encodeURIComponent(params[k])}`)
       .join("&");
@@ -353,17 +361,14 @@ export class QueryResultError {
     return Promise.reject(this);
   }
 
-  // eslint-disable-next-line class-methods-use-this
   getStatus() {
     return "failed";
   }
 
-  // eslint-disable-next-line class-methods-use-this
   getData() {
     return null;
   }
 
-  // eslint-disable-next-line class-methods-use-this
   getLog() {
     return null;
   }

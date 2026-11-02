@@ -1,9 +1,10 @@
-import d3 from "d3";
+import * as d3 from "d3";
 import cloud from "d3-cloud";
 import { each, filter, map, min, max, sortBy, toString } from "lodash";
 import React, { useMemo, useState, useEffect } from "react";
 import resizeObserver from "@/services/resizeObserver";
 import { RendererPropTypes } from "@/visualizations/prop-types";
+import { D3Category20 } from "@/visualizations/ColorPalette";
 
 import "./renderer.less";
 
@@ -68,13 +69,12 @@ function prepareWords(rows: any, options: any) {
 
   // Add additional attributes
   const counts = map(result, (item) => item.count);
-  // @ts-expect-error ts-migrate(2339) FIXME: Property 'scale' does not exist on type 'typeof im... Remove this comment to see the full error message
-  const wordSize = d3.scale
-    .linear()
-    .domain([min(counts), max(counts)])
-    .range([10, 100]); // min/max word size
-  // @ts-expect-error ts-migrate(2339) FIXME: Property 'scale' does not exist on type 'typeof im... Remove this comment to see the full error message
-  const color = d3.scale.category20();
+  const minCount = min(counts);
+  const maxCount = max(counts);
+  const wordSizeScale = d3.scaleLinear().domain([minCount, maxCount]).range([10, 100]); // min/max word size
+  // When all words have the same count, d3 v3 used the smallest size; d3 v4+ would use the middle one.
+  const wordSize = (count: number) => (minCount === maxCount ? 10 : wordSizeScale(count));
+  const color = d3.scaleOrdinal<any, string>(D3Category20);
 
   each(result, (item, index) => {
     item.size = wordSize(item.count);

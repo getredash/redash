@@ -48,7 +48,6 @@ class Parameter {
     return isNull(this.normalizeValue(value));
   }
 
-  // eslint-disable-next-line class-methods-use-this
   normalizeValue(value) {
     if (isUndefined(value)) {
       return null;

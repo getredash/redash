@@ -13,9 +13,11 @@ from redash.handlers.base import (
 from redash.handlers.base import order_results as _order_results
 from redash.permissions import (
     can_modify,
+    require_access,
     require_admin_or_owner,
     require_object_modify_permission,
     require_permission,
+    view_only,
 )
 from redash.security import csp_allows_embeding
 from redash.serializers import DashboardSerializer, public_dashboard
@@ -261,6 +263,7 @@ class DashboardResource(BaseResource):
         Responds with the archived :ref:`dashboard <dashboard-response-label>`.
         """
         dashboard = models.Dashboard.get_by_id_and_org(dashboard_id, self.current_org)
+        require_object_modify_permission(dashboard, self.current_user)
         dashboard.is_archived = True
         dashboard.record_changes(changed_by=self.current_user)
         models.db.session.add(dashboard)
@@ -407,9 +410,13 @@ class DashboardForkResource(BaseResource):
     def post(self, dashboard_id):
         dashboard = models.Dashboard.get_by_id_and_org(dashboard_id, self.current_org)
 
+        for widget in dashboard.widgets:
+            if widget.visualization is not None:
+                require_access(widget.visualization.query_rel, self.current_user, view_only)
+
         fork_dashboard = dashboard.fork(self.current_user)
         models.db.session.commit()
 
         self.record_event({"action": "fork", "object_id": dashboard_id, "object_type": "dashboard"})
 
-        return DashboardSerializer(fork_dashboard, with_widgets=True).serialize()
+        return DashboardSerializer(fork_dashboard, with_widgets=True, user=self.current_user).serialize()

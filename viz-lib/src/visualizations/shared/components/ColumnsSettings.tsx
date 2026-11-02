@@ -3,9 +3,7 @@ import React from "react";
 import Collapse from "antd/lib/collapse";
 import Tooltip from "antd/lib/tooltip";
 import Typography from "antd/lib/typography";
-// @ts-expect-error ts-migrate(2724) FIXME: Module '"../../../../node_modules/react-sortable-h... Remove this comment to see the full error message
-import { sortableElement } from "react-sortable-hoc";
-import { SortableContainer, DragHandle } from "@/components/sortable";
+import { SortableContainer, DragHandle, sortableElement } from "@/components/sortable";
 import PropTypes from "prop-types";
 
 import EyeOutlinedIcon from "@ant-design/icons/EyeOutlined";
@@ -44,17 +42,15 @@ export default function ColumnsSettings({ options, onOptionsChange, variant }: C
 
   return (
     <SortableContainer
+      itemCount={options.columns.length}
       axis="y"
       lockAxis="y"
-      useDragHandle
       helperClass={helperClass}
-      helperContainer={(container: any) => container.firstChild}
       onSortEnd={handleColumnsReorder}
       containerProps={{
         className: containerClass,
       }}
     >
-      {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'Element' is not assignable to type 'null | u... Remove this comment to see the full error message */}
       <Collapse bordered={false} defaultActiveKey={[]} expandIconPosition="right">
         {map(options.columns, (column, index) => (
           <SortableItem
