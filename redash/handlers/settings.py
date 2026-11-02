@@ -21,6 +21,7 @@ def get_settings_with_defaults(defaults, org):
             settings[setting] = current_value
 
     settings["auth_google_apps_domains"] = org.google_apps_domains
+    settings["auth_oidc_domains"] = org.oidc_domains
 
     return settings
 
@@ -44,6 +45,9 @@ class OrganizationSettings(BaseResource):
             if k == "auth_google_apps_domains":
                 previous_values[k] = self.current_org.google_apps_domains
                 self.current_org.settings[Organization.SETTING_GOOGLE_APPS_DOMAINS] = v
+            elif k == "auth_oidc_domains":
+                previous_values[k] = self.current_org.oidc_domains
+                self.current_org.settings[Organization.SETTING_OIDC_DOMAINS] = v
             else:
                 previous_values[k] = self.current_org.get_setting(k, raise_on_missing=False)
                 self.current_org.set_setting(k, v)

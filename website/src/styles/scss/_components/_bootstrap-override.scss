@@ -1,0 +1,157 @@
+/* BOOTSTRAP VARIABLES */
+
+//.container {
+//  max-width: 1090px;
+//}
+
+.container {
+  padding-left: 25px;
+  padding-right: 25px;
+}
+
+.container-sm {
+  max-width: 1000px;
+}
+
+.dropdown-menu {
+  border-radius: $border-radius !important;
+}
+
+.row {
+  @include respond-to(xs) {
+    > [class^='col-sm'] {
+      &:not(:last-child) {
+        margin-bottom: 20px;
+      }
+    }
+    > [class^='col-md'] {
+      &:not(:last-child) {
+        margin-bottom: 20px;
+      }
+    }
+    > [class^='col-lg'] {
+      &:not(:last-child) {
+        margin-bottom: 20px;
+      }
+    }
+  }
+}
+
+.col-xs-5ths,
+.col-sm-5ths,
+.col-md-5ths,
+.col-lg-5ths {
+  position: relative;
+  min-height: 1px;
+  padding-right: 10px;
+  padding-left: 10px;
+}
+
+.col-xs-5ths {
+  width: 20%;
+  float: left;
+}
+
+@media (min-width: 768px) {
+  .col-sm-5ths {
+    width: 20%;
+    float: left;
+  }
+}
+
+@media (min-width: 992px) {
+  .col-md-5ths {
+    width: 20%;
+    float: left;
+  }
+}
+
+.row--flex {
+  @include respond-to(xs-min) {
+    display: flex;
+    flex-wrap: wrap;
+    &:before,
+    &:after {
+      content: none;
+    }
+  }
+  > [class^='col'] {
+    > [class^='col-sm'] {
+      float: none;
+    }
+  }
+}
+
+label {
+  font-weight: 600;
+}
+
+.label {
+  display: inline-block;
+  padding: 4px 15px;
+  margin-right: 4px;
+  margin-bottom: 4px;
+  border-radius: 25px;
+  line-height: 1.3;
+}
+
+.label-primary {
+  border: 1px solid #4080fe;
+  color: #4080fe;
+  background: rgba(255, 255, 255, 0.75);
+}
+
+// Navigation
+
+@media only screen and (min-width: 767px) {
+  .navbar-nav > li > a {
+    padding: 8px 15px;
+    margin-top: 16px;
+  }
+}
+
+.nav .open > a,
+.nav .open > a:focus,
+.nav .open > a:hover {
+  border-radius: $border-radius;
+  background-color: #f8fafa;
+}
+
+@media only screen and (min-width: 767px) {
+  .navbar-btn {
+    margin-top: 17px !important;
+  }
+}
+
+.navbar-nav > li > a:focus,
+.navbar-nav > li > a:hover {
+  background: #f8fafa;
+  border-radius: $border-radius;
+}
+
+.dropdown-menu {
+  box-shadow: 0 4px 9px rgba(0, 0, 0, 0.05125);
+  border: 1px solid #eaeaea;
+
+  > li > a {
+    color: #111;
+    padding: 5px 15px;
+
+    &:hover {
+      background: #f8fafa !important;
+    }
+  }
+}
+
+.input-lg {
+  border-radius: 4px !important;
+}
+
+.form-control--white:focus {
+  border-color: #2196f3;
+  box-shadow: 0px 0px 0px 2px #c8e5fd !important;
+}
+
+.table-striped tbody > tr:nth-of-type(odd) {
+  background-color: #f9f9f9;
+}

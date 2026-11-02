@@ -1,0 +1,71 @@
+/* VARIABLES */
+
+$border-radius: 2px;
+
+/*************************
+	Local color variable
+*************************/
+/* For color names was used site - http://chir.ag/projects/name-that-color */
+/* White group */
+$white: #ffffff;
+/* Black group */
+$black: #000000;
+/* Gray group */
+$legaloblolly: #bdc9d0; //Nav and footer links color
+$alabaster: #f7f7f7; //Mutted
+$seachell: #f8fafa; //Mutted soft
+$alto: #dcdcdc; //Gray
+$scorpion: #111; //Body text color
+$gallery: #f0f0f0;
+$silver: #cccccc;
+$hoki: #668899; //Navbar bg
+$wild-sand: #f5f5f5;
+$mine-shaft: #333333;
+/* Blue group */
+$small-blue: #2196f3; //Footer bg
+$soft-blue: #e9f2ff;
+/* Red group */
+$bittersweet: #ff7864; //Danger
+$bridesmaid: #feece7;
+/*************************
+	Global color variable
+*************************/
+$body-text-color: $scorpion;
+
+$mutted: $alabaster;
+$mutted-soft: $seachell;
+$gray: $alto;
+$danger: $bittersweet;
+$primary: $small-blue;
+$blue-gray: $hoki;
+
+/*************************
+	Fonts variable
+*************************/
+$font-base: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans,
+  Ubuntu, Cantarell, 'Helvetica Neue', sans-serif !important;
+
+$font-light: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans,
+  Ubuntu, Cantarell, 'Helvetica Neue', sans-serif !important;
+$font-regular: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+  Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif !important;
+$font-medium: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans,
+  Ubuntu, Cantarell, 'Helvetica Neue', sans-serif !important;
+$font-bold: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans,
+  Ubuntu, Cantarell, 'Helvetica Neue', sans-serif !important;
+
+$font-icon: 'FontAwesome';
+
+/*************************
+	Body variable
+*************************/
+$body-font-family: $font-base;
+$body-font-size: 16px;
+$body-font-size-xs: 15px;
+$body-line-height: 1.6;
+$body-main-color: $body-text-color;
+
+/*************************
+	Links color variable
+*************************/
+$link-color: $primary;

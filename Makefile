@@ -22,11 +22,8 @@ create_database: .env
 
 clean:
 	docker compose down
-	docker compose --project-name cypress down
 	docker compose rm --stop --force
-	docker compose --project-name cypress rm --stop --force
 	docker image rm --force \
-		cypress-server:latest cypress-worker:latest cypress-scheduler:latest \
 		redash-server:latest redash-worker:latest redash-scheduler:latest
 	docker container prune --force
 	docker image prune --force
@@ -54,7 +51,7 @@ backend-unit-tests: up test_db
 	docker compose run --rm --name tests server tests
 
 frontend-unit-tests:
-	CYPRESS_INSTALL_BINARY=0 PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 pnpm install --frozen-lockfile
+	PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 pnpm install --frozen-lockfile
 	pnpm test
 
 test: backend-unit-tests frontend-unit-tests lint

@@ -60,7 +60,7 @@ When you open your pull request, please follow this repository’s PR template c
 - Please add [documentation](#documentation) for new features or changes in functionality along with the code.
 - Please follow existing code style:
   - Python: we use [Black](https://github.com/psf/black) to auto format the code.
-  - Javascript: we use [Prettier](https://github.com/prettier/prettier) to auto-format the code.
+  - Javascript: we use [Biome](https://biomejs.dev/) to lint and auto-format the code (`pnpm run lint:fix`).
 
 #### Initial Review (1 week)
 

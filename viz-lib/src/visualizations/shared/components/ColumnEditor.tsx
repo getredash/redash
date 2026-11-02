@@ -37,7 +37,7 @@ export default function ColumnEditor({
     }
   }
 
-  const [handleChangeDebounced] = useDebouncedCallback(handleChange, 200);
+  const handleChangeDebounced = useDebouncedCallback(handleChange, 200);
 
   // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
   const AdditionalOptions = ColumnTypes[column.displayAs].Editor || null;

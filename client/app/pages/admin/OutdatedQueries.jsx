@@ -143,15 +143,10 @@ const OutdatedQueriesPage = itemsList(
   () =>
     new ItemsSource({
       doRequest(request, context) {
-        return (
-          axios
-            .get("/api/admin/queries/outdated")
-            // eslint-disable-next-line camelcase
-            .then(({ queries, updated_at }) => {
-              context.setCustomParams({ lastUpdatedAt: parseFloat(updated_at) });
-              return queries;
-            })
-        );
+        return axios.get("/api/admin/queries/outdated").then(({ queries, updated_at }) => {
+          context.setCustomParams({ lastUpdatedAt: parseFloat(updated_at) });
+          return queries;
+        });
       },
       processResults(items) {
         return map(items, (item) => new Query(item));

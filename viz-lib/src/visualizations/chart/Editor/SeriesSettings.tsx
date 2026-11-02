@@ -4,9 +4,7 @@ import { useDebouncedCallback } from "use-debounce";
 import Table from "antd/lib/table";
 import Input from "antd/lib/input";
 import Radio from "antd/lib/radio";
-// @ts-expect-error ts-migrate(2724) FIXME: Module '"../../../../node_modules/react-sortable-h... Remove this comment to see the full error message
-import { sortableElement } from "react-sortable-hoc";
-import { SortableContainer, DragHandle } from "@/components/sortable";
+import { SortableContainer, DragHandle, sortableElement } from "@/components/sortable";
 import { EditorPropTypes } from "@/visualizations/prop-types";
 import ChartTypeSelect from "./ChartTypeSelect";
 import getChartData from "../getChartData";
@@ -92,7 +90,7 @@ export default function SeriesSettings({ options, data, onOptionsChange }: any) 
   );
 
   const handleSortEnd = useCallback(
-    ({ oldIndex, newIndex }) => {
+    ({ oldIndex, newIndex }: { oldIndex: number; newIndex: number }) => {
       const seriesOptions = [...series];
       seriesOptions.splice(newIndex, 0, ...seriesOptions.splice(oldIndex, 1));
       // @ts-expect-error ts-migrate(2339) FIXME: Property 'key' does not exist on type 'Boolean'.
@@ -102,7 +100,7 @@ export default function SeriesSettings({ options, data, onOptionsChange }: any) 
   );
 
   const updateSeriesOption = useCallback(
-    (key, prop, value) => {
+    (key: string, prop: string, value: any) => {
       onOptionsChange({
         seriesOptions: {
           [key]: {
@@ -113,7 +111,7 @@ export default function SeriesSettings({ options, data, onOptionsChange }: any) 
     },
     [onOptionsChange]
   );
-  const [debouncedUpdateSeriesOption] = useDebouncedCallback(updateSeriesOption, 200);
+  const debouncedUpdateSeriesOption = useDebouncedCallback(updateSeriesOption, 200);
 
   const columns = useMemo(
     () => getTableColumns(options, updateSeriesOption, debouncedUpdateSeriesOption),
@@ -122,18 +120,16 @@ export default function SeriesSettings({ options, data, onOptionsChange }: any) 
 
   return (
     <SortableContainer
+      itemCount={series.length}
       axis="y"
       lockAxis="y"
       lockToContainerEdges
-      useDragHandle
       helperClass="chart-editor-series-dragged-item"
-      helperContainer={(container: any) => container.querySelector("tbody")}
       onSortEnd={handleSortEnd}
       containerProps={{
         className: "chart-editor-series",
       }}
     >
-      {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'Element' is not assignable to type 'null | u... Remove this comment to see the full error message */}
       <Table
         dataSource={series}
         columns={columns}

@@ -1,0 +1,151 @@
+/* NAVBAR */
+
+$navbar-bg: $hoki;
+$navbar-color: $black;
+$navbar-height: 68px;
+$navbar-fs: 14px;
+
+body.drawer .navbar {
+  display: none;
+}
+
+.navbar {
+  .container {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+
+  border-radius: 0;
+  margin-bottom: 0;
+  border: none;
+  min-height: $navbar-height;
+  background: #fff;
+
+  &.navbar-without-shadow {
+    box-shadow: none;
+  }
+  &.navbar-has-shadow {
+    box-shadow: 0 0 14px -6px rgba(0, 0, 0, 0.2) !important;
+  }
+}
+
+.navbar-nav {
+  &.navbar-right {
+    margin-right: 0;
+  }
+  > li {
+    &.active {
+      > a {
+        &:hover,
+        &:focus {
+          background: transparent;
+        }
+      }
+    }
+    > a {
+      font-size: $navbar-fs;
+      font-weight: 500;
+      color: $navbar-color;
+      @include respond-to(xs-min) {
+        padding: 24px 12px;
+      }
+      &:hover,
+      &:focus {
+        background: transparent;
+      }
+    }
+  }
+}
+
+.navbar-btn {
+  color: white !important;
+  font-weight: 500;
+
+  @include respond-to(xs-min) {
+    margin-top: 17px;
+    margin-bottom: 17px;
+    margin-left: 10px;
+  }
+  @include respond-to(xs) {
+    margin-left: 15px;
+  }
+}
+
+.navbar-brand {
+  height: auto;
+  padding: 15px;
+}
+
+.navbar-brand__img {
+  width: 36px;
+  height: 36px;
+}
+
+.navbar-toggle {
+  margin-top: 17px;
+  margin-bottom: 17px;
+  .icon-bar {
+    background: $white;
+  }
+}
+
+// Mobile
+
+.navbar-toggle .icon-bar {
+  background: $primary;
+}
+
+@media (max-width: 767px) {
+  #navbar-collapse {
+    display: block !important;
+    transition: max-height 0.35s ease;
+    &.collapsed {
+      padding-bottom: 10px;
+    }
+    &.collapse {
+      padding-bottom: 0;
+      max-height: 0;
+      overflow: hidden !important;
+    }
+  }
+
+  .navbar-collapse {
+    background: #f8fafa;
+    padding-bottom: 10px;
+  }
+
+  .navbar-btn {
+    margin-bottom: 0;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 992px) {
+  .navbar .container {
+    width: auto;
+  }
+}
+
+@media (max-width: 849px) {
+  .navbar-header {
+    float: none;
+  }
+  .navbar-toggle {
+    display: block;
+  }
+  .navbar-collapse.collapse {
+    display: none !important;
+  }
+  .navbar-nav > li > a {
+    margin-top: 0;
+  }
+  .navbar-nav {
+    float: none !important;
+    background: #f8fafa;
+  }
+  .navbar-nav > li {
+    float: none;
+  }
+  .collapse.in {
+    display: block !important;
+  }
+}

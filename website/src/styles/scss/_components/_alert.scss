@@ -1,0 +1,27 @@
+/* ALERT */
+
+.alert {
+  &.alert-danger {
+    border-color: $danger;
+    background: rgba($danger, 0.25);
+  }
+  &.alert-brand {
+    border-color: $bridesmaid;
+    background: rgba($bridesmaid, 0.25);
+    color: darken($bridesmaid, 30%);
+  }
+}
+.alert--flex {
+  @extend .flex, .flex-between, .flex-item-center;
+  @include respond-to(xs) {
+    display: block;
+  }
+}
+.alert__title {
+  margin-top: 0;
+}
+.alert__title--no-mb {
+  @include respond-to(xs-min) {
+    margin-bottom: 0;
+  }
+}

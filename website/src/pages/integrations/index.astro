@@ -1,0 +1,26 @@
+---
+import { getCollection } from 'astro:content'
+import MarketingLayout from '../../layouts/MarketingLayout.astro'
+import Page from '../../react/pages/Integrations.jsx'
+
+const entries = await getCollection('dataSources')
+const group = (dir) => ({
+  edges: entries
+    .filter((e) => e.id.startsWith(`${dir}/`))
+    .map((e) => ({ node: { frontmatter: e.data } }))
+    .sort((a, b) => (a.node.frontmatter.name < b.node.frontmatter.name ? -1 : 1)),
+})
+---
+
+<MarketingLayout
+  title="Supported Databases, APIs and Integrations"
+  description="Use Redash to connect to any data source (Redshift, BigQuery, MySQL, PostgreSQL, MongoDB and many others), query, visualize and share your data to make your company data driven."
+>
+  <Page
+    data={{
+      Databases: group('databases'),
+      Integrations: group('integrations'),
+      Partners: group('partners'),
+    }}
+  />
+</MarketingLayout>

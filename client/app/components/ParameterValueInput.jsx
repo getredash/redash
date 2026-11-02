@@ -20,10 +20,10 @@ const multipleValuesProps = {
 class ParameterValueInput extends React.Component {
   static propTypes = {
     type: PropTypes.string,
-    value: PropTypes.any, // eslint-disable-line react/forbid-prop-types
+    value: PropTypes.any,
     enumOptions: PropTypes.string,
     queryId: PropTypes.number,
-    parameter: PropTypes.any, // eslint-disable-line react/forbid-prop-types
+    parameter: PropTypes.any,
     onSelect: PropTypes.func,
     className: PropTypes.string,
     regex: PropTypes.string,

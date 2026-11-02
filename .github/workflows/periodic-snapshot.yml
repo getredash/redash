@@ -64,7 +64,7 @@ jobs:
               exit 1
             fi
           else
-            TAG_NAME="$(date +%y.%m).0-dev"
+            TAG_NAME="$(date +%y.%-m).0-dev"
           fi
 
           echo "New version tag: $TAG_NAME"
