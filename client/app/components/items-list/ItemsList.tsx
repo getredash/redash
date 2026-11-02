@@ -1,4 +1,4 @@
-import { omit, debounce } from "lodash";
+import { omit, debounce, isEqual, pick } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 import hoistNonReactStatics from "hoist-non-react-statics";
@@ -104,6 +104,10 @@ export function wrap<I, P = any>(
   class ItemsListWrapper extends React.Component<ItemsListWrapperProps, ItemsListWrapperState<I, P>> {
     private _itemsSource: ItemsSource;
 
+    private _stateStorage: StateStorage;
+
+    private _unlisten?: () => void;
+
     static propTypes = {
       onError: PropTypes.func,
       children: PropTypes.node,
@@ -123,6 +127,7 @@ export function wrap<I, P = any>(
       super(props);
 
       const stateStorage = createStateStorage({ ...props });
+      this._stateStorage = stateStorage;
       const itemsSource = createItemsSource();
       this._itemsSource = itemsSource;
 
@@ -179,10 +184,19 @@ export function wrap<I, P = any>(
     }
 
     componentDidMount() {
+      this._unlisten = this._stateStorage.listen((state: Record<string, unknown>) => {
+        const currentState = pick(this._itemsSource.getState(), Object.keys(state));
+        // Ignore our own URL writes and changes to unrelated URL parameters.
+        if (!isEqual(currentState, state)) {
+          this._itemsSource.setState({ ...state, validate: false });
+          this._itemsSource.update();
+        }
+      });
       this.state.update();
     }
 
     componentWillUnmount() {
+      this._unlisten?.();
       this._itemsSource.onBeforeUpdate = () => {};
       this._itemsSource.onAfterUpdate = () => {};
       this._itemsSource.onError = () => {};

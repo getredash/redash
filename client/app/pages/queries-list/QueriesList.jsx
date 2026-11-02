@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from "react";
+import React, { useCallback } from "react";
 import cx from "classnames";
 
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
@@ -21,7 +21,6 @@ import Layout from "@/components/layouts/ContentWithSidebar";
 
 import { Query } from "@/services/query";
 import { clientConfig, currentUser } from "@/services/auth";
-import location from "@/services/location";
 import routes from "@/services/routes";
 
 import QueriesListEmptyState from "./QueriesListEmptyState";
@@ -92,28 +91,12 @@ function QueriesListExtraActions(props) {
 }
 
 function QueriesList({ controller }) {
-  const controllerRef = useRef();
-  controllerRef.current = controller;
-
   const updateSearch = useCallback(
     (searchTemm) => {
       controller.updateSearch(searchTemm, { isServerSideFTS: !clientConfig.multiByteSearchEnabled });
     },
     [controller]
   );
-
-  useEffect(() => {
-    const unlistenLocationChanges = location.listen((unused, action) => {
-      const searchTerm = location.search.q || "";
-      if (action === "PUSH" && searchTerm !== controllerRef.current.searchTerm) {
-        updateSearch(searchTerm);
-      }
-    });
-
-    return () => {
-      unlistenLocationChanges();
-    };
-  }, [updateSearch]);
 
   let usedListColumns = listColumns;
   if (controller.params.currentPage === "favorites") {
@@ -152,7 +135,12 @@ function QueriesList({ controller }) {
               onChange={updateSearch}
             />
             <Sidebar.Menu items={sidebarMenu} selected={controller.params.currentPage} />
-            <Sidebar.Tags url="api/queries/tags" onChange={controller.updateSelectedTags} showUnselectAll />
+            <Sidebar.Tags
+              url="api/queries/tags"
+              selectedTags={controller.selectedTags}
+              onChange={controller.updateSelectedTags}
+              showUnselectAll
+            />
           </Layout.Sidebar>
           <Layout.Content>
             {controller.isLoaded && controller.isEmpty ? (

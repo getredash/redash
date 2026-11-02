@@ -118,7 +118,12 @@ function DashboardList({ controller }) {
               onChange={controller.updateSearch}
             />
             <Sidebar.Menu items={sidebarMenu} selected={controller.params.currentPage} />
-            <Sidebar.Tags url="api/dashboards/tags" onChange={controller.updateSelectedTags} showUnselectAll />
+            <Sidebar.Tags
+              url="api/dashboards/tags"
+              selectedTags={controller.selectedTags}
+              onChange={controller.updateSelectedTags}
+              showUnselectAll
+            />
           </Layout.Sidebar>
           <Layout.Content>
             <div data-test="DashboardLayoutContent">
