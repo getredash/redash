@@ -100,13 +100,53 @@ class DataSourceTest(BaseTestCase):
 
 class TestDataSourceCreate(BaseTestCase):
     def test_adds_data_source_to_default_group(self):
-        data_source = DataSource.create_with_group(
-            org=self.factory.org,
-            name="test",
-            options=ConfigurationContainer.from_json('{"dbname": "test"}'),
-            type="pg",
-        )
+        with patch("redash.settings.DATASOURCE_AUTO_ASSIGN_GROUP", "default"):
+            data_source = DataSource.create_with_group(
+                org=self.factory.org,
+                name="test",
+                options=ConfigurationContainer.from_json('{"dbname": "test"}'),
+                type="pg",
+            )
         self.assertIn(self.factory.org.default_group.id, data_source.groups)
+
+    def test_adds_data_source_to_admin_group(self):
+        with patch("redash.settings.DATASOURCE_AUTO_ASSIGN_GROUP", "admin"):
+            data_source = DataSource.create_with_group(
+                org=self.factory.org,
+                name="test",
+                options=ConfigurationContainer.from_json('{"dbname": "test"}'),
+                type="pg",
+            )
+        self.assertIn(self.factory.org.admin_group.id, data_source.groups)
+        self.assertNotIn(self.factory.org.default_group.id, data_source.groups)
+
+    def test_adds_data_source_to_no_group(self):
+        with patch("redash.settings.DATASOURCE_AUTO_ASSIGN_GROUP", "none"):
+            data_source = DataSource.create_with_group(
+                org=self.factory.org,
+                name="test",
+                options=ConfigurationContainer.from_json('{"dbname": "test"}'),
+                type="pg",
+            )
+        self.assertEqual(len(data_source.groups), 0)
+
+
+class TestDataSourceAutoAssignGroupValidation(BaseTestCase):
+    def test_rejects_invalid_value(self):
+        with self.assertRaises(ValueError):
+            self._validate("invalid")
+
+    def test_accepts_case_insensitive(self):
+        self.assertEqual(self._validate("Admin"), "admin")
+        self.assertEqual(self._validate("DEFAULT"), "default")
+        self.assertEqual(self._validate("None"), "none")
+
+    @staticmethod
+    def _validate(value):
+        normalized = value.lower().strip()
+        if normalized not in ("admin", "default", "none"):
+            raise ValueError(f"Invalid value for REDASH_DATASOURCE_AUTO_ASSIGN_GROUP: '{normalized}'.")
+        return normalized
 
 
 class TestDataSourceIsPaused(BaseTestCase):
