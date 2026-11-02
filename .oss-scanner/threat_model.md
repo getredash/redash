@@ -5,7 +5,7 @@ Redash is a self-hosted web app for querying data sources (SQL databases, APIs a
 
 Untrusted input enters through:
 - **The HTTP API and web UI** (`redash/handlers/`), used by authenticated users of varying privilege and by unauthenticated visitors (login, invite and password-reset flows, public dashboard links, embeds).
-- **Authentication integrations** (`redash/authentication/`): password login, Google OAuth, SAML, LDAP, remote-user headers and JWT.
+- **Authentication integrations** (`redash/authentication/`): password login, Google OAuth, OIDC, SAML, LDAP, remote-user headers and JWT.
 - **Query text and parameters** that users send to data sources (`redash/query_runner/`), and the **results** those data sources return. Results are untrusted, because a data source may hold attacker-controlled data.
 - **Content shown in the browser**: query results, visualization options, dashboard text widgets, markdown, user names and descriptions.
 
@@ -13,7 +13,7 @@ Untrusted input enters through:
 - **Organizations**: one install can host several organizations (multi-org mode). Data from one org must never be readable or writable from another.
 - **Admins** (the `admin` group) are trusted within their org: they manage users, groups, data sources, destinations and settings.
 - **Regular users** see only the data sources their groups grant them, at either **full** or **view-only** level. A view-only user must not be able to run new or changed query text against that data source, only saved queries.
-- **API keys**: each user has a personal key that acts as that user. Each query has a key that gives read access to that query's results only. Dashboards shared publicly get a token that gives read access to that dashboard only.
+- **API keys**: each user has a personal key that acts as that user. Each query has a key that gives read-only access to that saved query's metadata and results, including execution of safe parameterized queries. Dashboards shared publicly get a token that gives read access to that dashboard and its contents only.
 - **Unauthenticated visitors** reach only login/setup/invite/reset pages, public dashboards and embeds they hold a valid token for.
 
 ## Components that matter most / least
