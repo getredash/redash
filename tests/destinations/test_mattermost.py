@@ -23,9 +23,7 @@ def test_mattermost_notify_encodes_unicode_as_utf8():
         mock_response.text = "ok"
         mock_post.return_value = mock_response
 
-        destination.notify(
-            alert, query, user, Alert.TRIGGERED_STATE, app, host, metadata, options
-        )
+        destination.notify(alert, query, user, Alert.TRIGGERED_STATE, app, host, metadata, options)
 
     sent_data = mock_post.call_args.kwargs["data"]
     assert isinstance(sent_data, bytes)

@@ -34,9 +34,7 @@ class Mattermost(BaseDestination):
         payload = {"text": text}
 
         if alert.custom_body:
-            payload["attachments"] = [
-                {"fields": [{"title": "Description", "value": alert.custom_body}]}
-            ]
+            payload["attachments"] = [{"fields": [{"title": "Description", "value": alert.custom_body}]}]
 
         if options.get("username"):
             payload["username"] = options.get("username")
@@ -54,11 +52,7 @@ class Mattermost(BaseDestination):
             logging.warning(resp.text)
 
             if resp.status_code != 200:
-                logging.error(
-                    "Mattermost webhook send ERROR. status_code => {status}".format(
-                        status=resp.status_code
-                    )
-                )
+                logging.error("Mattermost webhook send ERROR. status_code => {status}".format(status=resp.status_code))
         except Exception:
             logging.exception("Mattermost webhook send ERROR.")
 
