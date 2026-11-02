@@ -105,7 +105,7 @@ function QueriesList({ controller }) {
   useEffect(() => {
     const unlistenLocationChanges = location.listen((unused, action) => {
       const searchTerm = location.search.q || "";
-      if (action === "PUSH" && searchTerm !== controllerRef.current.searchTerm) {
+      if (action === "PUSH" && searchTerm !== controllerRef.current.searchText) {
         updateSearch(searchTerm);
       }
     });
@@ -148,7 +148,7 @@ function QueriesList({ controller }) {
             <Sidebar.SearchInput
               placeholder="Search Queries..."
               label="Search queries"
-              value={controller.searchTerm}
+              value={controller.searchText}
               onChange={updateSearch}
             />
             <Sidebar.Menu items={sidebarMenu} selected={controller.params.currentPage} />

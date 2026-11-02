@@ -184,7 +184,6 @@ export async function listNames(scope: Page | Locator): Promise<string[]> {
 
 /**
  * Replaces the term in a list's search box by typing over it and waits until the list was fetched with it.
- * (Typing over the selected old term, not clearing first: see the fixme about lost characters in search.spec.ts.)
  */
 export async function searchFor(page: Page, placeholder: string, term: string) {
   const box = page.getByPlaceholder(placeholder);
