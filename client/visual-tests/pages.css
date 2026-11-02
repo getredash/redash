@@ -1,0 +1,26 @@
+/* Applied while taking page screenshots (see pages.spec.ts). */
+
+/* Full-page screenshots only capture what the document scrolls, so scroll the whole page rather than the
+   content area (which otherwise fits the viewport and scrolls on its own) */
+body #application-root {
+  height: auto;
+  min-height: 100%;
+}
+
+body #application-root .application-layout-side-menu {
+  height: auto;
+}
+
+body #application-root .application-layout-content {
+  overflow: visible;
+}
+
+/* Tooltips left open by hovering the element that was clicked last */
+.ant-tooltip {
+  display: none !important;
+}
+
+/* Blinking cursor of the query editor */
+.ace_cursor-layer {
+  visibility: hidden;
+}

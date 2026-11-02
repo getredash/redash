@@ -60,7 +60,7 @@ function DashboardPageTitle({ dashboardConfiguration }) {
 }
 
 DashboardPageTitle.propTypes = {
-  dashboardConfiguration: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  dashboardConfiguration: PropTypes.object.isRequired,
 };
 
 function RefreshButton({ dashboardConfiguration }) {
@@ -108,7 +108,7 @@ function RefreshButton({ dashboardConfiguration }) {
 }
 
 RefreshButton.propTypes = {
-  dashboardConfiguration: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  dashboardConfiguration: PropTypes.object.isRequired,
 };
 
 function DashboardMoreOptionsButton({ dashboardConfiguration }) {
@@ -177,7 +177,7 @@ function DashboardMoreOptionsButton({ dashboardConfiguration }) {
 }
 
 DashboardMoreOptionsButton.propTypes = {
-  dashboardConfiguration: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  dashboardConfiguration: PropTypes.object.isRequired,
 };
 
 function DashboardControl({ dashboardConfiguration, headerExtra }) {
@@ -185,6 +185,7 @@ function DashboardControl({ dashboardConfiguration, headerExtra }) {
     dashboard,
     togglePublished,
     canEditDashboard,
+    isDashboardOwnerOrAdmin,
     fullscreen,
     toggleFullscreen,
     showShareDashboardDialog,
@@ -193,7 +194,7 @@ function DashboardControl({ dashboardConfiguration, headerExtra }) {
   const showPublishButton = dashboard.is_draft;
   const showRefreshButton = true;
   const showFullscreenButton = !dashboard.is_draft;
-  const canShareDashboard = canEditDashboard && !dashboard.is_draft;
+  const canShareDashboard = isDashboardOwnerOrAdmin && !dashboard.is_draft;
   const showShareButton = !clientConfig.disablePublicUrls && (dashboard.publicAccessEnabled || canShareDashboard);
   const showMoreOptionsButton = canEditDashboard;
 
@@ -246,7 +247,7 @@ function DashboardControl({ dashboardConfiguration, headerExtra }) {
 }
 
 DashboardControl.propTypes = {
-  dashboardConfiguration: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  dashboardConfiguration: PropTypes.object.isRequired,
   headerExtra: PropTypes.node,
 };
 
@@ -295,7 +296,7 @@ function DashboardEditControl({ dashboardConfiguration, headerExtra }) {
 }
 
 DashboardEditControl.propTypes = {
-  dashboardConfiguration: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  dashboardConfiguration: PropTypes.object.isRequired,
   headerExtra: PropTypes.node,
 };
 
@@ -312,6 +313,6 @@ export default function DashboardHeader({ dashboardConfiguration, headerExtra })
 }
 
 DashboardHeader.propTypes = {
-  dashboardConfiguration: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  dashboardConfiguration: PropTypes.object.isRequired,
   headerExtra: PropTypes.node,
 };

@@ -1,0 +1,73 @@
+---
+// Page shell for the marketing site. Markup and <head> tags reproduce the
+// Gatsby site (src/components/Layout.jsx there) so pages look exactly as before.
+import '../styles/scss/main.scss'
+import IframeBridge from '../components/IframeBridge.astro'
+import Analytics from '../components/Analytics.astro'
+
+interface Props {
+  title?: string
+  description?: string
+}
+const { title, description } = Astro.props
+const url = `https://redash.io${Astro.url.pathname}`
+---
+
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>{title || 'Make Your Company Data Driven'}</title>
+    <meta name="title" content={title} />
+    <meta name="description" content={description} />
+    <meta
+      name="keywords"
+      content="Query, SQL, Visualize, Data, Insights, Dashboard, Alert, Alerts, web based sql client, integration, integrations, Amazong Redshift, BigQuery, PotsgreSQL, MySQL, TreasureData, MS SQL Server, MongoDB, ElasticSearch, Hive, Google Spreadsheets, Impala, InfluxDB, Presto, ScyllaDB, Cassandra, Amazon DynamoDB, Python, Vertica, Graphite, Stitch, URL"
+    />
+    <link rel="icon" href="/assets/images/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="96x96" href="/assets/images/favicon-96x96.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/images/favicon-16x16.png" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={url} />
+    <meta property="og:image" content="https://redash.io/assets/images/social-facebook-1200x630.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@getredash" />
+    <meta name="twitter:creator" content="@getredash" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content="https://redash.io/assets/images/social-twitter-600x314.png" />
+    <link rel="canonical" href={url} />
+    <link rel="sitemap" type="application/xml" href="/sitemap-index.xml" />
+    <IframeBridge />
+    <Analytics />
+    <slot name="head" />
+  </head>
+  <body>
+    <slot />
+    <script>
+      // Navbar behaviour, previously React state in components/Header.jsx:
+      // mobile menu toggle and the "Help" dropdown.
+      const nav = document.querySelector('.navbar')
+      const collapse = nav?.querySelector('#navbar-collapse')
+      nav?.querySelector('.navbar-toggle')?.addEventListener('click', () => {
+        const open = !collapse.classList.contains('in')
+        collapse.classList.toggle('collapse', !open)
+        collapse.classList.toggle('collapsed', open)
+        collapse.classList.toggle('in', open)
+        collapse.setAttribute('aria-expanded', String(open))
+      })
+      nav?.querySelectorAll('.dropdown-toggle').forEach((toggle) => {
+        toggle.addEventListener('click', (e) => {
+          e.preventDefault()
+          toggle.parentElement.classList.toggle('open')
+        })
+      })
+    </script>
+  </body>
+</html>

@@ -54,11 +54,14 @@ def join_parameter_list_values(parameters, schema):
 def _collect_key_names(nodes):
     keys = []
     for node in nodes._parse_tree:
-        if isinstance(node, pystache.parser._EscapeNode):
+        if isinstance(node, (pystache.parser._EscapeNode, pystache.parser._LiteralNode)):
             keys.append(node.key)
         elif isinstance(node, pystache.parser._SectionNode):
             keys.append(node.key)
             keys.extend(_collect_key_names(node.parsed))
+        elif isinstance(node, pystache.parser._InvertedNode):
+            keys.append(node.key)
+            keys.extend(_collect_key_names(node.parsed_section))
 
     return distinct(keys)
 
@@ -183,8 +186,20 @@ class ParameterizedQuery:
 
     @property
     def is_safe(self):
-        text_parameters = [param for param in self.schema if param["type"] == "text"]
-        return not any(text_parameters)
+        # Free-text parameter types are substituted into the query verbatim.
+        if any(param["type"] in ("text", "text-pattern") for param in self.schema):
+            return False
+
+        # Placeholders that are not declared in the schema cannot be validated, so
+        # any value would be substituted verbatim as well.
+        declared = {param["name"] for param in self.schema}
+        for param in self.schema:
+            if param["type"] in ("date-range", "datetime-range", "datetime-range-with-seconds"):
+                # Range values are validated as a single object but rendered via
+                # these two fields. Other nested fields are not validated.
+                declared.update("{}.{}".format(param["name"], field) for field in ("start", "end"))
+        undeclared = set(_collect_query_parameters(self.template)) - declared
+        return not undeclared
 
     @property
     def missing_params(self):

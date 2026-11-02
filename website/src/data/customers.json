@@ -1,0 +1,128 @@
+[
+  {
+    "customer": "Root",
+    "url": "https://www.joinroot.com/",
+    "logo": "/assets/images/customers/root.png",
+    "person": "Dan Manges",
+    "role": "CTO",
+    "profile-img": "/assets/images/customers/dan-manges.jpg",
+    "quote": "Root is an extremely data-driven company. We make dozens of changes to our product every week, and we measure the impact of all of them. Redash allows us to easily analyze data and share results among our team."
+  },
+  {
+    "customer": "AuptiX",
+    "url": "https://www.auptix.com/",
+    "logo": "/assets/images/customers/auptix.png",
+    "person": "Lu Saenz",
+    "role": "VP Engineering & Product",
+    "profile-img": "/assets/images/customers/lu-saenz.jpg",
+    "quote": "Redash enabled us to surface visualizations and dashboards to everyone in the company -- remarkably easily and efficiently. The capabilities to share query results and combine many queries into publicly viewable dashboards work flawlessly and get the job done."
+  },
+  {
+    "customer": "MyBook",
+    "url": "https://mybook.ru/",
+    "logo": "/assets/images/customers/mybook.png",
+    "person": "Ilya Baryshev",
+    "role": "CTO",
+    "profile-img": "/assets/images/customers/ilya-baryshev.jpg",
+    "quote": "Redash greatly reduced the need to build custom analytics UI. Our Marketing team now heavily uses cohort dashboards, it is their daily tool now! Overall, Redash saves ton of time for the team."
+  },
+  {
+    "customer": "FindHotel",
+    "url": "https://www.findhotel.net/",
+    "logo": "/assets/images/customers/findhotel.png",
+    "person": "German Gomez-Herrero",
+    "role": "CTO",
+    "profile-img": "/assets/images/customers/german-gomez-herrero.jpg",
+    "quote": "At FindHotel every important decision is based on data, and Redash has quickly become one of the preferred tools to share a data story across the company. Redash dashboards combined with the large number of supported data sources have made our company data fully transparent for everyone. From technical metrics such as pipeline latencies and infrastructure costs, to high level business metrics. Everything can be easily accessed and visualised with Redash."
+  },
+  {
+    "customer": "DataMiner",
+    "url": "https://data-miner.io/",
+    "logo": "/assets/images/customers/data-miner.png",
+    "person": "Ben Dehghan",
+    "role": "Co-Founder",
+    "profile-img": "/assets/images/customers/ben-dehghan.jpg",
+    "quote": "Redash is as essential as email to my company. We love data but accessing the data is a pain without Redash. Any company I go to, I get them hooked on Redash. It's an easy sell :)"
+  },
+  {
+    "customer": "VoxFeed",
+    "url": "https://voxfeed.com/",
+    "logo": "/assets/images/customers/voxfeed.png",
+    "person": "Manuel de la Torre",
+    "role": "CTO",
+    "profile-img": "/assets/images/customers/manuel-de-la-torre.png",
+    "quote": "Since we use Redash Dashboards our team is more involved in all areas of our business and we take always data-driven decisions. We passed from spending about an hour scripting to get a report, to just type a simple query and have the results ready-to-use immediately."
+  },
+  {
+    "customer": "SkyEng",
+    "url": "https://skyeng.ru/",
+    "logo": "/assets/images/customers/skyeng.png",
+    "person": "Gleb Sologub",
+    "role": "Prouduct Analyst",
+    "profile-img": "",
+    "quote": "I love Redash for the simplicity, price and a great number of usage patterns. My favourite features are parameters and filters as well as Redash API."
+  },
+  {
+    "customer": "Sheetsu",
+    "url": "http://sheetsu.com/",
+    "logo": "/assets/images/customers/sheetsu.png",
+    "person": "Michael Oblak",
+    "role": "Founder",
+    "profile-img": "/assets/images/customers/michael-oblak.jpg",
+    "quote": "It's easy for us to connect data from different sources and see the bigger picture and get more knowledge from all the data we are gathering in all different places. Redash helped us to see how our business is going. Before doing anything, we are setting the KPIs, which we are tracking on the dashboards. We have queries that help us answer some of the questions, why our users behave in such way or another. Very easy to set up. Perfect to collaborate with other team mates."
+  },
+  {
+    "customer": "Atomized",
+    "url": "https://www.atomized.com/",
+    "logo": "/assets/images/customers/atomized.jpeg",
+    "person": "Jon Lee",
+    "role": "CTO",
+    "profile-img": "",
+    "quote": "The ability to query multiple data sources from a single window in a read-only environment is a huge plus for our team on a day to day basis. Redash allowed our team to provide better customer service by giving us the information we need without requiring a developer to get involved."
+  },
+  {
+    "customer": "Redox",
+    "url": "https://www.redoxengine.com/",
+    "logo": "/assets/images/customers/redox.png",
+    "person": "Tom Jessessky",
+    "role": "Data and Analytics Lead",
+    "profile-img": "/assets/images/customers/tom-jessessky.jpg",
+    "quote": "Redash's ability to efficiently query Redshift has allowed it to fill in the gaps where our other (more expensive) dashboard tools fall short."
+  },
+  {
+    "customer": "SpareFoot",
+    "url": "https://www.sparefoot.com/",
+    "logo": "/assets/images/customers/sparefoot.png",
+    "person": "Debyani Ghosh",
+    "role": "Senior Data Architect",
+    "profile-img": "",
+    "quote": "Redash makes it easy for our analysts and engineers to save queries and share across the business. We like the fact that the end users have the same UI experience whether they are connecting to Redshift, Mysql or Data Lake via Athena."
+  },
+  {
+    "customer": "Just Add Music",
+    "url": "https://www.justaddmusic.net/",
+    "logo": "/assets/images/customers/justaddmusic.png",
+    "person": "Dirk Bosman",
+    "role": "Data Analyst",
+    "profile-img": "/assets/images/customers/dirk-bosman.jpg",
+    "quote": "With Redash, we have managed to integrate various data source in one single view to make our company more data-driven."
+  },
+  {
+    "customer": "Farmster",
+    "url": "https://www.farmster.co/",
+    "logo": "/assets/images/customers/farmster.png",
+    "person": "Adam Abramson",
+    "role": "Founder",
+    "profile-img": "",
+    "quote": "Redash is a huge plus for a startup seeking to display our progress to investors and partners in a simple and elegant way."
+  },
+  {
+    "customer": "Datree",
+    "url": "https://datree.io/",
+    "logo": "/assets/images/customers/datree.png",
+    "person": "Eyar Zilberman",
+    "role": "CPO",
+    "profile-img": "/assets/images/customers/eyar-zilberman.jpg",
+    "quote": "Redash is the right tool to use when creating a new data-related MVP. With Redash, the feedback-loop from customers is faster and simple!"
+  }
+]

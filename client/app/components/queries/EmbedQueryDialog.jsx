@@ -16,8 +16,8 @@ import "./EmbedQueryDialog.less";
 class EmbedQueryDialog extends React.Component {
   static propTypes = {
     dialog: DialogPropType.isRequired,
-    query: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
-    visualization: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+    query: PropTypes.object.isRequired,
+    visualization: PropTypes.object.isRequired,
   };
 
   state = {

@@ -37,6 +37,15 @@ class TestObjectPermissionsListGet(BaseTestCase):
         self.assertEqual(rv.status_code, 404)
 
 
+class TestObjectPermissionsListGetAuthorization(BaseTestCase):
+    def test_returns_403_if_the_user_cant_modify_the_object(self):
+        query = self.factory.create_query()
+        user = self.factory.create_user()
+        rv = self.make_request("get", "/api/queries/{}/acl".format(query.id), user=user)
+
+        self.assertEqual(rv.status_code, 403)
+
+
 class TestObjectPermissionsListPost(BaseTestCase):
     def test_creates_permission_if_the_user_is_an_owner(self):
         query = self.factory.create_query()

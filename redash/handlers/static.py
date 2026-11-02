@@ -1,6 +1,6 @@
 from flask import render_template, send_file
 from flask_login import login_required
-from werkzeug.utils import safe_join
+from werkzeug.security import safe_join
 
 from redash import settings
 from redash.handlers import routes

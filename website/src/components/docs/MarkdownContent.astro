@@ -1,0 +1,55 @@
+---
+// Page content plus the generated lists the old knowledge base had: category
+// pages list their articles, and the /help/ index lists sections and categories.
+import { getCollection } from 'astro:content'
+import Default from '@astrojs/starlight/components/MarkdownContent.astro'
+import { SECTIONS, DOCS_BASE } from '../../lib/kb.mjs'
+
+const { id } = Astro.locals.starlightRoute.entry
+const docs = (await getCollection('docs')).map((e) => ({
+  id: e.id,
+  title: e.data.title,
+  description: e.data.description,
+  order: e.data.sidebar.order,
+}))
+const children = (parent: string) => {
+  const depth = parent.split('/').length + 1
+  return docs
+    .filter((d) => d.id.startsWith(parent + '/') && d.id.split('/').length === depth)
+    .sort((a, b) => (a.order ?? Infinity) - (b.order ?? Infinity) || a.title.localeCompare(b.title))
+}
+const isIndex = id === DOCS_BASE
+const articles = isIndex ? [] : children(id)
+---
+
+<Default><slot /></Default>
+{
+  isIndex && (
+    <div class="sl-markdown-content kb-index">
+      {SECTIONS.map((section: { slug: string; label: string }) => (
+        <section>
+          <h2>{section.label}</h2>
+          <ul class="kb-cards">
+            {children(`${DOCS_BASE}/${section.slug}`).map((category) => (
+              <li>
+                <a href={`/${category.id}/`}>{category.title}</a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+    </div>
+  )
+}
+{
+  articles.length > 0 && (
+    <ul class="sl-markdown-content kb-articles">
+      {articles.map((article) => (
+        <li>
+          <a href={`/${article.id}/`}>{article.title}</a>
+          {article.description && <p>{article.description}</p>}
+        </li>
+      ))}
+    </ul>
+  )
+}

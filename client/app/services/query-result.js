@@ -394,12 +394,9 @@ class QueryResult {
           });
           this.isLoadingResult = false;
         } else {
-          setTimeout(
-            () => {
-              this.loadResult(tryCount + 1);
-            },
-            1000 * Math.pow(2, tryCount)
-          );
+          setTimeout(() => {
+            this.loadResult(tryCount + 1);
+          }, 1000 * Math.pow(2, tryCount));
         }
       });
   }

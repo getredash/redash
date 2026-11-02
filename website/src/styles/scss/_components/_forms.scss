@@ -1,0 +1,66 @@
+/* FORMS */
+$field-border: $legaloblolly;
+$field-bg: rgba($legaloblolly, 0.5);
+$field-color: $white;
+$field-fs: 16px;
+$placeholder-color: $white;
+$placeholder-opacity: 0;
+
+.form-control {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  border-radius: 0;
+  border: none;
+  border-bottom: 2px solid $field-border;
+  background: #fff;
+  color: $primary;
+  box-shadow: none;
+  font-size: 17px;
+  padding: 7px 5px;
+  font-weight: 500;
+  line-height: 1.5;
+  height: auto;
+  &:focus {
+    box-shadow: 0 0 0 2px #c8e5fd !important;
+    border-color: $primary;
+    @include custom-placeholder-opacity($opacity: $placeholder-opacity);
+  }
+}
+
+.form-control--white {
+  background: $white;
+  color: $primary;
+  @include custom-placeholder($color: $primary, $font-size: $field-fs);
+  &:focus {
+    border-color: $primary;
+  }
+}
+
+.form-group {
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+.input-lg {
+  height: 60px;
+  border-radius: 0 !important;
+}
+
+.form-group--search {
+  &:before {
+    font-family: $font-icon;
+    @extend .fa, .fa-search;
+    position: absolute;
+    left: 35px;
+    transform: translateY(-50%);
+    top: 50%;
+    z-index: 2;
+  }
+  .search-box {
+    position: relative;
+    z-index: 1; // Fix for issue #230
+  }
+  .form-control {
+    padding-left: 50px;
+  }
+}

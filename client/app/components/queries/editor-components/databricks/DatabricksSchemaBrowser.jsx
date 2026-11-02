@@ -37,19 +37,16 @@ export default function DatabricksSchemaBrowser({
   const filteredSchema = useMemo(() => applyFilterOnSchema(schema, filterString), [schema, filterString]);
   const [isDatabaseSelectOpen, setIsDatabaseSelectOpen] = useState(false);
   const [expandedFlags, setExpandedFlags] = useState({});
-  const [handleFilterChange] = useDebouncedCallback(setFilterString, 500);
-  const [handleDatabaseFilterChange, cancelHandleDatabaseFilterChange] = useDebouncedCallback(
-    setDatabaseFilterString,
-    500
-  );
+  const handleFilterChange = useDebouncedCallback(setFilterString, 500);
+  const handleDatabaseFilterChange = useDebouncedCallback(setDatabaseFilterString, 500);
 
   const handleDatabaseSelection = useCallback(
     (databaseName) => {
       setCurrentDatabase(databaseName);
-      cancelHandleDatabaseFilterChange();
+      handleDatabaseFilterChange.cancel();
       setDatabaseFilterString("");
     },
-    [cancelHandleDatabaseFilterChange, setCurrentDatabase]
+    [handleDatabaseFilterChange, setCurrentDatabase]
   );
 
   const filteredDatabases = useMemo(
@@ -136,8 +133,8 @@ export default function DatabricksSchemaBrowser({
 }
 
 DatabricksSchemaBrowser.propTypes = {
-  dataSource: PropTypes.object, // eslint-disable-line react/forbid-prop-types
-  options: PropTypes.object, // eslint-disable-line react/forbid-prop-types
+  dataSource: PropTypes.object,
+  options: PropTypes.object,
   onOptionsUpdate: PropTypes.func,
   onSchemaUpdate: PropTypes.func,
   onItemSelect: PropTypes.func,
