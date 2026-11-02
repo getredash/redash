@@ -49,7 +49,6 @@ destinations = {}
 
 
 def register(destination_class):
-    global destinations
     if destination_class.enabled():
         logger.debug(
             "Registering %s (%s) destinations.",
