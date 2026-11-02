@@ -19,12 +19,11 @@ const QueryEditor = React.forwardRef(function (
   const [container, setContainer] = useState(null);
   const [editorRef, setEditorRef] = useState(null);
 
-  // For some reason, value for AceEditor should be managed in this way - otherwise it goes berserk when selecting text
+  // The editor owns its text: `value` is read only when it's created. The page's copy of the text follows the editor's
+  // changes after a delay, so setting the text from it again would drop the characters typed in between; the page
+  // changes the text through the ref instead (`setValue`, `paste`). `currentValue` follows every change at once,
+  // because AceEditor sets its text back to its `value` prop whenever they differ.
   const [currentValue, setCurrentValue] = useState(value);
-
-  useEffect(() => {
-    setCurrentValue(value);
-  }, [value]);
 
   const handleChange = useCallback(
     (str) => {
@@ -148,8 +147,18 @@ const QueryEditor = React.forwardRef(function (
           editorRef.editor.focus();
         }
       },
+      getValue: () => (editorRef ? editorRef.editor.getValue() : currentValue),
+      setValue: (text) => {
+        if (editorRef) {
+          // As an edit, so that it goes through `onChange` and can be undone, and with the cursor kept where it was
+          const { session } = editorRef.editor;
+          const selection = session.selection.toJSON();
+          session.doc.setValue(text);
+          session.selection.fromJSON(selection);
+        }
+      },
     }),
-    [editorRef, onChange]
+    [editorRef, onChange, currentValue]
   );
 
   return (

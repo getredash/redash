@@ -2,7 +2,7 @@ import type { Dialog, Page } from "@playwright/test";
 import { DATA_SOURCES } from "../../support/env";
 import { expect, test, uniqueName } from "../../support/fixtures";
 import { byTest, createQueryViaApi, dismissToasts, getSql, renameQuery, retype, setSql, toast } from "../../support/ui";
-import { editor, headerMenu, MOD, openNewQuery, openQuerySource, saveButton } from "./helpers";
+import { editor, headerMenu, MOD, openNewQuery, openQuerySource, saveButton, settle } from "./helpers";
 
 const title = (page: Page) => page.locator(".query-page-header h3");
 const description = (page: Page) => page.locator(".query-page-query-description");
@@ -36,6 +36,58 @@ test.describe("Saving a query", () => {
       expect((await api.get(`/api/queries/${id}`)).query).toBe(
         "select id, name, country, lat, lon from cities order by id"
       );
+    } finally {
+      await api.delete(`/api/queries/${id}`);
+    }
+  });
+
+  test("text typed while the query is being saved stays in the editor, unsaved", async ({ page, api, seed }) => {
+    const { id } = await createQueryViaApi(api, {
+      name: uniqueName("typing while saving"),
+      sql: "select 1 as a",
+      dataSourceId: seed.dataSources.postgres,
+      run: false,
+    });
+    try {
+      await openQuerySource(page, id);
+      await setSql(page, "select 1 as a, 2 as b");
+
+      // The answer to the save comes only once more was typed
+      let answer!: () => void;
+      const typed = new Promise<void>((resolve) => {
+        answer = resolve;
+      });
+      await page.route(`**/api/queries/${id}`, async (route) => {
+        if (route.request().method() !== "POST") {
+          return route.fallback();
+        }
+        const response = await route.fetch();
+        await typed;
+        await route.fulfill({ response });
+      });
+      const saving = page.waitForRequest(
+        (request) => request.method() === "POST" && request.url().endsWith(`/api/queries/${id}`)
+      );
+      await page.keyboard.press(`${MOD}+s`);
+      await saving;
+      await page.keyboard.type(", 3 as c");
+      await settle(page);
+      answer();
+
+      // Once the answer is taken in, the query is still marked as changed, and the editor kept the text
+      await expect(savedToast(page)).toBeVisible();
+      await expect(saveButton(page)).toHaveText(/Save\s*\*/);
+      expect(await getSql(page)).toBe("select 1 as a, 2 as b, 3 as c");
+      expect((await api.get(`/api/queries/${id}`)).query).toBe("select 1 as a, 2 as b");
+
+      await page.unroute(`**/api/queries/${id}`);
+      const saved = page.waitForResponse(
+        (response) => response.request().method() === "POST" && response.url().endsWith(`/api/queries/${id}`)
+      );
+      await page.keyboard.press(`${MOD}+s`);
+      await saved;
+      await expect(saveButton(page)).toHaveText(/^\s*Save\s*$/);
+      expect((await api.get(`/api/queries/${id}`)).query).toBe("select 1 as a, 2 as b, 3 as c");
     } finally {
       await api.delete(`/api/queries/${id}`);
     }
