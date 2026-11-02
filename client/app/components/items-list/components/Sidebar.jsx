@@ -1,27 +1,29 @@
 import { isFunction, isString, filter, map } from "lodash";
-import React, { useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import PropTypes from "prop-types";
 import Input from "antd/lib/input";
 import AntdMenu from "antd/lib/menu";
 import Link from "@/components/Link";
 import TagsList from "@/components/TagsList";
-import useTypedValue from "@/lib/hooks/useTypedValue";
 
 /*
     SearchInput
  */
 
 export function SearchInput({ placeholder, value, showIcon, onChange, label }) {
-  // The search is debounced and waits for the previous one, so `value` trails the keystrokes
-  const [currentValue, setTypedValue] = useTypedValue(value);
+  const [currentValue, setCurrentValue] = useState(value);
+
+  useEffect(() => {
+    setCurrentValue(value);
+  }, [value]);
 
   const onInputChange = useCallback(
     (event) => {
       const newValue = event.target.value;
-      setTypedValue(newValue);
+      setCurrentValue(newValue);
       onChange(newValue);
     },
-    [onChange, setTypedValue]
+    [onChange]
   );
 
   const InputControl = showIcon ? Input.Search : Input;
