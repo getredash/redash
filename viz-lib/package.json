@@ -88,7 +88,7 @@
     "d3": "^7.9.0",
     "d3-cloud": "^1.2.9",
     "debug": "^4.4.3",
-    "dompurify": "^3.4.16",
+    "dompurify": "^3.4.17",
     "font-awesome": "^4.7.0",
     "hoist-non-react-statics": "^3.3.0",
     "leaflet": "~1.9.4",
