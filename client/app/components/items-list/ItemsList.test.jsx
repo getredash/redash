@@ -5,7 +5,7 @@ import location from "@/services/location";
 import { wrap } from "./ItemsList";
 import { ItemsSource } from "./classes/ItemsSource";
 import { StateStorage, UrlStateStorage } from "./classes/StateStorage";
-import { Tags } from "./components/Sidebar";
+import { SearchInput, Tags } from "./components/Sidebar";
 
 jest.mock("@/services/auth", () => ({ clientConfig: { pageSize: 20 } }));
 jest.mock("@/services/getTags", () => jest.fn());
@@ -19,10 +19,11 @@ function List({ controller }) {
         onChange={controller.updateSelectedTags}
         showUnselectAll
       />
-      <input
-        aria-label="Search list"
+      <SearchInput
+        label="Search list"
         value={controller.searchTerm}
-        onChange={(event) => controller.updateSearch(event.target.value, { isServerSideFTS: true })}
+        resetVersion={controller.searchInputVersion}
+        onChange={(value) => controller.updateSearch(value, { isServerSideFTS: true })}
       />
       <button type="button" onClick={() => controller.updatePagination({ page: 3 })}>
         Next page
@@ -30,6 +31,11 @@ function List({ controller }) {
       <button type="button" onClick={() => controller.setSorting("name", false)}>
         Sort by name
       </button>
+      <ul aria-label="Results">
+        {controller.pageItems.map((item) => (
+          <li key={item.id}>{item.name}</li>
+        ))}
+      </ul>
     </React.Fragment>
   );
 }
@@ -81,6 +87,22 @@ describe("list tag URLs", () => {
   async function click(text, shiftKey = false) {
     await act(async () => {
       fireEvent.click(screen.getByRole("button", { name: (name) => name.includes(text) }), { shiftKey });
+    });
+  }
+
+  async function search(text) {
+    await act(async () => {
+      fireEvent.change(screen.getByRole("textbox", { name: "Search list" }), { target: { value: text } });
+      await jest.advanceTimersByTimeAsync(200);
+    });
+  }
+
+  async function navigateHistory(direction) {
+    await act(async () => {
+      const navigated = new Promise((resolve) => window.addEventListener("popstate", resolve, { once: true }));
+      window.history[direction]();
+      await jest.advanceTimersByTimeAsync(1);
+      await navigated;
     });
   }
 
@@ -219,6 +241,145 @@ describe("list tag URLs", () => {
     act(() => location.setHash("results", true));
     await settle();
     expect(request).toHaveBeenCalledTimes(1);
+  });
+
+  it.each([
+    ["/queries", "back", ""],
+    ["/queries", "forward", ""],
+    ["/dashboards", "back", ""],
+    ["/dashboards", "forward", ""],
+    ["/queries", "back", "revenue"],
+    ["/queries", "forward", "revenue"],
+    ["/dashboards", "back", "revenue"],
+    ["/dashboards", "forward", "revenue"],
+  ])("cancels a delayed search on %s browser %s with unchanged q=%j", async (path, direction, searchTerm) => {
+    await open(`${path}?q=${searchTerm}&tags=Sales%20Reports&page=2`);
+    act(() => location.update(`${path}?q=${searchTerm}&tags=sales%20reports&page=3`));
+    await settle();
+    jest.useFakeTimers();
+    if (direction === "forward") {
+      await navigateHistory("back");
+    }
+
+    const input = screen.getByRole("textbox", { name: "Search list" });
+    act(() => input.focus());
+    fireEvent.change(input, { target: { value: "stale search" } });
+    expect(input.value).toBe("stale search");
+    await navigateHistory(direction);
+    expect(screen.getByRole("textbox", { name: "Search list" })).toBe(input);
+    expect(document.activeElement).toBe(input);
+    expect(input.value).toBe(searchTerm);
+    const restoredUrl = location.url;
+    const requestCount = request.mock.calls.length;
+    await act(async () => jest.advanceTimersByTimeAsync(500));
+
+    expect(location.url).toBe(restoredUrl);
+    expect(request).toHaveBeenCalledTimes(requestCount);
+    expect(request.mock.calls[requestCount - 1][0]).toMatchObject({
+      q: searchTerm || undefined,
+      tags: [direction === "back" ? "Sales Reports" : "sales reports"],
+      page: direction === "back" ? 2 : 3,
+    });
+    expect(input.value).toBe(searchTerm);
+  });
+
+  it("discards a queued search and a stale response after browser navigation", async () => {
+    request.mockResolvedValue({ count: 100, results: [{ id: 1, name: "Current results" }] });
+    await open("/queries?tags=Sales%20Reports&page=2");
+    act(() => location.update("/queries?tags=sales%20reports&page=3"));
+    await settle();
+    jest.useFakeTimers();
+
+    let finishSearch;
+    request.mockImplementationOnce(() => new Promise((resolve) => (finishSearch = resolve)));
+    await search("running search");
+    await search("queued search");
+    expect(request).toHaveBeenCalledTimes(3);
+
+    await navigateHistory("back");
+    const restoredUrl = location.url;
+    await act(async () => {
+      finishSearch({ count: 1, results: [{ id: 2, name: "Stale results" }] });
+      await jest.advanceTimersByTimeAsync(500);
+    });
+
+    expect(location.url).toBe(restoredUrl);
+    expect(request).toHaveBeenCalledTimes(4);
+    expect(request.mock.calls[3][0]).toMatchObject({ q: undefined, tags: ["Sales Reports"], page: 2 });
+    expect(screen.getByRole("list", { name: "Results" }).textContent).toBe("Current results");
+    expect(screen.getByRole("textbox", { name: "Search list" }).value).toBe("");
+  });
+
+  it.each(["delayed", "queued"])("cancels a %s search when the list unmounts", async (kind) => {
+    await open("/queries?tags=Sales%20Reports");
+    jest.useFakeTimers();
+    let finishSearch;
+    if (kind === "queued") {
+      request.mockImplementationOnce(() => new Promise((resolve) => (finishSearch = resolve)));
+      await search("running search");
+      await search("queued search");
+    } else {
+      fireEvent.change(screen.getByRole("textbox", { name: "Search list" }), { target: { value: "delayed search" } });
+    }
+    const requestCount = request.mock.calls.length;
+    view.unmount();
+    view = null;
+    location.update("/dashboards?tags=sales%20reports");
+    const nextUrl = location.url;
+    await act(async () => {
+      finishSearch?.({ count: 100, results: [] });
+      await jest.advanceTimersByTimeAsync(500);
+    });
+
+    expect(request).toHaveBeenCalledTimes(requestCount);
+    expect(location.url).toBe(nextUrl);
+  });
+
+  it("ignores unrelated URL changes during search and preserves the previous descending sort", async () => {
+    await open("/queries?tags=Sales%20Reports");
+    jest.useFakeTimers();
+    await search("revenue");
+    expect(request).toHaveBeenCalledTimes(2);
+
+    act(() => location.setSearch({ view: "compact" }, true));
+    act(() => location.setHash("results", true));
+    await settle();
+    expect(request).toHaveBeenCalledTimes(2);
+
+    await search("");
+    expect(request.mock.calls[2][0]).toMatchObject({ q: undefined, tags: ["Sales Reports"], order: "-created_at" });
+  });
+
+  it.each(["-created_at", "-name", "name"])(
+    "preserves %s when restoring a search URL without an order",
+    async (order) => {
+      await open(`/queries?order=${order}&tags=Sales%20Reports`);
+      jest.useFakeTimers();
+      await search("revenue");
+      act(() => location.update("/queries?q=revenue&tags=sales%20reports&page=2"));
+      await settle();
+      expect(request.mock.calls[2][0]).toMatchObject({ q: "revenue", tags: ["sales reports"], page: 2, order: null });
+
+      await search("");
+      expect(request.mock.calls[3][0]).toMatchObject({ q: undefined, tags: ["sales reports"], page: 1, order });
+      expect(location.search.order).toBe(order);
+    }
+  );
+
+  it("keeps a pending search when only unrelated URL parameters change", async () => {
+    await open("/queries?tags=Sales%20Reports");
+    jest.useFakeTimers();
+    await search("revenue");
+    fireEvent.change(screen.getByRole("textbox", { name: "Search list" }), { target: { value: "forecast" } });
+    act(() => location.setSearch({ view: "compact" }, true));
+    act(() => location.setHash("results", true));
+    expect(screen.getByRole("textbox", { name: "Search list" }).value).toBe("forecast");
+    await act(async () => jest.advanceTimersByTimeAsync(200));
+
+    expect(request).toHaveBeenCalledTimes(3);
+    expect(location.search.q).toBe("forecast");
+    expect(location.hash).toBe("results");
+    expect(screen.getByRole("textbox", { name: "Search list" }).value).toBe("forecast");
   });
 
   it("ignores other routes and stops listening after unmount", async () => {

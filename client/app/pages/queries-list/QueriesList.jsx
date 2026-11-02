@@ -132,6 +132,7 @@ function QueriesList({ controller }) {
               placeholder="Search Queries..."
               label="Search queries"
               value={controller.searchTerm}
+              resetVersion={controller.searchInputVersion}
               onChange={updateSearch}
             />
             <Sidebar.Menu items={sidebarMenu} selected={controller.params.currentPage} />

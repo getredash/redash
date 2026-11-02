@@ -10,12 +10,12 @@ import TagsList from "@/components/TagsList";
     SearchInput
  */
 
-export function SearchInput({ placeholder, value, showIcon, onChange, label }) {
+export function SearchInput({ placeholder, value, resetVersion, showIcon, onChange, label }) {
   const [currentValue, setCurrentValue] = useState(value);
 
   useEffect(() => {
     setCurrentValue(value);
-  }, [value]);
+  }, [value, resetVersion]);
 
   const onInputChange = useCallback(
     (event) => {
@@ -42,6 +42,7 @@ export function SearchInput({ placeholder, value, showIcon, onChange, label }) {
 
 SearchInput.propTypes = {
   value: PropTypes.string.isRequired,
+  resetVersion: PropTypes.number,
   placeholder: PropTypes.string,
   showIcon: PropTypes.bool,
   onChange: PropTypes.func.isRequired,
@@ -49,6 +50,7 @@ SearchInput.propTypes = {
 };
 
 SearchInput.defaultProps = {
+  resetVersion: 0,
   placeholder: "Search...",
   showIcon: false,
   label: "Search",
