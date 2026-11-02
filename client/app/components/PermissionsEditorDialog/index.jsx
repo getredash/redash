@@ -81,7 +81,6 @@ function UserSelect({ onSelect, shouldShowUser }) {
   const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedSearchUsers = useCallback(
     debounce(
       (search) =>
@@ -206,7 +205,7 @@ function PermissionsEditorDialog({ dialog, author, context, aclUrl }) {
 
 PermissionsEditorDialog.propTypes = {
   dialog: DialogPropType.isRequired,
-  author: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  author: PropTypes.object.isRequired,
   context: PropTypes.oneOf(["query", "dashboard"]),
   aclUrl: PropTypes.string.isRequired,
 };

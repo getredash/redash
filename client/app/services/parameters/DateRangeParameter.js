@@ -139,7 +139,6 @@ class DateRangeParameter extends Parameter {
     return isDynamicDateRange(this.normalizedValue);
   }
 
-  // eslint-disable-next-line class-methods-use-this
   normalizeValue(value) {
     if (isDynamicDateRangeString(value)) {
       return getDynamicDateRangeFromString(value);

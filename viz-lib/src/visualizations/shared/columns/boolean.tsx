@@ -19,7 +19,7 @@ function Editor({ column, onChange }: Props) {
     onChange({ booleanValues });
   }
 
-  const [handleChangeDebounced] = useDebouncedCallback(handleChange, 200);
+  const handleChangeDebounced = useDebouncedCallback(handleChange, 200);
 
   return (
     <React.Fragment>
@@ -66,7 +66,6 @@ export default function initBooleanColumn(column: any) {
   }
 
   function BooleanColumn({ row }: any) {
-    // eslint-disable-line react/prop-types
     const { text } = prepareData(row);
     return text;
   }

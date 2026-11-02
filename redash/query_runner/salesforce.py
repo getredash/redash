@@ -18,11 +18,14 @@ logger = logging.getLogger(__name__)
 try:
     from simple_salesforce import Salesforce as SimpleSalesforce
     from simple_salesforce import SalesforceError
-    from simple_salesforce.api import DEFAULT_API_VERSION
 
     enabled = True
 except ImportError:
     enabled = False
+
+# simple-salesforce 1.x defaults to a newer API version. Keep the one data sources
+# without an explicit version have always used.
+DEFAULT_API_VERSION = "38.0"
 
 # See https://developer.salesforce.com/docs/atlas.en-us.api.meta/api/field_types.htm
 TYPES_MAP = dict(
@@ -95,7 +98,7 @@ class Salesforce(BaseQueryRunner):
             username=self.configuration["username"],
             password=self.configuration["password"],
             security_token=self.configuration["token"],
-            sandbox=self.configuration.get("sandbox", False),
+            domain="test" if self.configuration.get("sandbox", False) else None,
             version=self.configuration.get("api_version", DEFAULT_API_VERSION),
             client_id="Redash",
         )
@@ -147,6 +150,18 @@ class Salesforce(BaseQueryRunner):
             rows.append(row)
         return rows
 
+    def _query_all(self, sf, query):
+        # Salesforce.query_all() reports the number of records it fetched as totalSize,
+        # which is 0 for `SELECT COUNT() ...`. Page through the results ourselves to
+        # keep the count reported by the server.
+        response = sf.query(query)
+        total_size = response["totalSize"]
+        records = response["records"]
+        while not response["done"]:
+            response = sf.query_more(response["nextRecordsUrl"], identifier_is_url=True)
+            records.extend(response["records"])
+        return total_size, records
+
     def run_query(self, query, user):
         logger.debug("Salesforce is about to execute query: %s", query)
         query = re.sub(r"/\*(.|\n)*?\*/", "", query).strip()
@@ -154,11 +169,10 @@ class Salesforce(BaseQueryRunner):
             columns = []
             rows = []
             sf = self._get_sf()
-            response = sf.query_all(query)
-            records = response["records"]
-            if response["totalSize"] > 0 and len(records) == 0:
+            total_size, records = self._query_all(sf, query)
+            if total_size > 0 and len(records) == 0:
                 columns = self.fetch_columns([("Count", TYPE_INTEGER)])
-                rows = [{"Count": response["totalSize"]}]
+                rows = [{"Count": total_size}]
             elif len(records) > 0:
                 cols = self._build_columns(sf, records[0])
                 rows = self._build_rows(cols, records)

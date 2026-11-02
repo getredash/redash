@@ -5,8 +5,8 @@ import SelectWithVirtualScroll from "@/components/SelectWithVirtualScroll";
 
 export default class QueryBasedParameterInput extends React.Component {
   static propTypes = {
-    parameter: PropTypes.any, // eslint-disable-line react/forbid-prop-types
-    value: PropTypes.any, // eslint-disable-line react/forbid-prop-types
+    parameter: PropTypes.any,
+    value: PropTypes.any,
     mode: PropTypes.oneOf(["default", "multiple"]),
     queryId: PropTypes.number,
     onSelect: PropTypes.func,

@@ -14,8 +14,8 @@ class DynamicDatePicker extends React.Component {
   static propTypes = {
     type: PropTypes.string,
     className: PropTypes.string,
-    value: PropTypes.any, // eslint-disable-line react/forbid-prop-types
-    parameter: PropTypes.any, // eslint-disable-line react/forbid-prop-types
+    value: PropTypes.any,
+    parameter: PropTypes.any,
     onSelect: PropTypes.func,
     dynamicButtonOptions: PropTypes.shape({
       staticValueLabel: PropTypes.string,
@@ -27,7 +27,7 @@ class DynamicDatePicker extends React.Component {
         })
       ),
     }),
-    dateOptions: PropTypes.any, // eslint-disable-line react/forbid-prop-types
+    dateOptions: PropTypes.any,
   };
 
   static defaultProps = {

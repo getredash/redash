@@ -1,0 +1,4 @@
+User-agent: *
+Disallow:
+
+Sitemap: https://redash.io/sitemap-index.xml

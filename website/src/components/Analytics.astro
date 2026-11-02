@@ -1,0 +1,22 @@
+---
+// Google Analytics (GA4). Disabled until PUBLIC_GA_MEASUREMENT_ID is set for
+// production builds: how GA is wired after dropping Segment is still a TBD
+// follow-up (see WEBSITE_MIGRATION_PLAN.md).
+const id = import.meta.env.PUBLIC_GA_MEASUREMENT_ID
+---
+
+{
+  id && (
+    <>
+      <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${id}`} />
+      <script is:inline define:vars={{ id }}>
+        window.dataLayer = window.dataLayer || []
+        function gtag() {
+          dataLayer.push(arguments)
+        }
+        gtag('js', new Date())
+        gtag('config', id)
+      </script>
+    </>
+  )
+}

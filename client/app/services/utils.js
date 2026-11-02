@@ -1,4 +1,3 @@
-// eslint-disable-next-line import/prefer-default-export
 export function absoluteUrl(url) {
   const urlObj = new URL(url, window.location);
   urlObj.protocol = window.location.protocol;

@@ -17,7 +17,7 @@
     flex: 1 1 auto;
   }
 
-  &-logo.ant-menu {
+  &-logo {
     padding-top: 20px;
     padding-bottom: 20px;
     text-align: center;
@@ -62,7 +62,15 @@
 
       .desktop-navbar-label {
         margin-top: 4px;
+        margin-left: 0; // antd adds a gap after icons in menu items
         font-size: 11px;
+      }
+
+      // antd wraps menu item and submenu title content in this element
+      .ant-menu-title-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
       }
 
       a,

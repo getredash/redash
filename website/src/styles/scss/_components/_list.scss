@@ -1,0 +1,20 @@
+/* LIST */
+
+.list-bullet {
+  @extend .list-unstyled;
+  > li {
+    position: relative;
+    padding-left: 15px;
+    &:before {
+      position: absolute;
+      left: 0;
+      top: 11px;
+      content: '';
+      display: inline-block;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: $danger;
+    }
+  }
+}

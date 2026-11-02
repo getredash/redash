@@ -1,6 +1,9 @@
 from funcy import pairwise
 
+from redash import redis_connection
+from redash.handlers.databricks import _databases_key, _tables_key
 from redash.models import DataSource
+from redash.utils.configuration import ConfigurationContainer
 from tests import BaseTestCase
 
 
@@ -121,6 +124,54 @@ class TestDataSourceResourcePost(BaseTestCase):
 
         self.assertEqual(data_source.name, new_name)
         self.assertEqual(data_source.options.to_dict(), new_options)
+
+    def test_clears_databricks_schema_cache(self):
+        admin = self.factory.create_admin()
+        options = {
+            "host": "example.cloud.databricks.com",
+            "http_path": "/sql/1.0/warehouses/abc",
+            "http_password": "token",
+            "catalog": "samples",
+        }
+        data_source = self.factory.create_data_source(type="databricks", options=ConfigurationContainer(options))
+        other_data_source = self.factory.create_data_source(type="databricks")
+
+        databases_key = _databases_key(data_source)
+        cached_keys = [databases_key, _tables_key(data_source, "default"), _tables_key(data_source, "nyctaxi")]
+        other_keys = [_databases_key(other_data_source), _tables_key(other_data_source, "default")]
+        for key in cached_keys + other_keys:
+            redis_connection.set(key, "[]")
+
+        rv = self.make_request(
+            "post",
+            "/api/data_sources/{}".format(data_source.id),
+            data={"name": data_source.name, "type": "databricks", "options": dict(options, catalog="system")},
+            user=admin,
+        )
+
+        self.assertEqual(rv.status_code, 200)
+        for key in cached_keys:
+            self.assertFalse(redis_connection.exists(key))
+        for key in other_keys:
+            self.assertTrue(redis_connection.exists(key))
+
+        # A job that started before the change writes its result after the cache was cleared.
+        redis_connection.set(databases_key, '["nyctaxi"]')
+
+        rv = self.make_request("get", "/api/databricks/databases/{}".format(data_source.id), user=admin)
+        self.assertIn("job", rv.json)
+
+    def test_databricks_schema_cache_key_changes_with_access_token(self):
+        options = {"host": "example.cloud.databricks.com", "http_path": "/sql/1.0/warehouses/abc"}
+        data_source = self.factory.create_data_source(
+            type="databricks", options=ConfigurationContainer(dict(options, http_password="old-token"))
+        )
+        old_key = _databases_key(data_source)
+
+        data_source.options = ConfigurationContainer(dict(options, http_password="new-token"))
+
+        self.assertNotEqual(_databases_key(data_source), old_key)
+        self.assertNotIn("token", old_key)
 
 
 class TestDataSourceResourceDelete(BaseTestCase):

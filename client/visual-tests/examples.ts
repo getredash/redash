@@ -118,6 +118,23 @@ const CITY_COORDINATES = `
     )
 `;
 
+const STAGE_COLUMNS = ["stage1", "stage2", "stage3", "stage4", "stage5"];
+
+// Paths of one to five stages, as literal rows
+const PATHS = `
+    SELECT 'a' AS stage1, 'a1' AS stage2, 'a2' AS stage3, NULL AS stage4, NULL AS stage5, 11 AS value UNION ALL
+    SELECT 'a', 'a2', NULL, NULL, NULL, 12 UNION ALL
+    SELECT 'a', 'a3', NULL, NULL, NULL, 45 UNION ALL
+    SELECT 'a', 'a4', NULL, NULL, NULL, 54 UNION ALL
+    SELECT 'b', 'b1', 'a2', 'c1', NULL, 33 UNION ALL
+    SELECT 'b', 'b2', 'a4', 'c3', NULL, 73 UNION ALL
+    SELECT 'b', 'b3', NULL, NULL, NULL, 90 UNION ALL
+    SELECT 'c', 'c1', NULL, NULL, NULL, 19 UNION ALL
+    SELECT 'c', 'c2', 'b2', 'a2', 'a3', 92 UNION ALL
+    SELECT 'c', 'c3', 'c4', NULL, NULL, 63 UNION ALL
+    SELECT 'c', 'c4', NULL, NULL, NULL, 44
+`;
+
 function chart(name: string, options: Record<string, unknown>): VisualizationExample {
   return { type: "CHART", name, options };
 }
@@ -1126,6 +1143,21 @@ GROUP BY c.CustomerId
       { type: "SUNBURST_SEQUENCE", name: "Sunburst: with exits (NULL stages)", options: {} },
     ],
   },
+  // The same paths cut off after 1, 2, 4 and 5 stages (3 stages are covered above): paths end at different stages
+  ...[1, 2, 4, 5].map(
+    (stages): QueryExample => ({
+      name: `Paths with ${stages} ${stages === 1 ? "stage" : "stages"}`,
+      description: `The first ${stages} of five stage columns + value; shorter paths have NULL in their last stages.`,
+      query: `
+SELECT ${STAGE_COLUMNS.slice(0, stages).join(", ")}, value
+FROM (${PATHS})
+`,
+      visualizations: [
+        { type: "SANKEY", name: `Sankey: ${stages} ${stages === 1 ? "stage" : "stages"}`, options: {} },
+        { type: "SUNBURST_SEQUENCE", name: `Sunburst: ${stages} ${stages === 1 ? "stage" : "stages"}`, options: {} },
+      ],
+    })
+  ),
   {
     name: "Revenue paths (sequence format)",
     description: "The alternative sunburst input format: sequence, stage, node, value.",

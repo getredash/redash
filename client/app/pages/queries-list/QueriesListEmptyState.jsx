@@ -51,5 +51,5 @@ export default function QueriesListEmptyState({ page, searchTerm, selectedTags }
 QueriesListEmptyState.propTypes = {
   page: PropTypes.string.isRequired,
   searchTerm: PropTypes.string.isRequired,
-  selectedTags: PropTypes.array.isRequired, // eslint-disable-line react/forbid-prop-types
+  selectedTags: PropTypes.array.isRequired,
 };
