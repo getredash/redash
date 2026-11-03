@@ -172,6 +172,9 @@ jobs:
     runs-on: ubuntu-22.04
     needs: frontend-lint
     timeout-minutes: 60
+    permissions:
+      contents: read
+      id-token: write # the Playwright reporter uploads results to flakiness.io with GitHub OIDC
     env:
       COMPOSE_FILE: .ci/compose.e2e.yaml
       COMPOSE_PROJECT_NAME: e2e

@@ -133,6 +133,9 @@ importers:
       '@biomejs/biome':
         specifier: 2.5.14
         version: 2.5.14
+      '@flakiness/playwright':
+        specifier: ^2.0.3
+        version: 2.0.3
       '@playwright/test':
         specifier: 1.63.0
         version: 1.63.0
@@ -1340,6 +1343,11 @@ packages:
 
   '@emnapi/wasi-threads@1.2.1':
     resolution: {integrity: sha512-uTII7OYF+/Mes/MrcIOYp5yOtSMLBWSIoLPpcgwipoiKbli6k322tcoFsxoIIxPDqW01SQGAgko4EzZi2BNv2w==}
+
+  '@flakiness/playwright@2.0.3':
+    resolution: {integrity: sha512-VNsnCnn967F6gTBAyJKwoykt4Uf1EgvWBNlvpyfs9vjvgAJkD3jSgu6V/dTEfnB4whn9fULST+6jLBtmbr33Ug==}
+    engines: {node: ^20.17.0 || >=22.9.0}
+    hasBin: true
 
   '@isaacs/cliui@8.0.2':
     resolution: {integrity: sha512-O8jcjabXaleOG9DQ0+ARXWZBTfnP4WNAqzuiJK7ll44AmxGKv/J2M4TPjxjY3znBCfvBXFzucm1twdyFybFqEA==}
@@ -7507,6 +7515,8 @@ snapshots:
     dependencies:
       tslib: 2.8.1
     optional: true
+
+  '@flakiness/playwright@2.0.3': {}
 
   '@isaacs/cliui@8.0.2':
     dependencies:
