@@ -196,6 +196,10 @@ class Results(BaseQueryRunner):
 
                 for i, row in enumerate(cursor):
                     for j, col in enumerate(row):
+                        # NULL says nothing about the column type.
+                        if col is None:
+                            continue
+
                         guess = guess_type(col)
 
                         if columns[j]["type"] is None:
