@@ -41,6 +41,17 @@ class DataSourceTest(BaseTestCase):
             self.assertEqual(new_return_value, schema)
             self.assertEqual(patched_get_schema.call_count, 2)
 
+    @patch("redash.redis_connection.set")
+    def test_empty_schema_expires_at_next_refresh(self, mock_redis):
+        # default of 30min, no 7 day grace
+        expected_ttl = 1800
+
+        with mock.patch("redash.query_runner.pg.PostgreSQL.get_schema") as patched_get_schema:
+            patched_get_schema.return_value = []
+            self.factory.data_source.get_schema(refresh=True)
+
+        mock_redis.assert_called_with("data_source:schema:1", "[]", ex=expected_ttl)
+
     def test_schema_sorter(self):
         input_data = [
             {"name": "zoo", "columns": ["is_zebra", "is_snake", "is_cow"]},
@@ -92,10 +103,10 @@ class DataSourceTest(BaseTestCase):
         expected_ttl = 606600
 
         with mock.patch("redash.query_runner.pg.PostgreSQL.get_schema") as patched_get_schema:
-            patched_get_schema.return_value = None
+            patched_get_schema.return_value = [{"name": "table", "columns": []}]
             self.factory.data_source.get_schema(refresh=True)
 
-        mock_redis.assert_called_with("data_source:schema:1", "null", ex=expected_ttl)
+        mock_redis.assert_called_with("data_source:schema:1", '[{"name": "table", "columns": []}]', ex=expected_ttl)
 
 
 class TestDataSourceCreate(BaseTestCase):
