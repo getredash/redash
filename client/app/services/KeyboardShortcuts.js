@@ -22,11 +22,23 @@ export function humanReadableShortcut(shortcut, limit = Infinity) {
 }
 
 const handlers = {};
+// Handlers already run for a key event. Outside macOS `mod` is Ctrl, so a list such as "mod+enter, ctrl+enter"
+// binds one key combination twice, and Mousetrap calls `onShortcut` once for each.
+const handledEvents = new WeakMap();
 
 function onShortcut(event, shortcut) {
   event.preventDefault();
   event.retunValue = false;
-  each(handlers[shortcut], (fn) => fn());
+  if (!handledEvents.has(event)) {
+    handledEvents.set(event, new Set());
+  }
+  const handled = handledEvents.get(event);
+  each(handlers[shortcut], (fn) => {
+    if (!handled.has(fn)) {
+      handled.add(fn);
+      fn();
+    }
+  });
 }
 
 const KeyboardShortcuts = {

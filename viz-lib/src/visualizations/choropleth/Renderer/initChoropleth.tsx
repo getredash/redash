@@ -122,6 +122,17 @@ export default function initChoropleth(container: any, onBoundsChange: any) {
     }
   }
 
+  /**
+   * Shows `bounds`, always the same way for the same bounds and size. Without `reset`, a small change of the view is
+   * a pan by a truncated offset from the current view, so where the map ends up (to a fraction of a pixel) would
+   * depend on which views it had before, e.g. whether the map got its final size before or after its data.
+   * `setView` also keeps the center inside `maxBounds`.
+   */
+  function fitView(bounds: L.LatLngBounds) {
+    _map.fitBounds(bounds, { reset: true } as L.FitBoundsOptions);
+    viewChangedByUser = false;
+  }
+
   let boundsChangedFromMap = false;
   // The user panned or zoomed the map since its bounds were last set
   let viewChangedByUser = false;
@@ -166,13 +177,9 @@ export default function initChoropleth(container: any, onBoundsChange: any) {
     }).addTo(_map);
 
     const mapBounds = _choropleth.getBounds();
-    const bounds = validateBounds(options.bounds, mapBounds);
-    _map.fitBounds(bounds, { animate: false, duration: 0 });
-    viewChangedByUser = false;
-
-    // equivalent to `_map.setMaxBounds(mapBounds)` but without animation
+    // Like `_map.setMaxBounds(mapBounds)`, but without moving the map: `fitView` below keeps it inside these bounds
     _map.options.maxBounds = mapBounds;
-    _map.panInsideBounds(mapBounds, { animate: false, duration: 0 });
+    fitView(validateBounds(options.bounds, mapBounds));
 
     // update legend
     if (options.legend.visible && legend.length > 0) {
@@ -196,8 +203,7 @@ export default function initChoropleth(container: any, onBoundsChange: any) {
       const layerBounds = _choropleth ? _choropleth.getBounds() : _map.getBounds();
       bounds = validateBounds(bounds, layerBounds);
       if (bounds) {
-        _map.fitBounds(bounds, { animate: false, duration: 0 });
-        viewChangedByUser = false;
+        fitView(bounds);
       }
     }
   }
@@ -206,12 +212,11 @@ export default function initChoropleth(container: any, onBoundsChange: any) {
     isResizing = true;
     _map.invalidateSize(false);
     isResizing = false;
-    // Fit the bounds again for the new size, resetting the view: otherwise how the map is drawn depends on whether
-    // it was first drawn before or after its container got its final size. Keep the view if the user changed it.
+    // Fit the bounds again for the new size. Keep the view if the user changed it.
     if (_choropleth && !boundsChangedFromMap && !viewChangedByUser) {
       const bounds = validateBounds(_bounds, _choropleth.getBounds());
       if (bounds) {
-        _map.fitBounds(bounds, { reset: true } as L.FitBoundsOptions);
+        fitView(bounds);
       }
     }
   });
