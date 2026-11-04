@@ -26,6 +26,12 @@ Redash features:
 * [Setting up a Redash instance](https://redash.io/help/open-source/setup) (includes links to ready-made AWS/GCE images).
 * [Documentation](https://redash.io/help/).
 
+## One-Click Deploy
+
+<a href="https://repocloud.io/details/Redash/"><img src="https://d16t0pc4846x52.cloudfront.net/deploylobe.svg" alt="Deploy on RepoCloud" height="42"></a>
+<a href="https://railway.com/deploy/redash"><img src="https://railway.com/button.svg" alt="Deploy on Railway" height="42"></a>
+<a href="https://elest.io/open-source/redash"><img src="https://elest.io/images/logos/deploy-to-elestio-btn.png" alt="Deploy on Elestio" height="42"></a>
+
 ## Supported Data Sources
 
 Redash supports more than 35 SQL and NoSQL [data sources](https://redash.io/help/data-sources/supported-data-sources). It can also be extended to support more. Below is a list of built-in sources:
