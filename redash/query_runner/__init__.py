@@ -545,10 +545,12 @@ def with_ssh_tunnel(query_runner, details):
 
             with stack:
                 try:
+                    query_runner._ssh_tunnel_remote_address = (remote_host, remote_port)
                     query_runner.host, query_runner.port = server.local_bind_address
                     result = f(*args, **kwargs)
                 finally:
                     query_runner.host, query_runner.port = remote_host, remote_port
+                    del query_runner._ssh_tunnel_remote_address
 
                 return result
 
