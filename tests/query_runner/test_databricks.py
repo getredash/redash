@@ -1,3 +1,4 @@
+import itertools
 from collections import namedtuple
 from unittest import TestCase, mock
 
@@ -10,7 +11,7 @@ from redash.query_runner import (
     TYPE_STRING,
     split_sql_statements,
 )
-from redash.query_runner.databricks import Databricks, _normalize_host
+from redash.query_runner.databricks import ROW_LIMIT, Databricks, _normalize_host
 
 TableRow = namedtuple("TableRow", ["TABLE_CAT", "TABLE_SCHEM", "TABLE_NAME", "TABLE_TYPE"])
 ColumnRow = namedtuple(
@@ -204,6 +205,81 @@ class TestDatabricksQueryTimeoutSchema(TestCase):
             with self.subTest(timeout=timeout):
                 with self.assertRaises(jsonschema.ValidationError):
                     self._validate(timeout)
+
+
+@mock.patch("redash.query_runner.databricks.databricks_sql.connect")
+class TestDatabricksRowLimit(TestCase):
+    def _run_query(self, connect, configuration, total_rows):
+        rows = iter([(i,) for i in range(total_rows)])
+        cursor = _mock_connection(connect)
+        cursor.description = [("id", "int", None, None, None, None, None)]
+        cursor.fetchmany.side_effect = lambda size: list(itertools.islice(rows, size))
+        cursor.fetchone.side_effect = lambda: next(rows, None)
+
+        data, error = Databricks({**CONFIGURATION, **configuration}).run_query("SELECT id FROM tbl", None)
+
+        self.assertIsNone(error)
+        return cursor, data
+
+    def test_uses_configured_row_limit(self, connect):
+        cursor, data = self._run_query(connect, {"row_limit": 3}, total_rows=5)
+
+        cursor.fetchmany.assert_called_once_with(3)
+        self.assertEqual(len(data["rows"]), 3)
+        self.assertTrue(data["truncated"])
+
+    def test_not_truncated_when_within_configured_row_limit(self, connect):
+        cursor, data = self._run_query(connect, {"row_limit": 5}, total_rows=5)
+
+        cursor.fetchmany.assert_called_once_with(5)
+        self.assertEqual(len(data["rows"]), 5)
+        self.assertNotIn("truncated", data)
+
+    def test_falls_back_to_default_row_limit(self, connect):
+        cursor, data = self._run_query(connect, {}, total_rows=1)
+
+        cursor.fetchmany.assert_called_once_with(ROW_LIMIT)
+        self.assertEqual(len(data["rows"]), 1)
+
+    def test_does_not_apply_row_limit_to_database_discovery(self, connect):
+        databases = [("default",), ("analytics",), ("staging",)]
+        cursor = _mock_connection(connect)
+        cursor.description = [("databaseName", "string", None, None, None, None, None)]
+        cursor.fetchall.return_value = databases
+        cursor.fetchmany.side_effect = lambda size: databases[:size]
+
+        result = Databricks({**CONFIGURATION, "row_limit": 1}).get_databases()
+
+        cursor.execute.assert_called_once_with("SHOW DATABASES")
+        self.assertEqual(result, ["default", "analytics", "staging"])
+
+    def test_database_discovery_error_includes_reason(self, connect):
+        from databricks.sql.exc import ServerOperationError
+
+        cursor = _mock_connection(connect)
+        cursor.execute.side_effect = ServerOperationError("Catalog not found")
+
+        with self.assertLogs("redash.query_runner", level="ERROR") as logs:
+            with self.assertRaisesRegex(Exception, "Catalog not found"):
+                Databricks(CONFIGURATION).get_databases()
+
+        self.assertIn("Catalog not found", logs.output[0])
+
+
+class TestDatabricksRowLimitSchema(TestCase):
+    def _validate(self, row_limit):
+        jsonschema.validate({**CONFIGURATION, "row_limit": row_limit}, Databricks.configuration_schema())
+
+    def test_accepts_positive_whole_numbers(self):
+        self._validate(1)
+        self._validate(1000)
+        self._validate(1000.0)
+
+    def test_rejects_zero_negative_and_fractional_values(self):
+        for row_limit in (0, -1, 3.9):
+            with self.subTest(row_limit=row_limit):
+                with self.assertRaises(jsonschema.ValidationError):
+                    self._validate(row_limit)
 
 
 class TestNormalizeHost(TestCase):

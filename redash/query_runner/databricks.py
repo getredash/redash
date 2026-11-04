@@ -97,8 +97,14 @@ class Databricks(BaseSQLQueryRunner):
                     "title": "Query Timeout in seconds (0 = no timeout)",
                     "default": 0,
                 },
+                "row_limit": {
+                    "type": "number",
+                    "minimum": 1,
+                    "multipleOf": 1,
+                    "title": "Row Limit (leave empty to use the default of {})".format(ROW_LIMIT),
+                },
             },
-            "order": ["host", "http_path", "catalog", "http_password", "useQueryAnnotation", "timeout"],
+            "order": ["host", "http_path", "catalog", "http_password", "useQueryAnnotation", "timeout", "row_limit"],
             "secret": ["http_password"],
             "required": ["host", "http_path", "http_password"],
         }
@@ -139,6 +145,8 @@ class Databricks(BaseSQLQueryRunner):
         # STATEMENT_TIMEOUT is enforced by the warehouse, which cancels the statement when it expires.
         timeout = int(self.configuration.get("timeout") or 0)
         session_configuration = {"STATEMENT_TIMEOUT": str(timeout)} if timeout > 0 else None
+        # Falls back to DATABRICKS_ROW_LIMIT when the data source doesn't set its own limit.
+        row_limit = int(self.configuration.get("row_limit") or ROW_LIMIT)
 
         try:
             with self._get_connection(session_configuration) as connection:
@@ -148,7 +156,7 @@ class Databricks(BaseSQLQueryRunner):
                         cursor.execute(stmt)
 
                     if cursor.description is not None:
-                        result_set = cursor.fetchmany(ROW_LIMIT)
+                        result_set = cursor.fetchmany(row_limit)
                         columns = self.fetch_columns(
                             [(i[0], TYPES_MAP.get(i[1], TYPE_STRING)) for i in cursor.description]
                         )
@@ -157,7 +165,7 @@ class Databricks(BaseSQLQueryRunner):
 
                         data = {"columns": columns, "rows": rows}
 
-                        if len(result_set) >= ROW_LIMIT and cursor.fetchone() is not None:
+                        if len(result_set) >= row_limit and cursor.fetchone() is not None:
                             logger.warning("Truncated result set.")
                             statsd_client.incr("redash.query_runner.databricks.truncated")
                             data["truncated"] = True
@@ -177,14 +185,14 @@ class Databricks(BaseSQLQueryRunner):
         raise NotSupported()
 
     def get_databases(self):
-        query = "SHOW DATABASES"
-        results, error = self.run_query(query, None)
-
-        if error is not None:
-            self._handle_run_query_error(error)
-
-        first_column_name = results["columns"][0]["name"]
-        return [row[first_column_name] for row in results["rows"]]
+        # Database discovery bypasses run_query() so the row limit only applies to query results.
+        try:
+            with self._get_connection() as connection:
+                with connection.cursor() as cursor:
+                    cursor.execute("SHOW DATABASES")
+                    return [row[0] for row in cursor.fetchall()]
+        except databricks_sql.Error as e:
+            self._handle_run_query_error(e.message or e.__class__.__name__)
 
     def get_database_tables(self, database_name):
         schema = {}
