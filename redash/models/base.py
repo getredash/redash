@@ -3,6 +3,8 @@ import functools
 from flask_sqlalchemy import SQLAlchemy
 from flask_sqlalchemy.query import Query as BaseQuery
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.engine import Engine
+from sqlalchemy.event import listens_for
 from sqlalchemy.orm import configure_mappers, object_session
 from sqlalchemy.pool import NullPool
 from sqlalchemy_searchable import SearchQueryMixin, make_searchable, vectorizer
@@ -34,6 +36,23 @@ configure_mappers()
 # listen to a few database events to set up functions, trigger updates
 # and indexes for the full text search
 make_searchable(db.metadata, options={"regconfig": "pg_catalog.simple"})
+
+
+if settings.REDASH_DATABASE_AWS_IAM_AUTH:
+    # boto3 ships in the optional "all_ds" dependency group, so import it lazily
+    # only when IAM auth is enabled.
+    import boto3
+
+    _RDS_CLIENT = boto3.client("rds")
+
+    @listens_for(Engine, "do_connect")
+    def db_connect_hook(_dialect, _conn_rec, _cargs, cparams):
+        auth_token = _RDS_CLIENT.generate_db_auth_token(
+            DBHostname=cparams["host"],
+            Port=cparams.get("port", 5432),
+            DBUsername=cparams["user"],
+        )
+        cparams["password"] = auth_token
 
 
 class SearchBaseQuery(BaseQuery, SearchQueryMixin):
