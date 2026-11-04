@@ -1,5 +1,5 @@
 import { includes, words, capitalize, clone, isNull } from "lodash";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import Checkbox from "antd/lib/checkbox";
 import Modal from "antd/lib/modal";
@@ -31,6 +31,14 @@ function joinExampleList(multiValuesOptions) {
 }
 
 function NameInput({ name, type, onChange, existingNames, setValidation }) {
+  const inputRef = useRef();
+  // Not `autoFocus`: the input is mounted before the dialog's portal is attached to the page, so focusing it
+  // then can do nothing, and the dialog focuses its own wrapper once it has opened.
+  useEffect(() => {
+    const timer = setTimeout(() => inputRef.current?.focus());
+    return () => clearTimeout(timer);
+  }, []);
+
   let helpText = "";
   let validateStatus = "";
 
@@ -55,7 +63,7 @@ function NameInput({ name, type, onChange, existingNames, setValidation }) {
 
   return (
     <Form.Item required label="Keyword" help={helpText} validateStatus={validateStatus} {...formItemProps}>
-      <Input onChange={(e) => onChange(e.target.value)} autoFocus />
+      <Input onChange={(e) => onChange(e.target.value)} ref={inputRef} />
     </Form.Item>
   );
 }

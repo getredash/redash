@@ -280,8 +280,8 @@ export async function expectPending(page: Page, count: number) {
 
 /**
  * Clicks "Apply Changes" and then a parameter's label, as a person moving on would. The button keeps the focus
- * while it is hidden; when it comes back with the next change its tooltip opens over the parameter above it and
- * takes the clicks meant for that field.
+ * while it is hidden, so without the click its tooltip would open again over the parameter above it when the
+ * button comes back with the next change.
  */
 export async function apply(page: Page) {
   await applyButton(page).locator("button").click();

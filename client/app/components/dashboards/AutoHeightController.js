@@ -17,6 +17,8 @@ export default class AutoHeightController {
 
   interval = null;
 
+  resumeTimer = null;
+
   onHeightChange = null;
 
   constructor(handler) {
@@ -104,6 +106,13 @@ export default class AutoHeightController {
 
   stop = () => {
     clearInterval(this.interval);
+    clearTimeout(this.resumeTimer);
+  };
+
+  // Stops measuring for a while, e.g. while the widgets move to a new layout: heights measured meanwhile are wrong
+  pause = (duration) => {
+    this.stop();
+    this.resumeTimer = setTimeout(this.resume, duration);
   };
 
   resume = () => {
