@@ -1,4 +1,4 @@
-import { isEmpty } from "lodash";
+import { extend, isEmpty } from "lodash";
 import { useState, useMemo } from "react";
 import useUpdateQuery from "./useUpdateQuery";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
@@ -14,7 +14,12 @@ export default function useQuery(originalQuery) {
       // Don't reload page when saving new query
       navigateTo(updatedQuery.getUrl(true), true);
     }
-    setQuery(updatedQuery);
+    // Keep text typed while the query was being saved: the editor still shows it
+    setQuery((currentQuery) =>
+      currentQuery.query === updatedQuery.query
+        ? updatedQuery
+        : extend(updatedQuery.clone(), { query: currentQuery.query })
+    );
     setOriginalQuerySource(updatedQuery.query);
     setOriginalAutoLimit(updatedQuery.options.apply_auto_limit);
   });

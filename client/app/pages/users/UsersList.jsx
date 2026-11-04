@@ -212,7 +212,7 @@ class UsersList extends React.Component {
         <Layout>
           <Layout.Sidebar className="m-b-0">
             <Sidebar.SearchInput
-              value={controller.searchTerm}
+              value={controller.searchText}
               onChange={controller.updateSearch}
               label="Search users"
             />

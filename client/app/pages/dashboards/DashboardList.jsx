@@ -114,7 +114,7 @@ function DashboardList({ controller }) {
             <Sidebar.SearchInput
               placeholder="Search Dashboards..."
               label="Search dashboards"
-              value={controller.searchTerm}
+              value={controller.searchText}
               onChange={controller.updateSearch}
             />
             <Sidebar.Menu items={sidebarMenu} selected={controller.params.currentPage} />

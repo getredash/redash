@@ -55,10 +55,6 @@ export const KNOWN_ISSUES = {
     since: "26.9.0",
     title: "Legacy /dashboard/<slug> fails with the slug of a renamed dashboard",
   },
-  "editor-drops-keystrokes": {
-    since: "unknown",
-    title: "Query editor drops or misplaces characters typed about 100 ms apart",
-  },
   "added-widget-hidden-until-reload": {
     since: "unknown",
     title: "A widget added while another widget finished loading does not show until reload",

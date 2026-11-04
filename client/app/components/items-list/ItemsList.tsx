@@ -21,7 +21,8 @@ export interface Controller<I, P = any> {
   isEmpty: boolean;
 
   // search
-  searchTerm?: string;
+  searchTerm?: string; // the term of the latest search
+  searchText: string; // the text in the search box, which searchTerm follows once the debounced search runs
   updateSearch: (searchTerm: string, searchOptions?: SearchOptions) => void;
 
   // tags
@@ -54,6 +55,7 @@ export const ControllerType = PropTypes.shape({
 
   // search
   searchTerm: PropTypes.string,
+  searchText: PropTypes.string.isRequired,
   updateSearch: PropTypes.func.isRequired, // (searchTerm: string) => void
 
   // tags
@@ -166,11 +168,18 @@ export function wrap<I, P = any>(
         }
       }, 200);
 
+      // The search box shows its text right away, so that it never waits for (or gets back) a debounced value
+      const updateSearchText = (searchTerm: string, searchOptions?: SearchOptions) => {
+        this.setState({ searchText: searchTerm });
+        debouncedUpdateSearch(searchTerm, searchOptions);
+      };
+
       this.state = {
         ...initialState,
+        searchText: initialState.searchTerm || "",
         toggleSorting,
         setSorting,
-        updateSearch: debouncedUpdateSearch,
+        updateSearch: updateSearchText,
         updateSelectedTags,
         updatePagination,
         update,

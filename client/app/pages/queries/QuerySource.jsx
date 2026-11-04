@@ -99,9 +99,13 @@ function QuerySource(props) {
   const querySyntax = dataSource ? dataSource.syntax || "sql" : null;
   const isFormatQueryAvailable = queryFormat.isFormatQueryAvailable(querySyntax);
   const formatQuery = () => {
+    if (!editorRef.current) {
+      return;
+    }
     try {
-      const formattedQueryText = queryFormat.formatQuery(query.query, querySyntax);
-      setQuery(extend(query.clone(), { query: formattedQueryText }));
+      // The editor has the latest text: `query.query` follows it after a delay
+      const formattedQueryText = queryFormat.formatQuery(editorRef.current.getValue(), querySyntax);
+      editorRef.current.setValue(formattedQueryText);
     } catch (err) {
       notification.error(String(err));
     }

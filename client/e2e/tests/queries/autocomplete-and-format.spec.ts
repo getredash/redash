@@ -152,6 +152,25 @@ test.describe("Format query", () => {
     expect((await getSql(page)).replace(/\s+/g, " ").trim().toLowerCase()).toBe(sql.toLowerCase());
   });
 
+  test("the shortcut right after the last keystroke formats the text that is in the editor", async ({ page }) => {
+    await openNewQuery(page, DATA_SOURCES.postgres);
+    await setSql(page, "select id, name from cities");
+
+    // The shortcut follows the last key within the 100 ms in which the page does not yet know the new text. To hit
+    // that window every time, on a machine of any speed, the page's timers stand still for the two gestures.
+    await focusEditorEnd(page);
+    await page.clock.install();
+    await page.clock.pauseAt(Date.now() + 1000);
+    await page.keyboard.type(" order by 2");
+    await page.keyboard.press(`${MOD}+Shift+F`);
+    await page.clock.resume();
+
+    await expect.poll(async () => (await getSql(page)).split("\n").length).toBeGreaterThan(2);
+    expect((await getSql(page)).replace(/\s+/g, " ").trim().toLowerCase()).toBe(
+      "select id, name from cities order by 2"
+    );
+  });
+
   test("formatting is not offered for a JSON data source", async ({ page }) => {
     await openNewQuery(page, DATA_SOURCES.postgres);
     await expect(formatButton(page)).toBeEnabled();

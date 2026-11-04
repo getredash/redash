@@ -62,11 +62,7 @@ export async function clearEditor(page: Page) {
 
 /**
  * Types into the editor with the keyboard, key by key, as a person would (the autocomplete popup follows the
- * typing and may still be open afterwards).
- *
- * The timing is deliberate. The editor loses or misplaces characters when a key lands about 100 ms after the
- * previous one (see the test "typing at about ten keys a second keeps every character"), so this types clearly
- * faster than that, and first lets the page take in whatever was typed or inserted before.
+ * typing and may still be open afterwards). First lets the page take in whatever was typed or inserted before.
  */
 export async function typeKeys(page: Page, text: string) {
   await settle(page);
