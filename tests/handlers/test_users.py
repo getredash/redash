@@ -419,6 +419,24 @@ class TestUserDisable(BaseTestCase):
         other_user = models.User.query.get(other_user.id)
         self.assertTrue(other_user.is_disabled)
 
+    def test_disabling_user_removes_alert_email_subscriptions(self):
+        admin_user = self.factory.create_admin()
+        other_user = self.factory.create_user()
+        alert = self.factory.create_alert()
+        self.factory.create_alert_subscription(user=other_user, alert=alert, destination=None)
+        destination_subscription = self.factory.create_alert_subscription(
+            user=other_user, alert=alert, destination=self.factory.create_destination()
+        )
+        destination_subscription_id = destination_subscription.id
+
+        rv = self.make_request("post", "/api/users/{}/disable".format(other_user.id), user=admin_user)
+        self.assertEqual(rv.status_code, 200)
+
+        remaining = [
+            subscription.id for subscription in models.AlertSubscription.query.filter_by(user_id=other_user.id)
+        ]
+        self.assertEqual(remaining, [destination_subscription_id])
+
     def test_admin_can_disable_another_admin(self):
         admin_user1 = self.factory.create_admin()
         admin_user2 = self.factory.create_admin()

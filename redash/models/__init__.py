@@ -1472,6 +1472,21 @@ class AlertSubscription(TimestampMixin, db.Model):
     def all(cls, alert_id):
         return AlertSubscription.query.join(User).filter(AlertSubscription.alert_id == alert_id)
 
+    @property
+    def is_user_email(self):
+        return self.destination_id is None
+
+    @classmethod
+    def delete_user_email_subscriptions(cls, user_ids):
+        """Removes subscriptions that email the given users directly.
+
+        Subscriptions that use a notification destination (Slack, webhook, etc.) are kept,
+        since they don't notify the subscribing user.
+        """
+        return cls.query.filter(cls.user_id.in_(user_ids), cls.destination_id.is_(None)).delete(
+            synchronize_session=False
+        )
+
     def notify(self, alert, query, user, new_state, app, host, metadata):
         if self.destination:
             return self.destination.notify(alert, query, user, new_state, app, host, metadata)
