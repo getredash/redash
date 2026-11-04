@@ -1,4 +1,4 @@
-import { omit, debounce } from "lodash";
+import { omit, debounce, isEqual, pick } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 import hoistNonReactStatics from "hoist-non-react-statics";
@@ -22,6 +22,7 @@ export interface Controller<I, P = any> {
 
   // search
   searchTerm?: string;
+  searchInputVersion: number;
   updateSearch: (searchTerm: string, searchOptions?: SearchOptions) => void;
 
   // tags
@@ -54,6 +55,7 @@ export const ControllerType = PropTypes.shape({
 
   // search
   searchTerm: PropTypes.string,
+  searchInputVersion: PropTypes.number.isRequired,
   updateSearch: PropTypes.func.isRequired, // (searchTerm: string) => void
 
   // tags
@@ -104,6 +106,14 @@ export function wrap<I, P = any>(
   class ItemsListWrapper extends React.Component<ItemsListWrapperProps, ItemsListWrapperState<I, P>> {
     private _itemsSource: ItemsSource;
 
+    private _stateStorage: StateStorage;
+
+    private _unlisten?: () => void;
+
+    private _cancelPendingSearch: () => void;
+
+    private _searchInputVersion = 0;
+
     static propTypes = {
       onError: PropTypes.func,
       children: PropTypes.node,
@@ -123,6 +133,7 @@ export function wrap<I, P = any>(
       super(props);
 
       const stateStorage = createStateStorage({ ...props });
+      this._stateStorage = stateStorage;
       const itemsSource = createItemsSource();
       this._itemsSource = itemsSource;
 
@@ -166,6 +177,11 @@ export function wrap<I, P = any>(
         }
       }, 200);
 
+      this._cancelPendingSearch = () => {
+        debouncedUpdateSearch.cancel();
+        pendingUpdateSearchParams = null;
+      };
+
       this.state = {
         ...initialState,
         toggleSorting,
@@ -179,10 +195,27 @@ export function wrap<I, P = any>(
     }
 
     componentDidMount() {
+      this._unlisten = this._stateStorage.listen((state: Record<string, unknown>) => {
+        const currentState = pick(this._itemsSource.getState(), Object.keys(state));
+        // Relevance ordering has no direction, even if the previous sort was descending.
+        if (!state.orderByField && !currentState.orderByField) {
+          currentState.orderByReverse = state.orderByReverse;
+        }
+        // Ignore our own URL writes and changes to unrelated URL parameters.
+        if (!isEqual(currentState, state)) {
+          this._cancelPendingSearch();
+          // Reset the input draft even when navigation restores the same search term.
+          this._searchInputVersion += 1;
+          this._itemsSource.setState({ ...state, validate: false });
+          this._itemsSource.update();
+        }
+      });
       this.state.update();
     }
 
     componentWillUnmount() {
+      this._unlisten?.();
+      this._cancelPendingSearch();
       this._itemsSource.onBeforeUpdate = () => {};
       this._itemsSource.onAfterUpdate = () => {};
       this._itemsSource.onError = () => {};
@@ -197,6 +230,7 @@ export function wrap<I, P = any>(
     }: ItemsListWrapperState<I, P>): ItemsListWrapperState<I, P> {
       return {
         ...rest,
+        searchInputVersion: this._searchInputVersion,
 
         params: {
           ...params, // custom params from items source
