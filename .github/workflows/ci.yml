@@ -172,6 +172,9 @@ jobs:
     runs-on: ubuntu-22.04
     needs: frontend-lint
     timeout-minutes: 60
+    permissions:
+      contents: read
+      id-token: write # the Playwright reporter uploads results to flakiness.io with GitHub OIDC
     env:
       COMPOSE_FILE: .ci/compose.e2e.yaml
       COMPOSE_PROJECT_NAME: e2e
@@ -206,6 +209,10 @@ jobs:
           # The demo databases accept TCP connections once they have loaded their data
           timeout 180 sh -c 'until docker compose exec -T -e PGPASSWORD=demo e2e-postgres psql -h 127.0.0.1 -U demo -c "select 1 from events limit 1" demo; do sleep 2; done'
           timeout 180 sh -c 'until docker compose exec -T e2e-mysql mysql -h 127.0.0.1 -udemo -pdemo -e "select 1 from events limit 1" demo; do sleep 2; done'
+      # PRs from forks get no OIDC token, so this gets the reporter a flakiness.io token instead. Does nothing in other runs
+      - uses: flakiness/authenticate-fork-prs@b84c39fb86796b063a9152bdec3020b71c870477 # v1.2.0
+        with:
+          flakiness-project: redash/redash
       - name: Run End-to-End Tests
         run: pnpm run e2e
       - name: "Failure: output container logs to console"

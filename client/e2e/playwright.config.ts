@@ -1,3 +1,4 @@
+import path from "path";
 import { defineConfig, devices } from "@playwright/test";
 import { ADMIN_STATE, BASE_URL } from "./support/env";
 
@@ -22,7 +23,16 @@ export default defineConfig({
   workers: process.env.E2E_WORKERS ? Number(process.env.E2E_WORKERS) : 3,
   retries: process.env.CI ? 1 : 0,
   forbidOnly: !!process.env.CI,
-  reporter: [["list"], ["html", { outputFolder: "./.results/report", open: "never" }]],
+  reporter: [
+    ["list"],
+    ["html", { outputFolder: "./.results/report", open: "never" }],
+    // Test history at https://flakiness.io/redash/redash. Only CI uploads (GitHub OIDC, or a token for PRs from forks,
+    // see ci.yml); local runs just write the report
+    [
+      "@flakiness/playwright",
+      { flakinessProject: "redash/redash", outputFolder: path.join(__dirname, ".results/flakiness-report") },
+    ],
+  ],
   use: {
     baseURL: BASE_URL,
     ...devices["Desktop Chrome"],
