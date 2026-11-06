@@ -26,8 +26,8 @@ export default defineConfig({
   reporter: [
     ["list"],
     ["html", { outputFolder: "./.results/report", open: "never" }],
-    // Test history at https://flakiness.io/redash/redash. Only CI uploads (GitHub OIDC, see ci.yml); local runs just
-    // write the report
+    // Test history at https://flakiness.io/redash/redash. Only CI uploads (GitHub OIDC, or a token for PRs from forks,
+    // see ci.yml); local runs just write the report
     [
       "@flakiness/playwright",
       { flakinessProject: "redash/redash", outputFolder: path.join(__dirname, ".results/flakiness-report") },
