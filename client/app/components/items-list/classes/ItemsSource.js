@@ -107,7 +107,11 @@ export class ItemsSource {
     this._searchTerm = state.searchTerm || "";
     this._selectedTags = state.selectedTags || [];
 
-    this._savedOrderByField = this._sorter.field;
+    // Restoring a relevance-sorted search must not erase the sort used when search is cleared.
+    if (!this._searchTerm || this._sorter.field || this._savedOrderByField === undefined) {
+      this._savedOrderByField = this._sorter.field;
+      this._savedOrderByReverse = this._sorter.reverse;
+    }
   }
 
   updatePagination = ({ page, itemsPerPage }) => {
@@ -125,6 +129,7 @@ export class ItemsSource {
   toggleSorting = (orderByField) => {
     this._sorter.toggleField(orderByField);
     this._savedOrderByField = this._sorter.field;
+    this._savedOrderByReverse = this._sorter.reverse;
     this._changed({ sorting: true });
   };
 
@@ -132,6 +137,7 @@ export class ItemsSource {
     this._sorter.setField(orderByField);
     this._sorter.setReverse(orderByReverse);
     this._savedOrderByField = this._sorter.field;
+    this._savedOrderByReverse = this._sorter.reverse;
     this._changed({ sorting: true });
   };
 
@@ -143,6 +149,7 @@ export class ItemsSource {
     // requested by the user by actively ordering in search mode
     if (searchTerm === "" || !options?.isServerSideFTS) {
       this._sorter.setField(this._savedOrderByField); // restore ordering
+      this._sorter.setReverse(this._savedOrderByReverse);
     } else {
       this._sorter.setField(null);
     }

@@ -12,6 +12,7 @@ from redash.handlers.base import (
     get_object_or_404,
     require_fields,
 )
+from redash.handlers.databricks import clear_databricks_schema_cache
 from redash.permissions import (
     require_access,
     require_admin,
@@ -77,6 +78,10 @@ class DataSourceResource(BaseResource):
                 )
 
             abort(400)
+
+        if data_source.type == "databricks":
+            # The cached database and table lists belong to the previous configuration (e.g. catalog).
+            clear_databricks_schema_cache(data_source.id)
 
         self.record_event({"action": "edit", "object_id": data_source.id, "object_type": "datasource"})
 

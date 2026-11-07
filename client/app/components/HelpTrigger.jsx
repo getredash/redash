@@ -32,7 +32,6 @@ export const TYPES = mapValues(
       "/data-sources/querying-a-google-spreadsheet",
       "Guide: Help Setting up Google Spreadsheets",
     ],
-    DS_GOOGLE_ANALYTICS: ["/data-sources/google-analytics-setup", "Guide: Help Setting up Google Analytics"],
     DS_AXIBASETSD: ["/data-sources/axibase-time-series-database", "Guide: Help Setting up Axibase Time Series"],
     DS_RESULTS: ["/user-guide/querying/query-results-data-source", "Guide: Help Setting up Query Results"],
     ALERT_SETUP: ["/user-guide/alerts/setting-up-an-alert", "Guide: Setting Up a New Alert"],
@@ -205,7 +204,6 @@ export function helpTriggerWithTypes(types, allowedDomains = [], drawerClassName
               <div className="drawer-menu">
                 {url && (
                   <Tooltip title="Open page in a new window" placement="left">
-                    {/* eslint-disable-next-line react/jsx-no-target-blank */}
                     <Link href={url} target="_blank">
                       <i className="fa fa-external-link" aria-hidden="true" />
                       <span className="sr-only">(opens in a new tab)</span>
@@ -240,7 +238,6 @@ export function helpTriggerWithTypes(types, allowedDomains = [], drawerClassName
                 <BigMessage icon="fa-exclamation-circle" className="help-message">
                   Something went wrong.
                   <br />
-                  {/* eslint-disable-next-line react/jsx-no-target-blank */}
                   <Link href={this.state.error} target="_blank" rel="noopener">
                     Click here
                   </Link>{" "}

@@ -1,0 +1,34 @@
+---
+// Contract with the Redash app's in-app help drawer
+// (client/app/components/HelpTrigger.jsx): the drawer loads redash.io pages in
+// an iframe and listens for `iframe_url` messages to track navigation.
+// `drawer` on <body> hides the site chrome when the page is framed.
+interface Props {
+  drawerClass?: boolean
+}
+const { drawerClass = false } = Astro.props
+---
+
+<script is:inline define:vars={{ drawerClass }}>
+  ;(function () {
+    function reportUrlChange(reset) {
+      window.parent.postMessage(
+        { type: 'iframe_url', message: reset === 'reset' ? '' : window.location.href },
+        '*'
+      )
+    }
+    reportUrlChange()
+    window.addEventListener('hashchange', function () {
+      reportUrlChange()
+    })
+    window.addEventListener('beforeunload', function () {
+      reportUrlChange('reset')
+    })
+    if (drawerClass && window.parent !== window) {
+      document.documentElement.classList.add('drawer')
+      document.addEventListener('DOMContentLoaded', function () {
+        document.body.classList.add('drawer')
+      })
+    }
+  })()
+</script>

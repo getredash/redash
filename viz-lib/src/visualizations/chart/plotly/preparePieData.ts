@@ -1,5 +1,5 @@
 import { isString, each, extend, includes, map, reduce } from "lodash";
-import d3 from "d3";
+import * as d3 from "d3";
 import chooseTextColorForBackground from "@/lib/chooseTextColorForBackground";
 import { AllColorPaletteArrays, ColorPaletteTypes } from "@/visualizations/ColorPalette";
 
@@ -108,14 +108,12 @@ export default function preparePieData(seriesList: any, options: any) {
     const colorIndices = d3.range(uniqueXValues.length).map(function (i) {
       return Math.round(step * i);
     });
-    // @ts-expect-error ts-migrate(2339) FIXME: Property 'scale' does not exist on type 'typeof im... Remove this comment to see the full error message
-    getDefaultColor = d3.scale
-      .ordinal()
-      .domain(uniqueXValues) // Set domain as the unique x-values
+    getDefaultColor = d3
+      .scaleOrdinal()
+      .domain(uniqueXValues as string[]) // Set domain as the unique x-values
       .range(colorIndices.map((index) => palette[index]));
   } else {
-    // @ts-expect-error ts-migrate(2339) FIXME: Property 'scale' does not exist on type 'typeof im... Remove this comment to see the full error message
-    getDefaultColor = d3.scale.ordinal().domain([]).range(palette);
+    getDefaultColor = d3.scaleOrdinal().domain([]).range(palette);
   }
 
   each(options.valuesOptions, (item, key) => {

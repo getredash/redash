@@ -1,8 +1,6 @@
-const MockDate = require("mockdate");
-
-const date = new Date("2000-01-01T02:00:00.000");
-
-MockDate.set(date);
+// Start the clock at a fixed date but let it keep running: debounced callbacks
+// (use-debounce) measure elapsed time with Date.now() and never fire on a frozen clock.
+jest.useFakeTimers({ now: new Date("2000-01-01T02:00:00.000"), advanceTimers: true });
 
 Object.defineProperty(window, "matchMedia", {
   writable: true,
@@ -17,3 +15,7 @@ Object.defineProperty(window, "matchMedia", {
     dispatchEvent: jest.fn(),
   })),
 });
+
+// jsdom doesn't provide TextEncoder, which React 18's react-dom/server needs
+const { TextEncoder, TextDecoder } = require("util");
+Object.assign(global, { TextEncoder, TextDecoder });

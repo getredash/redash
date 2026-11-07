@@ -1,5 +1,16 @@
 # Change Log
 
+## Unreleased
+
+### Features and improvements
+
+- **Databricks:** Use the official Databricks SQL Connector for Python (`databricks-sql-connector`) instead of pyodbc with the Simba Spark ODBC driver. Connections and cursors are now closed after each query ([#7825](https://github.com/getredash/redash/pull/7825)).
+- **Databricks:** Add an optional "Catalog" setting. When set, it is the default catalog for queries and the schema browser lists that catalog's schemas; when empty, the workspace's default catalog is used ([#7825](https://github.com/getredash/redash/pull/7825)).
+
+### Upgrading and compatibility
+
+**Databricks:** The Docker image no longer includes the Simba Spark ODBC driver. Existing Databricks data sources keep working without configuration changes. Custom images or deployments that relied on the bundled Simba driver for anything else must install it themselves. Test Connection now runs `SHOW DATABASES`, so it fails when the configured catalog does not exist.
+
 ## 26.9.0
 
 Redash v26.9.0 includes important security fixes, a new Cloudflare D1 data source, improvements to number formatting and query runners, and updated dependencies and build tooling.

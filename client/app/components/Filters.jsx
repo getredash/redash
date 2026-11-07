@@ -88,6 +88,7 @@ function Filters({ filters, onChange }) {
                 className="col-sm-6 p-l-0 filter-container"
                 data-test={`FilterName-${filter.name}`}
               >
+                {/* biome-ignore lint/a11y/noLabelWithoutControl: labels the antd Select below */}
                 <label>{filter.friendlyName}</label>
                 {options.length === 0 && <Select className="w-100" disabled value="No values" />}
                 {options.length > 0 && (

@@ -232,7 +232,7 @@ function QueryView(props) {
   );
 }
 
-QueryView.propTypes = { query: PropTypes.object.isRequired }; // eslint-disable-line react/forbid-prop-types
+QueryView.propTypes = { query: PropTypes.object.isRequired };
 
 const QueryViewPage = wrapQueryPage(QueryView);
 

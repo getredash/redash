@@ -1,0 +1,8 @@
+# The Redash app shows knowledge base pages in an iframe (in-app help drawer),
+# so every page must allow being framed. Don't add X-Frame-Options.
+/*
+  Content-Security-Policy: frame-ancestors *
+
+# Fingerprinted build output.
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable

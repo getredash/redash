@@ -12,6 +12,7 @@ from redash.settings.helpers import (
     fix_assets_path,
     int_or_none,
     parse_boolean,
+    parse_samesite,
     set_from_string,
 )
 from redash.settings.organization import DATE_FORMAT, TIME_FORMAT  # noqa
@@ -77,12 +78,21 @@ ENFORCE_PRIVATE_ADDRESS_BLOCK = parse_boolean(os.environ.get("REDASH_ENFORCE_PRI
 
 # Whether to use secure cookies by default.
 COOKIES_SECURE = parse_boolean(os.environ.get("REDASH_COOKIES_SECURE", str(ENFORCE_HTTPS)))
+# Largest non-file form field Flask accepts, in bytes (Flask's own default is 500 kB).
+# Form posts are rare in Redash, but SAML and LDAP login use them; raise this if your
+# identity provider sends very large signed SAML responses.
+MAX_FORM_MEMORY_SIZE = int(os.environ.get("REDASH_MAX_FORM_MEMORY_SIZE", 500_000))
+
 # Whether the session cookie is set to secure.
 SESSION_COOKIE_SECURE = parse_boolean(os.environ.get("REDASH_SESSION_COOKIE_SECURE") or str(COOKIES_SECURE))
 # Whether the session cookie is set HttpOnly.
 SESSION_COOKIE_HTTPONLY = parse_boolean(os.environ.get("REDASH_SESSION_COOKIE_HTTPONLY", "true"))
 SESSION_EXPIRY_TIME = int(os.environ.get("REDASH_SESSION_EXPIRY_TIME", 60 * 60 * 6))
 SESSION_COOKIE_NAME = os.environ.get("REDASH_SESSION_COOKIE_NAME", "session")
+# SameSite attribute for the session cookie ("Lax", "Strict" or "None"). Unset by default,
+# which leaves it to the browser. "None" (e.g. for embedding Redash in another site while
+# logged in) requires secure session cookies.
+SESSION_COOKIE_SAMESITE = parse_samesite(os.environ.get("REDASH_SESSION_COOKIE_SAMESITE"), SESSION_COOKIE_SECURE)
 
 # Whether the session cookie is set to secure.
 REMEMBER_COOKIE_SECURE = parse_boolean(os.environ.get("REDASH_REMEMBER_COOKIE_SECURE") or str(COOKIES_SECURE))
@@ -146,6 +156,13 @@ GOOGLE_OAUTH_SCHEME_OVERRIDE = os.environ.get("REDASH_GOOGLE_OAUTH_SCHEME_OVERRI
 GOOGLE_CLIENT_ID = os.environ.get("REDASH_GOOGLE_CLIENT_ID", "")
 GOOGLE_CLIENT_SECRET = os.environ.get("REDASH_GOOGLE_CLIENT_SECRET", "")
 GOOGLE_OAUTH_ENABLED = bool(GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET)
+
+OIDC_CLIENT_ID = os.environ.get("REDASH_OIDC_CLIENT_ID", "")
+OIDC_CLIENT_SECRET = os.environ.get("REDASH_OIDC_CLIENT_SECRET", "")
+OIDC_ISSUER_URL = os.environ.get("REDASH_OIDC_ISSUER_URL", "")
+OIDC_ENABLED = bool(OIDC_CLIENT_ID and OIDC_CLIENT_SECRET and OIDC_ISSUER_URL)
+OIDC_SCOPE = os.environ.get("REDASH_OIDC_SCOPE", "openid email profile")
+OIDC_SCHEME_OVERRIDE = os.environ.get("REDASH_OIDC_SCHEME_OVERRIDE", "")
 
 # If Redash is behind a proxy it might sometimes receive a X-Forwarded-Proto of HTTP
 # even if your actual Redash URL scheme is HTTPS. This will cause Flask to build
@@ -309,14 +326,12 @@ default_query_runners = [
     "redash.query_runner.tinybird",
     "redash.query_runner.yandex_metrica",
     "redash.query_runner.yandex_disk",
-    "redash.query_runner.rockset",
     "redash.query_runner.treasuredata",
     "redash.query_runner.sqlite",
     "redash.query_runner.mssql",
     "redash.query_runner.mssql_odbc",
     "redash.query_runner.memsql_ds",
     "redash.query_runner.jql",
-    "redash.query_runner.google_analytics",
     "redash.query_runner.axibase_tsd",
     "redash.query_runner.salesforce",
     "redash.query_runner.query_results",
