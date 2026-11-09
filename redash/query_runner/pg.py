@@ -217,6 +217,11 @@ class PostgreSQL(BaseSQLQueryRunner):
         """
         relkind constants from https://www.postgresql.org/docs/current/catalog-pg-class.html
         m = materialized view
+
+        SELECT is checked per column so a role with only column-level grants
+        still sees the columns it can read: has_table_privilege is false for
+        that role. information_schema.columns can't be relied on for this
+        because it also lists columns the role can only write.
         """
 
         query = """
@@ -233,7 +238,7 @@ class PostgreSQL(BaseSQLQueryRunner):
         AND a.attnum > 0
         AND NOT a.attisdropped
         WHERE c.relkind = 'm'
-        AND has_table_privilege(quote_ident(s.nspname) || '.' || quote_ident(c.relname), 'select')
+        AND has_column_privilege(c.oid, a.attnum, 'select')
         AND has_schema_privilege(s.nspname, 'usage')
 
         UNION
@@ -244,7 +249,7 @@ class PostgreSQL(BaseSQLQueryRunner):
                data_type
         FROM information_schema.columns
         WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
-        AND has_table_privilege(quote_ident(table_schema) || '.' || quote_ident(table_name), 'select')
+        AND has_column_privilege(quote_ident(table_schema) || '.' || quote_ident(table_name), column_name, 'select')
         AND has_schema_privilege(table_schema, 'usage')
         """
 
