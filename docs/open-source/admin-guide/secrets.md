@@ -83,6 +83,6 @@ Stop all Redash services before you run this command. A service that is still ru
 If you deployed Redash using docker-compose (from one of our cloud images, for instance) follow these steps on your docker host:
 
 1. Stop Redash services: `docker compose stop server scheduler scheduled_worker adhoc_worker worker` (you might need to list additional services if you updated your configuration)
-2. Re-encrypt your secret fields: `docker compose run --rm server manage database reencrypt ${old_secret} ${new_secret}`
+2. Re-encrypt your secret fields: `docker compose run --rm server manage database reencrypt ${old_secret} ${new_secret}`. If the output shows `Invalid Decryption Key` or `InvalidToken`, the old secret didn't match. Don't continue: run the command again with the correct secret.
 3. Set `REDASH_SECRET_KEY` to the new secret in your environment file (`/opt/redash/env` if you used our setup script, or the `.env` file next to `compose.yaml`).
 4. Start services: `docker compose up -d`
