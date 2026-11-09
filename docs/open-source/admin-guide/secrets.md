@@ -60,7 +60,7 @@ Under normal circumstances, you configure your secret keys while deploying Redas
 
 ### Changing the Cookie Secret
 
-Assuming you have already explicitly set `REDASH_SECRET_KEY`, you can safely change `REDASH_COOKIE_SECRET` at any time. This will immediately reset all active user sessions, but is otherwise free of side-effects.
+Assuming you have already explicitly set `REDASH_SECRET_KEY`, you can change `REDASH_COOKIE_SECRET` at any time. This will immediately reset all active user sessions. It will also invalidate invitation, email verification, and password reset links that were already sent, because they are signed with this secret. Anyone holding one of those links will need a new one.
 
 If you did not already explicitly set `REDASH_SECRET_KEY`, then you should use the instructions in the next section to reencrypt your secret fields before modifying `REDASH_COOKIE_SECRET`. Otherwise your existing data sources will be inaccessible to Redash.
 
@@ -78,8 +78,11 @@ Do not delete your `REDASH_SECRET_KEY` until you have finished re-encrypting sec
 
 The Redash CLI includes the `database reencrypt` command to conveniently re-encrypt your secret fields stored by Redash. It accepts two positional arguments: the old secret and the new secret. When you run the command, the secret fields in Redash's internal database are decrypted using the old secret and encrypted again with the new secret. This includes data source definitions and alert destinations.
 
-If you deployed Redash using docker-compose (from one of our cloud images, for instance) you can invoke this CLI on your docker host with this command:
+Stop all Redash services before you run this command. A service that is still running keeps using the old secret: it cannot read the re-encrypted fields, and anything it saves is encrypted with the old secret. Once you switch to the new secret, that data cannot be read, and a single unreadable data source is enough to make listing your data sources fail.
 
-```bash
-$ docker-compose run --rm server manage database reencrypt ${old_secret} ${new_secret}
-```
+If you deployed Redash using docker-compose (from one of our cloud images, for instance) follow these steps on your docker host:
+
+1. Stop Redash services: `docker compose stop server scheduler scheduled_worker adhoc_worker worker` (you might need to list additional services if you updated your configuration)
+2. Re-encrypt your secret fields: `docker compose run --rm server manage database reencrypt ${old_secret} ${new_secret}`
+3. Set `REDASH_SECRET_KEY` to the new secret in your environment file (`/opt/redash/env` if you used our setup script, or the `.env` file next to `compose.yaml`).
+4. Start services: `docker compose up -d`
