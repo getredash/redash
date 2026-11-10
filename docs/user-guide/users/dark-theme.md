@@ -33,6 +33,7 @@ https://redash.example.com/public/dashboards/<token>?theme=dark
 ```
 
 :::note
-The data colours of your charts don't change with the theme. If a series is drawn in black or a dark grey, consider
-another colour so it stays readable in the dark theme.
+Colours chosen in a visualization's options don't change with the theme: series colours, a map's background or the
+colour range of a cohort or choropleth stay as configured. If a series is drawn in black or a dark grey, or a map has
+a white background, consider other colours so they read well in both themes.
 :::

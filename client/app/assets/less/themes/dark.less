@@ -670,6 +670,21 @@ html[data-theme="dark"] {
     background-color: var(--rd-surface-muted);
   }
 
+  // ---------------------------------------------------------------- Ace editor (tomorrow_night, see useAceTheme)
+  .ace-tomorrow-night {
+    background-color: var(--rd-surface-code);
+
+    .ace_gutter {
+      background-color: var(--rd-surface-muted);
+      color: var(--rd-text-faint);
+    }
+
+    .ace_gutter-active-line,
+    .ace_marker-layer .ace_active-line {
+      background-color: var(--rd-fill);
+    }
+  }
+
   // ---------------------------------------------------------------- Leaflet maps: darken the raster tiles
   .leaflet-container {
     background-color: var(--rd-body-bg);
