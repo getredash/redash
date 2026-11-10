@@ -22,7 +22,7 @@ def get_location(ip):
 def event_details(event):
     details = {}
     if event.object_type == "data_source" and event.action == "execute_query":
-        details["query"] = event.additional_properties["query"]
+        details["query"] = event.additional_properties.get("query")
         details["data_source"] = event.object_id
     elif event.object_type == "page" and event.action == "view":
         details["page"] = event.object_id
