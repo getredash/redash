@@ -66,6 +66,7 @@ function convertUserInfo(user) {
     groupIds: user.groups,
     isDisabled: user.is_disabled,
     isInvitationPending: user.is_invitation_pending,
+    theme: user.theme,
   };
 }
 

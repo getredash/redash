@@ -3,7 +3,8 @@ import { useState, useEffect, useCallback } from "react";
 import recordEvent from "@/services/recordEvent";
 import OrgSettings from "@/services/organizationSettings";
 import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
-import { updateClientConfig } from "@/services/auth";
+import { currentUser, updateClientConfig } from "@/services/auth";
+import { applyTheme } from "@/services/theme";
 
 export default function useOrganizationSettings({ onError }) {
   const [settings, setSettings] = useState({});
@@ -54,7 +55,9 @@ export default function useOrganizationSettings({ onError }) {
             dateFormat: currentValues.date_format,
             timeFormat: currentValues.time_format,
             dateTimeFormat: `${currentValues.date_format} ${currentValues.time_format}`,
+            defaultTheme: currentValues.default_theme,
           });
+          applyTheme({ userTheme: currentUser.theme, defaultTheme: currentValues.default_theme });
         })
         .catch(handleError)
         .finally(() => setIsSaving(false));
