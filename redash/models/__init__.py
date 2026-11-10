@@ -881,8 +881,16 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
                 logging.info(
                     f"Unable to update hash for query {self.id} because of dropdown query {e.query_id} is unattached from datasource"
                 )
+            except Exception as e:
+                logging.info(
+                    f"Unable to update hash for query {self.id} because its text could not be rendered: {e!r}"
+                )
 
-        self.query_hash = query_runner.gen_query_hash(query_text, should_apply_auto_limit)
+        try:
+            self.query_hash = query_runner.gen_query_hash(query_text, should_apply_auto_limit)
+        except Exception as e:
+            logging.info(f"Unable to apply auto limit to hash for query {self.id}: {e!r}")
+            self.query_hash = gen_query_hash(query_text)
 
 
 @listens_for(Query, "before_insert")
