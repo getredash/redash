@@ -10,6 +10,8 @@ from redash.permissions import (
 )
 from redash.serializers import serialize_widget
 
+WIDGET_CLIENT_FIELDS = ("dashboard_id", "options", "text", "width")
+
 
 class WidgetListResource(BaseResource):
     @require_permission("edit_dashboard")
@@ -29,18 +31,16 @@ class WidgetListResource(BaseResource):
         dashboard = models.Dashboard.get_by_id_and_org(widget_properties.get("dashboard_id"), self.current_org)
         require_object_modify_permission(dashboard, self.current_user)
 
-        widget_properties.pop("id", None)
-
-        visualization_id = widget_properties.pop("visualization_id", None)
+        visualization_id = widget_properties.get("visualization_id")
         if visualization_id:
             visualization = models.Visualization.get_by_id_and_org(visualization_id, self.current_org)
             require_access(visualization.query_rel, self.current_user, view_only)
         else:
             visualization = None
 
-        widget_properties["visualization"] = visualization
-
-        widget = models.Widget(**widget_properties)
+        # Only use the fields a client is meant to set. Others, like the id and timestamps, are managed by the server.
+        fields = {k: v for k, v in widget_properties.items() if k in WIDGET_CLIENT_FIELDS}
+        widget = models.Widget(visualization=visualization, **fields)
         models.db.session.add(widget)
 
         models.db.session.commit()
