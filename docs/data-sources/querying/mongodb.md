@@ -13,7 +13,7 @@ String** and a **DB Name**.
 
 - With SSL enabled: `mongodb://username:password@hostname:port/dbname?ssl=true`
 
-- With SSL enabled and self-signed certificates (disables certificate verification): `mongodb://username:password@hostname:port/dbname?ssl=true&ssl_cert_reqs=CERT_NONE`
+- With SSL enabled and a self-signed certificate or private CA: `mongodb://username:password@hostname:port/dbname?ssl=true&tlsCAFile=/path/to/ca.pem`
 
 If needed, you can pass additional connection options in the query string. See
 full details in [MongoDB's
@@ -44,7 +44,15 @@ We've had issues with users connecting to MongoDB Atlas free tier accounts becau
 
 **Error: "SSL handshake failed: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed"**
 
-This usually happens when your MongoDB server is using self signed certificates. You can either switch to a properly signed certificate or just add the `ssl_cert_reqs=CERT_NONE` option to your Connection String.
+This usually happens when your MongoDB server is using self signed certificates. You can either switch to a properly signed certificate or add the `tlsCAFile=/path/to/ca.pem` option to your Connection String, pointing to the certificate that signed your server's certificate. The file must be readable by the Redash server and workers (inside the containers if you use Docker).
+
+:::caution
+
+The `tlsAllowInvalidCertificates=true` option turns off certificate verification, which can expose your credentials and query data to a man-in-the-middle. Only use it as a temporary workaround on a network you control.
+
+The older `ssl_cert_reqs=CERT_NONE` option no longer works. Redash's MongoDB driver ignores it and keeps verifying certificates.
+
+:::
 
 Write your MongoDB query as a JSON object. During execution, Redash will convert it into either a [`db.collection.find()`](https://docs.mongodb.com/manual/reference/method/db.collection.find/) call or a [`db.collection.aggregate()`](https://docs.mongodb.com/manual/reference/method/db.collection.aggregate/) call. Here's how your JSON object is mapped and sent to MongoDB:
 

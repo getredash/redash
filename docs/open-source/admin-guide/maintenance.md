@@ -87,4 +87,10 @@ You’ll find below an example output of this endpoint:
 
 ```
 
-If you plan to hit this endpoint without being logged in, you’ll need to provide your API key as a query parameter. Example endpoint with an API key: `/status.json?api_key=fooBarqsLlGJQIs3maPErUxKuxwWGIpDXoSzQsx7xdv`
+If you plan to hit this endpoint without being logged in, send your API key in the `Authorization` header:
+
+```bash
+curl --header 'Authorization: Key <super-admin-api-key>' https://<redash host>/status.json
+```
+
+Avoid passing the key in the URL (`/status.json?api_key=...`). URLs are often kept in browser history and in server or proxy logs, and this key gives super admin access.

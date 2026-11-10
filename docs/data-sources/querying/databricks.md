@@ -24,7 +24,7 @@ You can do this with any REST API tool as follows:
 
 ```bash
 curl --request GET \
-  --url http://<redash host>/api/databricks/databases/<data-source-id>/<database-name>/tables?refresh \
+  --url https://<redash host>/api/databricks/databases/<data-source-id>/<database-name>/tables?refresh \
   --header 'Authorization: Key <admin-api-key>' \
 ```
 
