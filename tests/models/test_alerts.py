@@ -216,3 +216,12 @@ class TestAlertRenderTemplate(BaseTestCase):
         """
         result = alert.render_template(textwrap.dedent(custom_alert))
         self.assertMultiLineEqual(result, textwrap.dedent(expected))
+
+    def test_render_custom_alert_template_query_table_with_rows_missing_a_column(self):
+        results = {
+            "rows": [{"foo": 1}, {"foo": 2, "bar": "x"}],
+            "columns": [{"name": "foo", "type": "INTEGER"}, {"name": "bar", "type": "STRING"}],
+        }
+        alert = self.create_alert(results)
+        custom_alert = "{{#QUERY_RESULT_TABLE}}[{{#.}}<{{.}}>{{/.}}]{{/QUERY_RESULT_TABLE}}"
+        self.assertEqual(alert.render_template(custom_alert), "[<1><None>][<2><x>]")
