@@ -73,7 +73,7 @@ test.describe("Account page of the logged-in user", () => {
     await expect(page.locator(".profile__h3")).toHaveText(user.name);
     // Own groups are shown, not editable; and nobody can disable themselves
     await expect(byTest(page, "Groups")).toHaveText("default");
-    await expect(profile(page).locator(".ant-select")).toHaveCount(0);
+    await expect(profile(page).locator('.ant-select:not([data-test="ThemeSelect"])')).toHaveCount(0);
     await expect(page.getByRole("button", { name: /Disable User|Enable User/ })).toHaveCount(0);
 
     const renamed = `${user.name} renamed`;
