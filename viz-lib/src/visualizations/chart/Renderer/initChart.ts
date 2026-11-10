@@ -2,6 +2,7 @@ import { isArray, isObject, isString, isFunction, startsWith, reduce, merge, map
 import resizeObserver from "@/services/resizeObserver";
 import { Plotly, prepareData, prepareLayout, updateData, updateAxes, updateChartSize } from "../plotly";
 import { formatSimpleTemplate } from "@/lib/value-format";
+import applyLayoutTheme from "../plotly/applyLayoutTheme";
 
 const navigateToUrl = (url: string, shouldOpenNewTab: boolean = true) =>
   shouldOpenNewTab ? window.open(url, "_blank") : (window.location.href = url);
@@ -66,7 +67,7 @@ export default function initChart(container: any, options: any, data: any, addit
   }
 
   const plotlyData = prepareData(data, options);
-  const plotlyLayout = prepareLayout(container, options, plotlyData);
+  const plotlyLayout = applyLayoutTheme(prepareLayout(container, options, plotlyData), additionalOptions.theme);
 
   let isDestroyed = false;
 

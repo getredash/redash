@@ -5,6 +5,7 @@ import { AceEditor, snippetsModule, updateSchemaCompleter } from "./ace";
 import { srNotify } from "@/lib/accessibility";
 import { SchemaItemType } from "@/components/queries/SchemaBrowser";
 import resizeObserver from "@/services/resizeObserver";
+import useAceTheme from "@/lib/hooks/useAceTheme";
 import QuerySnippet from "@/services/query-snippet";
 
 import QueryEditorControls from "./QueryEditorControls";
@@ -18,6 +19,7 @@ const QueryEditor = React.forwardRef(function (
 ) {
   const [container, setContainer] = useState(null);
   const [editorRef, setEditorRef] = useState(null);
+  const aceTheme = useAceTheme();
 
   // For some reason, value for AceEditor should be managed in this way - otherwise it goes berserk when selecting text
   const [currentValue, setCurrentValue] = useState(value);
@@ -156,7 +158,7 @@ const QueryEditor = React.forwardRef(function (
     <div className={cx("query-editor-container", className)} {...props} ref={setContainer}>
       <AceEditor
         ref={setEditorRef}
-        theme="textmate"
+        theme={aceTheme}
         mode={syntax || "sql"}
         value={currentValue}
         editorProps={editorProps}
