@@ -130,3 +130,11 @@ class TestSession(BaseTestCase):
     # really simple test just to trigger this route
     def test_get(self):
         self.make_request("get", "/default/api/session", user=self.factory.user, org=False)
+
+    def test_includes_theme(self):
+        user = self.factory.user
+        user.theme = "dark"
+        self.factory.org.set_setting("default_theme", "system")
+        rv = self.make_request("get", "/default/api/session", user=user, org=False)
+        self.assertEqual(rv.json["user"]["theme"], "dark")
+        self.assertEqual(rv.json["client_config"]["defaultTheme"], "system")

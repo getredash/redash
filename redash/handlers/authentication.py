@@ -296,6 +296,7 @@ def client_config():
         "showPermissionsControl": current_org.get_setting("feature_show_permissions_control"),
         "hidePlotlyModeBar": current_org.get_setting("hide_plotly_mode_bar"),
         "disablePublicUrls": current_org.get_setting("disable_public_urls"),
+        "defaultTheme": current_org.get_setting("default_theme"),
         "multiByteSearchEnabled": current_org.get_setting("multi_byte_search_enabled"),
         "allowCustomJSVisualizations": settings.FEATURE_ALLOW_CUSTOM_JS_VISUALIZATIONS,
         "autoPublishNamedQueries": settings.FEATURE_AUTO_PUBLISH_NAMED_QUERIES,
@@ -350,6 +351,7 @@ def session(org_slug=None):
             "email": current_user.email,
             "groups": current_user.group_ids,
             "permissions": current_user.permissions,
+            "theme": current_user.theme,
         }
 
     return json_response(

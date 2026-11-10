@@ -269,6 +269,26 @@ class TestUserResourcePost(BaseTestCase):
         self.make_request("post", "/api/users/{}".format(user.id), data={"email": "donald@trump.biz"})
         self.assertTrue(user.is_email_verified)
 
+    def test_changes_own_theme(self):
+        user = self.factory.user
+        rv = self.make_request("post", "/api/users/{}".format(user.id), data={"theme": "dark"})
+        self.assertEqual(rv.status_code, 200)
+        self.assertEqual(rv.json["theme"], "dark")
+        self.assertEqual(user.details["theme"], "dark")
+
+    def test_resets_theme_to_organization_default(self):
+        user = self.factory.user
+        user.theme = "dark"
+        rv = self.make_request("post", "/api/users/{}".format(user.id), data={"theme": None})
+        self.assertEqual(rv.status_code, 200)
+        self.assertIsNone(rv.json["theme"])
+
+    def test_rejects_unknown_theme(self):
+        user = self.factory.user
+        rv = self.make_request("post", "/api/users/{}".format(user.id), data={"theme": "purple"})
+        self.assertEqual(rv.status_code, 400)
+        self.assertIsNone(user.theme)
+
     def test_returns_200_for_admin_changing_other_user(self):
         admin = self.factory.create_admin()
 
