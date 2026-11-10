@@ -51,15 +51,15 @@
 @text-color:                            #767676;
 @link:                                  #02a4c4;
 @link-hover-decoration:                 none;
-@headings-color:                        #333;
+@headings-color:                        var(--rd-text-strong);
 
 
 /* --------------------------------------------------------
     Form
 -----------------------------------------------------------*/
-@input-color:                           #595959;
-@input-color-placeholder:               #b4b4b4;
-@input-border:                          #e8e8e8;
+@input-color:                           var(--rd-text-input);
+@input-color-placeholder:               var(--rd-text-faint);
+@input-border:                          var(--rd-border);
 @input-border-radius:                   0;
 @input-border-radius-large:             0px;
 @redash-input-radius:                   2px;
@@ -153,13 +153,13 @@
 @dropdown-fallback-border:              transparent;
 @dropdown-border:                       transparent;
 @dropdown-divider-bg:                   '';
-@dropdown-link-hover-bg:                rgba(0,0,0,0.075);
-@dropdown-link-color:                   #333;
-@dropdown-link-hover-color:             #333;
+@dropdown-link-hover-bg:                rgba(var(--rd-ink-rgb), 0.075);
+@dropdown-link-color:                   var(--rd-text-strong);
+@dropdown-link-hover-color:             var(--rd-text-strong);
 @dropdown-link-disabled-color:          #e4e4e4;
-@dropdown-divider-bg:                   rgba(0,0,0,0.08);
-@dropdown-link-active-color:            #333;
-@dropdown-link-active-bg:               rgba(0, 0, 0, 0.075);
+@dropdown-divider-bg:                   rgba(var(--rd-ink-rgb), 0.08);
+@dropdown-link-active-color:            var(--rd-text-strong);
+@dropdown-link-active-bg:               rgba(var(--rd-ink-rgb), 0.075);
 @zindex-dropdown:                       9;
 @dropdown-shadow:                       0 2px 10px rgba(0, 0, 0, 0.2);
 
@@ -172,15 +172,15 @@
 /* --------------------------------------------------------
     Buttons
 -----------------------------------------------------------*/
-@btn-default-border:                    @input-border;
+@btn-default-border:                    #e8e8e8; // literal: Bootstrap darkens it
 @btn-font-weight:				        400;
 
 
 /* --------------------------------------------------------
     Tables
 -----------------------------------------------------------*/
-@table-bg:                              #fff;
-@table-border-color:                    #f0f0f0;
+@table-bg:                              var(--rd-surface);
+@table-border-color:                    var(--rd-border-split);
 @table-cell-padding:                    10px;
 @table-condensed-cell-padding:          7px;
 @table-bg-accent:                       @light-gray;
@@ -206,7 +206,7 @@
 /* --------------------------------------------------------
     Thumbnail
 -----------------------------------------------------------*/
-@thumbnail-bg:                          #fff;
+@thumbnail-bg:                          var(--rd-surface);
 @thumbnail-border:                      #eee;
 
 /* --------------------------------------------------------
@@ -265,7 +265,7 @@
 @list-group-active-bg:                  #f5f5f5;
 @list-group-active-border:              @list-group-border;
 @list-group-disabled-color:             #B5B4B4;
-@list-group-disabled-bg:                #fff;
+@list-group-disabled-bg:                var(--rd-surface);
 @list-group-disabled-text-color:        #B5B4B4;
 
 
