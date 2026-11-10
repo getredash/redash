@@ -140,7 +140,12 @@ def json_dumps(data, *args, **kwargs):
     # Float value nan or inf in Python should be render to None or null in json.
     # Using allow_nan = True will make Python render nan as NaN, leading to parse error in front-end
     kwargs.setdefault("allow_nan", False)
-    return json.dumps(_sanitize_data(data), *args, **kwargs)
+    text = json.dumps(_sanitize_data(data), *args, **kwargs)
+    if text.isascii():
+        return text
+    # With ensure_ascii=False, unpaired surrogates (which json.loads accepts, e.g. "\ud800") are copied as is,
+    # and the result can't be encoded as UTF-8. Write them as \uXXXX escapes instead.
+    return text.encode("utf-8", "backslashreplace").decode("utf-8")
 
 
 def mustache_render(template, context=None, **kwargs):
