@@ -237,6 +237,16 @@ class TestQueryListResourceGet(BaseTestCase):
         assert len(rv.json["results"]) == 3
         assert set([result["id"] for result in rv.json["results"]]) == {q1.id, q2.id, q3.id}
 
+    def test_returns_queries_with_malformed_template(self):
+        q1 = self.factory.create_query()
+        q2 = self.factory.create_query(query_text="select {{/x}}")
+
+        rv = self.make_request("get", "/api/queries")
+
+        assert rv.status_code == 200
+        assert set([result["id"] for result in rv.json["results"]]) == {q1.id, q2.id}
+        assert [result["is_safe"] for result in rv.json["results"] if result["id"] == q2.id] == [False]
+
     def test_filters_with_tags(self):
         q1 = self.factory.create_query(tags=["test"])
         self.factory.create_query()

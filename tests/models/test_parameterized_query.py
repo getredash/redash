@@ -266,6 +266,18 @@ class TestParameterizedQuery(TestCase):
 
         self.assertFalse(query.is_safe)
 
+    def test_is_not_safe_if_template_is_malformed(self):
+        templates = (
+            "select {{/x}}",
+            "select {{#a}}1{{/b}}",
+            "select {{=a=}}",
+            "{{#a}}" * 1000 + "{{/a}}" * 1000,
+        )
+        for template in templates:
+            with self.subTest(template=template[:20]):
+                query = ParameterizedQuery(template, [])
+                self.assertFalse(query.is_safe)
+
     def test_is_safe_if_all_template_parameters_are_declared(self):
         schema = [{"name": "bar", "type": "number"}]
         query = ParameterizedQuery("select {{bar}}", schema)
