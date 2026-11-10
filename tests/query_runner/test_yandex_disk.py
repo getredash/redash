@@ -57,6 +57,29 @@ def test__send_query(mock_requests_get):
 
 
 @skip_condition
+@mock.patch("requests.get")
+def test__send_query_strips_whitespace_around_token(mock_requests_get):
+    mock_requests_get.return_value.ok = True
+    mock_requests_get.return_value.json.return_value = {"foo": "bar"}
+
+    disk = YandexDisk({"token": f" {test_token}\n"})
+    disk._send_query("test_url")
+
+    assert mock_requests_get.call_args.kwargs["headers"] == {"Authorization": f"OAuth {test_token}"}
+
+
+@skip_condition
+@mock.patch("requests.get")
+def test__send_query_token_with_line_break(mock_requests_get):
+    disk = YandexDisk({"token": "AAAA\nQAA"})
+
+    with pytest.raises(Exception, match="^The OAuth token contains a line break.$"):
+        disk._send_query("test_url")
+
+    mock_requests_get.assert_not_called()
+
+
+@skip_condition
 @pytest.mark.parametrize(
     "configuration, error_message",
     [({"token": test_token}, None), ({"token": ""}, "Code: 400, message: Unauthorized")],

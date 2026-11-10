@@ -102,6 +102,20 @@ class TestDatabricksConnection(TestCase):
         self.assertIsNone(data)
         self.assertEqual(error, "Table not found")
 
+    def test_strips_whitespace_around_access_token(self, connect):
+        _mock_connection(connect).description = None
+
+        Databricks({**CONFIGURATION, "http_password": " dapi-token\r\n"}).run_query("SELECT 1", None)
+
+        self.assertEqual(connect.call_args.kwargs["access_token"], "dapi-token")
+
+    def test_access_token_with_line_break_returns_error_without_token(self, connect):
+        data, error = Databricks({**CONFIGURATION, "http_password": "dapi\ntoken"}).run_query("SELECT 1", None)
+
+        self.assertIsNone(data)
+        self.assertEqual(error, "The access token contains a line break.")
+        connect.assert_not_called()
+
     def test_get_database_tables_with_columns(self, connect):
         cursor = _mock_connection(connect)
         cursor.tables.return_value.fetchall.return_value = [

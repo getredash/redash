@@ -128,7 +128,10 @@ class YandexMetrica(BaseSQLQueryRunner):
 
     @backoff.on_exception(backoff.fibo, QuotaException, max_tries=10)
     def _send_query(self, path="stat/v1/data", **kwargs):
-        token = kwargs.pop("oauth_token", self.configuration["token"])
+        token = str(kwargs.pop("oauth_token", self.configuration["token"])).strip()
+        # A line break can't be sent in a header, and the HTTP client's error would quote the whole header.
+        if "\r" in token or "\n" in token:
+            raise Exception("The OAuth token contains a line break.")
         r = requests.get(
             f"{self.url}/{path}",
             headers={"Authorization": f"OAuth {token}"},

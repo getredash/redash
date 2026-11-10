@@ -55,6 +55,10 @@ def _normalize_host(host):
     return host.rstrip("/")
 
 
+class InvalidAccessToken(Exception):
+    pass
+
+
 def _table_name(row):
     return "{}.{}".format(row.TABLE_SCHEM, row.TABLE_NAME)
 
@@ -122,12 +126,20 @@ class Databricks(BaseSQLQueryRunner):
         cursor.execute("SELECT current_catalog()")
         return cursor.fetchone()[0]
 
+    @property
+    def _access_token(self):
+        token = self.configuration["http_password"].strip()
+        # A line break can't be sent in a header, and the HTTP client's error would quote the whole header.
+        if "\r" in token or "\n" in token:
+            raise InvalidAccessToken("The access token contains a line break.")
+        return token
+
     def _get_connection(self, session_configuration=None):
         user_agent = "Redash/{}".format(__version__.split("-")[0])
         return databricks_sql.connect(
             server_hostname=_normalize_host(self.configuration["host"]),
             http_path=self.configuration["http_path"],
-            access_token=self.configuration["http_password"],
+            access_token=self._access_token,
             catalog=self._catalog,
             user_agent_entry=user_agent,
             session_configuration=session_configuration,
@@ -169,6 +181,9 @@ class Databricks(BaseSQLQueryRunner):
             error = None
         except databricks_sql.Error as e:
             error = e.message or e.__class__.__name__
+            data = None
+        except InvalidAccessToken as e:
+            error = str(e)
             data = None
 
         return data, error
