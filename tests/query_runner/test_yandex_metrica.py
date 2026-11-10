@@ -108,3 +108,37 @@ def test_yandex_metrica_429(mocked_requests_get):
         data, error = query_runner.run_query(example_query, None)
     # we expect to have called `requests.get` 1 more time than we call `run_query`
     assert requests.get.count == N_API_CALLS + 1
+
+
+def test_yandex_metrica_strips_whitespace_around_token(monkeypatch):
+    calls = []
+
+    class Response:
+        ok = True
+        status_code = 200
+
+        def json(self):
+            return example_response
+
+    def fake_get(*args, **kwargs):
+        calls.append(kwargs)
+        return Response()
+
+    monkeypatch.setattr(requests, "get", fake_get)
+
+    data, error = YandexMetrica({"token": " example_token\r\n"}).run_query(example_query, None)
+
+    assert error is None
+    assert calls[0]["headers"] == {"Authorization": "OAuth example_token"}
+
+
+def test_yandex_metrica_token_with_line_break(monkeypatch):
+    def fake_get(*args, **kwargs):
+        raise AssertionError("no request expected")
+
+    monkeypatch.setattr(requests, "get", fake_get)
+
+    data, error = YandexMetrica({"token": "example\ntoken"}).run_query(example_query, None)
+
+    assert data is None
+    assert error == "The OAuth token contains a line break."
