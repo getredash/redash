@@ -1038,7 +1038,7 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
                 else:
                     value = data["rows"][0][self.options["column"]]
 
-            except ValueError:
+            except (TypeError, ValueError):
                 return self.UNKNOWN_STATE
 
             threshold = self.options["value"]

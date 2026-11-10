@@ -112,6 +112,13 @@ class TestAlertEvaluate(BaseTestCase):
         alert.options["selector"] = "max"
         self.assertEqual(alert.evaluate(), Alert.UNKNOWN_STATE)
 
+    def test_evaluate_return_unknown_when_min_or_max_column_has_null(self):
+        results = {"rows": [{"foo": 1}, {"foo": None}], "columns": [{"name": "foo", "type": "INTEGER"}]}
+        for selector in ["min", "max"]:
+            alert = self.create_alert(results)
+            alert.options["selector"] = selector
+            self.assertEqual(alert.evaluate(), Alert.UNKNOWN_STATE)
+
     def test_evaluate_alerts_without_query_rel(self):
         query = self.factory.create_query(latest_query_data_id=None)
         alert = self.factory.create_alert(

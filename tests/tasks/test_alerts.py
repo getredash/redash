@@ -1,4 +1,4 @@
-from mock import ANY, MagicMock
+from mock import ANY, MagicMock, patch
 
 import redash.tasks.alerts
 from redash.models import Alert
@@ -33,6 +33,25 @@ class TestCheckAlertsForQuery(BaseTestCase):
         check_alerts_for_query(alert.query_id, metadata={"Scheduled": False})
 
         self.assertFalse(redash.tasks.alerts.notify_subscriptions.called)
+
+    def test_alert_that_fails_to_evaluate_doesnt_stop_other_alerts(self):
+        redash.tasks.alerts.notify_subscriptions = MagicMock()
+
+        query = self.factory.create_query()
+        broken_alert = self.factory.create_alert(query_rel=query, options={})
+        alert = self.factory.create_alert(query_rel=query, options={"column": "foo"})
+
+        def evaluate(self):
+            if "column" not in self.options:
+                raise KeyError("column")
+            return Alert.TRIGGERED_STATE
+
+        with patch.object(Alert, "evaluate", evaluate):
+            check_alerts_for_query(query.id, metadata={"Scheduled": False})
+
+        self.assertEqual(broken_alert.state, Alert.UNKNOWN_STATE)
+        self.assertEqual(alert.state, Alert.TRIGGERED_STATE)
+        redash.tasks.alerts.notify_subscriptions.assert_called_once_with(alert, Alert.TRIGGERED_STATE, ANY)
 
 
 class TestNotifySubscriptions(BaseTestCase):
