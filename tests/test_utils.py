@@ -18,6 +18,7 @@ from redash.utils import (
     filter_none,
     generate_token,
     json_dumps,
+    json_loads,
     render_template,
 )
 from redash.utils.pandas import pandas_installed
@@ -92,6 +93,12 @@ class TestSkipNones(TestCase):
 class TestJsonDumps(TestCase):
     def test_handles_binary(self):
         self.assertEqual(json_dumps(memoryview(b"test")), '"74657374"')
+
+    def test_escapes_unpaired_surrogates(self):
+        text = json_dumps({"\udc00": ["\ud800", "\u00fc\U0001f600"]})
+        self.assertEqual(text, '{"\\udc00": ["\\ud800", "\u00fc\U0001f600"]}')
+        text.encode("utf-8")
+        self.assertEqual(json_loads(text), {"\udc00": ["\ud800", "\u00fc\U0001f600"]})
 
 
 class TestGenerateToken(TestCase):

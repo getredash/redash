@@ -73,3 +73,20 @@ class QueryResultTest(BaseTestCase):
         )
 
         self.assertEqual(original_updated_at, query.updated_at)
+
+    def test_store_result_with_unpaired_surrogate(self):
+        query = self.factory.create_query()
+        data = {"columns": [{"name": "device", "type": "string"}], "rows": [{"device": {"browser": "\ud800"}}]}
+
+        query_result = models.QueryResult.store_result(
+            query.org_id,
+            query.data_source,
+            query.query_hash,
+            query.query_text,
+            data,
+            0,
+            utcnow(),
+        )
+
+        models.db.session.expire(query_result)
+        self.assertEqual(query_result.data, data)
