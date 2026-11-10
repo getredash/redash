@@ -71,6 +71,29 @@ class WidgetAPITest(BaseTestCase):
         self.assertEqual(rv.status_code, 200)
         self.assertEqual(rv.json["text"], "Sample text.")
 
+    def test_create_widget_ignores_server_managed_fields(self):
+        dashboard = self.factory.create_dashboard()
+        vis = self.factory.create_visualization()
+
+        data = {
+            "id": 12345,
+            "visualization_id": vis.id,
+            "dashboard_id": dashboard.id,
+            "options": {},
+            "width": 1,
+            "created_at": "20000-01-01",
+            "updated_at": "20000-01-01",
+        }
+
+        rv = self.make_request("post", "/api/widgets", data=data)
+        self.assertEqual(rv.status_code, 200)
+        self.assertNotEqual(rv.json["id"], 12345)
+
+        models.db.session.expire_all()
+        widget = models.Widget.query.get(rv.json["id"])
+        self.assertLess(widget.created_at.year, 3000)
+        self.assertLess(widget.updated_at.year, 3000)
+
     def test_delete_widget(self):
         widget = self.factory.create_widget()
 
