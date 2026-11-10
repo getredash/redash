@@ -198,7 +198,12 @@ class ParameterizedQuery:
                 # Range values are validated as a single object but rendered via
                 # these two fields. Other nested fields are not validated.
                 declared.update("{}.{}".format(param["name"], field) for field in ("start", "end"))
-        undeclared = set(_collect_query_parameters(self.template)) - declared
+        try:
+            template_parameters = _collect_query_parameters(self.template)
+        except Exception:
+            # A template that can't be parsed can't be checked, so treat it as unsafe.
+            return False
+        undeclared = set(template_parameters) - declared
         return not undeclared
 
     @property
