@@ -86,6 +86,7 @@
     "@babel/preset-react": "^8.0.1",
     "@babel/preset-typescript": "^8.0.1",
     "@biomejs/biome": "2.5.14",
+    "@flakiness/playwright": "^2.0.3",
     "@playwright/test": "1.63.0",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.6.3",
     "@testing-library/dom": "^10.4.2",
