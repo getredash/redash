@@ -32,23 +32,32 @@ def check_alerts_for_query(query_id, metadata):
     query = models.Query.query.get(query_id)
 
     for alert in query.alerts:
-        logger.info("Checking alert (%d) of query %d.", alert.id, query_id)
-        new_state = alert.evaluate()
+        alert_id = alert.id
+        try:
+            check_alert(alert, query_id, metadata)
+        except Exception:
+            logger.exception("Error checking alert (%d) of query %d.", alert_id, query_id)
+            models.db.session.rollback()
 
-        if should_notify(alert, new_state):
-            logger.info("Alert %d new state: %s", alert.id, new_state)
-            old_state = alert.state
 
-            alert.state = new_state
-            alert.last_triggered_at = utils.utcnow()
-            models.db.session.commit()
+def check_alert(alert, query_id, metadata):
+    logger.info("Checking alert (%d) of query %d.", alert.id, query_id)
+    new_state = alert.evaluate()
 
-            if old_state == models.Alert.UNKNOWN_STATE and new_state == models.Alert.OK_STATE:
-                logger.debug("Skipping notification (previous state was unknown and now it's ok).")
-                continue
+    if should_notify(alert, new_state):
+        logger.info("Alert %d new state: %s", alert.id, new_state)
+        old_state = alert.state
 
-            if alert.muted:
-                logger.debug("Skipping notification (alert muted).")
-                continue
+        alert.state = new_state
+        alert.last_triggered_at = utils.utcnow()
+        models.db.session.commit()
 
-            notify_subscriptions(alert, new_state, metadata)
+        if old_state == models.Alert.UNKNOWN_STATE and new_state == models.Alert.OK_STATE:
+            logger.debug("Skipping notification (previous state was unknown and now it's ok).")
+            return
+
+        if alert.muted:
+            logger.debug("Skipping notification (alert muted).")
+            return
+
+        notify_subscriptions(alert, new_state, metadata)
