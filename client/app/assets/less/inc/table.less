@@ -6,7 +6,7 @@
   }
 
   &:not(.table-striped) > thead > tr > th {
-    background-color: #fafafa;
+    background-color: var(--rd-surface-alt);
   }
 
   [class*="bg-"] {
@@ -24,7 +24,7 @@
   & > thead > tr > th {
     vertical-align: middle;
     font-weight: 500;
-    color: #333;
+    color: var(--rd-text-strong);
     border-width: 1px;
     text-transform: uppercase;
     padding: 15px 10px;
@@ -91,7 +91,7 @@
 }
 
 .table-hover > tbody > tr:hover {
-  background-color: #f4f4f4;
+  background-color: var(--rd-surface-hover);
 }
 
 .table-data {
@@ -115,7 +115,7 @@
 }
 
 .btn-favorite {
-  color: #d4d4d4;
+  color: var(--rd-text-icon-faint);
   transition: all 0.25s ease-in-out;
 
   .fa-star {
@@ -135,16 +135,16 @@
 }
 
 .btn-archive {
-  color: #d4d4d4;
+  color: var(--rd-text-icon-faint);
   transition: all 0.25s ease-in-out;
 
   &:hover,
   &:focus {
-    color: @gray-light;
+    color: var(--rd-text-muted);
   }
 
   .fa-archive {
-    color: @gray-light;
+    color: var(--rd-text-muted);
   }
 }
 

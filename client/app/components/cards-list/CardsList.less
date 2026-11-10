@@ -6,8 +6,8 @@
 }
 
 .visual-card {
-  background: #ffffff;
-  border: 1px solid fade(@redash-gray, 15%);
+  background: var(--rd-surface);
+  border: 1px solid rgba(var(--rd-gray-rgb), 0.15);
   border-radius: 3px;
   margin: 5px;
   width: 212px;
@@ -24,7 +24,7 @@
   &:hover,
   &:focus,
   &:focus-within {
-    box-shadow: rgba(102, 136, 153, 0.15) 0px 4px 9px -3px;
+    box-shadow: rgba(var(--rd-gray-rgb), 0.15) 0px 4px 9px -3px;
   }
 
   img {
@@ -35,7 +35,7 @@
 
   h3 {
     font-size: 13px;
-    color: #323232;
+    color: var(--rd-text-strong-alt);
     margin: 0 !important;
     text-overflow: ellipsis;
     overflow: hidden;

@@ -1,7 +1,7 @@
 @import (reference, less) "~@/assets/less/ant";
 
-@btn-extra-options-bg: fade(@redash-gray, 10%);
-@btn-extra-options-border: fade(@redash-gray, 15%);
+@btn-extra-options-bg: rgba(var(--rd-gray-rgb), 0.1);
+@btn-extra-options-border: rgba(var(--rd-gray-rgb), 0.15);
 
 .dynamic-form {
   .extra-options {
@@ -16,12 +16,12 @@
       font-weight: 500;
       background-color: @btn-extra-options-bg;
       border-color: @btn-extra-options-border;
-      color: @btn-default-color;
+      color: var(--rd-text-input);
     }
 
     &:focus,
     &:hover {
-      background-color: fade(@btn-extra-options-bg, 15%);
+      background-color: rgba(var(--rd-gray-rgb), 0.15);
     }
   }
 

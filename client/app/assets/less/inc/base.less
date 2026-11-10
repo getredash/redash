@@ -25,7 +25,7 @@ body {
 
 body {
   padding-top: 0;
-  background: #f6f8f9;
+  background: var(--rd-body-bg);
   font-family: @redash-font;
   position: relative;
 
@@ -119,14 +119,14 @@ strong {
 }
 
 .bg-ace {
-  background-color: fade(@redash-gray, 12%) !important;
+  background-color: rgba(var(--rd-gray-rgb), 0.12) !important;
 }
 
 // resizeable
 .rg-top span,
 .rg-bottom span {
   height: 3px;
-  border-color: #b1c1ce; // TODO: variable
+  border-color: var(--rd-border-handle);
 }
 
 .rg-bottom {
@@ -153,8 +153,8 @@ text.slicetext {
 
 .dropdown-menu > li > a:hover,
 .dropdown-menu > li > a:focus {
-  background-color: fade(@redash-gray, 15%);
-  color: #111;
+  background-color: rgba(var(--rd-gray-rgb), 0.15);
+  color: var(--rd-text-hover);
 }
 
 .profile__image--sidebar {
@@ -189,7 +189,7 @@ text.slicetext {
   .error-state__icon {
     .zmdi {
       font-size: 64px;
-      color: @redash-gray;
+      color: rgb(var(--rd-gray-rgb));
     }
   }
 

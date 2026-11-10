@@ -33,19 +33,19 @@
 
 .pvtAxisContainer,
 .pvtVals {
-  border: 1px solid fade(@visualizations-gray, 15%);
-  background: #fff;
+  border: 1px solid rgba(var(--rd-gray-rgb, 102, 136, 153), 0.15);
+  background: var(--rd-surface, #ffffff);
 }
 
 .pvtAxisContainer li span.pvtAttr {
-  background: fade(@visualizations-gray, 10%);
-  border: 1px solid fade(@visualizations-gray, 15%);
+  background: rgba(var(--rd-gray-rgb, 102, 136, 153), 0.1);
+  border: 1px solid rgba(var(--rd-gray-rgb, 102, 136, 153), 0.15);
   border-radius: 3px;
 }
 
 .pvtCheckContainer {
-  border-top: 1px solid fade(@visualizations-gray, 15%);
-  border-bottom: 1px solid fade(@visualizations-gray, 15%);
+  border-top: 1px solid rgba(var(--rd-gray-rgb, 102, 136, 153), 0.15);
+  border-bottom: 1px solid rgba(var(--rd-gray-rgb, 102, 136, 153), 0.15);
 }
 
 .pvtCheckContainer p {
@@ -54,26 +54,26 @@
 }
 
 .pvtTriangle {
-  color: fade(@visualizations-gray, 90%);
+  color: rgba(var(--rd-gray-rgb, 102, 136, 153), 0.9);
 }
 
 table.pvtTable thead tr th,
 table.pvtTable tbody tr th {
-  background-color: fade(@visualizations-gray, 10%);
-  border: 1px solid #ced8dc;
+  background-color: rgba(var(--rd-gray-rgb, 102, 136, 153), 0.1);
+  border: 1px solid var(--rd-border-table-cell, #ced8dc);
 }
 
 table.pvtTable tbody tr td {
-  border: 1px solid #ced8dc;
+  border: 1px solid var(--rd-border-table-cell, #ced8dc);
 }
 
 .pvtFilterBox {
-  border: 1px solid fade(@visualizations-gray, 15%);
+  border: 1px solid rgba(var(--rd-gray-rgb, 102, 136, 153), 0.15);
   border-radius: 3px;
-  box-shadow: fade(@visualizations-gray, 15%) 0px 4px 9px -3px;
+  box-shadow: rgba(var(--rd-gray-rgb, 102, 136, 153), 0.15) 0px 4px 9px -3px;
 
   button {
-    background-color: rgba(102, 136, 153, 0.15);
+    background-color: rgba(var(--rd-gray-rgb, 102, 136, 153), 0.15);
     margin-right: 5px;
     border: 1px solid transparent;
     padding: 3px 6px;
@@ -82,7 +82,7 @@ table.pvtTable tbody tr td {
     border-radius: 3px;
 
     &:hover {
-      background-color: rgba(102, 136, 153, 0.25);
+      background-color: rgba(var(--rd-gray-rgb, 102, 136, 153), 0.25);
     }
   }
 
@@ -91,7 +91,7 @@ table.pvtTable tbody tr td {
     margin: 0 auto 10px;
     height: 35px;
     padding: 6px 12px;
-    border: 1px solid #e8e8e8;
+    border: 1px solid var(--rd-border, #e8e8e8);
     border-radius: 3px;
   }
 }

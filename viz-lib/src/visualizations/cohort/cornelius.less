@@ -6,22 +6,22 @@
     padding-bottom: 10px;
     font-weight: bold;
     font-size: 14pt;
-    color: @table-header-color;
+    color: var(--rd-text-strong, #333333);
     border-collapse: collapse;
   }
 
   .cornelius-table {
     font-size: 9pt;
     border-spacing: 0;
-    border: 1px solid #e4e4e4;
+    border: 1px solid var(--rd-border-mid, #e4e4e4);
     border-collapse: collapse;
 
     th,
     td {
       text-align: center;
       padding: 10px;
-      border: 1px solid #e4e4e4;
-      color: @table-header-color;
+      border: 1px solid var(--rd-border-mid, #e4e4e4);
+      color: var(--rd-text-strong, #333333);
       font-weight: bold;
     }
 
@@ -40,7 +40,7 @@
     .cornelius-people,
     .cornelius-stage {
       font-weight: bold;
-      color: @table-header-color;
+      color: var(--rd-text-strong, #333333);
     }
 
     .cornelius-percentage,
