@@ -488,6 +488,37 @@ class TestQueryAll(BaseTestCase):
         query.update_query_hash()
         self.assertNotEqual(origin_hash, query.query_hash)
 
+    def test_update_query_hash_with_malformed_template(self):
+        ds = self.factory.create_data_source(group=self.factory.org.default_group, type="pg")
+        query = self.factory.create_query(query_text="SELECT {{num}} {{/x}}", data_source=ds)
+        query.options = {"parameters": [{"type": "number", "name": "num", "value": 5}]}
+        db.session.flush()
+        self.assertEqual(query.query_hash, gen_query_hash("SELECT {{num}} {{/x}}"))
+
+    def test_update_query_hash_with_non_string_multi_value_default(self):
+        ds = self.factory.create_data_source(group=self.factory.org.default_group, type="pg")
+        query = self.factory.create_query(query_text="SELECT {{num}}", data_source=ds)
+        query.options = {
+            "parameters": [
+                {
+                    "type": "enum",
+                    "name": "num",
+                    "enumOptions": "1\n2",
+                    "multiValuesOptions": {"separator": ","},
+                    "value": [1, 2],
+                }
+            ]
+        }
+        db.session.flush()
+        self.assertEqual(query.query_hash, gen_query_hash("SELECT {{num}}"))
+
+    def test_update_query_hash_when_auto_limit_cannot_be_applied(self):
+        ds = self.factory.create_data_source(group=self.factory.org.default_group, type="mssql")
+        query = self.factory.create_query(query_text="select", data_source=ds)
+        query.options = {"apply_auto_limit": True}
+        db.session.flush()
+        self.assertEqual(query.query_hash, gen_query_hash("select"))
+
 
 class TestGroup(BaseTestCase):
     def test_returns_groups_with_specified_names(self):
