@@ -89,6 +89,8 @@ export default defineConfig<{ theme: Theme }>({
       ...darkTheme,
       use: { ...pagesProject.use, ...darkTheme.use },
       grep: /@dark/,
+      // After the light pages: the same pages loading at once (e.g. the schema of a new data source) can time out
+      dependencies: ["pages"],
     },
   ],
 });
