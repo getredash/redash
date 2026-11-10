@@ -1,0 +1,189 @@
+// Dark theme for Bootstrap 3's components. Bootstrap compiles its colours from LESS variables through colour
+// functions, so its rules are recoloured here, scoped to the dark theme (see dark.less). Also used by the pages
+// rendered by Flask (server.less).
+
+html[data-theme="dark"] {
+  // ---------------------------------------------------------------- Bootstrap base
+  body {
+    color: var(--rd-text);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  .h1,
+  .h2,
+  .h3,
+  .h4,
+  .h5,
+  .h6,
+  strong,
+  b,
+  label,
+  .control-label {
+    color: var(--rd-text-strong);
+  }
+
+  a,
+  .btn-link,
+  .ant-btn-link {
+    color: var(--rd-primary);
+
+    &:hover,
+    &:focus {
+      color: var(--rd-primary-hover);
+    }
+  }
+
+  hr {
+    border-color: var(--rd-border-split);
+  }
+
+  .text-muted,
+  .help-block,
+  small,
+  .small {
+    color: var(--rd-text-muted);
+  }
+
+  code,
+  pre,
+  kbd {
+    background-color: var(--rd-surface-muted);
+    border-color: var(--rd-border-split);
+    color: var(--rd-text);
+  }
+
+  ::selection {
+    background: rgba(75, 163, 255, 0.35);
+  }
+
+  // ---------------------------------------------------------------- Bootstrap surfaces
+  .panel,
+  .well,
+  .list-group-item,
+  .modal-content,
+  .popover,
+  .dropdown-menu {
+    background-color: var(--rd-surface);
+    border-color: var(--rd-border-split);
+    color: var(--rd-text);
+  }
+
+  .panel {
+    box-shadow: var(--rd-shadow);
+  }
+
+  .panel-heading,
+  .panel-footer,
+  .modal-header,
+  .modal-footer {
+    background-color: var(--rd-surface);
+    border-color: var(--rd-border-split);
+  }
+
+  .well {
+    background-color: var(--rd-surface-muted);
+  }
+
+  .dropdown-menu > li > a {
+    color: var(--rd-text);
+
+    &:hover,
+    &:focus {
+      background-color: var(--rd-fill);
+      color: var(--rd-text-strong);
+    }
+  }
+
+  .dropdown-menu .divider {
+    background-color: var(--rd-border-split);
+  }
+
+  // ---------------------------------------------------------------- Bootstrap tables
+  .table {
+    color: var(--rd-text);
+
+    > thead > tr > th,
+    > tbody > tr > td,
+    > tbody > tr > th,
+    > tfoot > tr > td {
+      border-color: var(--rd-border-split);
+    }
+
+    > thead > tr > th {
+      background-color: var(--rd-surface-muted);
+      color: var(--rd-text-strong);
+    }
+  }
+
+  .table-striped > tbody > tr:nth-of-type(odd) {
+    background-color: rgba(255, 255, 255, 0.02);
+  }
+
+  .table-hover > tbody > tr:hover {
+    background-color: var(--rd-fill);
+  }
+
+  // ---------------------------------------------------------------- Bootstrap forms and buttons
+  .form-control,
+  .input-group-addon {
+    background-color: var(--rd-surface-muted);
+    border-color: var(--rd-border);
+    color: var(--rd-text);
+
+    &:focus {
+      border-color: var(--rd-primary);
+    }
+
+    &::placeholder {
+      color: var(--rd-text-faint);
+    }
+
+    &[disabled],
+    &[readonly] {
+      background-color: var(--rd-fill);
+    }
+  }
+
+  .btn-default {
+    background-color: var(--rd-surface-muted);
+    border-color: var(--rd-border);
+    color: var(--rd-text);
+
+    &:hover,
+    &:focus,
+    &.active,
+    &:active {
+      background-color: var(--rd-fill);
+      border-color: var(--rd-border);
+      color: var(--rd-text-strong);
+    }
+  }
+
+  .btn-primary {
+    background-color: var(--rd-primary-fill);
+    border-color: var(--rd-primary-fill);
+
+    &:hover,
+    &:focus {
+      background-color: var(--rd-primary-fill-hover);
+      border-color: var(--rd-primary-fill-hover);
+    }
+  }
+
+  .label-default,
+  .badge {
+    background-color: var(--rd-fill);
+    color: var(--rd-text);
+  }
+
+  .alert-info {
+    background-color: var(--rd-primary-soft);
+    border-color: transparent;
+    color: var(--rd-text);
+  }
+}

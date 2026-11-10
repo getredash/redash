@@ -65,7 +65,8 @@ const config = {
     app: [
       "./client/app/index.js",
       "./client/app/assets/less/main.less",
-      "./client/app/assets/less/ant.less"
+      "./client/app/assets/less/ant.less",
+      "./client/app/assets/less/themes/dark.less"
     ],
     server: ["./client/app/assets/less/server.less"]
   },

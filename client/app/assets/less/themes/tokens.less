@@ -92,6 +92,18 @@
   --rd-text-soft: #666666; // sunburst summary
   --rd-surface-table-head: #fafbfc; // chart editor series table header
   --rd-surface-table-hover: #f7f9fa; // chart editor dragged series row
+
+  // ------------------------------------------------------------------ accents for the dark theme's antd styles
+  // (themes/dark.less). In the light theme antd uses its own colours, compiled from inc/ant-variables.less.
+  --rd-primary: #2196f3; // links and selected items
+  --rd-primary-hover: #42a5f5;
+  --rd-primary-soft: rgba(33, 150, 243, 0.1);
+  --rd-primary-fill: #2196f3; // primary buttons: white labels on it
+  --rd-primary-fill-hover: #42a5f5;
+  --rd-danger: #f44336;
+  --rd-danger-fill: #f44336;
+  --rd-danger-fill-hover: #ef5350;
+  --rd-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
 }
 
 html[data-theme="dark"] {
@@ -174,5 +186,14 @@ html[data-theme="dark"] {
   --rd-text-soft: #a3adb8;
   --rd-surface-table-head: #1b2129;
   --rd-surface-table-hover: #222932;
-}
 
+  --rd-primary: #4ba3ff;
+  --rd-primary-hover: #74b9ff;
+  --rd-primary-soft: rgba(75, 163, 255, 0.14);
+  --rd-primary-fill: #2a76c9; // keeps white labels at >= 4.5:1
+  --rd-primary-fill-hover: #3585da;
+  --rd-danger: #ff6b6b;
+  --rd-danger-fill: #c43c3c;
+  --rd-danger-fill-hover: #d24a4a;
+  --rd-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
