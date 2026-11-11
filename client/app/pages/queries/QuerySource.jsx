@@ -39,6 +39,7 @@ import useEditScheduleDialog from "./hooks/useEditScheduleDialog";
 import useAddVisualizationDialog from "./hooks/useAddVisualizationDialog";
 import useEditVisualizationDialog from "./hooks/useEditVisualizationDialog";
 import useDeleteVisualization from "./hooks/useDeleteVisualization";
+import useReorderVisualizations from "./hooks/useReorderVisualizations";
 import useUpdateQuery from "./hooks/useUpdateQuery";
 import useUpdateQueryDescription from "./hooks/useUpdateQueryDescription";
 import useUnsavedChangesAlert from "./hooks/useUnsavedChangesAlert";
@@ -190,6 +191,7 @@ function QuerySource(props) {
   });
   const editVisualization = useEditVisualizationDialog(query, queryResult, (newQuery) => setQuery(newQuery));
   const deleteVisualization = useDeleteVisualization(query, setQuery);
+  const reorderVisualizations = useReorderVisualizations(query, setQuery);
 
   return (
     <div className={cx("query-page-wrapper", { "query-fixed-layout": !isMobile })}>
@@ -383,10 +385,12 @@ function QuerySource(props) {
                       visualizations={query.visualizations}
                       showNewVisualizationButton={queryFlags.canEdit && queryResultData.status === ExecutionStatus.DONE}
                       canDeleteVisualizations={queryFlags.canEdit}
+                      canReorderVisualizations={queryFlags.canEdit}
                       selectedTab={selectedVisualization}
                       onChangeTab={setSelectedVisualization}
                       onAddVisualization={addVisualization}
                       onDeleteVisualization={deleteVisualization}
+                      onReorderVisualizations={reorderVisualizations}
                       refreshButton={
                         <Button
                           type="primary"
