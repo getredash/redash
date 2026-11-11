@@ -138,9 +138,10 @@
     Background Colors and Colors
 -----------------------------------------------------------*/
 // An optional 4th value is the background colour when it differs from the text colour: .bg-white and .bg-ace are
-// surfaces and follow the theme, while .c-white stays white (text on coloured backgrounds).
+// surfaces and follow the theme, while .c-white stays white (text on coloured backgrounds). The reverse for black:
+// .c-black is text and follows the theme, while .bg-black stays black.
 @array: c-white bg-white @white ~"var(--rd-surface)", c-ace bg-ace @ace ~"var(--rd-surface-code)",
-  c-black bg-black @black, c-brown bg-brown @brown,
+  c-black bg-black ~"var(--rd-text-black)" @black, c-brown bg-brown @brown,
   c-pink bg-pink @pink, c-red bg-red @red, c-blue bg-blue @blue, c-purple bg-purple @purple,
   c-deeppurple bg-deeppurple @deeppurple, c-lightblue bg-lightblue @lightblue, c-cyan bg-cyan @cyan,
   c-teal bg-teal @teal, c-green bg-green @green, c-lightgreen bg-lightgreen @lightgreen, c-lime bg-lime @lime,
