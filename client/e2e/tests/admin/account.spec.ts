@@ -16,6 +16,8 @@ import {
 
 const profile = (page: Page) => page.locator(".col-md-4");
 const saveButton = (page: Page) => profile(page).getByRole("button", { name: "Save", exact: true });
+// The Groups field: the profile's other select is the Theme
+const groupsSelect = (page: Page) => profile(page).locator('.ant-select:not([data-test="ThemeSelect"])');
 
 /** Status of an API request authenticated with only the API key (no cookies). */
 async function statusWithKey(baseURL: string | undefined, key: string | null): Promise<number> {
@@ -73,7 +75,7 @@ test.describe("Account page of the logged-in user", () => {
     await expect(page.locator(".profile__h3")).toHaveText(user.name);
     // Own groups are shown, not editable; and nobody can disable themselves
     await expect(byTest(page, "Groups")).toHaveText("default");
-    await expect(profile(page).locator('.ant-select:not([data-test="ThemeSelect"])')).toHaveCount(0);
+    await expect(groupsSelect(page)).toHaveCount(0);
     await expect(page.getByRole("button", { name: /Disable User|Enable User/ })).toHaveCount(0);
 
     const renamed = `${user.name} renamed`;
@@ -239,7 +241,7 @@ test.describe("An admin on another user's profile", () => {
     const groupIds = async (): Promise<number[]> =>
       [...(await api.get(`/api/users/${user.id}`)).groups].sort((a: number, b: number) => a - b);
     const [defaultGroupId] = await groupIds();
-    const select = profile(page).locator(".ant-select");
+    const select = groupsSelect(page);
     const chosen = select.locator(".ant-select-selection-item");
 
     await page.goto(`/users/${user.id}`);

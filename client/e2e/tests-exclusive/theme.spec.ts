@@ -31,6 +31,7 @@ test.describe("Default theme of the organization", () => {
       width: 1,
       options: { isHidden: false, parameterMappings: {}, position: { col: 0, row: 0, sizeX: 3, sizeY: 4 } },
     });
+    await api.post(`/api/dashboards/${dashboard.id}`, { is_draft: false });
     const { public_url: publicUrl } = await api.post(`/api/dashboards/${dashboard.id}/share`);
     const publicPath = new URL(publicUrl).pathname;
 
