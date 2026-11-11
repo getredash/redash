@@ -5,13 +5,8 @@ import Skeleton from "antd/lib/skeleton";
 import DynamicComponent from "@/components/DynamicComponent";
 import Link from "@/components/Link";
 import { currentUser } from "@/services/auth";
+import { THEME_OPTIONS } from "@/services/theme";
 import { SettingsEditorPropTypes, SettingsEditorDefaultProps } from "../prop-types";
-
-export const THEME_OPTIONS = [
-  { value: "light", label: "Light" },
-  { value: "dark", label: "Dark" },
-  { value: "system", label: "System (follows the operating system)" },
-];
 
 export default function ThemeSettings(props) {
   const { values, onChange, loading } = props;
@@ -28,7 +23,7 @@ export default function ThemeSettings(props) {
             profile.
             {ownTheme && (
               <div data-test="DefaultThemeOverriddenNote">
-                You see the {ownTheme.label.split(" ")[0]} theme, chosen in <Link href="users/me">your profile</Link>.
+                You see the {ownTheme.name} theme, chosen in <Link href="users/me">your profile</Link>.
               </div>
             )}
           </React.Fragment>
@@ -39,7 +34,7 @@ export default function ThemeSettings(props) {
         ) : (
           <Select
             value={values.default_theme}
-            options={THEME_OPTIONS}
+            options={THEME_OPTIONS.map(({ value, label }) => ({ value, label }))}
             onChange={(value) => onChange({ default_theme: value })}
             data-test="DefaultThemeSelect"
           />

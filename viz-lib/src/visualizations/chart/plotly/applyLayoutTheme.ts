@@ -5,9 +5,16 @@ import { each, merge } from "lodash";
 // The colours are read from the app's theme tokens when available (see client/app/assets/less/themes/tokens.less),
 // with fallbacks for when the library is used on its own.
 
-function cssColor(name: string, fallback: string) {
-  const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-  return value || fallback;
+/** Colours of the chart's chrome in the dark theme: Plotly's defaults suit a light page. */
+export function darkChartColors() {
+  const style = getComputedStyle(document.documentElement);
+  const color = (name: string, fallback: string) => style.getPropertyValue(name).trim() || fallback;
+  return {
+    text: color("--rd-text", "#c4ccd5"),
+    muted: color("--rd-text-muted", "#8a96a3"),
+    grid: color("--rd-border-split", "#29303a"),
+    line: color("--rd-border", "#3a434f"),
+  };
 }
 
 export default function applyLayoutTheme(layout: any, theme?: string) {
@@ -15,10 +22,7 @@ export default function applyLayoutTheme(layout: any, theme?: string) {
     return layout;
   }
 
-  const text = cssColor("--rd-text", "#c4ccd5");
-  const muted = cssColor("--rd-text-muted", "#8a96a3");
-  const grid = cssColor("--rd-border-split", "#29303a");
-  const line = cssColor("--rd-border", "#3a434f");
+  const { text, muted, grid, line } = darkChartColors();
 
   merge(layout, {
     paper_bgcolor: "rgba(0, 0, 0, 0)",

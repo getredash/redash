@@ -91,4 +91,30 @@ describe("theme", () => {
     applyTheme({ userTheme: "light" });
     expect(listener).toHaveBeenCalledTimes(1);
   });
+
+  test("forgets the user's cached preference, e.g. on logout", () => {
+    const { applyTheme, forgetUserTheme } = loadTheme();
+    applyTheme({ userTheme: "dark", defaultTheme: "light" });
+    forgetUserTheme();
+    expect(window.localStorage.getItem("redash.theme")).toBeNull();
+    expect(window.localStorage.getItem("redash.theme.default")).toBe("light");
+  });
+
+  test("prints in the light theme", () => {
+    const { applyTheme } = loadTheme();
+    applyTheme({ userTheme: "dark" });
+    window.dispatchEvent(new Event("beforeprint"));
+    expect(document.documentElement.getAttribute("data-theme")).toBe("light");
+    window.dispatchEvent(new Event("afterprint"));
+    expect(document.documentElement.getAttribute("data-theme")).toBe("dark");
+  });
+
+  test("system works with the old addListener API (Safari before 14)", () => {
+    const query = { matches: true, addListener: jest.fn(), removeListener: jest.fn() };
+    window.matchMedia = jest.fn(() => query);
+    const { applyTheme, getTheme } = loadTheme();
+    applyTheme({ userTheme: "system" });
+    expect(getTheme()).toBe("dark");
+    expect(query.addListener).toHaveBeenCalled();
+  });
 });

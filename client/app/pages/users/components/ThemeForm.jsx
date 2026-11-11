@@ -6,11 +6,10 @@ import DynamicComponent from "@/components/DynamicComponent";
 import { UserProfile } from "@/components/proptypes";
 import { clientConfig, currentUser } from "@/services/auth";
 import notification from "@/services/notification";
-import { applyTheme } from "@/services/theme";
+import { applyTheme, THEME_OPTIONS } from "@/services/theme";
 import User from "@/services/user";
 import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 import { useUniqueId } from "@/lib/hooks/useUniqueId";
-import { THEME_OPTIONS } from "@/pages/settings/components/GeneralSettings/ThemeSettings";
 
 const ORGANIZATION_DEFAULT = "default";
 
@@ -21,9 +20,11 @@ export default function ThemeForm(props) {
   const handleChange = useImmutableCallback(onChange);
   const selectId = useUniqueId("theme");
 
-  const defaultLabel = (THEME_OPTIONS.find(({ value }) => value === clientConfig.defaultTheme) || THEME_OPTIONS[0])
-    .label;
-  const options = [{ value: ORGANIZATION_DEFAULT, label: `Organization default (${defaultLabel})` }, ...THEME_OPTIONS];
+  const orgDefault = THEME_OPTIONS.find(({ value }) => value === clientConfig.defaultTheme) || THEME_OPTIONS[0];
+  const options = [
+    { value: ORGANIZATION_DEFAULT, label: `Organization default (${orgDefault.name})` },
+    ...THEME_OPTIONS.map(({ value, label }) => ({ value, label })),
+  ];
 
   const saveTheme = (value) => {
     const theme = value === ORGANIZATION_DEFAULT ? null : value;

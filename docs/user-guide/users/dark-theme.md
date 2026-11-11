@@ -19,12 +19,13 @@ The change applies right away, and it's saved with your account, so it follows y
 ## The organization's default theme
 
 Admins set the default in **Settings > General > Theme**. It applies to users who haven't chosen a theme of their
-own, to the login page, and to public dashboards and embedded visualizations. On a self-hosted Redash, the initial
+own, to the login page, and to public dashboards and embedded visualizations. An admin who chose a theme in their
+profile keeps seeing that one: the settings page says so. On a self-hosted Redash, the initial
 default can also be set with the `REDASH_DEFAULT_THEME` [environment variable](/help/open-source/admin-guide/env-vars-settings/).
 
 ## Overriding the theme in a link
 
-Add `theme=light`, `theme=dark` or `theme=system` to the query string of any Redash page to show it in that theme
+Add `theme=light`, `theme=dark` or `theme=system` to the query string of a Redash page to open it in that theme
 without changing anyone's settings. It's handy for a dashboard on a TV screen, or for an embedded visualization that
 should match the page around it:
 
@@ -35,5 +36,8 @@ https://redash.example.com/public/dashboards/<token>?theme=dark
 :::note
 Colours chosen in a visualization's options don't change with the theme: series colours, a map's background or the
 colour range of a cohort or choropleth stay as configured. If a series is drawn in black or a dark grey, or a map has
-a white background, consider other colours so they read well in both themes.
+a white background, consider other colours so they read well in both themes. Custom JavaScript charts draw their own
+colours too.
+
+Pages are printed in the light theme.
 :::

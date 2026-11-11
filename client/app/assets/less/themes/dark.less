@@ -670,6 +670,31 @@ html[data-theme="dark"] {
     background-color: var(--rd-surface-muted);
   }
 
+  // ---------------------------------------------------------------- D3 visualizations (viz-lib): SVG text drawn with
+  // presentation attributes (fill="black" or none), which CSS overrides
+  .sankey .node text {
+    fill: var(--rd-text-strong);
+  }
+
+  .sunburst-visualization-container {
+    .lastCrumb {
+      fill: var(--rd-text-strong);
+    }
+
+    .nodePath {
+      stroke: var(--rd-surface);
+    }
+  }
+
+  // ---------------------------------------------------------------- antd badge (RQ status, apply button, tags)
+  .ant-badge-count {
+    box-shadow: 0 0 0 1px var(--rd-surface);
+  }
+
+  .ant-badge-status-text {
+    color: var(--rd-text);
+  }
+
   // ---------------------------------------------------------------- Ace editor (tomorrow_night, see useAceTheme)
   .ace-tomorrow-night {
     background-color: var(--rd-surface-code);
@@ -777,3 +802,20 @@ html[data-theme="dark"] {
   }
 }
 
+// Printing switches to the light theme (services/theme.js), but a chart keeps the colours it was drawn with: the
+// dark theme's light text would be barely visible on paper. These are Plotly's own colours in the light theme.
+@media print {
+  .js-plotly-plot .main-svg {
+    .xtick text,
+    .ytick text,
+    .y2tick text,
+    .g-xtitle text,
+    .g-ytitle text,
+    .g-y2title text,
+    .gtitle,
+    .legendtext,
+    .annotation-text-g text {
+      fill: #444 !important;
+    }
+  }
+}

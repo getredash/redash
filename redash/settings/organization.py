@@ -54,6 +54,7 @@ DISABLE_PUBLIC_URLS = parse_boolean(os.environ.get("REDASH_DISABLE_PUBLIC_URLS",
 THEMES = ("light", "dark", "system")
 DEFAULT_THEME = os.environ.get("REDASH_DEFAULT_THEME", "light")
 if DEFAULT_THEME not in THEMES:
+    print("REDASH_DEFAULT_THEME must be one of {}, not {!r}: using light.".format(", ".join(THEMES), DEFAULT_THEME))
     DEFAULT_THEME = "light"
 
 settings = {

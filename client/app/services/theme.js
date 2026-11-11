@@ -11,6 +11,13 @@ import { useEffect, useState } from "react";
 
 export const THEMES = ["light", "dark", "system"];
 
+/** The choices offered in the settings */
+export const THEME_OPTIONS = [
+  { value: "light", name: "Light", label: "Light" },
+  { value: "dark", name: "Dark", label: "Dark" },
+  { value: "system", name: "System", label: "System (follows the operating system)" },
+];
+
 const USER_KEY = "redash.theme";
 const DEFAULT_KEY = "redash.theme.default";
 const DARK_QUERY = "(prefers-color-scheme: dark)";
@@ -56,9 +63,18 @@ function watchSystemTheme(enabled) {
   }
   if (enabled && !systemQuery) {
     systemQuery = window.matchMedia(DARK_QUERY);
-    systemQuery.addEventListener("change", onSystemChange);
+    // Safari before 14 only has the deprecated addListener
+    if (systemQuery.addEventListener) {
+      systemQuery.addEventListener("change", onSystemChange);
+    } else {
+      systemQuery.addListener(onSystemChange);
+    }
   } else if (!enabled && systemQuery) {
-    systemQuery.removeEventListener("change", onSystemChange);
+    if (systemQuery.removeEventListener) {
+      systemQuery.removeEventListener("change", onSystemChange);
+    } else {
+      systemQuery.removeListener(onSystemChange);
+    }
     systemQuery = null;
   }
 }
@@ -95,6 +111,15 @@ export function applyTheme({ userTheme, defaultTheme, isPublic = false } = {}) {
   update();
 }
 
+/** Forgets the cached preference of the user, e.g. on logout, so the next page shows the organization default. */
+export function forgetUserTheme() {
+  try {
+    window.localStorage.removeItem(USER_KEY);
+  } catch (_e) {
+    // nothing cached
+  }
+}
+
 /** The active theme: "light" or "dark". */
 export function getTheme() {
   return theme;
@@ -115,6 +140,14 @@ export function useTheme() {
   }, []);
   return current;
 }
+
+// Print on white paper: the light theme while printing (charts keep their colours, see themes/dark.less)
+window.addEventListener("beforeprint", () => {
+  document.documentElement.setAttribute("data-theme", "light");
+});
+window.addEventListener("afterprint", () => {
+  document.documentElement.setAttribute("data-theme", theme);
+});
 
 // Follow a change made in another tab (the profile setting there updates the cached preference)
 window.addEventListener("storage", (event) => {

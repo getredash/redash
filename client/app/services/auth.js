@@ -3,7 +3,7 @@ import { includes, extend } from "lodash";
 import location from "@/services/location";
 import { axios } from "@/services/axios";
 import { notifySessionRestored } from "@/services/restoreSession";
-import { applyTheme } from "@/services/theme";
+import { applyTheme, forgetUserTheme } from "@/services/theme";
 
 export const currentUser = {
   _isAdmin: undefined,
@@ -74,6 +74,7 @@ export const Auth = {
   },
   logout() {
     logger("Logout.");
+    forgetUserTheme();
     window.location.href = "logout";
   },
   loadSession() {

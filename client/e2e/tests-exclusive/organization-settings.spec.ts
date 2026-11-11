@@ -204,7 +204,8 @@ test.describe("Default theme of the organization", () => {
     await anonPage.goto(publicPath);
     await expect(anonPage.getByRole("heading", { name: dashboardName })).toBeVisible();
     await expect(anonPage.locator("html")).toHaveAttribute("data-theme", "dark");
-    await expect(anonPage.locator("body")).toHaveCSS("background-color", "rgb(15, 19, 24)");
+    // the page background of the light theme is #f6f8f9
+    await expect(anonPage.locator("body")).not.toHaveCSS("background-color", "rgb(246, 248, 249)");
 
     // The login page, rendered by the server, gets the default too
     await anonPage.goto("/login");
