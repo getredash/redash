@@ -1,4 +1,4 @@
-import { defaults } from "lodash";
+import { defaults, uniq } from "lodash";
 import { clientConfig } from "@/services/auth";
 import location from "@/services/location";
 import { parse as parseOrderBy, compile as compileOrderBy } from "./Sorter";
@@ -15,20 +15,26 @@ export class StateStorage {
       orderByField: "created_at",
       orderByReverse: false,
       searchTerm: "",
-      tags: [],
+      selectedTags: [],
     });
   }
 
-  // eslint-disable-next-line class-methods-use-this
   setState() {}
+
+  listen() {
+    return () => {};
+  }
 }
 
 export class UrlStateStorage extends StateStorage {
+  _isWritingState = false;
+
   getState() {
     const defaultState = super.getState();
     const params = location.search;
 
     const searchTerm = params.q || "";
+    const selectedTags = uniq([].concat(params.tags || []).filter((tag) => typeof tag === "string" && tag !== ""));
 
     // in search mode order by should be explicitly specified in url, otherwise use default
     const defaultOrderBy =
@@ -42,19 +48,35 @@ export class UrlStateStorage extends StateStorage {
       orderByField,
       orderByReverse,
       searchTerm,
+      selectedTags,
     };
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  setState({ page, itemsPerPage, orderByField, orderByReverse, searchTerm }) {
-    location.setSearch(
-      {
-        page,
-        page_size: itemsPerPage,
-        order: compileOrderBy(orderByField, orderByReverse),
-        q: searchTerm !== "" ? searchTerm : null,
-      },
-      true
-    );
+  setState({ page, itemsPerPage, orderByField, orderByReverse, searchTerm, selectedTags = [] }) {
+    this._isWritingState = true;
+    try {
+      location.setSearch(
+        {
+          page,
+          page_size: itemsPerPage,
+          order: compileOrderBy(orderByField, orderByReverse),
+          q: searchTerm !== "" ? searchTerm : null,
+          tags: selectedTags.length > 0 ? selectedTags : null,
+        },
+        true
+      );
+    } finally {
+      this._isWritingState = false;
+    }
+  }
+
+  listen(onChange) {
+    const path = location.path;
+    return location.listen(() => {
+      // Path changes remount the page; query-string changes need restoring here.
+      if (!this._isWritingState && location.path === path) {
+        onChange(this.getState());
+      }
+    });
   }
 }

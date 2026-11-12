@@ -5,7 +5,6 @@ onlyBuiltDependencies:
   - "sql-formatter"
   - "core-js"
   - "core-js-pure"
-  - "cypress"
   - "es5-ext"
   - "less"
   - "puppeteer"

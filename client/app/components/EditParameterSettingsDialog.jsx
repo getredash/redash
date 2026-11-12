@@ -1,5 +1,5 @@
 import { includes, words, capitalize, clone, isNull } from "lodash";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import Checkbox from "antd/lib/checkbox";
 import Modal from "antd/lib/modal";
@@ -31,6 +31,14 @@ function joinExampleList(multiValuesOptions) {
 }
 
 function NameInput({ name, type, onChange, existingNames, setValidation }) {
+  const inputRef = useRef();
+  // Not `autoFocus`: the input is mounted before the dialog's portal is attached to the page, so focusing it
+  // then can do nothing, and the dialog focuses its own wrapper once it has opened.
+  useEffect(() => {
+    const timer = setTimeout(() => inputRef.current?.focus());
+    return () => clearTimeout(timer);
+  }, []);
+
   let helpText = "";
   let validateStatus = "";
 
@@ -55,7 +63,7 @@ function NameInput({ name, type, onChange, existingNames, setValidation }) {
 
   return (
     <Form.Item required label="Keyword" help={helpText} validateStatus={validateStatus} {...formItemProps}>
-      <Input onChange={(e) => onChange(e.target.value)} autoFocus />
+      <Input onChange={(e) => onChange(e.target.value)} ref={inputRef} />
     </Form.Item>
   );
 }
@@ -123,7 +131,7 @@ function EditParameterSettingsDialog(props) {
       new RegExp(e.target.value);
       setParam({ ...param, regex: e.target.value });
       setIsValidRegex(true);
-    } catch (error) {
+    } catch {
       setIsValidRegex(false);
     }
   };
@@ -167,7 +175,12 @@ function EditParameterSettingsDialog(props) {
           />
         </Form.Item>
         <Form.Item label="Type" {...formItemProps}>
-          <Select value={param.type} onChange={(type) => setParam({ ...param, type })} data-test="ParameterTypeSelect">
+          <Select
+            value={param.type}
+            onChange={(type) => setParam({ ...param, type })}
+            virtual={false} // short fixed list; virtualization re-renders options while scrolling
+            data-test="ParameterTypeSelect"
+          >
             <Option value="text" data-test="TextParameterTypeOption">
               Text
             </Option>
@@ -289,7 +302,7 @@ function EditParameterSettingsDialog(props) {
 }
 
 EditParameterSettingsDialog.propTypes = {
-  parameter: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  parameter: PropTypes.object.isRequired,
   dialog: DialogPropType.isRequired,
   existingParams: PropTypes.arrayOf(PropTypes.string),
 };

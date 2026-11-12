@@ -46,7 +46,7 @@ export const FieldType = PropTypes.shape({
   placeholder: PropTypes.string,
   contentAfter: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
   loading: PropTypes.bool,
-  props: PropTypes.object, // eslint-disable-line react/forbid-prop-types
+  props: PropTypes.object,
 });
 
 const FieldTypeComponent = {

@@ -163,7 +163,7 @@
       color: @pagination-color;
       line-height: @pagination-item-size - 2px;
 
-      .@{pagination-prefix-cls}.mini & {
+      .@{pagination-prefix-cls}-mini & {
         line-height: @pagination-item-size-sm - 2px;
       }
     }
@@ -205,6 +205,11 @@
 
   &-thead > tr > th {
     padding: @table-padding-vertical * 2 @table-padding-horizontal;
+
+    // antd 4.4 padded sortable headers less (on the sorter inside them); keep them the same height
+    &.@{table-prefix-cls}-column-has-sorters {
+      padding: @table-padding-vertical @table-padding-horizontal;
+    }
   }
 
   .@{table-prefix-cls}-column-sorters {
@@ -212,6 +217,17 @@
     &:hover:before {
       content: none;
     }
+  }
+
+  // antd 4.24 stretches the title over the column, which moves the sort icon to the column's edge; keep it next
+  // to the title
+  .@{table-prefix-cls}-column-sorters {
+    display: inline-flex;
+  }
+
+  // antd 4.24 halved the gap before the sort icon; keep columns as wide as with antd 4.4
+  .@{table-prefix-cls}-column-sorter {
+    margin-left: @padding-xs;
   }
 
   &-thead > tr > th {
@@ -431,6 +447,21 @@
   &.@{select-prefix-cls}-loading {
     .@{select-prefix-cls}-selector {
       padding-right: 30px;
+    }
+  }
+}
+
+// Horizontal menu (settings tabs): antd 4.24 draws the selected item's underline inside the item, as wide as its
+// text. Keep it below the item and as wide as the item, as before.
+.@{menu-prefix-cls}-horizontal:not(.@{menu-prefix-cls}-dark) {
+  > .@{menu-prefix-cls}-item,
+  > .@{menu-prefix-cls}-submenu {
+    border-bottom: 2px solid transparent;
+
+    &::after {
+      right: 0;
+      left: 0;
+      bottom: -2px;
     }
   }
 }

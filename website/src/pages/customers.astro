@@ -1,0 +1,17 @@
+---
+import MarketingLayout from '../layouts/MarketingLayout.astro'
+import Page from '../react/pages/Customers.jsx'
+import customers from '../data/customers.json'
+
+// Same shape the Gatsby GraphQL query returned (`profile-img` → `profile_img`).
+const edges = customers.map(({ 'profile-img': profile_img, ...rest }) => ({
+  node: { ...rest, profile_img },
+}))
+---
+
+<MarketingLayout
+  title="Redash customers"
+  description="Empowering data-driven decision making in thousands of teams across the globe. From small teams to huge organizations, Redash helps tens of thousands of users to query and visualize data in a new and meaningful way."
+>
+  <Page data={{ allCustomersYaml: { edges } }} />
+</MarketingLayout>

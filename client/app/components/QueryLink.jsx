@@ -31,7 +31,7 @@ function QueryLink({ query, visualization, readOnly }) {
 }
 
 QueryLink.propTypes = {
-  query: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  query: PropTypes.object.isRequired,
   visualization: VisualizationType,
   readOnly: PropTypes.bool,
 };

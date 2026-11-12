@@ -10,12 +10,12 @@ import TagsList from "@/components/TagsList";
     SearchInput
  */
 
-export function SearchInput({ placeholder, value, showIcon, onChange, label }) {
+export function SearchInput({ placeholder, value, resetVersion, showIcon, onChange, label }) {
   const [currentValue, setCurrentValue] = useState(value);
 
   useEffect(() => {
     setCurrentValue(value);
-  }, [value]);
+  }, [value, resetVersion]);
 
   const onInputChange = useCallback(
     (event) => {
@@ -42,6 +42,7 @@ export function SearchInput({ placeholder, value, showIcon, onChange, label }) {
 
 SearchInput.propTypes = {
   value: PropTypes.string.isRequired,
+  resetVersion: PropTypes.number,
   placeholder: PropTypes.string,
   showIcon: PropTypes.bool,
   onChange: PropTypes.func.isRequired,
@@ -49,6 +50,7 @@ SearchInput.propTypes = {
 };
 
 SearchInput.defaultProps = {
+  resetVersion: 0,
   placeholder: "Search...",
   showIcon: false,
   label: "Search",
@@ -140,13 +142,13 @@ ProfileImage.propTypes = {
     Tags
  */
 
-export function Tags({ url, onChange, showUnselectAll }) {
+export function Tags({ url, onChange, showUnselectAll, selectedTags }) {
   if (url === "") {
     return null;
   }
   return (
     <div className="m-b-10">
-      <TagsList tagsUrl={url} onUpdate={onChange} showUnselectAll={showUnselectAll} />
+      <TagsList tagsUrl={url} onUpdate={onChange} showUnselectAll={showUnselectAll} selectedTags={selectedTags} />
     </div>
   );
 }
@@ -155,5 +157,6 @@ Tags.propTypes = {
   url: PropTypes.string.isRequired,
   onChange: PropTypes.func.isRequired,
   showUnselectAll: PropTypes.bool,
+  selectedTags: PropTypes.arrayOf(PropTypes.string),
   unselectAllButtonTitle: PropTypes.string,
 };

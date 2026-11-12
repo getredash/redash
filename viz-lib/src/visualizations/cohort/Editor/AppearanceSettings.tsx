@@ -4,7 +4,7 @@ import { Section, Input, Checkbox, ContextHelp } from "@/components/visualizatio
 import { EditorPropTypes } from "@/visualizations/prop-types";
 
 export default function AppearanceSettings({ options, onOptionsChange }: any) {
-  const [debouncedOnOptionsChange] = useDebouncedCallback(onOptionsChange, 200);
+  const debouncedOnOptionsChange = useDebouncedCallback(onOptionsChange, 200);
 
   return (
     <React.Fragment>

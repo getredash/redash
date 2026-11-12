@@ -48,6 +48,32 @@ class TestQueryResultsContentDispositionHeaders(BaseTestCase):
         except Exception as e:
             self.fail(repr(e))
 
+    def test_ascii_filename(self):
+        query_result = self.factory.create_query_result()
+        query = self.factory.create_query(name="Sales Report", latest_query_data=query_result)
+        retrieved_at = query_result.retrieved_at.strftime("%Y_%m_%d")
+
+        for filetype in ("csv", "tsv", "xlsx", "json"):
+            rv = self.make_request("get", "/api/queries/{}/results.{}".format(query.id, filetype))
+            self.assertEqual(
+                rv.headers["Content-Disposition"],
+                "attachment; filename=Sales_Report_{}.{}".format(retrieved_at, filetype),
+            )
+
+    def test_non_ascii_filename(self):
+        query_result = self.factory.create_query_result()
+        query = self.factory.create_query(name="Café Report", latest_query_data=query_result)
+        retrieved_at = query_result.retrieved_at.strftime("%Y_%m_%d")
+
+        for filetype in ("csv", "tsv", "xlsx", "json"):
+            rv = self.make_request("get", "/api/queries/{}/results.{}".format(query.id, filetype))
+            self.assertEqual(
+                rv.headers["Content-Disposition"],
+                "attachment; filename=Cafe_Report_{0}.{1}; filename*=UTF-8''Caf%C3%A9_Report_{0}.{1}".format(
+                    retrieved_at, filetype
+                ),
+            )
+
 
 class TestQueryResultListAPI(BaseTestCase):
     def test_get_existing_result(self):

@@ -1,0 +1,54 @@
+.case-study-item {
+  display: block;
+  margin-bottom: 20px;
+  padding: 25px;
+
+  .customer-logo {
+    float: left;
+    width: 160px;
+    margin-right: 15px;
+
+    @media (max-width: 600px) {
+      width: 96px;
+    }
+  }
+}
+
+.table-default {
+  border-radius: 2px;
+
+  th {
+    background: $mutted-soft;
+  }
+
+  td,
+  th {
+    padding: 15px;
+  }
+}
+
+.section-case-study {
+  h4 {
+    margin-bottom: 10px;
+  }
+
+  .profile-image {
+    float: left;
+    margin-right: 10px;
+    margin-top: 5px;
+  }
+
+  blockquote {
+    font-size: 100%;
+    color: #000;
+    font-style: italic;
+    background-color: $mutted-soft;
+    border-radius: $border-radius;
+    font-family: 'Courier';
+    transition: all 0.13s ease-in-out;
+    border-left: 5px solid $small-blue;
+
+    &:hover {
+    }
+  }
+}

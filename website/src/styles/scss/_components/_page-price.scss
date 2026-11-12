@@ -1,0 +1,145 @@
+/* PRICE */
+
+.on-premise-container {
+  margin-top: 100px;
+
+  @media (max-width: 692px) {
+    margin-top: 25px;
+  }
+}
+
+.on-premise-box {
+  border: 1px solid #e8e8e8;
+  border-radius: $border-radius;
+  display: inline-block;
+  padding: 15px;
+  transition: all 0.5s ease-in-out;
+
+  p:last-of-type {
+    margin: 0;
+  }
+
+  &:hover,
+  &:active,
+  &.active {
+    box-shadow: 0 6px 18px -5px rgba(175, 175, 175, 0.5);
+  }
+}
+
+.dotted-helper {
+  border-bottom: 1px dashed #929292;
+}
+
+.silver {
+  color: #a9a9a9;
+}
+
+.pricing-plan {
+  width: 29%;
+  margin: 0 15px;
+  flex-grow: 0;
+  flex-shrink: 0;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.5s ease-in-out;
+
+  .pricing-body {
+    flex-grow: 1;
+    flex-shrink: 0;
+    box-shadow: 0 0 0 1px #e8e8e8;
+    border-radius: $border-radius;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .pricing-name {
+    color: #333;
+    font-weight: 600;
+    background: $mutted;
+    padding: 8px;
+    border-radius: $border-radius;
+  }
+
+  .btn {
+    margin-top: 15px;
+  }
+
+  .pricing-charge {
+    color: #333;
+    font-size: 150%;
+    font-weight: 500;
+    margin: 20px 0;
+    transition: all 0.2s ease-in-out;
+
+    sub {
+      bottom: 0;
+      font-weight: normal;
+    }
+  }
+
+  .pricing-description {
+    line-height: 1.5em;
+
+    &:last-of-type {
+      margin-bottom: 0;
+    }
+  }
+
+  .pricing-notes {
+    margin: 0 0 5px 0;
+    color: #aaa;
+  }
+
+  .pricing-selected {
+    flex-grow: 0;
+    flex-shrink: 0;
+    text-align: center;
+    visibility: hidden;
+
+    small {
+      display: inline-block;
+      color: #fff;
+      font-size: 80%;
+      font-weight: 500;
+      padding: 0.3em 2em;
+      text-transform: uppercase;
+      background: #2196f3;
+      border-radius: $border-radius;
+    }
+  }
+
+  &:hover,
+  &:active,
+  &.active {
+    .pricing-charge {
+      color: darken(#2196f3, 5%);
+    }
+
+    box-shadow: 0 6px 18px -5px rgba(175, 175, 175, 0.5);
+  }
+}
+
+.pricing-icon img {
+  width: 32px;
+  height: 32px;
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+.pricing-plan-container {
+  display: flex;
+
+  @media (max-width: 692px) {
+    flex-direction: column;
+
+    .pricing-plan {
+      width: 80%;
+      margin-bottom: 25px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  }
+}

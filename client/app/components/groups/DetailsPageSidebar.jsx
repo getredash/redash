@@ -50,8 +50,8 @@ export default function DetailsPageSidebar({
 
 DetailsPageSidebar.propTypes = {
   controller: ControllerType.isRequired,
-  group: PropTypes.object, // eslint-disable-line react/forbid-prop-types
-  items: PropTypes.array.isRequired, // eslint-disable-line react/forbid-prop-types
+  group: PropTypes.object,
+  items: PropTypes.array.isRequired,
 
   canAddMembers: PropTypes.bool,
   onAddMembersClick: PropTypes.func,

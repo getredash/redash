@@ -38,7 +38,7 @@ fresh instance**, like in CI. They also log in with an email and password rather
 with the CI stack on port 5000:
 
 ```bash
-export COMPOSE_FILE=.ci/compose.cypress.yaml COMPOSE_PROJECT_NAME=visual-tests
+export COMPOSE_FILE=.ci/compose.visual-tests.yaml COMPOSE_PROJECT_NAME=visual-tests
 export REDASH_FEATURE_ALLOW_CUSTOM_JS_VISUALIZATIONS=true VISUAL_TESTS_BASE_URL=http://localhost:5000
 docker compose build server worker scheduler
 docker compose run --rm server create_db
