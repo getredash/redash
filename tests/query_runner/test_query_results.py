@@ -6,9 +6,17 @@ from unittest import TestCase
 import mock
 import pytest
 
+from redash.query_runner import (
+    TYPE_DATETIME,
+    TYPE_FLOAT,
+    TYPE_INTEGER,
+    TYPE_STRING,
+    guess_type,
+)
 from redash.query_runner.query_results import (
     CreateTableError,
     PermissionError,
+    Results,
     _load_query,
     create_table,
     extract_cached_query_ids,
@@ -140,6 +148,31 @@ class TestCreateTable(TestCase):
         table_name = "query_123"
         create_table(connection, table_name, results)
         self.assertEqual(len(list(connection.execute("SELECT * FROM query_123"))), 2)
+
+
+class TestResultsColumnTypeGuessing(TestCase):
+    def test_guesses_column_types(self):
+        query = (
+            "SELECT 1 AS i, 1.5 AS f, 'a' AS s, '2024-01-01 10:00:00' AS d, 2 AS mixed "
+            "UNION ALL SELECT 2, 2.5, 'b', '2024-01-02 11:00:00', 'x'"
+        )
+        data, error = Results({}).run_query(query, None)
+
+        self.assertIsNone(error)
+        self.assertEqual(
+            {column["name"]: column["type"] for column in data["columns"]},
+            {"i": TYPE_INTEGER, "f": TYPE_FLOAT, "s": TYPE_STRING, "d": TYPE_DATETIME, "mixed": TYPE_STRING},
+        )
+
+    def test_stops_guessing_once_a_column_is_string(self):
+        query = "SELECT 'a' AS s UNION ALL SELECT 'b' UNION ALL SELECT 'c'"
+        with mock.patch("redash.query_runner.query_results.guess_type", wraps=guess_type) as guess:
+            data, error = Results({}).run_query(query, None)
+
+        self.assertIsNone(error)
+        self.assertEqual(data["columns"][0]["type"], TYPE_STRING)
+        self.assertEqual(len(data["rows"]), 3)
+        self.assertEqual(guess.call_count, 1)
 
 
 class TestGetQuery(BaseTestCase):

@@ -196,6 +196,10 @@ class Results(BaseQueryRunner):
 
                 for i, row in enumerate(cursor):
                     for j, col in enumerate(row):
+                        # A column that fell back to string can't change type anymore.
+                        if columns[j]["type"] == TYPE_STRING:
+                            continue
+
                         guess = guess_type(col)
 
                         if columns[j]["type"] is None:
