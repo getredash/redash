@@ -6,6 +6,7 @@ import prepareLayout from "./prepareLayout";
 import updateData from "./updateData";
 import updateAxes from "./updateAxes";
 import updateChartSize from "./updateChartSize";
+import { darkChartColors } from "./applyLayoutTheme";
 import { prepareCustomChartData, createCustomChartRenderer } from "./customChartUtils";
 
 const rangeSliderIcon = {
@@ -28,6 +29,9 @@ Plotly.setPlotConfig({
           let newRangeslider: any = {};
           if (gd.layout.xaxis?.rangeslider) {
             newRangeslider = null;
+          } else if (document.documentElement.getAttribute("data-theme") === "dark") {
+            // Plotly's default slider background is white
+            newRangeslider = { bgcolor: "rgba(0, 0, 0, 0)", bordercolor: darkChartColors().line, borderwidth: 1 };
           }
           (Plotly.relayout as any)(gd, "xaxis.rangeslider", newRangeslider);
         }

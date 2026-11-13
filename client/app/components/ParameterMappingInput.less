@@ -38,16 +38,16 @@
   header {
     padding: 0 16px 10px;
     margin: 0 -16px 20px;
-    border-bottom: @border-width-base @border-style-base @border-color-split;
+    border-bottom: @border-width-base @border-style-base var(--rd-border-split);
     font-size: @font-size-lg;
     font-weight: 500;
-    color: @heading-color;
+    color: rgba(var(--rd-ink-rgb), 0.85);
     display: flex;
     justify-content: space-between;
   }
 
   footer {
-    border-top: @border-width-base @border-style-base @border-color-split;
+    border-top: @border-width-base @border-style-base var(--rd-border-split);
     padding: 10px 16px 0;
     margin: 0 -16px;
     text-align: right;
@@ -65,7 +65,7 @@
 
   &.disabled,
   .fa {
-    color: #a4a4a4;
+    color: var(--rd-text-inactive);
   }
 
   .fa-eye-slash {

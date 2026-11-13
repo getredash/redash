@@ -31,7 +31,7 @@
     &:not([class*="bg-"]) {
         & > li > a {
             &:hover {
-                color: #000;
+                color: rgb(var(--rd-ink-rgb));
             }
         }
     }
@@ -67,7 +67,7 @@
             text-align: center;
 
             &:hover {
-                background: rgba(0,0,0,0.08);
+                background: rgba(var(--rd-ink-rgb), 0.08);
             }
         }
     }
@@ -82,7 +82,7 @@
         clear: both;
         font-weight: normal;
         line-height: 1.428571429;
-        color: #333333;
+        color: var(--rd-text-strong);
         white-space: nowrap;
         &:hover, &:focus {
           color: #ffffff;

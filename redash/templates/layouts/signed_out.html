@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html class="no-js">
+<html class="no-js" data-default-theme="{{ default_theme() }}">
 <head>
   <title>{% block title %}{% endblock %}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
+  <script src="/static/themeBoot.js"></script>
   <link rel="stylesheet" href="{{ asset_url('server.css') }}">
 
   <link rel="icon" type="image/png" sizes="32x32" href="/static/images/favicon-32x32.png">

@@ -24,7 +24,7 @@
   .empty-state__summary {
     align-self: flex-start;
     text-align: center;
-    background: rgba(102, 136, 153, 0.025);
+    background: rgba(var(--rd-gray-rgb), 0.025);
 
     p {
       margin-bottom: 0;
@@ -82,13 +82,13 @@
     top: 15px;
     right: 25px;
     font-size: 15px;
-    color: @text-color-secondary;
+    color: rgba(var(--rd-ink-rgb), 0.45);
     cursor: pointer;
     transition: color @animation-duration-slow;
 
     &:hover,
     &:focus {
-      color: @text-color;
+      color: var(--rd-text-input);
     }
 
     &:active {

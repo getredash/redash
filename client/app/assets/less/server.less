@@ -6,6 +6,7 @@
 @import '~material-design-iconic-font/dist/css/material-design-iconic-font.css';
 
 @import 'inc/variables';
+@import 'themes/tokens';
 @import 'inc/mixins';
 @import 'inc/font';
 @import 'inc/print';
@@ -18,12 +19,13 @@
 @import 'inc/404';
 @import 'inc/ie-warning';
 @import 'inc/flex';
+@import 'themes/dark-bootstrap';
 
 html, body {
   height: 100%;
   margin: 0;
   padding: 0;
-  background: #F6F8F9;
+  background: var(--rd-body-bg);
 }
 
 .signed-out {

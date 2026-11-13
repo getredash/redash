@@ -1,9 +1,9 @@
 .tile {
-    background-color: #fff;
+    background-color: var(--rd-surface);
     margin-bottom: @grid-gutter-width;
     position: relative;
     border-radius: 3px;
-    box-shadow: fade(@redash-gray, 15%) 0px 4px 9px -3px;
+    box-shadow: rgba(var(--rd-gray-rgb), 0.15) 0px 4px 9px -3px;
     
     &[class*="bg-"] {
         color: #fff;
@@ -15,7 +15,7 @@
 }
 .tiled {
     border-radius: 3px;
-    box-shadow: fade(@redash-gray, 15%) 0px 4px 9px -3px;
+    box-shadow: rgba(var(--rd-gray-rgb), 0.15) 0px 4px 9px -3px;
 }
 
 .t-header {
@@ -29,11 +29,11 @@
         .th-title {
             font-size: 17px;
             font-weight: 400;
-            color: #333;
+            color: var(--rd-text-strong);
             
             small {
                 font-size: 12px;
-                color: #9C9C9C;
+                color: var(--rd-text-caption);
                 margin-top: 3px;
                 display: block;
             }
@@ -74,7 +74,7 @@
         
         & > a:hover,
         &.open > a {
-            background-color: rgba(0, 0, 0, 0.1);
+            background-color: rgba(var(--rd-ink-rgb), 0.1);
         }
     }
 }
@@ -101,5 +101,5 @@
 
 .t-body a.actions:hover,
 .t-body a.actions.open > a {
-    background-color: rgba(0, 0, 0, 0.1);
+    background-color: rgba(var(--rd-ink-rgb), 0.1);
 }

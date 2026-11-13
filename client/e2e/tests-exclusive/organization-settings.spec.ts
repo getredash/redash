@@ -4,8 +4,9 @@ import { byTest, createQueryViaApi, createVisualizationViaApi, dismissToasts, to
 
 /**
  * Settings of the whole organization that other tests depend on: with public URLs disabled every sharing and
- * embedding test fails, and the thousands separator changes every formatted number. So these tests are in a
- * project of their own that runs alone, after the other tests have finished (see playwright.config.ts).
+ * embedding test fails, the thousands separator changes every formatted number, and the default theme changes the
+ * colours of every page. So these tests are in a project of their own that runs alone, after the other tests have
+ * finished (see playwright.config.ts). Keep them in this one file: files of a project run in parallel.
  */
 test.describe.configure({ mode: "serial" });
 
@@ -160,5 +161,54 @@ test.describe("Number format", () => {
 
     await page.goto(`/queries/${query.id}`);
     await expect(page.getByText("1 234 567")).toHaveCount(0);
+  });
+});
+
+test.describe("Default theme of the organization", () => {
+  test.afterEach(async ({ api }) => {
+    await api.post("/api/settings/organization", { default_theme: "light" });
+  });
+
+  test("set in the general settings, it applies to the app, the login page and public dashboards", async ({
+    page,
+    anonPage,
+    api,
+    seed,
+  }) => {
+    const query = await createQueryViaApi(api, {
+      name: uniqueName("X theme dashboard query"),
+      dataSourceId: seed.dataSources.postgres,
+      sql: "select 1 as value",
+    });
+    const dashboardName = uniqueName("X theme dashboard");
+    const dashboard = await api.post("/api/dashboards", { name: dashboardName });
+    await api.post("/api/widgets", {
+      dashboard_id: dashboard.id,
+      visualization_id: (await api.get(`/api/queries/${query.id}`)).visualizations[0].id,
+      text: "",
+      width: 1,
+      options: { isHidden: false, parameterMappings: {}, position: { col: 0, row: 0, sizeX: 3, sizeY: 4 } },
+    });
+    await api.post(`/api/dashboards/${dashboard.id}`, { is_draft: false });
+    const { public_url: publicUrl } = await api.post(`/api/dashboards/${dashboard.id}/share`);
+    const publicPath = new URL(publicUrl).pathname;
+
+    await page.goto("/settings/general");
+    await byTest(page, "DefaultThemeSelect").locator(".ant-select-selector").click();
+    await page.locator(".ant-select-item-option").filter({ hasText: "Dark" }).click();
+    await byTest(page, "OrganizationSettingsSaveButton").click();
+    await expect(toast(page)).toContainText("Settings changes saved.");
+    // The admin has no theme of their own, so the new default applies right away
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+
+    await anonPage.goto(publicPath);
+    await expect(anonPage.getByRole("heading", { name: dashboardName })).toBeVisible();
+    await expect(anonPage.locator("html")).toHaveAttribute("data-theme", "dark");
+    // the page background of the light theme is #f6f8f9
+    await expect(anonPage.locator("body")).not.toHaveCSS("background-color", "rgb(246, 248, 249)");
+
+    // The login page, rendered by the server, gets the default too
+    await anonPage.goto("/login");
+    await expect(anonPage.locator("html")).toHaveAttribute("data-default-theme", "dark");
   });
 });

@@ -19,8 +19,8 @@
         left: 0;
         top: 0;
         height: 100%;
-        background: #f8f8f8;
-        border-right: 1px solid #eee;
+        background: var(--rd-surface-code);
+        border-right: 1px solid var(--rd-fill);
     }
     
     @media (max-width: @screen-xs-max) {
@@ -215,20 +215,20 @@
 }
 
 .pmopm-send {
-    background-color: #fff;
+    background-color: var(--rd-surface);
     width: 50px;
     height: 50px;
     font-size: 24px;
     line-height: 53px;
     border-radius: 50%;
     position: absolute;
-    color: #333;
+    color: var(--rd-text-strong);
     bottom: -50px;
     box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.16);
     text-align: center;
     
     &:hover {
-        color: #000;
+        color: rgb(var(--rd-ink-rgb));
     }
 }
 
@@ -250,7 +250,7 @@
                 left: 0;
                 width: 18px;
                 text-align: center;
-                color: #333;
+                color: var(--rd-text-strong);
             }
         }
     }
@@ -304,12 +304,12 @@
             color: #4285F4;
             
             &:hover {
-                color: #333;
+                color: var(--rd-text-strong);
             }
         }
         
         &.active > a {
-            color: #000;
+            color: rgb(var(--rd-ink-rgb));
         }
     }
     
@@ -320,7 +320,7 @@
             
             input[type="text"] {
                 width: 100%;
-                border: 1px solid #ccc;
+                border: 1px solid var(--rd-border-heavy);
             }
         }
     }
@@ -339,7 +339,7 @@
             position: absolute;
             left: 9px;
             top: 8px;
-            color: #333;
+            color: var(--rd-text-strong);
         }
         
         input[type="text"] {
@@ -348,7 +348,7 @@
             padding: 0 10px 0 40px;
             
             @media(min-width:  @screen-sm-min) {
-                border: 1px solid #fff; 
+                border: 1px solid var(--rd-surface); 
                 width: 50px;
                 background: transparent;
                 position: relative;
@@ -357,7 +357,7 @@
                 .transition-duration(300ms);
             
                 &:focus {
-                    border-color: #DFDFDF;
+                    border-color: var(--rd-border-soft);
                     width: 200px;
                 }
             }

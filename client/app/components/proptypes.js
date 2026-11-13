@@ -38,6 +38,7 @@ export const UserProfile = PropTypes.shape({
   profileImageUrl: PropTypes.string,
   apiKey: PropTypes.string,
   isDisabled: PropTypes.bool,
+  theme: PropTypes.oneOf(["light", "dark", "system", null]),
 });
 
 export const Destination = PropTypes.shape({

@@ -22,7 +22,7 @@
 @logo-width:                            @sidebar-left-width;
 @logo-height:                           @header-height;
 @boxed-width:                           1170px;
-@body-bg:                               #edecec;
+@body-bg:                               var(--rd-fill-light); // Bootstrap: nested tables, active nav tabs (the page background is set in base.less)
 @spacing:                               15px;
 @redash-radius:                         3px;
 
@@ -51,15 +51,15 @@
 @text-color:                            #767676;
 @link:                                  #02a4c4;
 @link-hover-decoration:                 none;
-@headings-color:                        #333;
+@headings-color:                        var(--rd-text-strong);
 
 
 /* --------------------------------------------------------
     Form
 -----------------------------------------------------------*/
-@input-color:                           #595959;
-@input-color-placeholder:               #b4b4b4;
-@input-border:                          #e8e8e8;
+@input-color:                           var(--rd-text-input);
+@input-color-placeholder:               var(--rd-text-faint);
+@input-border:                          var(--rd-border);
 @input-border-radius:                   0;
 @input-border-radius-large:             0px;
 @redash-input-radius:                   2px;
@@ -67,7 +67,7 @@
 @input-height-base:                     35px;
 @input-height-small:                    30px;
 @input-border-focus:                    #79c2ff;
-@input-group-addon-bg:                  @light-gray;
+@input-group-addon-bg:                  var(--rd-surface-subtle);
 
 /* --------------------------------------------------------
     Colors
@@ -94,8 +94,8 @@
 @indigo:                                #3F51B5;
 @pink:                                  #E91E63;
 @brown:                                 #795548;
-@light-gray:                            #FCFCFC;
-@gray-light:                            #828282;
+@light-gray:                            #FCFCFC; // literal: darkened and lightened in places
+@gray-light:                            #828282; // literal: Bootstrap lightens it
 @ace:                                   #f8f8f8;
 
 @redash-gray: rgba(102, 136, 153, 1);
@@ -131,7 +131,7 @@
 /* --------------------------------------------------------
     Bootstrap Brands
 -----------------------------------------------------------*/
-@brand-default:                         #eee;
+@brand-default:                         #eee; // literal: darkened in button.less
 @brand-primary:                         @blue;
 @brand-info:                            @cyan;
 @brand-success:                         @green;
@@ -153,13 +153,13 @@
 @dropdown-fallback-border:              transparent;
 @dropdown-border:                       transparent;
 @dropdown-divider-bg:                   '';
-@dropdown-link-hover-bg:                rgba(0,0,0,0.075);
-@dropdown-link-color:                   #333;
-@dropdown-link-hover-color:             #333;
-@dropdown-link-disabled-color:          #e4e4e4;
-@dropdown-divider-bg:                   rgba(0,0,0,0.08);
-@dropdown-link-active-color:            #333;
-@dropdown-link-active-bg:               rgba(0, 0, 0, 0.075);
+@dropdown-link-hover-bg:                rgba(var(--rd-ink-rgb), 0.075);
+@dropdown-link-color:                   var(--rd-text-strong);
+@dropdown-link-hover-color:             var(--rd-text-strong);
+@dropdown-link-disabled-color:          var(--rd-text-disabled);
+@dropdown-divider-bg:                   rgba(var(--rd-ink-rgb), 0.08);
+@dropdown-link-active-color:            var(--rd-text-strong);
+@dropdown-link-active-bg:               rgba(var(--rd-ink-rgb), 0.075);
 @zindex-dropdown:                       9;
 @dropdown-shadow:                       0 2px 10px rgba(0, 0, 0, 0.2);
 
@@ -172,42 +172,42 @@
 /* --------------------------------------------------------
     Buttons
 -----------------------------------------------------------*/
-@btn-default-border:                    @input-border;
+@btn-default-border:                    #e8e8e8; // literal: Bootstrap darkens it
 @btn-font-weight:				        400;
 
 
 /* --------------------------------------------------------
     Tables
 -----------------------------------------------------------*/
-@table-bg:                              #fff;
-@table-border-color:                    #f0f0f0;
+@table-bg:                              var(--rd-surface);
+@table-border-color:                    var(--rd-border-split);
 @table-cell-padding:                    10px;
 @table-condensed-cell-padding:          7px;
-@table-bg-accent:                       @light-gray;
+@table-bg-accent:                       var(--rd-surface-subtle);
 @table-bg-active:                       #FFFCBE;
-@table-bg-hover:                        lighten(@light-gray, 2%);
+@table-bg-hover:                        var(--rd-surface); // was lighten(@light-gray, 2%)
 
 
 /* --------------------------------------------------------
     Pagination
 -----------------------------------------------------------*/
-@pagination-bg:                         #E2E2E2;
-@pagination-border:                     #fff;
-@pagination-color:                      #7E7E7E;
+@pagination-bg:                         var(--rd-fill-strong);
+@pagination-border:                     var(--rd-surface);
+@pagination-color:                      var(--rd-text-pagination);
 @pagination-active-bg:                  @lightblue;
 @pagination-active-border:              @pagination-border;
-@pagination-disabled-bg:                #E2E2E2;
+@pagination-disabled-bg:                var(--rd-fill-strong);
 @pagination-disabled-border:            @pagination-border;
-@pagination-hover-color:                #333;
-@pagination-hover-bg:                   #d7d7d7;
+@pagination-hover-color:                var(--rd-text-strong);
+@pagination-hover-bg:                   var(--rd-fill-hover);
 @pagination-hover-border:               @pagination-border;
 
 
 /* --------------------------------------------------------
     Thumbnail
 -----------------------------------------------------------*/
-@thumbnail-bg:                          #fff;
-@thumbnail-border:                      #eee;
+@thumbnail-bg:                          var(--rd-surface);
+@thumbnail-border:                      var(--rd-fill);
 
 /* --------------------------------------------------------
     Carousel
@@ -238,9 +238,9 @@
     Popobver
 -----------------------------------------------------------*/
 @zindex-popover:                        9;
-@popover-title-bg:                      #fff;
-@popover-border-color:                  #fff;
-@popover-fallback-border-color:         #fff;
+@popover-title-bg:                      #fff; // literal: Bootstrap darkens it
+@popover-border-color:                  #fff; // literal: Bootstrap fades it
+@popover-fallback-border-color:         #fff; // literal: Bootstrap darkens it
 
 
 /* --------------------------------------------------------
@@ -248,25 +248,25 @@
 -----------------------------------------------------------*/
 @breadcrumb-bg:                         transparent;
 @breadcrumb-padding-horizontal:         20px;
-@breadcrumb-active-color:               #7c7c7c;
+@breadcrumb-active-color:               var(--rd-text-breadcrumb-active);
 
 
 /* --------------------------------------------------------
     Jumbotron
 -----------------------------------------------------------*/
-@jumbotron-bg:                          #F7F7F7;
+@jumbotron-bg:                          #F7F7F7; // literal: Bootstrap darkens it
 
 
 /* --------------------------------------------------------
     List Group
 -----------------------------------------------------------*/
-@list-group-border:                     #f4f4f4;
-@list-group-active-color:               #000;
-@list-group-active-bg:                  #f5f5f5;
+@list-group-border:                     var(--rd-border-faint);
+@list-group-active-color:               rgb(var(--rd-ink-rgb));
+@list-group-active-bg:                  #f5f5f5; // literal: Bootstrap lightens it
 @list-group-active-border:              @list-group-border;
-@list-group-disabled-color:             #B5B4B4;
-@list-group-disabled-bg:                #fff;
-@list-group-disabled-text-color:        #B5B4B4;
+@list-group-disabled-color:             var(--rd-text-disabled-item);
+@list-group-disabled-bg:                var(--rd-surface);
+@list-group-disabled-text-color:        var(--rd-text-disabled-item);
 
 
 /* --------------------------------------------------------

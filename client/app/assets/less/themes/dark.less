@@ -1,0 +1,821 @@
+// Dark theme for the third-party styles: antd 4, react-pivottable and Leaflet (Bootstrap 3: dark-bootstrap.less).
+//
+// Redash's own styles get their colours from the theme tokens (tokens.less), so they need nothing here. Bootstrap
+// and antd compile their colours from LESS variables through colour functions (darken(), fade(), mix()...), which
+// can't take CSS variables, so their components are recoloured here, scoped to the dark theme. When antd moves to
+// version 5 (design tokens with a dark algorithm), most of this file can go.
+//
+// Loaded after main.less and ant.less (see the `app` entry in webpack.config.js).
+
+@import "dark-bootstrap";
+
+html[data-theme="dark"] {
+  // ---------------------------------------------------------------- antd: shared
+  .ant-btn {
+    background-color: var(--rd-surface-muted);
+    border-color: var(--rd-border);
+    color: var(--rd-text);
+
+    &:hover,
+    &:focus {
+      background-color: var(--rd-fill);
+      border-color: var(--rd-primary);
+      color: var(--rd-text-strong);
+    }
+
+    &[disabled],
+    &[disabled]:hover {
+      background-color: var(--rd-surface);
+      border-color: var(--rd-border-split);
+      color: var(--rd-text-faint);
+    }
+  }
+
+  .ant-btn-primary {
+    background-color: var(--rd-primary-fill);
+    border-color: var(--rd-primary-fill);
+    color: #fff;
+
+    &:hover,
+    &:focus {
+      background-color: var(--rd-primary-fill-hover);
+      border-color: var(--rd-primary-fill-hover);
+      color: #fff;
+    }
+  }
+
+  .ant-btn-link,
+  .ant-btn-text {
+    background-color: transparent;
+    border-color: transparent;
+
+    &:hover,
+    &:focus {
+      background-color: transparent;
+      border-color: transparent;
+    }
+  }
+
+  .ant-btn-link {
+    color: var(--rd-primary);
+
+    &:hover,
+    &:focus {
+      color: var(--rd-primary-hover);
+    }
+  }
+
+  .ant-btn-text:hover,
+  .ant-btn-text:focus {
+    background-color: var(--rd-fill);
+  }
+
+  .ant-btn-link[disabled],
+  .ant-btn-text[disabled] {
+    background-color: transparent;
+    border-color: transparent;
+    color: var(--rd-text-faint);
+  }
+
+  .ant-btn-dangerous:not(.ant-btn-primary) {
+    color: var(--rd-danger);
+    border-color: var(--rd-danger);
+  }
+
+  .ant-btn-dangerous.ant-btn-link,
+  .ant-btn-dangerous.ant-btn-text {
+    border-color: transparent;
+  }
+
+  .ant-btn-dangerous.ant-btn-primary {
+    background-color: var(--rd-danger-fill);
+    border-color: var(--rd-danger-fill);
+    color: #fff;
+
+    &:hover,
+    &:focus {
+      background-color: var(--rd-danger-fill-hover);
+      border-color: var(--rd-danger-fill-hover);
+      color: #fff;
+    }
+  }
+
+  // disabled must beat the primary / danger rules above (which tie with .ant-btn[disabled])
+  .ant-btn[disabled].ant-btn-primary,
+  .ant-btn[disabled].ant-btn-primary:hover,
+  .ant-btn[disabled].ant-btn-dangerous,
+  .ant-btn[disabled].ant-btn-dangerous:hover {
+    background-color: var(--rd-surface);
+    border-color: var(--rd-border-split);
+    color: var(--rd-text-faint);
+  }
+
+  .ant-input,
+  .ant-input-affix-wrapper,
+  .ant-input-number,
+  .ant-input-number-input,
+  .ant-input-number-affix-wrapper,
+  .ant-input-number-group-addon,
+  .ant-select:not(.ant-select-customize-input) .ant-select-selector,
+  .ant-picker,
+  .ant-input-group-addon {
+    background-color: var(--rd-surface-muted);
+    border-color: var(--rd-border);
+    color: var(--rd-text);
+  }
+
+  .ant-input::placeholder,
+  .ant-select-selection-placeholder,
+  .ant-picker-input > input::placeholder {
+    color: var(--rd-text-faint);
+  }
+
+  .ant-input-affix-wrapper .ant-input,
+  .ant-picker-input > input {
+    background-color: transparent;
+    color: var(--rd-text);
+  }
+
+  .ant-input-disabled,
+  .ant-select-disabled .ant-select-selector,
+  .ant-input-number-disabled {
+    background-color: var(--rd-surface) !important;
+    color: var(--rd-text-faint) !important;
+  }
+
+  .ant-select-arrow,
+  .ant-select-clear,
+  .ant-input-clear-icon,
+  .ant-input-suffix,
+  .ant-picker-suffix,
+  .ant-input-number-handler-wrap,
+  .ant-input-number-handler {
+    background-color: transparent;
+    color: var(--rd-text-muted);
+    border-color: var(--rd-border);
+  }
+
+  .ant-select-multiple .ant-select-selection-item,
+  .ant-tag {
+    background-color: var(--rd-fill);
+    border-color: var(--rd-border);
+    color: var(--rd-text);
+  }
+
+  .ant-checkbox-inner,
+  .ant-radio-inner {
+    background-color: var(--rd-surface-muted);
+    border-color: var(--rd-border);
+  }
+
+  .ant-checkbox-disabled + span,
+  .ant-radio-disabled + span,
+  .ant-checkbox-wrapper-disabled,
+  .ant-radio-wrapper-disabled {
+    color: var(--rd-text-faint) !important;
+  }
+
+  .ant-checkbox-disabled .ant-checkbox-inner,
+  .ant-radio-disabled .ant-radio-inner {
+    background-color: var(--rd-fill) !important;
+    border-color: var(--rd-border) !important;
+  }
+
+  .ant-checkbox-disabled.ant-checkbox-checked .ant-checkbox-inner::after {
+    border-color: var(--rd-text-muted) !important;
+  }
+
+  .ant-form,
+  .ant-typography,
+  .ant-descriptions,
+  .ant-list,
+  .ant-result-title,
+  .ant-result-subtitle,
+  .ant-statistic-content {
+    color: var(--rd-text);
+  }
+
+  .ant-checkbox-checked .ant-checkbox-inner,
+  .ant-radio-checked .ant-radio-inner {
+    background-color: var(--rd-primary);
+    border-color: var(--rd-primary);
+  }
+
+  .ant-radio-checked .ant-radio-inner {
+    background-color: var(--rd-surface-muted);
+  }
+
+  .ant-checkbox-wrapper,
+  .ant-radio-wrapper,
+  .ant-form-item-label > label,
+  .ant-form-item,
+  .ant-form-item-extra,
+  .ant-form-item-explain {
+    color: var(--rd-text);
+  }
+
+  .ant-radio-button-wrapper {
+    background-color: var(--rd-surface-muted);
+    border-color: var(--rd-border);
+    color: var(--rd-text);
+
+    &-checked:not(.ant-radio-button-wrapper-disabled) {
+      background-color: var(--rd-primary-soft);
+      border-color: var(--rd-primary);
+      color: var(--rd-primary);
+    }
+  }
+
+  .ant-switch {
+    background-color: var(--rd-border);
+  }
+
+  .ant-switch-checked {
+    background-color: var(--rd-primary-fill);
+  }
+
+  // Steps ("New Data Source" dialog): antd's per-state title selectors are (0,4,0)
+  .ant-steps-item > .ant-steps-item-container > .ant-steps-item-content > .ant-steps-item-title {
+    color: var(--rd-text) !important;
+  }
+
+  .ant-steps-item-wait > .ant-steps-item-container > .ant-steps-item-content > .ant-steps-item-title {
+    color: var(--rd-text-muted) !important;
+  }
+
+  .ant-steps-item-wait .ant-steps-item-icon {
+    background-color: var(--rd-surface-muted);
+    border-color: var(--rd-border);
+
+    > .ant-steps-icon {
+      color: var(--rd-text-muted);
+    }
+  }
+
+  .ant-steps-item-finish .ant-steps-item-icon {
+    background-color: transparent;
+  }
+
+  .ant-steps-item > .ant-steps-item-container > .ant-steps-item-tail::after,
+  .ant-steps-item > .ant-steps-item-container > .ant-steps-item-content > .ant-steps-item-title::after {
+    background-color: var(--rd-border) !important;
+  }
+
+  .ant-divider {
+    border-color: var(--rd-border-split);
+    color: var(--rd-text);
+  }
+
+  .ant-empty-description {
+    color: var(--rd-text-muted);
+  }
+
+  .ant-alert {
+    background-color: var(--rd-surface-muted);
+    border-color: var(--rd-border);
+
+    .ant-alert-message,
+    .ant-alert-description {
+      color: var(--rd-text);
+    }
+  }
+
+  .ant-alert-info {
+    background-color: var(--rd-primary-soft);
+    border-color: rgba(75, 163, 255, 0.4);
+  }
+
+  .ant-alert-error {
+    background-color: rgba(255, 107, 107, 0.12);
+    border-color: rgba(255, 107, 107, 0.45);
+  }
+
+  .ant-alert-warning {
+    background-color: rgba(242, 184, 75, 0.12);
+    border-color: rgba(242, 184, 75, 0.45);
+  }
+
+  .ant-alert-success {
+    background-color: rgba(62, 207, 142, 0.12);
+    border-color: rgba(62, 207, 142, 0.45);
+  }
+
+  .alert-danger {
+    background-color: rgba(255, 107, 107, 0.12);
+    border-color: rgba(255, 107, 107, 0.45);
+    color: #ffb3b3;
+  }
+
+  .alert-warning {
+    background-color: rgba(242, 184, 75, 0.12);
+    border-color: rgba(242, 184, 75, 0.45);
+    color: #f6d08a;
+  }
+
+  .alert-success {
+    background-color: rgba(62, 207, 142, 0.12);
+    border-color: rgba(62, 207, 142, 0.45);
+    color: #8fe3bd;
+  }
+
+  // ---------------------------------------------------------------- antd: popups (rendered in <body>)
+  .ant-select-dropdown,
+  .ant-dropdown-menu,
+  .ant-menu-submenu-popup .ant-menu,
+  .ant-popover-inner,
+  .ant-picker-dropdown .ant-picker-panel-container,
+  .ant-cascader-menus,
+  .ant-mentions-dropdown {
+    background-color: var(--rd-surface-muted);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+    color: var(--rd-text);
+  }
+
+  // Date and time pickers (parameters, schedule dialog)
+  .ant-picker-panel,
+  .ant-picker-panel-container .ant-picker-panels,
+  .ant-picker-datetime-panel,
+  .ant-picker-time-panel {
+    background-color: var(--rd-surface-muted);
+    border-color: var(--rd-border-split);
+  }
+
+  .ant-picker-header,
+  .ant-picker-footer,
+  .ant-picker-panel .ant-picker-footer,
+  .ant-picker-time-panel-column:not(:first-child),
+  .ant-picker-datetime-panel .ant-picker-time-panel {
+    border-color: var(--rd-border-split);
+    color: var(--rd-text);
+  }
+
+  .ant-picker-header button,
+  .ant-picker-content th,
+  .ant-picker-cell,
+  .ant-picker-separator,
+  .ant-picker-range-separator .ant-picker-separator {
+    color: var(--rd-text-faint);
+  }
+
+  .ant-picker-header-view button,
+  .ant-picker-cell-in-view,
+  .ant-picker-time-panel-column > li.ant-picker-time-panel-cell .ant-picker-time-panel-cell-inner {
+    color: var(--rd-text);
+  }
+
+  .ant-picker-header > button:hover,
+  .ant-picker-header-view button:hover {
+    color: var(--rd-primary);
+  }
+
+  .ant-picker-cell:hover:not(.ant-picker-cell-in-view) .ant-picker-cell-inner,
+  .ant-picker-cell:hover:not(.ant-picker-cell-selected):not(.ant-picker-cell-range-start):not(.ant-picker-cell-range-end):not(.ant-picker-cell-range-hover-start):not(.ant-picker-cell-range-hover-end)
+    .ant-picker-cell-inner,
+  .ant-picker-time-panel-column > li.ant-picker-time-panel-cell .ant-picker-time-panel-cell-inner:hover {
+    background-color: var(--rd-fill);
+  }
+
+  .ant-picker-cell-in-view.ant-picker-cell-in-range::before,
+  .ant-picker-time-panel-column > li.ant-picker-time-panel-cell-selected .ant-picker-time-panel-cell-inner {
+    background-color: var(--rd-primary-soft);
+  }
+
+  .ant-picker-cell-in-view.ant-picker-cell-today .ant-picker-cell-inner::before {
+    border-color: var(--rd-primary);
+  }
+
+  .ant-picker-cell-in-view.ant-picker-cell-selected .ant-picker-cell-inner,
+  .ant-picker-cell-in-view.ant-picker-cell-range-start .ant-picker-cell-inner,
+  .ant-picker-cell-in-view.ant-picker-cell-range-end .ant-picker-cell-inner {
+    background-color: var(--rd-primary-fill);
+    color: #fff;
+  }
+
+  .ant-picker-cell-disabled::before {
+    background-color: var(--rd-surface);
+  }
+
+  .ant-picker-today-btn,
+  .ant-picker-now-btn {
+    color: var(--rd-primary);
+  }
+
+  .ant-popover-arrow-content,
+  .ant-popover-arrow-content::before {
+    background-color: var(--rd-surface-muted);
+  }
+
+  .ant-popover-title,
+  .ant-popover-inner-content,
+  .ant-popover-message {
+    color: var(--rd-text);
+    border-color: var(--rd-border-split);
+  }
+
+  .ant-select-item,
+  .ant-dropdown-menu-item,
+  .ant-dropdown-menu-submenu-title {
+    color: var(--rd-text);
+  }
+
+  .ant-select-item-option-active:not(.ant-select-item-option-disabled),
+  .ant-dropdown-menu-item:not(.ant-dropdown-menu-item-disabled):hover,
+  .ant-dropdown-menu-item-active:not(.ant-dropdown-menu-item-disabled),
+  .ant-dropdown-menu-submenu-title:hover {
+    background-color: var(--rd-fill);
+  }
+
+  .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+    background-color: var(--rd-primary-soft);
+    color: var(--rd-text-strong);
+  }
+
+  .ant-select-item-option-disabled,
+  .ant-dropdown-menu-item-disabled,
+  .ant-dropdown-menu-item.ant-dropdown-menu-item-disabled,
+  .ant-dropdown-menu-submenu-disabled .ant-dropdown-menu-submenu-title {
+    color: var(--rd-text-faint) !important;
+    background-color: transparent !important;
+    cursor: not-allowed;
+
+    > a {
+      color: var(--rd-text-faint) !important;
+    }
+  }
+
+  .ant-select-item-group,
+  .ant-dropdown-menu-item-group-title {
+    color: var(--rd-text-muted);
+  }
+
+  .ant-dropdown-menu-item-divider,
+  .ant-menu-item-divider {
+    background-color: var(--rd-border-split);
+  }
+
+  .ant-tooltip-inner {
+    background-color: #000;
+    color: var(--rd-text-strong);
+  }
+
+  // ---------------------------------------------------------------- antd: modal, drawer, notifications
+  .ant-modal-content,
+  .ant-modal-header,
+  .ant-modal-footer,
+  .ant-drawer-content,
+  .ant-drawer-header,
+  .ant-notification-notice,
+  .ant-message-notice-content {
+    background-color: var(--rd-surface);
+    border-color: var(--rd-border-split);
+    color: var(--rd-text);
+  }
+
+  .ant-modal-title,
+  .ant-drawer-title,
+  .ant-notification-notice-message,
+  .ant-modal-confirm-title,
+  .ant-modal-confirm-content {
+    color: var(--rd-text-strong);
+  }
+
+  .ant-modal-close,
+  .ant-drawer-close,
+  .ant-notification-notice-close {
+    color: var(--rd-text-muted);
+
+    &:hover {
+      color: var(--rd-text-strong);
+    }
+  }
+
+  .ant-notification-notice-description {
+    color: var(--rd-text);
+  }
+
+  .ant-modal-mask,
+  .ant-drawer-mask {
+    background-color: rgba(0, 0, 0, 0.65);
+  }
+
+  // ---------------------------------------------------------------- antd: tabs, menus, pagination, collapse
+  .ant-tabs,
+  .ant-tabs-tab {
+    color: var(--rd-text-muted);
+  }
+
+  .ant-tabs-tab:hover,
+  .ant-tabs-tab-active .ant-tabs-tab-btn {
+    color: var(--rd-primary) !important;
+  }
+
+  .ant-tabs-top > .ant-tabs-nav::before,
+  .ant-tabs-bottom > .ant-tabs-nav::before {
+    border-color: var(--rd-border-split);
+  }
+
+  .ant-tabs-card > .ant-tabs-nav .ant-tabs-tab {
+    background-color: var(--rd-surface-muted);
+    border-color: var(--rd-border-split);
+  }
+
+  .ant-tabs-card > .ant-tabs-nav .ant-tabs-tab-active {
+    background-color: var(--rd-surface);
+    border-bottom-color: var(--rd-surface);
+  }
+
+  .ant-menu:not(.ant-menu-dark) {
+    background-color: var(--rd-surface);
+    color: var(--rd-text);
+    border-color: var(--rd-border-split);
+
+    .ant-menu-item:hover,
+    .ant-menu-submenu-title:hover {
+      color: var(--rd-primary);
+    }
+
+    .ant-menu-item-selected {
+      background-color: var(--rd-primary-soft);
+      color: var(--rd-primary);
+    }
+
+    .ant-menu-item a,
+    .ant-menu-submenu-title {
+      color: var(--rd-text-muted);
+    }
+
+    .ant-menu-item:hover a,
+    .ant-menu-item-selected a {
+      color: var(--rd-primary);
+    }
+  }
+
+  .ant-pagination-item,
+  .ant-pagination-prev .ant-pagination-item-link,
+  .ant-pagination-next .ant-pagination-item-link {
+    background-color: var(--rd-surface-muted);
+    border-color: var(--rd-border);
+
+    a {
+      color: var(--rd-text);
+    }
+  }
+
+  .ant-pagination-item-active {
+    border-color: var(--rd-primary);
+
+    a {
+      color: var(--rd-primary);
+    }
+  }
+
+  .ant-pagination-disabled .ant-pagination-item-link {
+    color: var(--rd-text-faint);
+  }
+
+  .ant-pagination-item-ellipsis {
+    color: var(--rd-text-faint) !important;
+  }
+
+  .ant-collapse {
+    background-color: var(--rd-surface-muted);
+    border-color: var(--rd-border-split);
+
+    > .ant-collapse-item {
+      border-color: var(--rd-border-split);
+
+      > .ant-collapse-header {
+        color: var(--rd-text);
+      }
+    }
+  }
+
+  .ant-collapse-content {
+    background-color: var(--rd-surface);
+    border-color: var(--rd-border-split);
+    color: var(--rd-text);
+  }
+
+  .ant-card {
+    background-color: var(--rd-surface);
+    border-color: var(--rd-border-split);
+    color: var(--rd-text);
+  }
+
+  .ant-card-head {
+    border-color: var(--rd-border-split);
+    color: var(--rd-text-strong);
+  }
+
+  .ant-list-item {
+    border-color: var(--rd-border-split);
+  }
+
+  .ant-skeleton-content .ant-skeleton-title,
+  .ant-skeleton-content .ant-skeleton-paragraph > li {
+    background: var(--rd-fill);
+  }
+
+  .ant-upload.ant-upload-drag,
+  .ant-upload.ant-upload-select-picture-card {
+    background-color: var(--rd-surface-muted);
+    border-color: var(--rd-border);
+  }
+
+  // ---------------------------------------------------------------- antd: table (list pages and the table visualization)
+  .ant-table,
+  .ant-table table,
+  .ant-table-content > table {
+    background-color: transparent;
+    color: var(--rd-text);
+  }
+
+  .ant-table-thead > tr > th,
+  .ant-table-thead > tr > td {
+    background-color: var(--rd-surface-muted) !important;
+    border-color: var(--rd-border-split) !important;
+    color: var(--rd-text-strong) !important;
+  }
+
+  .ant-table-tbody > tr > td {
+    border-color: var(--rd-border-split) !important;
+  }
+
+  .ant-table-tbody > tr.ant-table-row:hover > td,
+  .ant-table-tbody > tr > td.ant-table-cell-row-hover {
+    background-color: var(--rd-fill) !important;
+  }
+
+  .ant-table-tbody > tr.ant-table-placeholder:hover > td {
+    background-color: transparent !important;
+  }
+
+  .ant-table-column-sorter,
+  .ant-table-filter-trigger {
+    color: var(--rd-text-faint);
+  }
+
+  .ant-table-column-sort,
+  td.ant-table-column-sort {
+    background-color: rgba(255, 255, 255, 0.025);
+  }
+
+  .ant-table-sticky-holder,
+  .ant-table-cell-fix-left,
+  .ant-table-cell-fix-right {
+    background-color: var(--rd-surface);
+  }
+
+  .ant-table-filter-dropdown {
+    background-color: var(--rd-surface-muted);
+  }
+
+  // ---------------------------------------------------------------- D3 visualizations (viz-lib): SVG text drawn with
+  // presentation attributes (fill="black" or none), which CSS overrides
+  .sankey .node text {
+    fill: var(--rd-text-strong);
+  }
+
+  .sunburst-visualization-container {
+    .lastCrumb {
+      fill: var(--rd-text-strong);
+    }
+
+    .nodePath {
+      stroke: var(--rd-surface);
+    }
+  }
+
+  // ---------------------------------------------------------------- antd badge (RQ status, apply button, tags)
+  .ant-badge-count {
+    box-shadow: 0 0 0 1px var(--rd-surface);
+  }
+
+  .ant-badge-status-text {
+    color: var(--rd-text);
+  }
+
+  // ---------------------------------------------------------------- Ace editor (tomorrow_night, see useAceTheme)
+  .ace-tomorrow-night {
+    background-color: var(--rd-surface-code);
+
+    .ace_gutter {
+      background-color: var(--rd-surface-muted);
+      color: var(--rd-text-faint);
+    }
+
+    .ace_gutter-active-line,
+    .ace_marker-layer .ace_active-line {
+      background-color: var(--rd-fill);
+    }
+  }
+
+  // ---------------------------------------------------------------- Leaflet maps: darken the raster tiles
+  .leaflet-container {
+    background-color: var(--rd-body-bg);
+  }
+
+  img.leaflet-tile[src*="tile.openstreetmap.org"] {
+    filter: invert(1) hue-rotate(180deg) brightness(0.85) contrast(0.9);
+  }
+
+  .leaflet-bar a,
+  .leaflet-control-layers,
+  .leaflet-popup-content-wrapper,
+  .leaflet-popup-tip {
+    background-color: var(--rd-surface-muted);
+    border-color: var(--rd-border-split);
+    color: var(--rd-text);
+  }
+
+  .leaflet-control-attribution {
+    background-color: rgba(15, 19, 24, 0.7) !important;
+    color: var(--rd-text-faint);
+  }
+
+  // ---------------------------------------------------------------- Pivot table (react-pivottable)
+  .pvtUi,
+  table.pvtTable {
+    background: transparent;
+    color: var(--rd-text);
+  }
+
+  table.pvtTable thead tr th,
+  table.pvtTable tbody tr th {
+    background-color: var(--rd-surface-muted);
+    border-color: var(--rd-border-split);
+    color: var(--rd-text-strong);
+  }
+
+  table.pvtTable tbody tr td {
+    background-color: var(--rd-surface);
+    border-color: var(--rd-border-split);
+    color: var(--rd-text);
+  }
+
+  .pvtAxisContainer,
+  .pvtVals,
+  .pvtUi td.pvtAxisContainer,
+  .pvtUi td.pvtVals {
+    background-color: var(--rd-surface-muted);
+    border-color: var(--rd-border-split);
+  }
+
+  .pvtAxisContainer li span.pvtAttr {
+    background-color: var(--rd-fill);
+    border-color: var(--rd-border);
+    color: var(--rd-text);
+  }
+
+  .pvtDropdownCurrent,
+  .pvtDropdownMenu,
+  .pvtButton,
+  .pvtFilterBox input,
+  .pvtUi select,
+  .pvtFilterBox {
+    background-color: var(--rd-surface-muted);
+    border-color: var(--rd-border);
+    color: var(--rd-text);
+  }
+
+  .pvtDropdownValue,
+  .pvtCheckContainer p,
+  .pvtFilterBox h4,
+  .pvtFilterBox p {
+    color: var(--rd-text);
+  }
+
+  .pvtDropdownActiveValue,
+  .pvtCheckContainer p.selected,
+  .pvtButton:hover {
+    background: var(--rd-fill);
+  }
+
+  .pvtTriangle,
+  .pvtDropdownIcon,
+  .pvtCloseX {
+    color: var(--rd-text-muted);
+  }
+
+  .pvtUi {
+    background-color: transparent;
+  }
+}
+
+// Printing switches to the light theme (services/theme.js), but a chart keeps the colours it was drawn with: the
+// dark theme's light text would be barely visible on paper. These are Plotly's own colours in the light theme.
+@media print {
+  .js-plotly-plot .main-svg {
+    .xtick text,
+    .ytick text,
+    .y2tick text,
+    .g-xtitle text,
+    .g-ytitle text,
+    .g-y2title text,
+    .gtitle,
+    .legendtext,
+    .annotation-text-g text {
+      fill: #444 !important;
+    }
+  }
+}

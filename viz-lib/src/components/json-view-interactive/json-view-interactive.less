@@ -10,7 +10,7 @@
 
 .jvi-block {
   display: block;
-  border-left: 1px dotted @table-border-color;
+  border-left: 1px dotted var(--rd-border-split, #f0f0f0);
   margin: 0 0 0 2px;
 }
 
@@ -39,7 +39,7 @@
   text-align: center;
   cursor: pointer;
   z-index: 1;
-  color: @text-color;
+  color: var(--rd-text-input, #595959);
   opacity: 0.5;
 
   &:hover {
@@ -56,7 +56,7 @@
 }
 
 .jvi-punctuation {
-  color: @text-color;
+  color: var(--rd-text-input, #595959);
 
   &.jvi-string {
     color: @green;
@@ -100,7 +100,7 @@
 }
 
 .jvi-comment {
-  color: @text-muted;
+  color: var(--rd-text-muted, #828282);
   font-family: @visualizations-font;
   font-style: italic;
   margin: 0 0 0 2 * @jvi-spacing;

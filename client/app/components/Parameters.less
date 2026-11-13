@@ -2,7 +2,7 @@
 
 .parameter-block {
   display: inline-block;
-  background: white;
+  background: var(--rd-surface);
   padding: 0 12px 6px 0;
   vertical-align: top;
   z-index: 1;
@@ -23,7 +23,7 @@
     z-index: 2;
     margin: 4px 0 0 4px;
     padding: 3px 6px 6px;
-    box-shadow: 0 4px 9px -3px rgba(102, 136, 153, 0.15);
+    box-shadow: 0 4px 9px -3px rgba(var(--rd-gray-rgb), 0.15);
   }
 }
 
@@ -65,8 +65,8 @@
       border-radius: 2px;
       z-index: 2;
       transition: opacity 150ms ease-out;
-      box-shadow: 0 4px 9px -3px rgba(102, 136, 153, 0.15);
-      background-color: #ffffff;
+      box-shadow: 0 4px 9px -3px rgba(var(--rd-gray-rgb), 0.15);
+      background-color: var(--rd-surface);
       padding: 4px;
       padding-left: 16px;
       opacity: 0;
@@ -94,7 +94,7 @@
       &:hover,
       &:focus,
       &:active {
-        background-color: #eef7fe;
+        background-color: var(--rd-surface-primary-tint);
       }
 
       i {
@@ -110,7 +110,7 @@
       line-height: 15px;
       background: #f77b74;
       border-radius: 7px;
-      box-shadow: 0 0 0 1px white, -1px 1px 0 1px #5d6f7d85;
+      box-shadow: 0 0 0 1px var(--rd-surface), -1px 1px 0 1px #5d6f7d85;
     }
   }
 }

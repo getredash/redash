@@ -16,7 +16,7 @@
   & > thead > tr > th {
     vertical-align: middle;
     font-weight: 500;
-    color: #333;
+    color: var(--rd-text-strong);
     border-width: 1px;
     text-transform: none;
     padding: 15px 10px;
@@ -92,13 +92,13 @@
 }
 
 .table-hover > tbody > tr:hover {
-  background-color: #fff !important;
-  background-color: fade(@redash-gray, 5%) !important;
+  background-color: var(--rd-surface) !important;
+  background-color: rgba(var(--rd-gray-rgb), 0.05) !important;
 }
 
 .table:not(.table-striped) > thead > tr > th {
-  background-color: #fff !important;
-  background-color: fade(@redash-gray, 3%) !important;
+  background-color: var(--rd-surface) !important;
+  background-color: rgba(var(--rd-gray-rgb), 0.03) !important;
 }
 
 
@@ -117,6 +117,6 @@
 }
 
 .table-border {
-  border: 1px solid rgb(240, 240, 240);
+  border: 1px solid var(--rd-border-split);
 }
 

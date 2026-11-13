@@ -16,7 +16,7 @@
       padding: 4px 10px 3px;
 
       &:focus {
-        background-color: rgba(0, 0, 0, 0.1);
+        background-color: rgba(var(--rd-ink-rgb), 0.1);
       }
 
       &:hover {
@@ -106,7 +106,7 @@
 
 .refresh-indicator {
   font-size: 18px;
-  color: #86a1af;
+  color: var(--rd-gray-soft);
   transition: all 100ms linear;
   transition-delay: 150ms; // waits for widget-menu to fade out before moving back over it
   transform: translateX(22px);
@@ -126,7 +126,7 @@
       right: 0;
       width: 24px;
       height: 24px;
-      background-color: #e8ecf0;
+      background-color: var(--rd-fill-gray);
       border-radius: 50%;
       transition: opacity 100ms linear;
       transition-delay: 150ms;
@@ -149,8 +149,8 @@
     transform: translateX(-6px);
     transition: all 100ms linear;
     transition-delay: 150ms;
-    color: #bbbbbb;
-    background-color: rgba(255, 255, 255, 0.9);
+    color: var(--rd-text-timer);
+    background-color: rgba(var(--rd-surface-rgb), 0.9);
     padding-left: 2px;
     padding-right: 1px;
     margin-right: -4px;
@@ -165,7 +165,7 @@
 .refresh-indicator-mini() {
   font-size: 13px;
   transition-delay: 0s;
-  color: #bbbbbb;
+  color: var(--rd-text-timer);
   transform: translateY(-4px);
 
   .refresh-icon:before {
@@ -196,12 +196,12 @@
       }
 
       .query-link {
-        color: fade(@redash-black, 80%);
+        color: rgba(var(--rd-ink-rgb), 0.8);
         font-size: 15px;
         font-weight: 500;
 
         &:not(.visualization-name) {
-          color: fade(@redash-black, 50%);
+          color: rgba(var(--rd-ink-rgb), 0.5);
         }
       }
     }
@@ -254,11 +254,11 @@
 
     a,
     .plain-button {
-      color: fade(@redash-black, 65%);
+      color: rgba(var(--rd-ink-rgb), 0.65);
 
       &:hover,
       &:focus {
-        color: fade(@redash-black, 95%);
+        color: rgba(var(--rd-ink-rgb), 0.95);
       }
     }
   }

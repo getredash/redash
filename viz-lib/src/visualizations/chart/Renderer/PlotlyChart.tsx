@@ -28,12 +28,15 @@ export default function PlotlyChart({ options, data }: PlotlyChartProps) {
   // @ts-expect-error ts-migrate(2322) FIXME: Type 'boolean' is not assignable to type 'undefine... Remove this comment to see the full error message
   isMobileRef.current = isMobile;
 
+  // Read on every render: the app re-renders visualizations when its theme changes
+  const { theme } = visualizationsSettings;
+
   useEffect(() => {
     if (container) {
       let isDestroyed = false;
 
       const chartData = getChartData(data.rows, options);
-      const _chart = initChart(container, options, chartData, visualizationsSettings, (error: any) => {
+      const _chart = initChart(container, options, chartData, { ...visualizationsSettings, theme }, (error: any) => {
         // @ts-expect-error ts-migrate(2532) FIXME: Object is possibly 'undefined'.
         errorHandlerRef.current.handleError(error);
       });
@@ -47,7 +50,7 @@ export default function PlotlyChart({ options, data }: PlotlyChartProps) {
         _chart.destroy();
       };
     }
-  }, [options, data, container]);
+  }, [options, data, container, theme]);
 
   useEffect(() => {
     if (chart) {

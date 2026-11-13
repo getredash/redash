@@ -3,6 +3,7 @@ import { includes, extend } from "lodash";
 import location from "@/services/location";
 import { axios } from "@/services/axios";
 import { notifySessionRestored } from "@/services/restoreSession";
+import { applyTheme, forgetUserTheme } from "@/services/theme";
 
 export const currentUser = {
   _isAdmin: undefined,
@@ -73,6 +74,7 @@ export const Auth = {
   },
   logout() {
     logger("Logout.");
+    forgetUserTheme();
     window.location.href = "logout";
   },
   loadSession() {
@@ -85,6 +87,7 @@ export const Auth = {
     Auth.setApiKey(null);
     return axios.get("api/session").then((data) => {
       updateSession(data);
+      applyTheme({ userTheme: currentUser.theme, defaultTheme: clientConfig.defaultTheme });
       return session;
     });
   },
@@ -92,6 +95,7 @@ export const Auth = {
     logger("Loading config");
     return axios.get("/api/config").then((data) => {
       updateSession({ client_config: data.client_config, user: { permissions: [] }, messages: [] });
+      applyTheme({ defaultTheme: clientConfig.defaultTheme, isPublic: true });
       return data;
     });
   },

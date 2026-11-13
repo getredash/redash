@@ -1,0 +1,201 @@
+// Theme tokens: the colours that change between the light and the dark theme.
+//
+// Styles use them as `var(--rd-...)`, never as literals, so a theme is just another set of values. The light values
+// are the colours Redash has always used. A token ending in `-rgb` is an "r, g, b" triple for translucent tints,
+// e.g. `rgba(var(--rd-gray-rgb), 0.15)` (LESS colour functions like fade() can't take CSS variables).
+//
+// The active theme is set on <html data-theme="light|dark"> (see client/app/services/theme.js).
+// Accent colours (@blue, @red, @green...) and the data colours of visualizations are the same in every theme.
+
+:root {
+  // ------------------------------------------------------------------ surfaces
+  --rd-body-bg: #f6f8f9; // page background
+  --rd-surface: #ffffff; // tiles, cards, panels, popups, inputs
+  --rd-surface-alt: #fafafa; // striped and secondary areas
+  --rd-surface-subtle: #fcfcfc; // @light-gray
+  --rd-surface-muted: #f7f7f7;
+  --rd-surface-code: #f8f8f8; // @ace: code and editor backgrounds
+  --rd-fill: #eeeeee; // neutral fills: default buttons, wells
+  --rd-fill-strong: #e2e2e2;
+
+  // ------------------------------------------------------------------ text
+  --rd-text: #767676; // body text
+  --rd-text-strong: #333333; // headings, emphasised text, menu links
+  --rd-text-input: #595959; // form controls
+  --rd-text-muted: #828282;
+  --rd-text-faint: #b4b4b4; // placeholders, disabled
+
+  // ------------------------------------------------------------------ lines
+  --rd-border: #e8e8e8; // inputs and controls
+  --rd-border-split: #f0f0f0; // table rows, dividers
+  --rd-border-light: #efefef;
+  --rd-border-strong: #d9d9d9;
+  --rd-border-heavy: #cccccc;
+
+  // ------------------------------------------------------------------ tints (r, g, b)
+  --rd-gray-rgb: 102, 136, 153; // @redash-gray: borders, hovers and fills at low alpha
+  --rd-ink-rgb: 0, 0, 0; // black used as a foreground tint (hover backgrounds, secondary text)
+
+  // ------------------------------------------------------------------ more specific shades: shared styles (assets/less/inc)
+  --rd-surface-hover: #f4f4f4; // table row hover
+  --rd-fill-light: #edecec; // Bootstrap @body-bg: nested tables, active nav tabs
+  --rd-fill-hover: #d7d7d7; // pagination hover
+  --rd-chart-grid-bg: #dddddd; // box plot grid background
+  --rd-text-rgb: 118, 118, 118; // --rd-text as "r, g, b", for translucent text
+  --rd-text-hover: #111111; // dropdown item hover
+  --rd-text-subdued: #777777; // "view more" links, widget captions
+  --rd-text-pagination: #7e7e7e;
+  --rd-text-breadcrumb-active: #7c7c7c;
+  --rd-text-label: #818181; // action header labels
+  --rd-text-icon: #939393; // action icons
+  --rd-text-dim: #969696;
+  --rd-text-caption: #9c9c9c; // header subtitles
+  --rd-text-breadcrumb: #a9a9a9;
+  --rd-text-disabled-item: #b5b4b4; // disabled list group items
+  --rd-text-fainter: #c5c5c5;
+  --rd-text-icon-faint: #d4d4d4; // inactive favourite / archive icons
+  --rd-text-disabled: #e4e4e4; // disabled dropdown items
+  --rd-border-handle: #b1c1ce; // resize handles
+  --rd-border-soft: #dfdfdf;
+  --rd-border-breadcrumb: #e5e5e5;
+  --rd-border-faint: #f4f4f4; // list groups, "view more" separators
+
+  // ------------------------------------------------------------------ more specific shades: app components and pages
+  --rd-surface-rgb: 255, 255, 255; // --rd-surface as "r, g, b", for translucent overlays
+  --rd-body-bg-rgb: 246, 248, 249; // --rd-body-bg as "r, g, b"
+  --rd-body-bg-alt: #f6f7f9; // sticky dashboard header (matches the page)
+  --rd-surface-template: #fbfbfb; // alert custom template box
+  --rd-surface-list-hover: #f5f5f5; // list item hover
+  --rd-surface-menu-focus: #e5f8ff; // focused dropdown menu item (antd @item-hover-bg)
+  --rd-surface-primary-tint: #eef7fe; // hover of the outlined "Apply changes" button
+  --rd-input-dirty-bg: #fffce1; // parameter input with unapplied changes
+  --rd-fill-disabled: #ececec; // disabled alert criteria input
+  --rd-fill-gray: #e8ecf0; // refresh indicator badge
+  --rd-grid-line: #b3babf; // dashboard grid lines in edit mode
+  --rd-grid-placeholder: #e0e6eb; // dashboard grid drop placeholder
+  --rd-text-list-hover: #555555; // list item hover text
+  --rd-text-strong-alt: #323232; // card titles
+  --rd-text-inactive: #a4a4a4; // disabled parameter mapping titles
+  --rd-text-timer: #bbbbbb; // refresh timer
+  --rd-text-menu-hint: #cccccc; // hints in dropdown menus
+  --rd-icon-muted: #a09797; // delete visualization icon
+  --rd-gray-strong: #475f6b; // darken(@redash-gray, 15%): text on gray tags
+  --rd-gray-soft: #86a1af; // refresh indicator icon
+  --rd-border-schema: #eaeaea; // schema browser list
+
+  // ------------------------------------------------------------------ more specific shades: visualizations (viz-lib)
+  --rd-drag-handle: #111111; // sortable drag-handle dots
+  --rd-border-table-cell: #ced8dc; // pivot table cell borders
+  --rd-border-mid: #e4e4e4; // cohort table borders
+  --rd-fill-badge: #c0c0c0; // table sort-order badge (white text)
+  --rd-text-subtle: #cccccc; // counter target value
+  --rd-text-soft: #666666; // sunburst summary
+  --rd-text-black: #000000; // .c-black (home page section titles)
+  --rd-surface-table-head: #fafbfc; // chart editor series table header
+  --rd-surface-table-hover: #f7f9fa; // chart editor dragged series row
+
+  // ------------------------------------------------------------------ accents for the dark theme's antd styles
+  // (themes/dark.less). In the light theme antd uses its own colours, compiled from inc/ant-variables.less.
+  --rd-primary: #2196f3; // links and selected items
+  --rd-primary-hover: #42a5f5;
+  --rd-primary-soft: rgba(33, 150, 243, 0.1);
+  --rd-primary-fill: #2196f3; // primary buttons: white labels on it
+  --rd-primary-fill-hover: #42a5f5;
+  --rd-danger: #f44336;
+  --rd-danger-fill: #f44336;
+  --rd-danger-fill-hover: #ef5350;
+  --rd-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+
+  --rd-body-bg: #0f1318;
+  --rd-surface: #161b22;
+  --rd-surface-alt: #1a2027;
+  --rd-surface-subtle: #181e25;
+  --rd-surface-muted: #1d232b;
+  --rd-surface-code: #1d232b;
+  --rd-fill: #252c36;
+  --rd-fill-strong: #2c343f;
+
+  --rd-text: #c4ccd5;
+  --rd-text-strong: #edf1f5;
+  --rd-text-input: #c4ccd5;
+  --rd-text-muted: #8a96a3;
+  --rd-text-faint: #75818d;
+
+  --rd-border: #3a434f;
+  --rd-border-split: #29303a;
+  --rd-border-light: #29303a;
+  --rd-border-strong: #3a434f;
+  --rd-border-heavy: #4a5463;
+
+  --rd-gray-rgb: 138, 166, 184;
+  --rd-ink-rgb: 255, 255, 255;
+
+  --rd-surface-hover: #1f262f;
+  --rd-fill-light: #1d232b;
+  --rd-fill-hover: #343d49;
+  --rd-chart-grid-bg: #252c36;
+  --rd-text-rgb: 196, 204, 213;
+  --rd-text-hover: #f5f8fb;
+  --rd-text-subdued: #b8c1cb;
+  --rd-text-pagination: #9aa5b1;
+  --rd-text-breadcrumb-active: #a3adb8;
+  --rd-text-label: #949fab;
+  --rd-text-icon: #8a96a3;
+  --rd-text-dim: #7d8995;
+  --rd-text-caption: #8a96a3;
+  --rd-text-breadcrumb: #6f7b88;
+  --rd-text-disabled-item: #6b7682;
+  --rd-text-fainter: #5f6a77;
+  --rd-text-icon-faint: #4f5a67;
+  --rd-text-disabled: #4a5463;
+  --rd-border-handle: #4f5b69;
+  --rd-border-soft: #3a434f;
+  --rd-border-breadcrumb: #29303a;
+  --rd-border-faint: #232a33;
+
+  --rd-surface-rgb: 22, 27, 34;
+  --rd-body-bg-rgb: 15, 19, 24;
+  --rd-body-bg-alt: #0f1318;
+  --rd-surface-template: #181e25;
+  --rd-surface-list-hover: #1f262f;
+  --rd-surface-menu-focus: #1c3347;
+  --rd-surface-primary-tint: #17304a;
+  --rd-input-dirty-bg: #3a3520;
+  --rd-fill-disabled: #222932;
+  --rd-fill-gray: #252c36;
+  --rd-grid-line: #3d4652;
+  --rd-grid-placeholder: #2c3540;
+  --rd-text-list-hover: #d5dce3;
+  --rd-text-strong-alt: #e6eaee;
+  --rd-text-inactive: #6b7682;
+  --rd-text-timer: #6e7a86;
+  --rd-text-menu-hint: #5f6a76;
+  --rd-icon-muted: #8a8f96;
+  --rd-gray-strong: #b4c8d4;
+  --rd-gray-soft: #7d93a1;
+  --rd-border-schema: #29303a;
+
+  --rd-drag-handle: #c4ccd5;
+  --rd-border-table-cell: #343d48;
+  --rd-border-mid: #303843;
+  --rd-fill-badge: #56606d;
+  --rd-text-subtle: #5f6b78;
+  --rd-text-soft: #a3adb8;
+  --rd-text-black: #edf1f5;
+  --rd-surface-table-head: #1b2129;
+  --rd-surface-table-hover: #222932;
+
+  --rd-primary: #4ba3ff;
+  --rd-primary-hover: #74b9ff;
+  --rd-primary-soft: rgba(75, 163, 255, 0.14);
+  --rd-primary-fill: #2a76c9; // keeps white labels at >= 4.5:1
+  --rd-primary-fill-hover: #3585da;
+  --rd-danger: #ff6b6b;
+  --rd-danger-fill: #c43c3c;
+  --rd-danger-fill-hover: #d24a4a;
+  --rd-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}

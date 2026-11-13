@@ -5,7 +5,7 @@
 
   .react-resizable-handle {
     position: absolute;
-    background: #fff;
+    background: var(--rd-surface);
     margin: 0;
     padding: 0;
 
@@ -15,7 +15,7 @@
 
     &:hover,
     &:active {
-      background: mix(@redash-gray, #fff, 6%);
+      background: var(--rd-body-bg);
     }
 
     &.react-resizable-handle-horizontal {
@@ -31,8 +31,8 @@
         display: inline-block;
         width: 3px;
         height: 25px;
-        border-left: 1px solid #ccc;
-        border-right: 1px solid #ccc;
+        border-left: 1px solid var(--rd-border-heavy);
+        border-right: 1px solid var(--rd-border-heavy);
       }
     }
 
@@ -49,8 +49,8 @@
         display: inline-block;
         width: 25px;
         height: 3px;
-        border-top: 1px solid #ccc;
-        border-bottom: 1px solid #ccc;
+        border-top: 1px solid var(--rd-border-heavy);
+        border-bottom: 1px solid var(--rd-border-heavy);
       }
     }
   }

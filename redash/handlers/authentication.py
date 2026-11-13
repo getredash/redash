@@ -296,6 +296,7 @@ def client_config():
         "showPermissionsControl": current_org.get_setting("feature_show_permissions_control"),
         "hidePlotlyModeBar": current_org.get_setting("hide_plotly_mode_bar"),
         "disablePublicUrls": current_org.get_setting("disable_public_urls"),
+        "defaultTheme": current_org.get_setting("default_theme"),
         "multiByteSearchEnabled": current_org.get_setting("multi_byte_search_enabled"),
         "allowCustomJSVisualizations": settings.FEATURE_ALLOW_CUSTOM_JS_VISUALIZATIONS,
         "autoPublishNamedQueries": settings.FEATURE_AUTO_PUBLISH_NAMED_QUERIES,
@@ -318,6 +319,17 @@ def client_config():
     client_config.update(null_value_config())
 
     return client_config
+
+
+@routes.app_context_processor
+def theme_context():
+    def default_theme():
+        # The organization's default UI theme, for the pages rendered by Flask (login, setup...): applied by
+        # themeBoot.js when the browser has no cached preference. There's no organization yet on the setup page.
+        org = current_org._get_current_object()
+        return org.get_setting("default_theme") if org else settings.organization.DEFAULT_THEME
+
+    return {"default_theme": default_theme}
 
 
 def messages():
@@ -350,6 +362,7 @@ def session(org_slug=None):
             "email": current_user.email,
             "groups": current_user.group_ids,
             "permissions": current_user.permissions,
+            "theme": current_user.theme,
         }
 
     return json_response(
