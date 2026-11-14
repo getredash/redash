@@ -15,7 +15,7 @@
     "@astrojs/react": "7.1.1",
     "@astrojs/sitemap": "3.7.4",
     "@astrojs/starlight": "0.42.7",
-    "astro": "7.4.2",
+    "astro": "7.4.7",
     "bootstrap-sass": "3.4.1",
     "font-awesome": "4.7.0",
     "prop-types": "^15.8.1",
