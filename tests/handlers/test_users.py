@@ -279,9 +279,12 @@ class TestUserResourcePost(BaseTestCase):
     def test_resets_theme_to_organization_default(self):
         user = self.factory.user
         user.theme = "dark"
+        models.db.session.commit()
         rv = self.make_request("post", "/api/users/{}".format(user.id), data={"theme": None})
         self.assertEqual(rv.status_code, 200)
         self.assertIsNone(rv.json["theme"])
+        models.db.session.refresh(user)
+        self.assertIsNone(user.theme)
 
     def test_rejects_unknown_theme(self):
         user = self.factory.user

@@ -282,40 +282,40 @@ html[data-theme="dark"] {
 
   .ant-alert-info {
     background-color: var(--rd-primary-soft);
-    border-color: rgba(75, 163, 255, 0.4);
+    border-color: rgba(var(--rd-primary-rgb), 0.4);
   }
 
   .ant-alert-error {
-    background-color: rgba(255, 107, 107, 0.12);
-    border-color: rgba(255, 107, 107, 0.45);
+    background-color: rgba(var(--rd-danger-rgb), 0.12);
+    border-color: rgba(var(--rd-danger-rgb), 0.45);
   }
 
   .ant-alert-warning {
-    background-color: rgba(242, 184, 75, 0.12);
-    border-color: rgba(242, 184, 75, 0.45);
+    background-color: rgba(var(--rd-warning-rgb), 0.12);
+    border-color: rgba(var(--rd-warning-rgb), 0.45);
   }
 
   .ant-alert-success {
-    background-color: rgba(62, 207, 142, 0.12);
-    border-color: rgba(62, 207, 142, 0.45);
+    background-color: rgba(var(--rd-success-rgb), 0.12);
+    border-color: rgba(var(--rd-success-rgb), 0.45);
   }
 
   .alert-danger {
-    background-color: rgba(255, 107, 107, 0.12);
-    border-color: rgba(255, 107, 107, 0.45);
-    color: #ffb3b3;
+    background-color: rgba(var(--rd-danger-rgb), 0.12);
+    border-color: rgba(var(--rd-danger-rgb), 0.45);
+    color: var(--rd-danger-text);
   }
 
   .alert-warning {
-    background-color: rgba(242, 184, 75, 0.12);
-    border-color: rgba(242, 184, 75, 0.45);
-    color: #f6d08a;
+    background-color: rgba(var(--rd-warning-rgb), 0.12);
+    border-color: rgba(var(--rd-warning-rgb), 0.45);
+    color: var(--rd-warning-text);
   }
 
   .alert-success {
-    background-color: rgba(62, 207, 142, 0.12);
-    border-color: rgba(62, 207, 142, 0.45);
-    color: #8fe3bd;
+    background-color: rgba(var(--rd-success-rgb), 0.12);
+    border-color: rgba(var(--rd-success-rgb), 0.45);
+    color: var(--rd-success-text);
   }
 
   // ---------------------------------------------------------------- antd: popups (rendered in <body>)
@@ -803,7 +803,7 @@ html[data-theme="dark"] {
 }
 
 // Printing switches to the light theme (services/theme.js), but a chart keeps the colours it was drawn with: the
-// dark theme's light text would be barely visible on paper. These are Plotly's own colours in the light theme.
+// dark theme's light text and dark grid would look wrong on paper. These are Plotly's own colours in the light theme.
 @media print {
   .js-plotly-plot .main-svg {
     .xtick text,
@@ -816,6 +816,18 @@ html[data-theme="dark"] {
     .legendtext,
     .annotation-text-g text {
       fill: #444 !important;
+    }
+
+    .gridlayer path {
+      stroke: #eee !important;
+    }
+
+    .zerolinelayer path,
+    path.xlines-above,
+    path.ylines-above,
+    path.xlines-below,
+    path.ylines-below {
+      stroke: #444 !important;
     }
   }
 }

@@ -58,7 +58,7 @@ html[data-theme="dark"] {
   }
 
   ::selection {
-    background: rgba(75, 163, 255, 0.35);
+    background: rgba(var(--rd-primary-rgb), 0.35);
   }
 
   // ---------------------------------------------------------------- Bootstrap surfaces
@@ -125,7 +125,7 @@ html[data-theme="dark"] {
   }
 
   .table-hover > tbody > tr:hover {
-    background-color: var(--rd-fill);
+    background-color: var(--rd-fill) !important; // over the !important of redash/redash-table.less
   }
 
   // ---------------------------------------------------------------- Bootstrap forms and buttons

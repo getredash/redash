@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
+import location from "@/services/location";
 
 // The colour theme of the UI.
 //
 // A preference is "light", "dark" or "system" (follow the operating system). The active theme, always "light" or
 // "dark", is set as <html data-theme="..."> and the styles switch on it (see assets/less/themes/tokens.less).
-// The preference comes from, in order: `?theme=` in the URL, the user's profile, the organization default.
+// The preference comes from, in order: `?theme=` in the URL, the user's profile, the organization default. The URL
+// override is checked again on every navigation, so it only applies to the pages whose URL has it.
 //
 // The last known preferences are cached in localStorage, so that themeBoot.js can apply the theme before the app
 // has loaded: "redash.theme" for the app, "redash.theme.default" for public dashboards and embeds.
@@ -23,7 +25,7 @@ const DEFAULT_KEY = "redash.theme.default";
 const DARK_QUERY = "(prefers-color-scheme: dark)";
 
 const listeners = new Set();
-let preference = null;
+let savedPreference = null; // the user's or the organization's, without the URL override; null until applyTheme()
 let isPublicPage = false;
 let theme = readTheme();
 let systemQuery = null;
@@ -80,6 +82,10 @@ function watchSystemTheme(enabled) {
 }
 
 function update() {
+  if (savedPreference === null) {
+    return;
+  }
+  const preference = getUrlOverride() || savedPreference;
   const next = preference === "dark" || (preference === "system" && prefersDark()) ? "dark" : "light";
   document.documentElement.setAttribute("data-theme", next);
   watchSystemTheme(preference === "system");
@@ -107,7 +113,7 @@ export function applyTheme({ userTheme, defaultTheme, isPublic = false } = {}) {
     store(USER_KEY, ownPreference);
   }
   isPublicPage = isPublic;
-  preference = getUrlOverride() || ownPreference;
+  savedPreference = ownPreference;
   update();
 }
 
@@ -151,8 +157,11 @@ window.addEventListener("afterprint", () => {
 
 // Follow a change made in another tab (the profile setting there updates the cached preference)
 window.addEventListener("storage", (event) => {
-  if (event.key === USER_KEY && preference !== null && !isPublicPage && !getUrlOverride() && isTheme(event.newValue)) {
-    preference = event.newValue;
+  if (event.key === USER_KEY && savedPreference !== null && !isPublicPage && isTheme(event.newValue)) {
+    savedPreference = event.newValue;
     update();
   }
 });
+
+// Links inside the app change the URL without reloading: apply or drop the URL override of the new page
+location.listen(update);

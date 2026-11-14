@@ -192,10 +192,18 @@ html[data-theme="dark"] {
   --rd-primary: #4ba3ff;
   --rd-primary-hover: #74b9ff;
   --rd-primary-soft: rgba(75, 163, 255, 0.14);
-  --rd-primary-fill: #2a76c9; // keeps white labels at >= 4.5:1
-  --rd-primary-fill-hover: #3585da;
+  --rd-primary-fill: #2a76c9; // keeps white labels at >= 4.5:1, and so do the darker hovers
+  --rd-primary-fill-hover: #1f66b3;
   --rd-danger: #ff6b6b;
   --rd-danger-fill: #c43c3c;
-  --rd-danger-fill-hover: #d24a4a;
+  --rd-danger-fill-hover: #a83232;
+  // tints and text of the alerts, only used by the dark layer (themes/dark.less)
+  --rd-primary-rgb: 75, 163, 255;
+  --rd-danger-rgb: 255, 107, 107;
+  --rd-warning-rgb: 242, 184, 75;
+  --rd-success-rgb: 62, 207, 142;
+  --rd-danger-text: #ffb3b3;
+  --rd-warning-text: #f6d08a;
+  --rd-success-text: #8fe3bd;
   --rd-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
 }

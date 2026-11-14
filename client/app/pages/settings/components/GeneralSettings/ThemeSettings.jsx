@@ -23,7 +23,8 @@ export default function ThemeSettings(props) {
             profile.
             {ownTheme && (
               <div data-test="DefaultThemeOverriddenNote">
-                You see the {ownTheme.name} theme, chosen in <Link href="users/me">your profile</Link>.
+                <Link href="users/me">Your profile</Link> uses the {ownTheme.name} theme, so the default doesn't apply
+                to you.
               </div>
             )}
           </React.Fragment>

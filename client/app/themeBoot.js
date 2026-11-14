@@ -3,10 +3,13 @@
 // Security Policy. Plain ES5 without imports, copied as is (not bundled). The app keeps the preferences it
 // knows in localStorage (see services/theme.js); `?theme=light|dark|system` in the URL overrides them, which is
 // handy for embeds and TV screens. Pages rendered by Flask (login, setup...) provide the organization default in
-// data-default-theme: they always use it, and cache it for the app's first visit.
+// data-default-theme: they always use it, and cache it for the app's first visit. In multi-org mode the app's pages
+// provide their organization's default in data-org-default-theme, used instead of the cached one (which may be
+// another organization's).
 (function () {
   var root = document.documentElement;
   var orgDefault = root.getAttribute("data-default-theme");
+  var appDefault = root.getAttribute("data-org-default-theme");
   var preference = null;
   try {
     var override = /[?&]theme=(light|dark|system)(?:&|$)/.exec(window.location.search);
@@ -20,12 +23,13 @@
       var isPublic = /\/(public|embed)\//.test(window.location.pathname);
       preference =
         (!isPublic && window.localStorage.getItem("redash.theme")) ||
+        appDefault ||
         window.localStorage.getItem("redash.theme.default");
     }
   } catch (_e) {
     // localStorage is unavailable (e.g. blocked in a sandboxed iframe): use the default below
   }
-  preference = preference || orgDefault || "light";
+  preference = preference || orgDefault || appDefault || "light";
   if (preference === "system") {
     var prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
     preference = prefersDark ? "dark" : "light";

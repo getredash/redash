@@ -55,9 +55,12 @@ export default function useOrganizationSettings({ onError }) {
             dateFormat: currentValues.date_format,
             timeFormat: currentValues.time_format,
             dateTimeFormat: `${currentValues.date_format} ${currentValues.time_format}`,
-            defaultTheme: currentValues.default_theme,
           });
-          applyTheme({ userTheme: currentUser.theme, defaultTheme: currentValues.default_theme });
+          // OrgSettings.save reports a failure itself and resolves without a response: keep the saved theme then
+          if (response) {
+            updateClientConfig({ defaultTheme: currentValues.default_theme });
+            applyTheme({ userTheme: currentUser.theme, defaultTheme: currentValues.default_theme });
+          }
         })
         .catch(handleError)
         .finally(() => setIsSaving(false));

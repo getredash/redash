@@ -138,3 +138,21 @@ class TestSession(BaseTestCase):
         rv = self.make_request("get", "/default/api/session", user=user, org=False)
         self.assertEqual(rv.json["user"]["theme"], "dark")
         self.assertEqual(rv.json["client_config"]["defaultTheme"], "system")
+
+
+class TestDefaultThemeInPages(BaseTestCase):
+    # themeBoot.js reads the organization default from the page, before the app has loaded
+
+    def setUp(self):
+        super().setUp()
+        self.factory.org.set_setting("default_theme", "dark")
+
+    def test_login_page(self):
+        rv = self.get_request("/login", org=self.factory.org)
+        self.assertEqual(rv.status_code, 200)
+        self.assertIn(b'data-default-theme="dark"', rv.data)
+
+    def test_app_page_in_multi_org_mode(self):
+        rv = self.make_request("get", "/queries")
+        self.assertEqual(rv.status_code, 200)
+        self.assertIn(b'data-org-default-theme="dark"', rv.data)

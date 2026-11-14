@@ -7,11 +7,8 @@ export const test = base.extend<{ theme: Theme }>({
   theme: ["light", { option: true }],
 });
 
-/** Adds `?theme=dark` to an app path for the dark theme (the URL override of the user's preference). */
+/** Adds `?theme=` to an app path (the URL override of the user's preference), so the theme doesn't depend on it. */
 export function withTheme(path: string, theme: Theme): string {
-  if (theme === "light") {
-    return path;
-  }
   const url = new URL(path, "http://placeholder");
   url.searchParams.set("theme", theme);
   return `${url.pathname}${url.search}${url.hash}`;

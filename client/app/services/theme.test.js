@@ -7,7 +7,8 @@ function mockMatchMedia(dark) {
 function loadTheme() {
   let theme;
   jest.isolateModules(() => {
-    theme = require("./theme");
+    // the same instance of the location service as the theme service's, to navigate in the tests
+    theme = { ...require("./theme"), location: require("./location").default };
   });
   return theme;
 }
@@ -61,6 +62,18 @@ describe("theme", () => {
     applyTheme({ userTheme: "light", defaultTheme: "light" });
     expect(document.documentElement.getAttribute("data-theme")).toBe("dark");
     expect(window.localStorage.getItem("redash.theme")).toBe("light");
+  });
+
+  test("the URL parameter only applies to the pages whose URL has it", () => {
+    setSearch("?theme=dark");
+    const { applyTheme, getTheme, location } = loadTheme();
+    applyTheme({ userTheme: "light" });
+    expect(getTheme()).toBe("dark");
+
+    location.update("/queries");
+    expect(getTheme()).toBe("light");
+    location.update("/queries?theme=dark");
+    expect(getTheme()).toBe("dark");
   });
 
   test("caches the preferences for themeBoot.js", () => {

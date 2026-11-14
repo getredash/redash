@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { get } from "lodash";
 import PropTypes from "prop-types";
 import Form from "antd/lib/form";
 import Select from "antd/lib/select";
@@ -38,8 +39,8 @@ export default function ThemeForm(props) {
         handleChange({ ...user, theme });
         notification.success("Saved.");
       })
-      .catch(() => {
-        notification.error("Failed saving the theme.");
+      .catch((error) => {
+        notification.error(get(error, "response.data.message", "Failed saving the theme."));
       })
       .finally(() => {
         setSaving(false);

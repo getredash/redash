@@ -324,8 +324,9 @@ def client_config():
 @routes.app_context_processor
 def theme_context():
     def default_theme():
-        # The organization's default UI theme, for the pages rendered by Flask (login, setup...): applied by
-        # themeBoot.js when the browser has no cached preference. There's no organization yet on the setup page.
+        # The organization's default UI theme, for the pages rendered by Flask. themeBoot.js always applies it on
+        # the signed-out pages (login, setup...), and on the app's pages in multi-org mode uses it when the user has
+        # no cached preference. There's no organization yet on the setup page.
         org = current_org._get_current_object()
         return org.get_setting("default_theme") if org else settings.organization.DEFAULT_THEME
 
