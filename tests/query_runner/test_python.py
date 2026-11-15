@@ -115,6 +115,87 @@ class TestPythonQueryRunner(TestCase):
         self.assertFalse(hasattr(self.python.get_current_user, "compromised"))
 
 
+class TestPythonQueryRunnerImports(TestCase):
+    def run_import(self, allowed_modules, import_statement, expression):
+        python = Python({"allowedImportModules": allowed_modules})
+        query = "{0}\nresult = {{'rows': [{{'value': {1}}}], 'columns': [{{'name': 'value', 'type': TYPE_STRING}}]}}".format(
+            import_statement, expression
+        )
+        return python.run_query(query, "user")
+
+    def assert_imported(self, allowed_modules, import_statement, expression, value):
+        data, error = self.run_import(allowed_modules, import_statement, expression)
+
+        self.assertIsNone(error)
+        self.assertEqual([{"value": value}], data["rows"])
+
+    def assert_rejected(self, allowed_modules, import_statement, expression, module_name):
+        data, error = self.run_import(allowed_modules, import_statement, expression)
+
+        self.assertIsNone(data)
+        self.assertIn("'{0}' is not configured as a supported import module".format(module_name), error)
+
+    def test_import_allowed_module(self):
+        self.assert_imported("json", "import json", "json.dumps([1])", "[1]")
+
+    def test_from_submodule_import_name(self):
+        self.assert_imported(
+            "xml.etree.ElementTree", "from xml.etree.ElementTree import XML", "XML('<tag/>').tag", "tag"
+        )
+
+    def test_from_package_import_submodule(self):
+        self.assert_imported(
+            "xml.etree,xml.etree.ElementTree",
+            "from xml.etree import ElementTree",
+            "ElementTree.XML('<tag/>').tag",
+            "tag",
+        )
+
+    def test_from_package_import_attribute_and_submodule(self):
+        self.assert_imported(
+            "json,json.tool",
+            "from json import dumps, tool",
+            "dumps([1]) == '[1]' and str(tool).startswith(\"<module 'json.tool'\")",
+            True,
+        )
+
+    def test_from_package_import_submodule_that_is_allowed_by_its_full_name(self):
+        self.assert_imported(
+            "json.tool", "from json import tool", "str(tool).startswith(\"<module 'json.tool'\")", True
+        )
+
+    def test_from_package_import_name_when_only_its_submodule_is_allowed(self):
+        self.assert_rejected("json.tool", "from json import dumps", "dumps([1])", "json")
+
+    def test_import_submodule_binds_the_top_level_package(self):
+        self.assert_imported(
+            "xml.etree.ElementTree",
+            "import xml.etree.ElementTree",
+            "xml.etree.ElementTree.XML('<tag/>').tag",
+            "tag",
+        )
+
+    def test_import_submodule_with_alias(self):
+        self.assert_imported(
+            "xml.etree.ElementTree", "import xml.etree.ElementTree as et", "et.XML('<tag/>').tag", "tag"
+        )
+
+    def test_import_module_that_is_not_allowed(self):
+        self.assert_rejected("xml", "import json", "json.dumps([1])", "json")
+
+    def test_import_submodule_of_allowed_package(self):
+        self.assert_rejected("xml", "import xml.etree.ElementTree", "1", "xml.etree.ElementTree")
+
+    def test_import_parent_of_allowed_submodule(self):
+        self.assert_rejected("xml.etree.ElementTree", "import xml.etree.ElementTree\nimport xml", "1", "xml")
+
+    def test_relative_import_is_not_supported(self):
+        data, error = self.run_import("xml", "from . import etree", "1")
+
+        self.assertIsNone(data)
+        self.assertIn("relative imports are not supported", error)
+
+
 class TestPythonQueryRunnerPermissions(BaseTestCase):
     def setUp(self):
         super().setUp()

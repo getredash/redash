@@ -142,18 +142,42 @@ class Python(BaseQueryRunner):
                 if b not in self.safe_builtins:
                     self.safe_builtins += (b,)
 
+    def _import_allowed_module(self, name):
+        if name not in self._allowed_modules:
+            raise Exception("'{0}' is not configured as a supported import module".format(name))
+
+        module = self._allowed_modules[name]
+        if module is None:
+            module = importlib.import_module(name)
+            self._allowed_modules[name] = module
+
+        return module
+
     def custom_import(self, name, globals=None, locals=None, fromlist=(), level=0):
-        if name in self._allowed_modules:
-            m = None
-            if self._allowed_modules[name] is None:
-                m = importlib.import_module(name)
-                self._allowed_modules[name] = m
-            else:
-                m = self._allowed_modules[name]
+        if level != 0:
+            raise Exception("relative imports are not supported")
 
-            return m
+        if not fromlist:
+            self._import_allowed_module(name)
+            # Return the top level package, e.g. `a` for `import a.b`.
+            return sys.modules[name.split(".")[0]]
 
-        raise Exception("'{0}' is not configured as a supported import module".format(name))
+        submodules = ["{0}.{1}".format(name, item) for item in fromlist]
+
+        if all(s in self._allowed_modules for s in submodules):
+            # Allow `from a import b` when the submodule `a.b` is allowed, even if `a` is not.
+            for submodule in submodules:
+                self._import_allowed_module(submodule)
+            return sys.modules[name]
+
+        module = self._import_allowed_module(name)
+
+        # fromlist may mix attributes and submodules of `a`, e.g. `from a import x, b`; import the allowed ones.
+        for item, submodule in zip(fromlist, submodules):
+            if not hasattr(module, item) and submodule in self._allowed_modules:
+                self._import_allowed_module(submodule)
+
+        return module
 
     @staticmethod
     def custom_write(obj):
