@@ -74,3 +74,7 @@ class TestConfigurationUpdate(TestCase):
         container = ConfigurationContainer({"a": 1, "b": "test", "e": 3}, secretless)
         container.update({"a": 2})
         self.assertEqual(container["a"], 2)
+
+    def test_clears_secret_when_explicitly_emptied(self):
+        self.container.update({"a": 1, "b": ""})
+        self.assertNotIn("b", self.container)
