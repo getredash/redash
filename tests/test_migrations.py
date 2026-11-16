@@ -119,6 +119,16 @@ class TestDataMigrations(BaseTestCase):
         details = self.scalar(f"SELECT details FROM users WHERE id = {user.id}")
         self.assertEqual("https://example.com/me.png", details["profile_image_url"])
 
+    def test_disable_athena_auto_limit(self):
+        athena = self.factory.create_data_source(type="athena")
+        athena_query = self.factory.create_query(data_source=athena, options={"apply_auto_limit": True})
+        pg_query = self.factory.create_query(options={"apply_auto_limit": True})
+
+        self.run_migration("f902d1b7cafc")
+
+        self.assertFalse(self.scalar(f"SELECT options FROM queries WHERE id = {athena_query.id}")["apply_auto_limit"])
+        self.assertTrue(self.scalar(f"SELECT options FROM queries WHERE id = {pg_query.id}")["apply_auto_limit"])
+
     def test_widget_positions(self):
         dashboard = self.factory.create_dashboard()
         widget = self.factory.create_widget(dashboard=dashboard, width=1, options={})

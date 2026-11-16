@@ -8,7 +8,7 @@ from redash.query_runner import (
     TYPE_FLOAT,
     TYPE_INTEGER,
     TYPE_STRING,
-    BaseQueryRunner,
+    BaseSQLQueryRunner,
     register,
 )
 from redash.settings import parse_boolean
@@ -51,7 +51,7 @@ class SimpleFormatter:
         return operation
 
 
-class Athena(BaseQueryRunner):
+class Athena(BaseSQLQueryRunner):
     noop_query = "SELECT 1"
 
     @classmethod
