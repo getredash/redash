@@ -176,7 +176,19 @@ class DataSource(BelongsToOrgMixin, db.Model):
     @classmethod
     def create_with_group(cls, *args, **kwargs):
         data_source = cls(*args, **kwargs)
-        data_source_group = DataSourceGroup(data_source=data_source, group=data_source.org.default_group)
+
+        group_setting = settings.DATASOURCE_AUTO_ASSIGN_GROUP
+        if group_setting == "default":
+            group = data_source.org.default_group
+        elif group_setting == "admin":
+            group = data_source.org.admin_group
+        elif group_setting == "none":
+            db.session.add(data_source)
+            return data_source
+        else:
+            raise ValueError(f"Unexpected DATASOURCE_AUTO_ASSIGN_GROUP value: '{group_setting}'")
+
+        data_source_group = DataSourceGroup(data_source=data_source, group=group)
         db.session.add_all([data_source, data_source_group])
         return data_source
 
