@@ -324,3 +324,25 @@ class TestGlueSchema(TestCase):
                 {"columns": [{"name": "row_id", "type": "int"}], "name": "test1.jdbc_table"},
                 {"columns": [{"name": "row_id", "type": "int"}], "name": "test2.jdbc_table"},
             ]
+
+
+class TestAthenaAutoLimit(TestCase):
+    def setUp(self):
+        self.query_runner = Athena({"region": "mars-east-1"})
+
+    def test_supports_auto_limit(self):
+        self.assertTrue(self.query_runner.supports_auto_limit)
+
+    def test_adds_limit_when_missing(self):
+        self.assertEqual(
+            "SELECT * FROM events LIMIT 1000",
+            self.query_runner.apply_auto_limit("SELECT * FROM events", True),
+        )
+
+    def test_keeps_existing_limit(self):
+        query = "SELECT * FROM events LIMIT 10"
+        self.assertEqual(query, self.query_runner.apply_auto_limit(query, True))
+
+    def test_no_limit_when_unchecked(self):
+        query = "SELECT * FROM events"
+        self.assertEqual(query, self.query_runner.apply_auto_limit(query, False))
