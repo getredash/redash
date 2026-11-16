@@ -103,11 +103,14 @@ class ClickHouse(BaseSQLQueryRunner):
         timeout = self.configuration.get("timeout", 30)
 
         params = {
-            "user": self.configuration.get("user", "default"),
-            "password": self.configuration.get("password", ""),
             "database": self.configuration["dbname"],
             "default_format": "JSON",
         }
+        username = self.configuration.get("user", "default")
+        password = self.configuration.get("password", "")
+        if ":" in username:
+            raise ValueError("ClickHouse username must not contain ':'")
+        auth = (username.encode("utf-8"), password.encode("utf-8"))
 
         if session_id:
             params["session_id"] = session_id
@@ -122,6 +125,7 @@ class ClickHouse(BaseSQLQueryRunner):
                 stream=False,
                 timeout=timeout,
                 params=params,
+                auth=auth,
                 verify=verify,
             )
 
