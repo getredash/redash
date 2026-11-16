@@ -1,4 +1,4 @@
-import { isNil, extend, each, includes, map, sortBy, toString } from "lodash";
+import { isNil, extend, each, every, includes, map, sortBy, toString } from "lodash";
 import chooseTextColorForBackground from "@/lib/chooseTextColorForBackground";
 import { AllColorPaletteArrays, ColorPaletteTypes } from "@/visualizations/ColorPalette";
 import { cleanNumber, normalizeValue, getSeriesAxis } from "./utils";
@@ -71,9 +71,20 @@ function prepareBubbleSeries(series: any, options: any, { seriesColor, data }: a
   return series;
 }
 
-function prepareBoxSeries(series: any, options: any, { seriesColor }: any) {
+function prepareBoxSeries(series: any, options: any, { seriesColor, data }: any) {
   series.type = "box";
   series.mode = "markers";
+
+  // Boxes summarized by the server: a mark per box with its stats and the points it shows
+  if (data.length > 0 && every(data, (point) => point.$raw && point.$raw.$box)) {
+    const boxes = map(data, (point) => point.$raw.$box);
+    series.q1 = map(boxes, "q1");
+    series.median = map(boxes, "median");
+    series.q3 = map(boxes, "q3");
+    series.lowerfence = map(boxes, "lowerfence");
+    series.upperfence = map(boxes, "upperfence");
+    series.y = map(boxes, "points");
+  }
 
   series.boxpoints = "outliers";
   series.hoverinfo = false;

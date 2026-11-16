@@ -49,6 +49,10 @@ QUERY_RESULTS_EXPIRED_TTL_ENABLED = parse_boolean(os.environ.get("REDASH_QUERY_R
 # default set query results expired ttl 86400 seconds
 QUERY_RESULTS_EXPIRED_TTL = int(os.environ.get("REDASH_QUERY_RESULTS_EXPIRED_TTL", "86400"))
 
+# Query result responses carry one page of rows, never the whole result. This caps a page, and is the
+# page size when a request doesn't ask for one.
+QUERY_RESULTS_MAX_PAGE_ROWS = int(os.environ.get("REDASH_QUERY_RESULTS_MAX_PAGE_ROWS", "1000"))
+
 SCHEMAS_REFRESH_SCHEDULE = int(os.environ.get("REDASH_SCHEMAS_REFRESH_SCHEDULE", 30))
 SCHEMAS_REFRESH_TIMEOUT = int(os.environ.get("REDASH_SCHEMAS_REFRESH_TIMEOUT", 300))
 

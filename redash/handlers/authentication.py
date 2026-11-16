@@ -292,6 +292,7 @@ def client_config():
         "pageSize": settings.PAGE_SIZE,
         "pageSizeOptions": settings.PAGE_SIZE_OPTIONS,
         "tableCellMaxJSONSize": settings.TABLE_CELL_MAX_JSON_SIZE,
+        "queryResultsMaxPageRows": settings.QUERY_RESULTS_MAX_PAGE_ROWS,
     }
 
     client_config.update(defaults)

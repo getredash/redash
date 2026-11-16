@@ -1,11 +1,12 @@
 import { isEqual, map, find, fromPairs } from "lodash";
-import React, { useState, useMemo, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import useQueryResultData from "@/lib/useQueryResultData";
 import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
-import Filters, { FiltersType, filterData } from "@/components/Filters";
+import Filters, { FiltersType } from "@/components/Filters";
 import { VisualizationType } from "@redash/viz/lib";
 import { Renderer } from "@/components/visualizations/visualizationComponents";
+import useVisualizationData from "./useVisualizationData";
 
 function combineFilters(localFilters, globalFilters) {
   // tiny optimization - to avoid unnecessary updates
@@ -61,15 +62,12 @@ export default function VisualizationRenderer(props) {
     handleFiltersChange(combineFilters(filtersRef.current, props.filters));
   }, [props.filters, handleFiltersChange]);
 
-  const filteredData = useMemo(
-    () => ({
-      columns: data.columns,
-      rows: filterData(data.rows, filters),
-    }),
-    [data, filters]
-  );
-
   const { showFilters, visualization } = props;
+  const {
+    data: visualizationData,
+    loading,
+    notice,
+  } = useVisualizationData(props.queryResult, visualization.type, visualization.options, filters);
 
   let options = { ...visualization.options };
 
@@ -78,14 +76,33 @@ export default function VisualizationRenderer(props) {
     options.paginationSize = props.context === "widget" ? "small" : "default";
   }
 
+  const addonBefore = (
+    <React.Fragment>
+      {showFilters && <Filters filters={filters} onChange={handleFiltersChange} />}
+      {notice && <div className="text-muted m-b-10">{notice}</div>}
+    </React.Fragment>
+  );
+
+  if (loading) {
+    return (
+      <div className="visualization-renderer">
+        {addonBefore}
+        <div className="text-center text-muted p-15">
+          <i className="fa fa-spinner fa-pulse m-r-5" aria-hidden="true" />
+          Loading&hellip;
+        </div>
+      </div>
+    );
+  }
+
   return (
     <Renderer
       key={`visualization${visualization.id}`}
       type={visualization.type}
       options={options}
-      data={filteredData}
+      data={visualizationData}
       visualizationName={visualization.name}
-      addonBefore={showFilters && <Filters filters={filters} onChange={handleFiltersChange} />}
+      addonBefore={addonBefore}
     />
   );
 }

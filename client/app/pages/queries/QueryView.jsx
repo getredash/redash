@@ -1,3 +1,4 @@
+import { find } from "lodash";
 import React, { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import cx from "classnames";
@@ -14,7 +15,7 @@ import DynamicComponent from "@/components/DynamicComponent";
 import PlainButton from "@/components/PlainButton";
 
 import DataSource from "@/services/data-source";
-import { ExecutionStatus } from "@/services/query-result";
+import { ExecutionStatus, getInitialRowLimit } from "@/services/query-result";
 import routes from "@/services/routes";
 import { policy } from "@/services/policy";
 
@@ -61,7 +62,7 @@ function QueryView(props) {
     cancelCallback: cancelExecution,
     isCancelling: isExecutionCancelling,
     updatedAt,
-  } = useQueryExecute(query);
+  } = useQueryExecute(query, getInitialRowLimit(find(query.visualizations, { id: selectedVisualization })));
 
   const queryResultData = useQueryResultData(queryResult);
 

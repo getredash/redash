@@ -37,7 +37,9 @@ from redash.tasks import Job
 from redash.tasks.queries import enqueue_query
 from redash.utils import (
     collect_parameters_from_request,
+    gen_query_hash,
     json_dumps,
+    json_loads,
     to_filename,
 )
 
@@ -61,7 +63,26 @@ error_messages = {
 }
 
 
-def run_query(query, parameters, data_source, query_id, should_apply_auto_limit, max_age=0):
+def get_page(args):
+    """
+    The (offset, limit) page of rows a request asks for. Responses never carry more than
+    QUERY_RESULTS_MAX_PAGE_ROWS rows, which is also the page size when none is asked for.
+    """
+    offset = args.get("offset")
+    limit = args.get("limit")
+    try:
+        offset = 0 if offset is None else int(offset)
+        limit = settings.QUERY_RESULTS_MAX_PAGE_ROWS if limit is None else int(limit)
+    except (TypeError, ValueError):
+        abort(400, message="offset and limit must be integers.")
+
+    if offset < 0 or limit < 0:
+        abort(400, message="offset and limit must not be negative.")
+
+    return offset, min(limit, settings.QUERY_RESULTS_MAX_PAGE_ROWS)
+
+
+def run_query(query, parameters, data_source, query_id, should_apply_auto_limit, max_age=0, page=None):
     if not data_source:
         return error_messages["no_data_source"]
 
@@ -103,7 +124,8 @@ def run_query(query, parameters, data_source, query_id, should_apply_auto_limit,
     )
 
     if query_result:
-        return {"query_result": serialize_query_result(query_result, current_user.is_api_user())}
+        offset, limit = page or (0, settings.QUERY_RESULTS_MAX_PAGE_ROWS)
+        return {"query_result": serialize_query_result(query_result, current_user.is_api_user(), offset, limit)}
     else:
         # SQL annotations must use numeric IDs or server-generated API labels, never user generated content.
         job = enqueue_query(
@@ -146,6 +168,77 @@ def content_disposition_filenames(attachment_filename):
     return filenames
 
 
+def load_readable_query_result(user, org, query_id, query_result_id):
+    """Look up a result by its ID or its query's latest result, aborting unless `user` may read it."""
+    query_result = None
+    query = None
+
+    if query_result_id:
+        query_result = get_object_or_404(models.QueryResult.get_by_id_and_org, query_result_id, org)
+
+    if query_id is not None:
+        query = get_object_or_404(models.Query.get_by_id_and_org, query_id, org)
+
+        if query_result is None and query is not None and query.latest_query_data_id is not None:
+            query_result = get_object_or_404(
+                models.QueryResult.get_by_id_and_org,
+                query.latest_query_data_id,
+                org,
+            )
+
+        if query is not None and query_result is not None and user.is_api_user():
+            if query.query_hash != query_result.query_hash:
+                abort(404, message="No cached result found for this query.")
+
+    if query_result:
+        require_access(query_result.data_source, user, view_only)
+
+        # If the result was produced via the Query Results data source,
+        # verify access to each underlying data source referenced in the query.
+        if query_result.data_source and query_result.data_source.type == "results":
+            query_ids = set(
+                extract_query_ids(query_result.query_text)
+                + extract_cached_query_ids(query_result.query_text)
+                + [int(p[0]) for p in extract_query_params(query_result.query_text)]
+            )
+            for qid in query_ids:
+                try:
+                    source_query = models.Query.get_by_id(qid)
+                    if source_query.data_source:
+                        require_access(source_query.data_source, user, view_only)
+                except models.NoResultFound:
+                    abort(403, message="Access denied - referenced query no longer exists.")
+
+    return query_result, query
+
+
+def load_shared_query_result(user, org, query_id, query_result_id, parameters):
+    """
+    API keys (shared dashboards, embeds) may read a result only when running their query with
+    `parameters` produces it, which is what lets them fetch it from QueryResultResource.post.
+    """
+    query = get_object_or_404(models.Query.get_by_id_and_org, query_id, org)
+    query_result = get_object_or_404(models.QueryResult.get_by_id_and_org, query_result_id, org)
+
+    if not query.parameterized.is_safe or not has_access(query, user, view_only):
+        abort(403)
+
+    if query.data_source is None or query_result.data_source_id != query.data_source_id:
+        abort(404, message="No cached result found for this query.")
+
+    try:
+        query_text = query.parameterized.apply(parameters).text
+    except InvalidParameterError as e:
+        abort(400, message=str(e))
+
+    query_runner = query.data_source.query_runner
+    query_hashes = {gen_query_hash(query_runner.apply_auto_limit(query_text, limit)) for limit in (False, True)}
+    if query_result.query_hash not in query_hashes:
+        abort(404, message="No cached result found for this query.")
+
+    return query_result
+
+
 class QueryResultListResource(BaseResource):
     @require_permission("execute_query")
     def post(self):
@@ -160,8 +253,12 @@ class QueryResultListResource(BaseResource):
                                 always execute.
         :qparam number data_source_id: ID of data source to query
         :qparam object parameters: A set of parameter values to apply to the query.
+        :qparam number offset: Index of the first row to return with a cached result. Defaults to 0.
+        :qparam number limit: Number of rows to return with a cached result, at most
+                              `REDASH_QUERY_RESULTS_MAX_PAGE_ROWS` (its default). `row_count` has the total.
         """
         params = request.get_json(force=True)
+        page = get_page(params)
 
         query = params["query"]
         max_age = params.get("max_age", -1)
@@ -191,6 +288,7 @@ class QueryResultListResource(BaseResource):
             query_id,
             should_apply_auto_limit,
             max_age,
+            page,
         )
 
 
@@ -257,8 +355,12 @@ class QueryResultResource(BaseResource):
                                 return them, otherwise execute the query; if omitted or -1, returns
                                 any cached result, or executes if not available. Set to zero to
                                 always execute.
+        :param number offset: Index of the first row to return with a cached result. Defaults to 0.
+        :param number limit: Number of rows to return with a cached result, at most
+                              `REDASH_QUERY_RESULTS_MAX_PAGE_ROWS` (its default). `row_count` has the total.
         """
         params = request.get_json(force=True, silent=True) or {}
+        page = get_page(params)
         parameter_values = params.get("parameters", {})
 
         max_age = params.get("max_age", -1)
@@ -283,6 +385,7 @@ class QueryResultResource(BaseResource):
                 query_id,
                 should_apply_auto_limit,
                 max_age,
+                page,
             )
         else:
             if not query.parameterized.is_safe:
@@ -301,11 +404,15 @@ class QueryResultResource(BaseResource):
         :param number query_id: The ID of the query whose results should be fetched
         :param number query_result_id: the ID of the query result to fetch
         :param string filetype: Format to return. One of 'json', 'xlsx', or 'csv'. Defaults to 'json'.
+        :qparam number offset: For 'json', index of the first row to return. Defaults to 0.
+        :qparam number limit: For 'json', number of rows to return, at most `REDASH_QUERY_RESULTS_MAX_PAGE_ROWS`
+                              (its default). CSV and Excel downloads always include every row.
 
         :<json number id: Query result ID
         :<json string query: Query that produced this result
         :<json string query_hash: Hash code for query text
-        :<json object data: Query output
+        :<json object data: Query output, with only the requested page of `rows`
+        :<json number row_count: Total number of rows in the result
         :<json number data_source_id: ID of data source that produced this result
         :<json number runtime: Length of execution time in seconds
         :<json string retrieved_at: Query retrieval date/time, in ISO format
@@ -316,45 +423,11 @@ class QueryResultResource(BaseResource):
         # should check for query parameters and shouldn't cache the result).
         should_cache = query_result_id is not None
 
-        query_result = None
-        query = None
-
-        if query_result_id:
-            query_result = get_object_or_404(models.QueryResult.get_by_id_and_org, query_result_id, self.current_org)
-
-        if query_id is not None:
-            query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
-
-            if query_result is None and query is not None and query.latest_query_data_id is not None:
-                query_result = get_object_or_404(
-                    models.QueryResult.get_by_id_and_org,
-                    query.latest_query_data_id,
-                    self.current_org,
-                )
-
-            if query is not None and query_result is not None and self.current_user.is_api_user():
-                if query.query_hash != query_result.query_hash:
-                    abort(404, message="No cached result found for this query.")
+        query_result, query = load_readable_query_result(
+            self.current_user, self.current_org, query_id, query_result_id
+        )
 
         if query_result:
-            require_access(query_result.data_source, self.current_user, view_only)
-
-            # If the result was produced via the Query Results data source,
-            # verify access to each underlying data source referenced in the query.
-            if query_result.data_source and query_result.data_source.type == "results":
-                query_ids = set(
-                    extract_query_ids(query_result.query_text)
-                    + extract_cached_query_ids(query_result.query_text)
-                    + [int(p[0]) for p in extract_query_params(query_result.query_text)]
-                )
-                for qid in query_ids:
-                    try:
-                        source_query = models.Query.get_by_id(qid)
-                        if source_query.data_source:
-                            require_access(source_query.data_source, self.current_user, view_only)
-                    except models.NoResultFound:
-                        abort(403, message="Access denied - referenced query no longer exists.")
-
             if isinstance(self.current_user, models.ApiUser):
                 event = {
                     "user_id": None,
@@ -401,7 +474,8 @@ class QueryResultResource(BaseResource):
 
     @staticmethod
     def make_json_response(query_result):
-        data = json_dumps({"query_result": query_result.to_dict()})
+        offset, limit = get_page(request.args)
+        data = json_dumps({"query_result": query_result.to_dict(offset, limit)})
         headers = {"Content-Type": "application/json"}
         return make_response(data, 200, headers)
 
@@ -419,6 +493,110 @@ class QueryResultResource(BaseResource):
     def make_excel_response(query_result):
         headers = {"Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}
         return make_response(serialize_query_result_to_xlsx(query_result), 200, headers)
+
+
+def get_json_arg(name, default):
+    """A query string argument holding a JSON object."""
+    try:
+        value = json_loads(request.args.get(name, json_dumps(default)))
+    except ValueError:
+        value = None
+    if not isinstance(value, dict):
+        abort(400, message="{} must be a JSON object.".format(name))
+    return value
+
+
+def get_filters_arg():
+    """The `filters` argument: each filter column's selected values."""
+    filters = get_json_arg("filters", {})
+    if not all(isinstance(values, list) for values in filters.values()):
+        abort(400, message="Each filter must be a list of values.")
+    return filters
+
+
+class QueryResultPartResource(BaseResource):
+    """Base for resources serving part of a result, which API keys reach through its query."""
+
+    def load_query_result(self, query_result_id, query_id):
+        if query_id is not None and self.current_user.is_api_user():
+            parameters = get_json_arg("parameters", {})
+            return load_shared_query_result(self.current_user, self.current_org, query_id, query_result_id, parameters)
+
+        query_result, _ = load_readable_query_result(self.current_user, self.current_org, query_id, query_result_id)
+        if query_result is None:
+            abort(404, message="No cached result found for this query.")
+        return query_result
+
+
+class QueryResultRowsResource(QueryResultPartResource):
+    @require_any_of_permission(("view_query", "execute_query"))
+    def get(self, query_result_id, query_id=None):
+        """
+        Retrieve a page of a query result's rows.
+
+        Only the requested rows are read from the database; with filters, the database does the filtering.
+
+        :param number query_result_id: The ID of the query result
+        :qparam number offset: Index of the first row to return. Defaults to 0.
+        :qparam number limit: Number of rows to return, at most `REDASH_QUERY_RESULTS_MAX_PAGE_ROWS` (its default).
+        :qparam string filters: JSON object mapping filter columns to the values to keep rows with.
+        :qparam string parameters: JSON object of the parameter values the result was produced with.
+                                   Required for API keys reading a parameterized query's result.
+
+        :<json array rows: The requested rows
+        :<json number offset: Index of the first returned row
+        :<json number row_count: Total number of rows in the result, or that pass the filters
+        """
+        offset, limit = get_page(request.args)
+        filters = get_filters_arg()
+        query_result = self.load_query_result(query_result_id, query_id)
+
+        if filters:
+            rows, row_count = query_result.get_filtered_rows(filters, offset, limit)
+        else:
+            rows, row_count = query_result.get_rows(offset, limit), query_result.row_count
+
+        headers = {"Cache-Control": "private,max-age=%d" % ONE_YEAR}
+        return {"rows": rows, "offset": offset, "row_count": row_count}, 200, headers
+
+
+class QueryResultChartResource(QueryResultPartResource):
+    @require_any_of_permission(("view_query", "execute_query"))
+    def get(self, query_result_id, query_id=None):
+        """
+        Retrieve the marks a chart draws from a query result.
+
+        The marks are built in the database: the rows themselves are neither loaded nor sent. Each mark is
+        row-like, and the chart visualization turns the marks into the series it would build from every row.
+
+        :param number query_result_id: The ID of the query result
+        :qparam string options: JSON object of the chart's `columnMapping`, `globalSeriesType`,
+                                `seriesOptions` (each series' `type`) and `showpoints` options.
+        :qparam string filters: JSON object mapping filter columns to the values to keep rows with.
+        :qparam number width: The chart's width in pixels, at most; denser series are thinned to it.
+        :qparam number height: The chart's height in pixels, at most.
+        :qparam string parameters: JSON object of the parameter values the result was produced with.
+                                   Required for API keys reading a parameterized query's result.
+
+        :<json array marks: The marks, in the order the chart reads them
+        :<json number row_count: Total number of rows in the result
+        """
+        options = get_json_arg("options", {})
+        filters = get_filters_arg()
+        try:
+            width = min(max(int(request.args.get("width", 1000)), 1), 10000)
+            height = min(max(int(request.args.get("height", 1000)), 1), 10000)
+        except ValueError:
+            abort(400, message="width and height must be integers.")
+
+        query_result = self.load_query_result(query_result_id, query_id)
+        try:
+            marks = query_result.get_chart_marks(options, filters, width, height)
+        except ValueError as e:
+            abort(400, message=str(e))
+
+        headers = {"Cache-Control": "private,max-age=%d" % ONE_YEAR}
+        return {"marks": marks, "row_count": query_result.row_count}, 200, headers
 
 
 class JobResource(BaseResource):

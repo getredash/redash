@@ -5,7 +5,7 @@ import Modal from "antd/lib/modal";
 import Select from "antd/lib/select";
 import Input from "antd/lib/input";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
-import Filters, { filterData } from "@/components/Filters";
+import Filters from "@/components/Filters";
 import notification from "@/services/notification";
 import Visualization from "@/services/visualization";
 import recordEvent from "@/services/recordEvent";
@@ -18,6 +18,7 @@ import {
   VisualizationType,
 } from "@redash/viz/lib";
 import { Renderer, Editor } from "@/components/visualizations/visualizationComponents";
+import useVisualizationData from "./useVisualizationData";
 
 import "./EditVisualizationDialog.less";
 
@@ -75,14 +76,6 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
   const data = useQueryResultData(queryResult);
   const [filters, setFilters] = useState(data.filters);
 
-  const filteredData = useMemo(
-    () => ({
-      columns: data.columns,
-      rows: filterData(data.rows, filters),
-    }),
-    [data, filters]
-  );
-
   const defaultState = useMemo(() => {
     const config = visualization ? registeredVisualizations[visualization.type] : getDefaultVisualization();
     const options = config.getOptions(isNew ? {} : visualization.options, data);
@@ -98,6 +91,7 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
   const [name, setName] = useState(defaultState.name);
   const [nameChanged, setNameChanged] = useState(false);
   const [options, setOptions] = useState(defaultState.options);
+  const { data: visualizationData, loading, notice } = useVisualizationData(queryResult, type, options, filters);
 
   const [saveInProgress, setSaveInProgress] = useState(false);
 
@@ -209,7 +203,7 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
           <div data-test="VisualizationEditor">
             <Editor
               type={type}
-              data={data}
+              data={visualizationData}
               options={options}
               visualizationName={name}
               onOptionsChange={onOptionsChanged}
@@ -221,14 +215,22 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
             Preview
           </label>
           <Filters filters={filters} onChange={setFilters} />
+          {notice && <div className="text-muted m-b-10">{notice}</div>}
           <div className="scrollbox" data-test="VisualizationPreview">
-            <Renderer
-              type={type}
-              data={filteredData}
-              options={options}
-              visualizationName={name}
-              onOptionsChange={onOptionsChanged}
-            />
+            {loading ? (
+              <div className="text-center text-muted p-15">
+                <i className="fa fa-spinner fa-pulse m-r-5" aria-hidden="true" />
+                Loading&hellip;
+              </div>
+            ) : (
+              <Renderer
+                type={type}
+                data={visualizationData}
+                options={options}
+                visualizationName={name}
+                onOptionsChange={onOptionsChanged}
+              />
+            )}
           </div>
         </div>
       </div>

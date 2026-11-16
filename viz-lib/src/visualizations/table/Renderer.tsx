@@ -83,7 +83,90 @@ function SearchInput({ searchColumns, ...props }: SearchInputProps) {
 
 SearchInput.defaultProps = searchInputDefaultProps;
 
+function getPagination(options: any) {
+  return {
+    size: get(options, "paginationSize", ""),
+    position: "bottom",
+    pageSize: options.itemsPerPage,
+    hideOnSinglePage: true,
+    showSizeChanger: false,
+  };
+}
+
+// A result with more rows than are loaded: each page is fetched from the server with data.getRows,
+// which resolves to { rows, rowCount }, and sorting and search are off since they would need every row.
+function ServerPagedTable({ options, data }: any) {
+  const [page, setPage] = useState(1);
+  const [pageRows, setPageRows] = useState<any[]>([]);
+  const [rowCount, setRowCount] = useState(data.rowCount);
+  const [loading, setLoading] = useState(true);
+  const [failed, setFailed] = useState(false);
+  const pageSize = options.itemsPerPage;
+
+  const tableColumns = useMemo(
+    () => prepareColumns(options.columns, null, [], () => {}, { sortable: false }),
+    [options.columns]
+  );
+
+  useEffect(() => {
+    setPage(1);
+  }, [data.getRows, pageSize]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const offset = (page - 1) * pageSize;
+    setLoading(true);
+    data.getRows(offset, pageSize).then(
+      (page: any) => {
+        if (!cancelled) {
+          setPageRows(initRows(page.rows, offset));
+          setRowCount(page.rowCount);
+          setFailed(false);
+          setLoading(false);
+        }
+      },
+      () => {
+        if (!cancelled) {
+          setFailed(true);
+          setLoading(false);
+        }
+      }
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, [data.getRows, page, pageSize]);
+
+  return (
+    <div className="table-visualization-container">
+      <div className="table-visualization-paged-info">
+        {failed
+          ? "Failed loading these rows. Try another page or reload."
+          : `${rowCount.toLocaleString()} rows, loaded one page at a time. Sorting and search are off for results this large.`}
+      </div>
+      <Table
+        className="table-fixed-header"
+        data-test="TableVisualization"
+        // @ts-expect-error ts-migrate(2322) FIXME: Type '{ key: any; dataIndex: string; align: any; s... Remove this comment to see the full error message
+        columns={tableColumns}
+        dataSource={failed ? [] : pageRows}
+        loading={loading}
+        // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'TablePagi... Remove this comment to see the full error message
+        pagination={{ ...getPagination(options), current: page, total: rowCount, onChange: setPage }}
+        showSorterTooltip={false}
+      />
+    </div>
+  );
+}
+
 export default function Renderer({ options, data }: any) {
+  if (data.getRows && data.rowCount > data.rows.length) {
+    return <ServerPagedTable options={options} data={data} />;
+  }
+  return <LocalTable options={options} data={data} />;
+}
+
+function LocalTable({ options, data }: any) {
   const [searchTerm, setSearchTerm] = useState("");
   const [orderBy, setOrderBy] = useState([]);
 
@@ -125,14 +208,8 @@ export default function Renderer({ options, data }: any) {
         // @ts-expect-error ts-migrate(2322) FIXME: Type '{ key: any; dataIndex: string; align: any; s... Remove this comment to see the full error message
         columns={tableColumns}
         dataSource={preparedRows}
-        pagination={{
-          size: get(options, "paginationSize", ""),
-          // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'TablePagi... Remove this comment to see the full error message
-          position: "bottom",
-          pageSize: options.itemsPerPage,
-          hideOnSinglePage: true,
-          showSizeChanger: false,
-        }}
+        // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'TablePagi... Remove this comment to see the full error message
+        pagination={getPagination(options)}
         showSorterTooltip={false}
       />
     </div>

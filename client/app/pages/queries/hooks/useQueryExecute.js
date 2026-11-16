@@ -18,7 +18,8 @@ const reducer = (prevState, updatedProperty) => ({
 // This is currently specific to a Query page, we can refactor
 // it slightly to make it suitable for dashboard widgets instead of the other solution it
 // has in there.
-export default function useQueryExecute(query) {
+// rowLimit: how many rows to load results with; see getInitialRowLimit.
+export default function useQueryExecute(query, rowLimit) {
   const [executionState, setExecutionState] = useReducer(reducer, {
     queryResult: null,
     isExecuting: false,
@@ -42,7 +43,7 @@ export default function useQueryExecute(query) {
     if (queryExecutor) {
       newQueryResult = queryExecutor();
     } else {
-      newQueryResult = query.getQueryResult(maxAge);
+      newQueryResult = query.getQueryResult(maxAge, rowLimit);
     }
 
     recordEvent("execute", "query", query.id);

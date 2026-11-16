@@ -1,8 +1,10 @@
 import textwrap
 from unittest import TestCase
 
+from mock import patch
+
 from redash import settings
-from redash.models import OPERATORS, Alert, db, next_state
+from redash.models import OPERATORS, Alert, QueryResult, db, next_state
 from tests import BaseTestCase
 
 
@@ -46,6 +48,14 @@ def get_results(value):
     return {"rows": [{"foo": value}], "columns": [{"name": "foo", "type": "STRING"}]}
 
 
+def watch_get_rows():
+    return patch.object(QueryResult, "get_rows", autospec=True, side_effect=QueryResult.get_rows)
+
+
+def get_rows_pages(get_rows):
+    return [call.args[1:] for call in get_rows.call_args_list]
+
+
 class TestAlertEvaluate(BaseTestCase):
     def create_alert(self, results, column="foo", value="1"):
         result = self.factory.create_query_result(data=results)
@@ -85,6 +95,15 @@ class TestAlertEvaluate(BaseTestCase):
         alert.options["selector"] = "first"
         alert.options["op"] = "<"
         self.assertEqual(alert.evaluate(), Alert.UNKNOWN_STATE)
+
+    def test_first_selector_reads_only_the_first_row(self):
+        results = {"rows": [{"foo": 1}, {"foo": 2}, {"foo": 3}], "columns": [{"name": "foo", "type": "INTEGER"}]}
+        alert = self.create_alert(results)
+
+        with watch_get_rows() as get_rows:
+            self.assertEqual(alert.evaluate(), Alert.TRIGGERED_STATE)
+
+        self.assertEqual(get_rows_pages(get_rows), [(0, 1)])
 
     def test_evaluates_correctly_with_min_selector(self):
         results = {"rows": [{"foo": 2}, {"foo": 1}], "columns": [{"name": "foo", "type": "INTEGER"}]}
@@ -193,6 +212,14 @@ class TestAlertRenderTemplate(BaseTestCase):
         )
         result = alert.render_template(textwrap.dedent(custom_alert))
         self.assertMultiLineEqual(result, textwrap.dedent(expected))
+
+    def test_template_without_rows_reads_only_the_first_row(self):
+        alert = self.create_alert({"rows": [{"foo": 1}, {"foo": 2}], "columns": [{"name": "foo", "type": "INTEGER"}]})
+
+        with watch_get_rows() as get_rows:
+            self.assertEqual(alert.render_template("{{QUERY_RESULT_VALUE}}"), "1")
+
+        self.assertEqual(get_rows_pages(get_rows), [(0, 1)])
 
     def test_render_custom_alert_template_query_table(self):
         alert = self.create_alert(get_results(1))

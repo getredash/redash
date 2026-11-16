@@ -21,6 +21,7 @@ import { cloneParameter } from "@/services/parameters";
 import dashboardGridOptions from "@/config/dashboard-grid-options";
 import { registeredVisualizations } from "@redash/viz/lib";
 import { Query } from "./query";
+import { getInitialRowLimit } from "./query-result";
 
 export const WidgetTypeEnum = {
   TEXTBOX: "textbox",
@@ -159,7 +160,7 @@ class Widget {
         maxAge = force ? 0 : undefined;
       }
 
-      const queryResult = this.getQuery().getQueryResult(maxAge);
+      const queryResult = this.getQuery().getQueryResult(maxAge, getInitialRowLimit(this.visualization));
       this.queryResult = queryResult;
 
       queryResult

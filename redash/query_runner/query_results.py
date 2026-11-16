@@ -61,7 +61,9 @@ def get_query_results(user, query_id, bring_from_cache, params=None):
     query = _load_query(user, query_id)
     if bring_from_cache:
         if query.latest_query_data_id is not None:
-            results = query.latest_query_data.data
+            # Rows are streamed into the table rather than loaded at once.
+            query_result = query.latest_query_data
+            results = {"columns": query_result.columns, "rows": query_result.iter_rows()}
         else:
             raise Exception("No cached result available for query {}.".format(query.id))
     else:

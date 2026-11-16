@@ -83,7 +83,8 @@ export class Query {
     return this.getParametersDefs().length > 0;
   }
 
-  prepareQueryResultExecution(execute, maxAge) {
+  // rowLimit: how many rows to load the result with; see getInitialRowLimit.
+  prepareQueryResultExecution(execute, maxAge, rowLimit) {
     const parameters = this.getParameters();
     const missingParams = parameters.getMissing();
 
@@ -117,7 +118,7 @@ export class Query {
       }
     } else if (this.latest_query_data_id && maxAge !== 0) {
       if (!this.queryResult) {
-        this.queryResult = QueryResult.getById(this.id, this.latest_query_data_id);
+        this.queryResult = QueryResult.getById(this.id, this.latest_query_data_id, rowLimit);
       }
     } else {
       this.queryResult = execute();
@@ -126,13 +127,19 @@ export class Query {
     return this.queryResult;
   }
 
-  getQueryResult(maxAge) {
+  getQueryResult(maxAge, rowLimit) {
     const execute = () =>
-      QueryResult.getByQueryId(this.id, this.getParameters().getExecutionValues(), this.getAutoLimit(), maxAge);
-    return this.prepareQueryResultExecution(execute, maxAge);
+      QueryResult.getByQueryId(
+        this.id,
+        this.getParameters().getExecutionValues(),
+        this.getAutoLimit(),
+        maxAge,
+        rowLimit
+      );
+    return this.prepareQueryResultExecution(execute, maxAge, rowLimit);
   }
 
-  getQueryResultByText(maxAge, selectedQueryText) {
+  getQueryResultByText(maxAge, selectedQueryText, rowLimit) {
     const queryText = selectedQueryText || this.query;
     if (!queryText) {
       return new QueryResultError("Can't execute empty query.");
@@ -140,8 +147,8 @@ export class Query {
 
     const parameters = this.getParameters().getExecutionValues({ joinListValues: true });
     const execute = () =>
-      QueryResult.get(this.data_source_id, queryText, parameters, this.getAutoLimit(), maxAge, this.id);
-    return this.prepareQueryResultExecution(execute, maxAge);
+      QueryResult.get(this.data_source_id, queryText, parameters, this.getAutoLimit(), maxAge, this.id, rowLimit);
+    return this.prepareQueryResultExecution(execute, maxAge, rowLimit);
   }
 
   getUrl(source, hash) {
@@ -171,8 +178,8 @@ export class Query {
     return url;
   }
 
-  getQueryResultPromise() {
-    return this.getQueryResult().toPromise();
+  getQueryResultPromise(rowLimit) {
+    return this.getQueryResult(undefined, rowLimit).toPromise();
   }
 
   getParameters() {
