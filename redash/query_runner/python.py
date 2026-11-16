@@ -280,15 +280,17 @@ class Python(BaseQueryRunner):
         if query.latest_query_data is None:
             raise Exception("Query does not have results yet.")
 
-        if query.latest_query_data.data is None:
-            raise Exception("Query does not have results yet.")
-
         if query.latest_query_data.data_source is None or not has_access(
             query.latest_query_data.data_source, user, view_only
         ):
             raise Exception("You do not have access to query id %s." % query_id)
 
-        return query.latest_query_data.data
+        # Scripts get every row, by design of get_query_result.
+        data = query.latest_query_data.get_data()
+        if data is None:
+            raise Exception("Query does not have results yet.")
+
+        return data
 
     def dataframe_to_result(self, result, df):
         converted_result = pandas_to_result(df)

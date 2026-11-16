@@ -226,10 +226,14 @@ class TestFixColumnName(TestCase):
 
 class TestGetQueryResult(BaseTestCase):
     def test_cached_query_result(self):
-        query_result = self.factory.create_query_result()
+        data = {"columns": [{"name": "n"}], "rows": [{"n": 1}, {"n": 2}]}
+        query_result = self.factory.create_query_result(data=data)
         query = self.factory.create_query(latest_query_data=query_result)
 
-        self.assertEqual(query_result.data, get_query_results(self.factory.user, query.id, True))
+        results = get_query_results(self.factory.user, query.id, True)
+
+        self.assertEqual(results["columns"], data["columns"])
+        self.assertEqual(list(results["rows"]), data["rows"])
 
     def test_non_cached_query_result(self):
         query_result = self.factory.create_query_result()

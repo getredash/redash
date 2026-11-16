@@ -6,6 +6,8 @@ function getQueryResultData(queryResult, queryResultStatus = null) {
     status: queryResultStatus || invoke(queryResult, "getStatus") || null,
     columns: invoke(queryResult, "getColumns") || [],
     rows: invoke(queryResult, "getData") || [],
+    rowCount: invoke(queryResult, "getRowCount") || 0,
+    getRows: (offset, limit) => queryResult.getRows(offset, limit),
     filters: invoke(queryResult, "getFilters") || [],
     updatedAt: invoke(queryResult, "getUpdatedAt") || null,
     retrievedAt: get(queryResult, "query_result.retrieved_at", null),
@@ -18,7 +20,11 @@ function getQueryResultData(queryResult, queryResultStatus = null) {
 }
 
 export default function useQueryResultData(queryResult) {
-  // make sure it re-executes when queryResult status changes
+  // make sure it re-executes when queryResult status changes, or more of its rows are loaded
   const queryResultStatus = invoke(queryResult, "getStatus");
-  return useMemo(() => getQueryResultData(queryResult, queryResultStatus), [queryResult, queryResultStatus]);
+  const loadedRowCount = get(invoke(queryResult, "getData"), "length", 0);
+  return useMemo(
+    () => getQueryResultData(queryResult, queryResultStatus),
+    [queryResult, queryResultStatus, loadedRowCount] // eslint-disable-line react-hooks/exhaustive-deps
+  );
 }

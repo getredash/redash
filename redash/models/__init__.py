@@ -39,6 +39,7 @@ from redash.models.base import (
     primary_key,
 )
 from redash.models.changes import Change, ChangeTrackingMixin  # noqa
+from redash.models.chart_marks import chart_marks, filter_conditions
 from redash.models.mixins import BelongsToOrgMixin, TimestampMixin
 from redash.models.organizations import Organization
 from redash.models.parameterized_query import (
@@ -317,7 +318,9 @@ class QueryResult(db.Model, BelongsToOrgMixin):
     data_source = db.relationship(DataSource, backref=backref("query_results"))
     query_hash = Column(db.String(32), index=True)
     query_text = Column("query", db.Text)
-    data = Column(JSONText, nullable=True)
+    # The result without its rows; each row is stored in query_result_rows.
+    _data = Column("data", JSONText, nullable=True)
+    row_count = Column(db.Integer, nullable=False, default=0, server_default="0")
     runtime = Column(DOUBLE_PRECISION)
     retrieved_at = Column(db.DateTime(True))
 
@@ -326,16 +329,107 @@ class QueryResult(db.Model, BelongsToOrgMixin):
     def __str__(self):
         return "%d | %s | %s" % (self.id, self.query_hash, self.retrieved_at)
 
-    def to_dict(self):
+    def to_dict(self, offset=0, limit=0):
         return {
             "id": self.id,
             "query_hash": self.query_hash,
             "query": self.query_text,
-            "data": self.data,
+            "data": self.get_data(offset, limit),
+            "row_count": self.row_count,
+            "filter_values": self.get_filter_values(),
             "data_source_id": self.data_source_id,
             "runtime": self.runtime,
             "retrieved_at": self.retrieved_at,
         }
+
+    def _set_data(self, data):
+        rows = (data or {}).get("rows") or []
+        self._data = None if data is None else {key: value for key, value in data.items() if key != "rows"}
+        self.row_count = len(rows)
+        # Written to query_result_rows once this result is flushed; see write_query_result_rows.
+        self._pending_rows = rows
+
+    # Write-only, so nothing reads every row by accident: use get_data(), get_rows() or iter_rows().
+    data = property(None, _set_data)
+
+    @property
+    def columns(self):
+        return (self._data or {}).get("columns") or []
+
+    def get_data(self, offset=0, limit=None):
+        """The result with rows [offset, offset + limit) only; every row when limit is None."""
+        if self._data is None:
+            return None
+        return dict(self._data, rows=self.get_rows(offset, limit))
+
+    def get_rows(self, offset=0, limit=None):
+        """Rows [offset, offset + limit), reading only those rows from the database."""
+        end = self.row_count if limit is None else min(offset + limit, self.row_count)
+        if offset >= end:
+            return []
+
+        rows = (
+            db.session.query(QueryResultRow.row)
+            .filter(
+                QueryResultRow.query_result_id == self.id,
+                QueryResultRow.row_index >= offset,
+                QueryResultRow.row_index < end,
+            )
+            .order_by(QueryResultRow.row_index)
+        )
+        return [row for (row,) in rows]
+
+    def iter_rows(self, batch_size=1000):
+        """Every row, read batch_size rows at a time."""
+        for offset in range(0, self.row_count, batch_size):
+            yield from self.get_rows(offset, batch_size)
+
+    def get_filtered_rows(self, filters, offset=0, limit=None):
+        """
+        Rows [offset, offset + limit) of those whose value of each column in `filters` is one of its
+        values, and how many rows pass; the filtering happens in the database.
+        """
+        params = {"query_result_id": self.id, "offset": offset, "limit": limit}
+        conditions = filter_conditions(filters, params)
+        source = """FROM (SELECT row_index, row, row::jsonb AS r FROM query_result_rows
+            WHERE query_result_id = :query_result_id) AS stored WHERE TRUE {}""".format(
+            conditions
+        )
+        count = db.session.execute(text("SELECT COUNT(*) " + source), params).scalar()
+        rows = db.session.execute(
+            text("SELECT row {} ORDER BY row_index OFFSET :offset LIMIT :limit".format(source)), params
+        )
+        return [json_loads(row) for (row,) in rows], count
+
+    @property
+    def filter_columns(self):
+        """Columns named as filters, e.g. "country::filter"; the same test as the client's getFilters."""
+        names = []
+        for column in self.columns:
+            name = column["name"]
+            filter_type = (name.split("::") + [None])[1] or (name.split("__") + [None])[1]
+            if filter_type in ("filter", "multi-filter", "multiFilter"):
+                names.append(name)
+        return names
+
+    def get_filter_values(self):
+        """Each filter column's distinct values, in the order they first appear."""
+        values = {}
+        for name in self.filter_columns:
+            rows = db.session.execute(
+                text(
+                    """SELECT row::jsonb -> :column AS value, MIN(row_index) AS first_index
+                    FROM query_result_rows WHERE query_result_id = :query_result_id
+                    GROUP BY 1 ORDER BY 2"""
+                ),
+                {"column": name, "query_result_id": self.id},
+            )
+            values[name] = [value for (value, _) in rows]
+        return values
+
+    def get_chart_marks(self, options, filters=None, width=1000, height=1000):
+        """The marks a chart with `options` draws; see redash.models.chart_marks."""
+        return chart_marks(self, options, filters, width, height)
 
     @classmethod
     def unused(cls, days=7):
@@ -388,6 +482,35 @@ class QueryResult(db.Model, BelongsToOrgMixin):
     @property
     def groups(self):
         return self.data_source.groups
+
+
+class QueryResultRow(db.Model):
+    query_result_id = Column(
+        key_type("QueryResult"),
+        db.ForeignKey("query_results.id", ondelete="CASCADE"),
+        primary_key=True,
+    )
+    row_index = Column(db.Integer, primary_key=True)
+    row = Column(JSONText, nullable=False)
+
+    __tablename__ = "query_result_rows"
+
+
+@listens_for(QueryResult, "after_insert")
+@listens_for(QueryResult, "after_update")
+def write_query_result_rows(mapper, connection, query_result):
+    rows = query_result.__dict__.pop("_pending_rows", None)
+    if rows is None:
+        return
+
+    table = QueryResultRow.__table__
+    connection.execute(table.delete().where(table.c.query_result_id == query_result.id))
+    for start in range(0, len(rows), 1000):
+        values = [
+            {"query_result_id": query_result.id, "row_index": start + index, "row": row}
+            for index, row in enumerate(rows[start : start + 1000])
+        ]
+        connection.execute(table.insert().values(values))
 
 
 def should_schedule_next(previous_iteration, now, interval, time=None, day_of_week=None, failures=0):
@@ -1013,10 +1136,12 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
         return super(Alert, cls).get_by_id_and_org(object_id, org, Query)
 
     def evaluate(self):
-        data = self.query_rel.latest_query_data.data if self.query_rel.latest_query_data else None
+        query_result = self.query_rel.latest_query_data
+        first_rows = query_result.get_rows(0, 1) if query_result else []
         new_state = self.UNKNOWN_STATE
 
-        if data and data["rows"] and self.options["column"] in data["rows"][0]:
+        if first_rows and self.options["column"] in first_rows[0]:
+            column = self.options["column"]
             op = OPERATORS.get(self.options["op"], lambda v, t: False)
 
             if "selector" not in self.options:
@@ -1026,17 +1151,11 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
 
             try:
                 if selector == "max":
-                    max_val = float("-inf")
-                    for i in range(len(data["rows"])):
-                        max_val = max(max_val, float(data["rows"][i][self.options["column"]]))
-                    value = max_val
+                    value = max(float(row[column]) for row in query_result.iter_rows())
                 elif selector == "min":
-                    min_val = float("inf")
-                    for i in range(len(data["rows"])):
-                        min_val = min(min_val, float(data["rows"][i][self.options["column"]]))
-                    value = min_val
+                    value = min(float(row[column]) for row in query_result.iter_rows())
                 else:
-                    value = data["rows"][0][self.options["column"]]
+                    value = first_rows[0][column]
 
             except ValueError:
                 return self.UNKNOWN_STATE
@@ -1055,18 +1174,16 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
         if template is None:
             return ""
 
-        data = self.query_rel.latest_query_data.data
+        query_result = self.query_rel.latest_query_data
         host = base_url(self.query_rel.org)
 
         col_name = self.options["column"]
-        if data["rows"] and col_name in data["rows"][0]:
-            result_value = data["rows"][0][col_name]
+        first_rows = query_result.get_rows(0, 1)
+        if first_rows and col_name in first_rows[0]:
+            result_value = first_rows[0][col_name]
         else:
             result_value = None
 
-        result_table = []  # A two-dimensional array which can rendered as a table in Mustache
-        for row in data["rows"]:
-            result_table.append([row[col["name"]] for col in data["columns"]])
         context = {
             "ALERT_NAME": self.name,
             "ALERT_URL": "{host}/alerts/{alert_id}".format(host=host, alert_id=self.id),
@@ -1077,10 +1194,16 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
             "QUERY_NAME": self.query_rel.name,
             "QUERY_URL": "{host}/queries/{query_id}".format(host=host, query_id=self.query_rel.id),
             "QUERY_RESULT_VALUE": result_value,
-            "QUERY_RESULT_ROWS": data["rows"],
-            "QUERY_RESULT_COLS": data["columns"],
-            "QUERY_RESULT_TABLE": result_table,
+            "QUERY_RESULT_COLS": query_result.columns,
         }
+
+        # Only templates that list every row read every row.
+        if "QUERY_RESULT_ROWS" in template or "QUERY_RESULT_TABLE" in template:
+            rows = query_result.get_rows()
+            context["QUERY_RESULT_ROWS"] = rows
+            # A two-dimensional array which can rendered as a table in Mustache
+            context["QUERY_RESULT_TABLE"] = [[row[col["name"]] for col in query_result.columns] for row in rows]
+
         return mustache_render_escape(template, context)
 
     @property

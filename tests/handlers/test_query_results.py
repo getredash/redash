@@ -1,9 +1,12 @@
+from urllib.parse import quote
+
 from mock import patch
 
 from redash import rq_redis_connection
 from redash.handlers.query_results import error_messages, run_query
 from redash.models import DataSourceGroup, db
 from redash.tasks import Job
+from redash.utils import gen_query_hash, json_dumps
 from tests import BaseTestCase
 
 
@@ -688,6 +691,271 @@ class TestQueryDropdownsResourceAPI(BaseTestCase):
         rv = self.get_dropdown(query, dropdown_query, api_key=api_key.api_key)
 
         self.assertEqual(rv.status_code, 403)
+
+
+def make_rows_data(row_count):
+    return {
+        "columns": [{"name": "n", "type": "integer"}],
+        "rows": [{"n": n} for n in range(row_count)],
+    }
+
+
+@patch("redash.settings.QUERY_RESULTS_MAX_PAGE_ROWS", 4)
+class TestQueryResultPages(BaseTestCase):
+    def test_json_returns_first_page_and_total_by_default(self):
+        query_result = self.factory.create_query_result(data=make_rows_data(10))
+
+        rv = self.make_request("get", "/api/query_results/{}.json".format(query_result.id))
+
+        self.assertEqual(rv.status_code, 200)
+        self.assertEqual(rv.json["query_result"]["data"], make_rows_data(4))
+        self.assertEqual(rv.json["query_result"]["row_count"], 10)
+
+    def test_json_returns_requested_page(self):
+        query_result = self.factory.create_query_result(data=make_rows_data(10))
+
+        rv = self.make_request("get", "/api/query_results/{}.json?offset=3&limit=2".format(query_result.id))
+
+        self.assertEqual(rv.json["query_result"]["data"]["rows"], [{"n": 3}, {"n": 4}])
+
+    def test_json_page_is_capped(self):
+        query_result = self.factory.create_query_result(data=make_rows_data(10))
+
+        rv = self.make_request("get", "/api/query_results/{}.json?limit=100".format(query_result.id))
+
+        self.assertEqual(len(rv.json["query_result"]["data"]["rows"]), 4)
+
+    def test_cached_result_from_post_returns_requested_page(self):
+        query = self.factory.create_query()
+        self.factory.create_query_result(data=make_rows_data(10))
+
+        rv = self.make_request(
+            "post", "/api/queries/{}/results".format(query.id), data={"parameters": {}, "offset": 8, "limit": 3}
+        )
+
+        self.assertEqual(rv.status_code, 200)
+        self.assertEqual(rv.json["query_result"]["data"]["rows"], [{"n": 8}, {"n": 9}])
+        self.assertEqual(rv.json["query_result"]["row_count"], 10)
+
+    def test_post_rejects_bad_page(self):
+        query = self.factory.create_query()
+
+        rv = self.make_request("post", "/api/queries/{}/results".format(query.id), data={"limit": "abc"})
+
+        self.assertEqual(rv.status_code, 400)
+
+    def test_csv_includes_every_row(self):
+        query_result = self.factory.create_query_result(data=make_rows_data(10))
+
+        rv = self.make_request("get", "/api/query_results/{}.csv".format(query_result.id), is_json=False)
+
+        self.assertEqual(rv.data.decode("utf-8").split(), ["n"] + [str(n) for n in range(10)])
+
+    def test_rows_page(self):
+        query_result = self.factory.create_query_result(data=make_rows_data(10))
+
+        rv = self.make_request("get", "/api/query_results/{}/rows?offset=5&limit=2".format(query_result.id))
+
+        self.assertEqual(rv.status_code, 200)
+        self.assertEqual(rv.json, {"rows": [{"n": 5}, {"n": 6}], "offset": 5, "row_count": 10})
+        self.assertIn("max-age", rv.headers["Cache-Control"])
+
+    def test_rows_page_is_capped(self):
+        query_result = self.factory.create_query_result(data=make_rows_data(10))
+
+        rv = self.make_request("get", "/api/query_results/{}/rows?offset=2&limit=100".format(query_result.id))
+
+        self.assertEqual(rv.json["rows"], [{"n": 2}, {"n": 3}, {"n": 4}, {"n": 5}])
+
+    def test_rows_rejects_bad_page(self):
+        query_result = self.factory.create_query_result(data=make_rows_data(10))
+
+        for args in ("offset=-1", "limit=-1", "offset=abc"):
+            with self.subTest(args=args):
+                rv = self.make_request("get", "/api/query_results/{}/rows?{}".format(query_result.id, args))
+                self.assertEqual(rv.status_code, 400)
+
+    def test_rows_requires_access_to_data_source(self):
+        ds = self.factory.create_data_source(group=self.factory.org.admin_group)
+        query_result = self.factory.create_query_result(data_source=ds, data=make_rows_data(10))
+
+        rv = self.make_request("get", "/api/query_results/{}/rows".format(query_result.id))
+
+        self.assertEqual(rv.status_code, 403)
+
+    def create_parameterized_query_and_result(self, value):
+        query = self.factory.create_query(
+            query_text="SELECT {{n}}", options={"parameters": [{"name": "n", "type": "number"}]}
+        )
+        query_text = "SELECT {}".format(value)
+        query_result = self.factory.create_query_result(
+            data_source=query.data_source,
+            query_text=query_text,
+            query_hash=gen_query_hash(query_text),
+            data=make_rows_data(10),
+        )
+        return query, query_result
+
+    def get_shared_rows(self, query, query_result, api_key, parameters):
+        return self.make_request(
+            "get",
+            "/api/queries/{}/results/{}/rows?offset=3&limit=2&api_key={}&parameters={}".format(
+                query.id, query_result.id, api_key, quote(json_dumps(parameters))
+            ),
+            user=False,
+        )
+
+    def test_query_api_key_reads_rows_with_the_parameters_that_produced_them(self):
+        query, query_result = self.create_parameterized_query_and_result(5)
+
+        rv = self.get_shared_rows(query, query_result, query.api_key, {"n": 5})
+
+        self.assertEqual(rv.status_code, 200)
+        self.assertEqual(rv.json["rows"], [{"n": 3}, {"n": 4}])
+
+    def test_query_api_key_cannot_read_rows_with_other_parameters(self):
+        query, query_result = self.create_parameterized_query_and_result(5)
+
+        rv = self.get_shared_rows(query, query_result, query.api_key, {"n": 6})
+
+        self.assertEqual(rv.status_code, 404)
+
+    def test_query_api_key_cannot_read_another_querys_rows(self):
+        query, _ = self.create_parameterized_query_and_result(5)
+        other_result = self.factory.create_query_result(data_source=query.data_source, data=make_rows_data(10))
+
+        rv = self.get_shared_rows(query, other_result, query.api_key, {})
+
+        self.assertEqual(rv.status_code, 404)
+
+    def test_query_api_key_rejects_malformed_parameters(self):
+        query, query_result = self.create_parameterized_query_and_result(5)
+
+        rv = self.get_shared_rows(query, query_result, query.api_key, ["n", 5])
+
+        self.assertEqual(rv.status_code, 400)
+
+    def test_dashboard_api_key_reads_rows_of_its_queries_only(self):
+        query, query_result = self.create_parameterized_query_and_result(5)
+        widget = self.factory.create_widget(visualization=self.factory.create_visualization(query_rel=query))
+        dashboard_key = self.factory.create_api_key(object=widget.dashboard)
+        other_widget = self.factory.create_widget()
+        other_key = self.factory.create_api_key(object=other_widget.dashboard)
+
+        rv = self.get_shared_rows(query, query_result, dashboard_key.api_key, {"n": 5})
+        self.assertEqual(rv.status_code, 200)
+
+        rv = self.get_shared_rows(query, query_result, other_key.api_key, {"n": 5})
+        self.assertEqual(rv.status_code, 403)
+
+    def test_api_key_cannot_read_rows_of_unsafe_query(self):
+        query = self.factory.create_query(
+            query_text="SELECT '{{n}}'", options={"parameters": [{"name": "n", "type": "text"}]}
+        )
+        query_result = self.factory.create_query_result(
+            data_source=query.data_source,
+            query_text="SELECT 'x'",
+            query_hash=gen_query_hash("SELECT 'x'"),
+            data=make_rows_data(10),
+        )
+
+        rv = self.get_shared_rows(query, query_result, query.api_key, {"n": "x"})
+
+        self.assertEqual(rv.status_code, 403)
+
+
+class TestQueryResultChartAndFilters(BaseTestCase):
+    def setUp(self):
+        super().setUp()
+        self.data = {
+            "columns": [{"name": "day"}, {"name": "n"}, {"name": "country::filter"}],
+            "rows": [
+                {"day": "mon", "n": 1, "country::filter": "us"},
+                {"day": "mon", "n": 2, "country::filter": "fr"},
+                {"day": "tue", "n": 4, "country::filter": "us"},
+            ],
+        }
+
+    def chart_url(self, path, **args):
+        args.setdefault("options", {"columnMapping": {"day": "x", "n": "y"}, "globalSeriesType": "column"})
+        query = "&".join("{}={}".format(key, quote(json_dumps(value))) for key, value in args.items())
+        return "{}/chart?{}".format(path, query)
+
+    def test_chart_returns_marks_not_rows(self):
+        query_result = self.factory.create_query_result(data=self.data)
+
+        rv = self.make_request("get", self.chart_url("/api/query_results/{}".format(query_result.id)))
+
+        self.assertEqual(rv.status_code, 200)
+        self.assertEqual([(mark["day"], mark["n"]) for mark in rv.json["marks"]], [("mon", 3), ("tue", 4)])
+        self.assertEqual(rv.json["row_count"], 3)
+
+    def test_chart_applies_filters(self):
+        query_result = self.factory.create_query_result(data=self.data)
+
+        url = self.chart_url("/api/query_results/{}".format(query_result.id), filters={"country::filter": ["us"]})
+        rv = self.make_request("get", url)
+
+        self.assertEqual([(mark["day"], mark["n"]) for mark in rv.json["marks"]], [("mon", 1), ("tue", 4)])
+
+    def test_chart_rejects_bad_arguments(self):
+        query_result = self.factory.create_query_result(data=self.data)
+        path = "/api/query_results/{}".format(query_result.id)
+
+        for url in (
+            self.chart_url(path, options=["x"]),
+            self.chart_url(path, options={"globalSeriesType": "custom"}),
+            self.chart_url(path, filters={"country::filter": "us"}),
+            self.chart_url(path) + "&width=wide",
+        ):
+            with self.subTest(url=url):
+                self.assertEqual(self.make_request("get", url).status_code, 400)
+
+    def test_chart_requires_access_to_data_source(self):
+        ds = self.factory.create_data_source(group=self.factory.org.admin_group)
+        query_result = self.factory.create_query_result(data_source=ds, data=self.data)
+
+        rv = self.make_request("get", self.chart_url("/api/query_results/{}".format(query_result.id)))
+
+        self.assertEqual(rv.status_code, 403)
+
+    def test_api_key_reads_chart_with_the_parameters_that_produced_it(self):
+        query = self.factory.create_query(
+            query_text="SELECT {{n}}", options={"parameters": [{"name": "n", "type": "number"}]}
+        )
+        query_result = self.factory.create_query_result(
+            data_source=query.data_source, query_text="SELECT 5", query_hash=gen_query_hash("SELECT 5"), data=self.data
+        )
+        path = "/api/queries/{}/results/{}".format(query.id, query_result.id)
+
+        rv = self.make_request(
+            "get", self.chart_url(path, parameters={"n": 5}) + "&api_key=" + query.api_key, user=False
+        )
+        self.assertEqual(rv.status_code, 200)
+
+        rv = self.make_request(
+            "get", self.chart_url(path, parameters={"n": 6}) + "&api_key=" + query.api_key, user=False
+        )
+        self.assertEqual(rv.status_code, 404)
+
+    def test_rows_apply_filters_and_count_matches(self):
+        query_result = self.factory.create_query_result(data=self.data)
+
+        url = "/api/query_results/{}/rows?limit=1&filters={}".format(
+            query_result.id, quote(json_dumps({"country::filter": ["us"]}))
+        )
+        rv = self.make_request("get", url)
+
+        self.assertEqual(rv.json["rows"], [self.data["rows"][0]])
+        self.assertEqual(rv.json["row_count"], 2)
+
+    def test_result_carries_filter_values(self):
+        query_result = self.factory.create_query_result(data=self.data)
+
+        rv = self.make_request("get", "/api/query_results/{}.json?limit=0".format(query_result.id))
+
+        self.assertEqual(rv.json["query_result"]["filter_values"], {"country::filter": ["us", "fr"]})
+        self.assertEqual(rv.json["query_result"]["data"]["rows"], [])
 
 
 class TestQueryResultExcelResponse(BaseTestCase):

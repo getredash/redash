@@ -219,7 +219,7 @@ class TestPythonQueryRunnerPermissions(BaseTestCase):
         query = self.factory.create_query(data_source=data_source, latest_query_data=query_result)
         self.db.session.flush()
 
-        self.assertEqual(query_result.data, self.python.get_query_result(query.id))
+        self.assertEqual({"columns": {}, "rows": []}, self.python.get_query_result(query.id))
 
 
 class TestPython(TestCase):

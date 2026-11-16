@@ -11,7 +11,7 @@ import Parameters from "@/components/Parameters";
 import EditInPlace from "@/components/EditInPlace";
 import DynamicComponent from "@/components/DynamicComponent";
 import recordEvent from "@/services/recordEvent";
-import { ExecutionStatus } from "@/services/query-result";
+import { ExecutionStatus, getInitialRowLimit } from "@/services/query-result";
 import routes from "@/services/routes";
 import notification from "@/services/notification";
 import * as queryFormat from "@/lib/queryFormat";
@@ -73,7 +73,7 @@ function QuerySource(props) {
     isCancelling: isExecutionCancelling,
     updatedAt,
     loadedInitialResults,
-  } = useQueryExecute(query);
+  } = useQueryExecute(query, getInitialRowLimit(find(query.visualizations, { id: selectedVisualization })));
 
   const queryResultData = useQueryResultData(queryResult);
 
@@ -166,13 +166,26 @@ function QuerySource(props) {
       }
       if (isDirty || !isEmpty(selectedText)) {
         executeQuery(null, () => {
-          return query.getQueryResultByText(0, selectedText);
+          return query.getQueryResultByText(
+            0,
+            selectedText,
+            getInitialRowLimit(find(query.visualizations, { id: selectedVisualization }))
+          );
         });
       } else {
         executeQuery();
       }
     },
-    [query, queryFlags.canExecute, areParametersDirty, isQueryExecuting, isDirty, selectedText, executeQuery]
+    [
+      query,
+      queryFlags.canExecute,
+      areParametersDirty,
+      isQueryExecuting,
+      isDirty,
+      selectedText,
+      selectedVisualization,
+      executeQuery,
+    ]
   );
 
   const [isQuerySaving, setIsQuerySaving] = useState(false);

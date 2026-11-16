@@ -2,8 +2,21 @@ import debug from "debug";
 import moment from "moment";
 import { axios } from "@/services/axios";
 import { QueryResultError } from "@/services/query";
-import { Auth } from "@/services/auth";
-import { isString, uniqBy, each, isNumber, includes, extend, forOwn, get } from "lodash";
+import { Auth, clientConfig } from "@/services/auth";
+import {
+  isString,
+  uniqBy,
+  each,
+  isNumber,
+  includes,
+  extend,
+  forOwn,
+  get,
+  isArray,
+  isEmpty,
+  findIndex,
+  every,
+} from "lodash";
 
 const logger = debug("redash:services:QueryResult");
 const filterTypes = ["filter", "multi-filter", "multiFilter"];
@@ -43,9 +56,54 @@ function getColumnFriendlyName(column) {
   return getColumnNameWithoutType(column).replace(/(?:^|\s)\S/g, (a) => a.toUpperCase());
 }
 
+// Most rows the server sends in one response.
+export function getMaxPageRows() {
+  return clientConfig.queryResultsMaxPageRows || 1000;
+}
+
+// Charts get their marks from the server (see QueryResult.getChartMarks); custom charts run their own
+// code on rows, so they read rows like other visualizations.
+export function drawsServerMarks(visualizationType, options) {
+  return visualizationType === "CHART" && get(options, "globalSeriesType", "column") !== "custom";
+}
+
+// How many rows a visualization shows first, so a result is loaded with only those: one page of a
+// table, none for a chart drawing server marks, or for anything that draws every loaded row, a full page.
+export function getInitialRowLimit(visualization) {
+  const type = get(visualization, "type");
+  if (type === "TABLE") {
+    return get(visualization, "options.itemsPerPage", 25); // the table visualization's default
+  }
+  if (drawsServerMarks(type, get(visualization, "options"))) {
+    return 0;
+  }
+  return getMaxPageRows();
+}
+
+// The selected values of `filters` as the server stores them, leaving out filters with every value
+// selected, since those keep every row.
+export function getFilterSelection(filters) {
+  const selection = {};
+  each(filters, (filter) => {
+    const current = isArray(filter.current) ? filter.current : [filter.current];
+    const rawValues = filter.rawValues || filter.values;
+    if (current.length >= rawValues.length) {
+      return;
+    }
+    selection[filter.name] = current.map((value) => {
+      const index = findIndex(
+        filter.values,
+        (v) => v === value || (moment.isMoment(v) && v.isSame(value)) || String(v) === String(value)
+      );
+      return index >= 0 ? rawValues[index] : value;
+    });
+  });
+  return selection;
+}
+
 const createOrSaveUrl = (data) => (data.id ? `api/query_results/${data.id}` : "api/query_results");
 const QueryResultResource = {
-  get: ({ id }) => axios.get(`api/query_results/${id}`),
+  get: ({ id, limit }) => axios.get(`api/query_results/${id}`, { params: { limit } }),
   post: (data) => axios.post(createOrSaveUrl(data), data),
 };
 
@@ -117,6 +175,45 @@ export function isDateTime(v) {
   return isString(v) && moment(v, moment.ISO_8601, true).isValid() && /^\d{4}-\d{2}-\d{2}T/.test(v);
 }
 
+// A value as rows present it, and its inferred type (null when it has none).
+function convertValue(v) {
+  if (isNumber(v)) {
+    return [v, "float"];
+  } else if (isDateTime(v)) {
+    return [moment.utc(v), "datetime"];
+  } else if (isString(v) && v.match(/^\d{4}-\d{2}-\d{2}$/)) {
+    return [moment.utc(v), "date"];
+  } else if (typeof v === "object" && v !== null) {
+    return [JSON.stringify(v), null];
+  }
+  return [v, "string"];
+}
+
+// Converts row values in place and returns the column types inferred from them.
+function processRows(rows) {
+  const columnTypes = {};
+
+  // TODO: we should stop manipulating incoming data, and switch to relaying
+  // on the column type set by the backend. This logic is prone to errors,
+  // and better be removed. Kept for now, for backward compatability.
+  each(rows, (row) => {
+    forOwn(row, (value, k) => {
+      const [v, newType] = convertValue(value);
+      row[k] = v;
+
+      if (newType !== null) {
+        if (columnTypes[k] !== undefined && columnTypes[k] !== newType) {
+          columnTypes[k] = "string";
+        } else {
+          columnTypes[k] = newType;
+        }
+      }
+    });
+  });
+
+  return columnTypes;
+}
+
 class QueryResult {
   constructor(props) {
     this.deferred = defer();
@@ -141,37 +238,7 @@ class QueryResult {
       this.status = ExecutionStatus.DONE;
       this.deferred.onStatusChange(ExecutionStatus.DONE);
 
-      const columnTypes = {};
-
-      // TODO: we should stop manipulating incoming data, and switch to relaying
-      // on the column type set by the backend. This logic is prone to errors,
-      // and better be removed. Kept for now, for backward compatability.
-      each(this.query_result.data.rows, (row) => {
-        forOwn(row, (v, k) => {
-          let newType = null;
-          if (isNumber(v)) {
-            newType = "float";
-          } else if (isDateTime(v)) {
-            row[k] = moment.utc(v);
-            newType = "datetime";
-          } else if (isString(v) && v.match(/^\d{4}-\d{2}-\d{2}$/)) {
-            row[k] = moment.utc(v);
-            newType = "date";
-          } else if (typeof v === "object" && v !== null) {
-            row[k] = JSON.stringify(v);
-          } else {
-            newType = "string";
-          }
-
-          if (newType !== null) {
-            if (columnTypes[k] !== undefined && columnTypes[k] !== newType) {
-              columnTypes[k] = "string";
-            } else {
-              columnTypes[k] = newType;
-            }
-          }
-        });
-      });
+      const columnTypes = processRows(this.query_result.data.rows);
 
       each(this.query_result.data.columns, (column) => {
         column.name = "" + column.name;
@@ -252,7 +319,78 @@ class QueryResult {
   }
 
   isEmpty() {
-    return this.getData() === null || this.getData().length === 0;
+    return this.getRowCount() === 0;
+  }
+
+  // Total rows in the result. Only the rows a result was loaded with are in the browser; getRows()
+  // and loadRows() read others from the server.
+  getRowCount() {
+    const rows = this.getData();
+    return get(this.query_result, "row_count", rows ? rows.length : 0);
+  }
+
+  // GETs a part of this result: its rows or a chart's marks.
+  fetchPart(part, params) {
+    let url = `api/query_results/${this.getId()}/${part}`;
+    if (this.queryId) {
+      // API keys may only read a query's result together with the parameters that produced it.
+      url = `api/queries/${this.queryId}/results/${this.getId()}/${part}`;
+      params = { ...params, parameters: JSON.stringify(this.parameters || {}) };
+    }
+    return axios.get(url, { params });
+  }
+
+  // Resolves to { rows, rowCount }: rows [offset, offset + limit) of those passing `filters` (see
+  // getFilterSelection), and how many pass. Rows not loaded, and all filtering, come from the server.
+  getRows(offset, limit, filters = {}) {
+    const loadedRows = this.getData() || [];
+    const rowCount = this.getRowCount();
+    if (isEmpty(filters) && (offset + limit <= loadedRows.length || loadedRows.length >= rowCount)) {
+      return Promise.resolve({ rows: loadedRows.slice(offset, offset + limit), rowCount });
+    }
+
+    const params = { offset, limit };
+    if (!isEmpty(filters)) {
+      params.filters = JSON.stringify(filters);
+    }
+    return this.fetchPart("rows", params).then(({ rows, row_count: count }) => {
+      processRows(rows);
+      return { rows, rowCount: count };
+    });
+  }
+
+  // Loads the first `count` rows (at most a full page), for consumers that read loaded rows directly.
+  loadRows(count) {
+    const loadedRows = this.getData() || [];
+    const end = Math.min(count, getMaxPageRows(), this.getRowCount());
+    if (loadedRows.length >= end) {
+      return Promise.resolve(loadedRows);
+    }
+
+    return this.getRows(loadedRows.length, end - loadedRows.length).then(({ rows }) => {
+      loadedRows.push(...rows);
+      return loadedRows;
+    });
+  }
+
+  // Resolves to the marks a chart with `options` draws from the rows passing `filters`, built by the
+  // server for a chart at most `width` by `height` pixels. Marks are row-like; box marks carry `$box`.
+  getChartMarks(options, filters, width, height) {
+    const params = { options: JSON.stringify(options), width, height };
+    if (!isEmpty(filters)) {
+      params.filters = JSON.stringify(filters);
+    }
+    return this.fetchPart("chart", params).then(({ marks }) => {
+      const boxes = marks.map((mark) => mark.$box);
+      each(marks, (mark) => delete mark.$box);
+      processRows(marks);
+      each(marks, (mark, index) => {
+        if (boxes[index]) {
+          mark.$box = boxes[index];
+        }
+      });
+      return marks;
+    });
   }
 
   getColumns() {
@@ -302,6 +440,17 @@ class QueryResult {
       }
     }, this);
 
+    // Filter values come from the server, as only some rows (if any) are loaded.
+    const serverValues = get(this.query_result, "filter_values");
+    if (serverValues && every(filters, (filter) => isArray(serverValues[filter.name]))) {
+      filters.forEach((filter) => {
+        filter.rawValues = serverValues[filter.name];
+        filter.values = filter.rawValues.map((value) => convertValue(value)[0]);
+        filter.current = filter.multiple ? filter.values.slice() : filter.values[0];
+      });
+      return filters;
+    }
+
     this.getRawData().forEach((row) => {
       filters.forEach((filter) => {
         filter.values.push(row[filter.name]);
@@ -337,14 +486,16 @@ class QueryResult {
     return this.deferred.promise;
   }
 
-  static getById(queryId, id) {
+  static getById(queryId, id, rowLimit) {
     const queryResult = new QueryResult();
+    queryResult.queryId = queryId;
+    queryResult.rowLimit = rowLimit;
 
     queryResult.isLoadingResult = true;
     queryResult.deferred.onStatusChange(ExecutionStatus.LOADING_RESULT);
 
     axios
-      .get(`api/queries/${queryId}/results/${id}.json`)
+      .get(`api/queries/${queryId}/results/${id}.json`, { params: { limit: rowLimit } })
       .then((response) => {
         // Success handler
         queryResult.isLoadingResult = false;
@@ -361,7 +512,7 @@ class QueryResult {
 
   loadLatestCachedResult(queryId, parameters) {
     axios
-      .post(`api/queries/${queryId}/results`, { queryId, parameters })
+      .post(`api/queries/${queryId}/results`, { queryId, parameters, limit: this.rowLimit })
       .then((response) => {
         this.update(response);
       })
@@ -374,7 +525,7 @@ class QueryResult {
     this.isLoadingResult = true;
     this.deferred.onStatusChange(ExecutionStatus.LOADING_RESULT);
 
-    QueryResultResource.get({ id: this.job.query_result_id })
+    QueryResultResource.get({ id: this.job.query_result_id, limit: this.rowLimit })
       .then((response) => {
         this.update(response);
         this.isLoadingResult = false;
@@ -453,11 +604,20 @@ class QueryResult {
     return `${queryName.replace(/ /g, "_") + moment(this.getUpdatedAt()).format("_YYYY_MM_DD")}.${fileType}`;
   }
 
-  static getByQueryId(id, parameters, applyAutoLimit, maxAge) {
+  static getByQueryId(id, parameters, applyAutoLimit, maxAge, rowLimit) {
     const queryResult = new QueryResult();
+    queryResult.queryId = id;
+    queryResult.parameters = parameters;
+    queryResult.rowLimit = rowLimit;
 
     axios
-      .post(`api/queries/${id}/results`, { id, parameters, apply_auto_limit: applyAutoLimit, max_age: maxAge })
+      .post(`api/queries/${id}/results`, {
+        id,
+        parameters,
+        apply_auto_limit: applyAutoLimit,
+        max_age: maxAge,
+        limit: rowLimit,
+      })
       .then((response) => {
         queryResult.update(response);
 
@@ -472,8 +632,9 @@ class QueryResult {
     return queryResult;
   }
 
-  static get(dataSourceId, query, parameters, applyAutoLimit, maxAge, queryId) {
+  static get(dataSourceId, query, parameters, applyAutoLimit, maxAge, queryId, rowLimit) {
     const queryResult = new QueryResult();
+    queryResult.rowLimit = rowLimit;
 
     const params = {
       data_source_id: dataSourceId,
@@ -481,6 +642,7 @@ class QueryResult {
       query,
       apply_auto_limit: applyAutoLimit,
       max_age: maxAge,
+      limit: rowLimit,
     };
 
     if (queryId !== undefined) {

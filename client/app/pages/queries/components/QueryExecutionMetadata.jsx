@@ -50,7 +50,7 @@ export default function QueryExecutionMetadata({
               <Tooltip
                 title={
                   "Result truncated to " +
-                  queryResultData.rows.length +
+                  queryResultData.rowCount +
                   " rows. Databricks may truncate query results that are unstably large."
                 }
               >
@@ -58,7 +58,7 @@ export default function QueryExecutionMetadata({
               </Tooltip>
             </span>
           )}
-          <strong>{queryResultData.rows.length}</strong> {pluralize("row", queryResultData.rows.length)}
+          <strong>{queryResultData.rowCount}</strong> {pluralize("row", queryResultData.rowCount)}
         </span>
         <span className="m-l-5">
           {!isQueryExecuting && (

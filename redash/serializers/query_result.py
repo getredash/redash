@@ -72,25 +72,23 @@ def _get_column_lists(columns):
     return fieldnames, special_columns
 
 
-def serialize_query_result(query_result, is_api_user):
+def serialize_query_result(query_result, is_api_user, offset=0, limit=0):
     if is_api_user:
-        publicly_needed_keys = ["data", "retrieved_at"]
-        return project(query_result.to_dict(), publicly_needed_keys)
+        publicly_needed_keys = ["data", "row_count", "filter_values", "retrieved_at"]
+        return project(query_result.to_dict(offset, limit), publicly_needed_keys)
     else:
-        return query_result.to_dict()
+        return query_result.to_dict(offset, limit)
 
 
 def serialize_query_result_to_dsv(query_result, delimiter):
     s = io.StringIO()
 
-    query_data = query_result.data
-
-    fieldnames, special_columns = _get_column_lists(query_data["columns"] or [])
+    fieldnames, special_columns = _get_column_lists(query_result.columns)
 
     writer = csv.DictWriter(s, extrasaction="ignore", fieldnames=fieldnames, delimiter=delimiter)
     writer.writeheader()
 
-    for row in query_data["rows"]:
+    for row in query_result.iter_rows():
         for col_name, converter in special_columns.items():
             if col_name in row:
                 row[col_name] = converter(row[col_name])
@@ -103,16 +101,15 @@ def serialize_query_result_to_dsv(query_result, delimiter):
 def serialize_query_result_to_xlsx(query_result):
     output = io.BytesIO()
 
-    query_data = query_result.data
     book = xlsxwriter.Workbook(output, {"constant_memory": True})
     sheet = book.add_worksheet("result")
 
     column_names = []
-    for c, col in enumerate(query_data["columns"]):
+    for c, col in enumerate(query_result.columns):
         sheet.write(0, c, col["name"])
         column_names.append(col["name"])
 
-    for r, row in enumerate(query_data["rows"]):
+    for r, row in enumerate(query_result.iter_rows()):
         for c, name in enumerate(column_names):
             v = row.get(name)
             if isinstance(v, (dict, list)):

@@ -28,6 +28,7 @@ import HtmlContent from "@redash/viz/lib/components/HtmlContent";
 import { formatDateTime } from "@/lib/utils";
 import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 import { Query } from "@/services/query";
+import { getInitialRowLimit } from "@/services/query-result";
 import location from "@/services/location";
 import routes from "@/services/routes";
 
@@ -192,7 +193,7 @@ function VisualizationEmbed({ queryId, visualizationId, apiKey, onError }) {
       setError(null);
       setRefreshStartedAt(moment());
       query
-        .getQueryResultPromise()
+        .getQueryResultPromise(getInitialRowLimit(find(query.visualizations, { id: visualizationId })))
         .then((result) => {
           setQueryResults(result);
         })
@@ -201,7 +202,7 @@ function VisualizationEmbed({ queryId, visualizationId, apiKey, onError }) {
         })
         .finally(() => setRefreshStartedAt(null));
     }
-  }, [query]);
+  }, [query, visualizationId]);
 
   useEffect(() => {
     document.querySelector("body").classList.add("headless");

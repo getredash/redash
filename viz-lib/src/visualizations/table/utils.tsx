@@ -50,7 +50,13 @@ function getOrderByInfo(orderBy: any) {
   return result;
 }
 
-export function prepareColumns(columns: any, searchInput: any, orderBy: any, onOrderByChange: any) {
+export function prepareColumns(
+  columns: any,
+  searchInput: any,
+  orderBy: any,
+  onOrderByChange: any,
+  { sortable = true } = {}
+) {
   columns = filter(columns, "visible");
   columns = sortBy(columns, "order");
 
@@ -70,7 +76,7 @@ export function prepareColumns(columns: any, searchInput: any, orderBy: any, onO
       key: column.name,
       dataIndex: `record[${JSON.stringify(column.name)}]`,
       align: column.alignContent,
-      sorter: { multiple: 1 }, // using { multiple: 1 } to allow built-in multi-column sort arrows
+      sorter: sortable ? { multiple: 1 } : false, // using { multiple: 1 } to allow built-in multi-column sort arrows
       sortOrder: get(orderByInfo, [column.name, "direction"], null),
       title: (
         <React.Fragment>
@@ -94,7 +100,9 @@ export function prepareColumns(columns: any, searchInput: any, orderBy: any, onO
         className: cx({
           "table-visualization-column-is-sorted": isAscend || isDescend,
         }),
-        onClick: (event: any) => onOrderByChange(toggleOrderBy(column.name, orderBy, event.shiftKey)),
+        onClick: sortable
+          ? (event: any) => onOrderByChange(toggleOrderBy(column.name, orderBy, event.shiftKey))
+          : undefined,
       }),
     };
 
@@ -138,8 +146,8 @@ export function prepareColumns(columns: any, searchInput: any, orderBy: any, onO
   return tableColumns;
 }
 
-export function initRows(rows: any) {
-  return map(rows, (record, index) => ({ key: `record${index}`, record }));
+export function initRows(rows: any, offset = 0) {
+  return map(rows, (record, index) => ({ key: `record${offset + index}`, record }));
 }
 
 export function filterRows(rows: any, searchTerm: any, searchColumns: any) {

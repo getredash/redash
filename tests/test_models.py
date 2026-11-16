@@ -532,7 +532,7 @@ class TestQueryResultStoreResult(BaseTestCase):
             self.utcnow,
         )
 
-        self.assertEqual(query_result.data, self.data)
+        self.assertEqual(query_result.get_data(), dict(self.data, rows=[]))
         self.assertEqual(query_result.runtime, self.runtime)
         self.assertEqual(query_result.retrieved_at, self.utcnow)
         self.assertEqual(query_result.query_text, self.query)

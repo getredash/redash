@@ -72,9 +72,11 @@ from redash.handlers.queries import (
 from redash.handlers.query_results import (
     JobResource,
     QueryDropdownsResource,
+    QueryResultChartResource,
     QueryResultDropdownResource,
     QueryResultListResource,
     QueryResultResource,
+    QueryResultRowsResource,
 )
 from redash.handlers.query_snippets import (
     QuerySnippetListResource,
@@ -244,6 +246,18 @@ api.add_org_resource(
     "/api/queries/<query_id>/results.<filetype>",
     "/api/queries/<query_id>/results/<query_result_id>.<filetype>",
     endpoint="query_result",
+)
+api.add_org_resource(
+    QueryResultRowsResource,
+    "/api/query_results/<query_result_id>/rows",
+    "/api/queries/<query_id>/results/<query_result_id>/rows",
+    endpoint="query_result_rows",
+)
+api.add_org_resource(
+    QueryResultChartResource,
+    "/api/query_results/<query_result_id>/chart",
+    "/api/queries/<query_id>/results/<query_result_id>/chart",
+    endpoint="query_result_chart",
 )
 api.add_org_resource(
     JobResource,
