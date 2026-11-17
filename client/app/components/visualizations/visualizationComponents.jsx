@@ -4,6 +4,7 @@ import HelpTrigger from "@/components/HelpTrigger";
 import Link from "@/components/Link";
 import { Renderer as VisRenderer, Editor as VisEditor, updateVisualizationsSettings } from "@redash/viz/lib";
 import { clientConfig } from "@/services/auth";
+import { useTheme } from "@/services/theme";
 
 import countriesDataUrl from "@redash/viz/lib/visualizations/choropleth/maps/countries.geo.json";
 import usaDataUrl from "@redash/viz/lib/visualizations/choropleth/maps/usa-albers.geo.json";
@@ -11,7 +12,9 @@ import subdivJapanDataUrl from "@redash/viz/lib/visualizations/choropleth/maps/j
 
 function wrapComponentWithSettings(WrappedComponent) {
   return function VisualizationComponent(props) {
+    const theme = useTheme();
     updateVisualizationsSettings({
+      theme,
       HelpTriggerComponent: HelpTrigger,
       LinkComponent: Link,
       choroplethAvailableMaps: {

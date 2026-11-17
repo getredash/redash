@@ -7,7 +7,7 @@
   width: 12px;
 
   @cell-size: 12px;
-  @cell-color: rgba(0, 0, 0, 0.1);
+  @cell-color: ~"rgba(var(--rd-ink-rgb, 0, 0, 0), 0.1)";
 
   background-color: transparent;
   background-image:
@@ -23,7 +23,7 @@
     display: block;
     padding-top: ~"calc(100% - 2px)";
     background-color: inherit;
-    border: 1px solid rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(var(--rd-ink-rgb, 0, 0, 0), 0.1);
     border-radius: 2px;
     overflow: hidden;
   }

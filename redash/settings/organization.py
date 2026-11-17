@@ -49,6 +49,13 @@ SEND_EMAIL_ON_FAILED_SCHEDULED_QUERIES = parse_boolean(
 )
 HIDE_PLOTLY_MODE_BAR = parse_boolean(os.environ.get("HIDE_PLOTLY_MODE_BAR", "false"))
 DISABLE_PUBLIC_URLS = parse_boolean(os.environ.get("REDASH_DISABLE_PUBLIC_URLS", "false"))
+# Colour theme of the UI. "system" follows the light/dark preference of the viewer's operating system.
+# This is the organization default; each user can override it in their profile.
+THEMES = ("light", "dark", "system")
+DEFAULT_THEME = os.environ.get("REDASH_DEFAULT_THEME", "light")
+if DEFAULT_THEME not in THEMES:
+    print("REDASH_DEFAULT_THEME must be one of {}, not {!r}: using light.".format(", ".join(THEMES), DEFAULT_THEME))
+    DEFAULT_THEME = "light"
 
 settings = {
     "beacon_consent": None,
@@ -80,4 +87,5 @@ settings = {
     "send_email_on_failed_scheduled_queries": SEND_EMAIL_ON_FAILED_SCHEDULED_QUERIES,
     "hide_plotly_mode_bar": HIDE_PLOTLY_MODE_BAR,
     "disable_public_urls": DISABLE_PUBLIC_URLS,
+    "default_theme": DEFAULT_THEME,
 }

@@ -102,7 +102,7 @@ textarea.v-resizable {
       border: 1px solid @input-border;
       width: 19px;
       height: 19px;
-      background: #fff;
+      background: var(--rd-surface);
       position: absolute;
       left: 0;
       top: -1px;
@@ -146,7 +146,7 @@ textarea.v-resizable {
 .input-group {
   .input-group-addon {
     min-width: 40px;
-    color: #333;
+    color: var(--rd-text-strong);
     padding: 0;
   }
 
@@ -201,7 +201,7 @@ textarea.v-resizable {
     width: 40px;
     height: 16px;
     border-radius: 8px;
-    background: rgba(0, 0, 0, 0.26);
+    background: rgba(var(--rd-ink-rgb), 0.26);
     -webkit-transition: background 0.28s cubic-bezier(0.4, 0, 0.2, 1);
     transition: background 0.28s cubic-bezier(0.4, 0, 0.2, 1);
     vertical-align: middle;
@@ -214,7 +214,7 @@ textarea.v-resizable {
       left: -4px;
       width: 24px;
       height: 24px;
-      background: #fafafa;
+      background: var(--rd-surface-alt);
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.28);
       border-radius: 50%;
       webkit-transition: left 0.28s cubic-bezier(0.4, 0, 0.2, 1), background 0.28s cubic-bezier(0.4, 0, 0.2, 1),

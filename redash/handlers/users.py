@@ -28,6 +28,7 @@ from redash.permissions import (
     require_permission_or_owner,
 )
 from redash.settings import parse_boolean
+from redash.settings.organization import THEMES
 
 # Ordering map for relationships
 order_map = {
@@ -209,7 +210,10 @@ class UserResource(BaseResource):
 
         req = request.get_json(True)
 
-        params = project(req, ("email", "name", "password", "old_password", "group_ids"))
+        params = project(req, ("email", "name", "password", "old_password", "group_ids", "theme"))
+
+        if "theme" in params and params["theme"] is not None and params["theme"] not in THEMES:
+            abort(400, message="Theme must be one of: {}.".format(", ".join(THEMES)))
 
         if "password" in params and "old_password" not in params:
             abort(403, message="Must provide current password to update password.")

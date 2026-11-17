@@ -1,8 +1,10 @@
 from flask import request
+from flask_restful import abort
 
 from redash.handlers.base import BaseResource
 from redash.models import Organization, db
 from redash.permissions import require_admin
+from redash.settings.organization import THEMES
 from redash.settings.organization import settings as org_settings
 
 
@@ -36,6 +38,9 @@ class OrganizationSettings(BaseResource):
     @require_admin
     def post(self):
         new_values = request.json
+
+        if "default_theme" in new_values and new_values["default_theme"] not in THEMES:
+            abort(400, message="Theme must be one of: {}.".format(", ".join(THEMES)))
 
         if self.current_org.settings.get("settings") is None:
             self.current_org.settings["settings"] = {}

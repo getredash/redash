@@ -21,7 +21,7 @@ body.fixed-layout {
 }
 
 .bottom-controller-container {
-  box-shadow: 0 0 9px 0 rgba(102, 136, 153, 0.15);
+  box-shadow: 0 0 9px 0 rgba(var(--rd-gray-rgb), 0.15);
   z-index: 1;
   border: none !important;
   flex-shrink: 0;
@@ -74,7 +74,7 @@ body.fixed-layout {
 
 .query__vis {
   table {
-    border: 1px solid #f0f0f0;
+    border: 1px solid var(--rd-border-split);
   }
 
   .paginator-container {
@@ -145,14 +145,14 @@ body.fixed-layout {
 }
 
 .label-tag {
-  background: fade(@redash-gray, 15%);
-  color: darken(@redash-gray, 15%);
+  background: rgba(var(--rd-gray-rgb), 0.15);
+  color: var(--rd-gray-strong);
 
   &:hover,
   &:focus,
   &:active {
-    color: darken(@redash-gray, 15%);
-    background: fade(@redash-gray, 25%);
+    color: var(--rd-gray-strong);
+    background: rgba(var(--rd-gray-rgb), 0.25);
   }
 }
 
@@ -164,24 +164,24 @@ body.fixed-layout {
 }
 
 .query-fullscreen {
-  background: #fff;
+  background: var(--rd-surface);
   padding: 0;
-  box-shadow: rgba(102, 136, 153, 0.15) 0 4px 9px -3px;
+  box-shadow: rgba(var(--rd-gray-rgb), 0.15) 0 4px 9px -3px;
   flex-grow: 1;
   display: flex;
 
   .resizable-component.react-resizable {
     .react-resizable-handle-horizontal {
-      border-right: 1px solid #efefef;
+      border-right: 1px solid var(--rd-border-light);
     }
 
     .react-resizable-handle-vertical {
-      border-bottom: 1px solid #efefef;
+      border-bottom: 1px solid var(--rd-border-light);
     }
   }
 
   .query-metadata.query-metadata-horizontal {
-    border-bottom: 1px solid #efefef;
+    border-bottom: 1px solid var(--rd-border-light);
   }
 
   .tile,
@@ -241,7 +241,7 @@ body.fixed-layout {
     }
   }
   .content {
-    background: #fff;
+    background: var(--rd-surface);
     flex-grow: 1;
     display: flex;
     flex-flow: column nowrap;
@@ -251,7 +251,7 @@ body.fixed-layout {
     overflow-x: hidden;
   }
   .row {
-    background: #fff;
+    background: var(--rd-surface);
     min-height: 50px;
 
     &.resizable {
@@ -309,7 +309,7 @@ body.fixed-layout {
       position: absolute;
       box-sizing: border-box;
       display: block;
-      border: 1px solid #ccc;
+      border: 1px solid var(--rd-border-heavy);
     }
   }
   .rg-right,
@@ -341,26 +341,26 @@ body.fixed-layout {
   }
   .rg-right {
     cursor: col-resize;
-    border-right: 1px solid #efefef;
+    border-right: 1px solid var(--rd-border-light);
     height: 100%;
     right: 0;
     top: 0;
     margin-right: 0px;
 
     &:hover {
-      background: fade(@redash-gray, 6%);
+      background: rgba(var(--rd-gray-rgb), 0.06);
     }
   }
   .rg-bottom {
     cursor: row-resize;
-    background: #fff;
+    background: var(--rd-surface);
     width: 100%;
     bottom: 0;
     left: 0;
     margin-bottom: 0;
 
     &:hover {
-      background: fade(@redash-gray, 6%);
+      background: rgba(var(--rd-gray-rgb), 0.06);
     }
   }
   .rg-left {
@@ -397,7 +397,7 @@ body.fixed-layout {
 
   .visualization-editor__right {
     margin-top: 23px;
-    border: 1px solid #eee;
+    border: 1px solid var(--rd-fill);
     border-radius: 3px;
 
     .parameter-container {

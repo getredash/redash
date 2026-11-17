@@ -21,6 +21,7 @@
 }
 
 .btn-default {
+    // literal: the mixin darkens the background (and Bootstrap's own .button-variant runs too)
     .button-variant(#333, #eee, transparent);
 }
 
@@ -29,7 +30,7 @@
 }
 
 .btn-link {
-    color: #333;
+    color: var(--rd-text-strong);
 }
 
 .btn-icon {
@@ -125,7 +126,7 @@
 
 
 .btn-default {
-    background-color: fade(@redash-gray, 15%);
+    background-color: rgba(var(--rd-gray-rgb), 0.15);
 }
 
 .btn-transparent {
@@ -133,10 +134,10 @@
 }
 
 .btn-default:hover, .btn-default:focus, .btn-default.focus, .btn-default:active, .btn-default.active, .open > .dropdown-toggle.btn-default {
-    background-color: fade(@redash-gray, 25%);
+    background-color: rgba(var(--rd-gray-rgb), 0.25);
 }
 
 .btn-default:active:hover, .btn-default.active:hover, .open > .dropdown-toggle.btn-default:hover, .btn-default:active:focus, .btn-default.active:focus, .open > .dropdown-toggle.btn-default:focus, .btn-default:active.focus, .btn-default.active.focus, .open > .dropdown-toggle.btn-default.focus {
-    color: #333;
-    background-color: fade(@redash-gray, 45%);
+    color: var(--rd-text-strong);
+    background-color: rgba(var(--rd-gray-rgb), 0.45);
 }

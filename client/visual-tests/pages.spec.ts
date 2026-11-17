@@ -1,6 +1,7 @@
-import { expect, Locator, Page, test } from "@playwright/test";
+import { expect, Locator, Page } from "@playwright/test";
 import { readPagesManifest } from "./manifest";
 import { stabilizeEmbedUrls, stabilizePage, waitForPageReady } from "./stable-page";
+import { test, withTheme } from "./theme";
 
 interface PageExample {
   name: string;
@@ -13,6 +14,8 @@ interface PageExample {
   viewportOnly?: boolean;
   /** Content that differs between instances, e.g. absolute URLs of the server */
   mask?: (page: Page) => Locator[];
+  /** Also take a screenshot in the dark theme (project pages-dark) */
+  dark?: boolean;
 }
 
 const waitForSchema = (page: Page) => expect(page.getByText("invoice_items")).toBeVisible();
@@ -28,13 +31,13 @@ async function openDialog(page: Page, testId: string) {
 }
 
 const PAGES: PageExample[] = [
-  { name: "Login", path: "/login", loggedOut: true },
-  { name: "Home", path: "/" },
+  { name: "Login", path: "/login", loggedOut: true, dark: true },
+  { name: "Home", path: "/", dark: true },
 
   // Queries
   { name: "Queries: favorites", path: "/queries/favorites" },
-  { name: "Query", path: { manifest: "query" } },
-  { name: "Query: chart", path: { manifest: "queryChart" } },
+  { name: "Query", path: { manifest: "query" }, dark: true },
+  { name: "Query: chart", path: { manifest: "queryChart" }, dark: true },
   {
     name: "Query: actions menu",
     path: { manifest: "query" },
@@ -54,11 +57,12 @@ const PAGES: PageExample[] = [
     },
     mask: (page) => [page.locator(".embed-query-dialog code")],
   },
-  { name: "Query: editor", path: { manifest: "querySource" }, prepare: waitForSchema },
+  { name: "Query: editor", path: { manifest: "querySource" }, prepare: waitForSchema, dark: true },
   {
     name: "Query: visualization editor",
     path: { manifest: "querySourceChart" },
     viewportOnly: true,
+    dark: true,
     prepare: async (page) => {
       await waitForSchema(page);
       await openDialog(page, "EditVisualization");
@@ -66,7 +70,7 @@ const PAGES: PageExample[] = [
   },
   { name: "New query", path: "/queries/new", prepare: waitForSchema },
   { name: "Query snippet", path: { manifest: "snippet" } },
-  { name: "Embedded visualization", path: { manifest: "embed" }, loggedOut: true },
+  { name: "Embedded visualization", path: { manifest: "embed" }, loggedOut: true, dark: true },
   { name: "Embedded visualization: parameters", path: { manifest: "embedParameters" }, loggedOut: true },
   {
     name: "Query: table sorted by two columns",
@@ -101,7 +105,7 @@ const PAGES: PageExample[] = [
 
   // Dashboards
   { name: "Dashboards: favorites", path: "/dashboards/favorites" },
-  { name: "Dashboard", path: { manifest: "dashboard" } },
+  { name: "Dashboard", path: { manifest: "dashboard" }, dark: true },
   {
     name: "Dashboard: editing",
     path: { manifest: "dashboardEdit" },
@@ -116,7 +120,7 @@ const PAGES: PageExample[] = [
     viewportOnly: true,
     prepare: (page) => openDialog(page, "OpenShareForm"),
   },
-  { name: "Public dashboard", path: { manifest: "publicDashboard" }, loggedOut: true },
+  { name: "Public dashboard", path: { manifest: "publicDashboard" }, loggedOut: true, dark: true },
   {
     name: "Public dashboard: widget with an unsafe parameter",
     path: { manifest: "publicDashboardUnsafe" },
@@ -125,7 +129,7 @@ const PAGES: PageExample[] = [
 
   // Alerts
   { name: "Alerts", path: "/alerts" },
-  { name: "Alert", path: { manifest: "alert" } },
+  { name: "Alert", path: { manifest: "alert" }, dark: true },
   { name: "Alert: editing", path: { manifest: "alertEdit" } },
   { name: "New alert", path: "/alerts/new" },
   {
@@ -139,10 +143,10 @@ const PAGES: PageExample[] = [
   },
 
   // Users and groups
-  { name: "Users", path: "/users" },
+  { name: "Users", path: "/users", dark: true },
   { name: "Users: pending invitations", path: "/users/pending" },
   { name: "Users: disabled", path: "/users/disabled" },
-  { name: "User profile: own", path: { manifest: "profile" } },
+  { name: "User profile: own", path: { manifest: "profile" }, dark: true },
   { name: "User profile: other user", path: { manifest: "user" } },
   { name: "Groups", path: "/groups" },
   { name: "Group: members", path: { manifest: "group" } },
@@ -150,13 +154,13 @@ const PAGES: PageExample[] = [
 
   // Settings
   { name: "Data sources", path: "/data_sources" },
-  { name: "New data source", path: "/data_sources/new", viewportOnly: true },
-  { name: "Data source", path: { manifest: "dataSource" } },
+  { name: "New data source", path: "/data_sources/new", viewportOnly: true, dark: true },
+  { name: "Data source", path: { manifest: "dataSource" }, dark: true },
   { name: "Alert destinations", path: "/destinations" },
   { name: "New alert destination", path: "/destinations/new", viewportOnly: true },
   { name: "Alert destination", path: { manifest: "destination" } },
   { name: "Query snippets", path: "/query_snippets" },
-  { name: "Organization settings", path: "/settings/general" },
+  { name: "Organization settings", path: "/settings/general", dark: true },
 
   { name: "Page not found", path: "/this-page-does-not-exist" },
 ];
@@ -188,13 +192,13 @@ for (const example of PAGES) {
       test.use({ storageState: { cookies: [], origins: [] } });
     }
 
-    test(example.name, async ({ page }) => {
+    test(example.name, { tag: example.dark ? "@dark" : [] }, async ({ page, theme }) => {
       const path = typeof example.path === "string" ? example.path : readPagesManifest().paths[example.path.manifest];
       if (!path) {
         throw new Error(`No "${JSON.stringify(example.path)}" path in the pages manifest`);
       }
 
-      await page.goto(path);
+      await page.goto(withTheme(path, theme));
       await waitForPageReady(page);
       if (example.prepare) {
         await example.prepare(page);

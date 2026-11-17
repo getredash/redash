@@ -65,7 +65,8 @@ const config = {
     app: [
       "./client/app/index.js",
       "./client/app/assets/less/main.less",
-      "./client/app/assets/less/ant.less"
+      "./client/app/assets/less/ant.less",
+      "./client/app/assets/less/themes/dark.less"
     ],
     server: ["./client/app/assets/less/server.less"]
   },
@@ -114,7 +115,8 @@ const config = {
     new HtmlWebpackPlugin({
       template: "./client/app/multi_org.html",
       filename: "multi_org.html",
-      excludeChunks: ["server"]
+      excludeChunks: ["server"],
+      staticPath
     }),
     isProduction &&
       new MiniCssExtractPlugin({
@@ -129,6 +131,7 @@ const config = {
         { from: "client/app/assets/robots.txt" },
         { from: "client/app/unsupported.html" },
         { from: "client/app/unsupportedRedirect.js" },
+        { from: "client/app/themeBoot.js" },
         { from: "client/app/assets/css/*.css", to: "styles/[name][ext]" },
         { from: "client/app/assets/fonts", to: "fonts/" }
       ],

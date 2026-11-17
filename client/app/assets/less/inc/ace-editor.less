@@ -1,5 +1,5 @@
 .ace_editor {
-  border: 1px solid fade(@redash-gray, 15%);
+  border: 1px solid rgba(var(--rd-gray-rgb), 0.15);
   height: 100%;
   margin-bottom: 10px;
 
@@ -11,15 +11,15 @@
 
   &.ace-tm {
     .ace_gutter {
-      background: #fff !important;
+      background: var(--rd-surface) !important;
     }
 
     .ace_gutter-active-line {
-      background-color: fade(@redash-gray, 20%) !important;
+      background-color: rgba(var(--rd-gray-rgb), 0.2) !important;
     }
 
     .ace_marker-layer .ace_active-line {
-      background: fade(@redash-gray, 9%) !important;
+      background: rgba(var(--rd-gray-rgb), 0.09) !important;
     }
   }
 }

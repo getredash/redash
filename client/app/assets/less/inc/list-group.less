@@ -33,18 +33,18 @@
   }
 
   &.active, &.active:hover, &.active:focus {
-    background-color: #fff;
+    background-color: var(--rd-surface);
     box-shadow: inset 3px 0px 0px @brand-primary;
   }
 }
 
 .list-group-item-heading {
     margin-bottom: 2px;
-    color: #333;
+    color: var(--rd-text-strong);
 
     & > small {
         font-size: 11px;
-        color: #C5C5C5;
+        color: var(--rd-text-fainter);
         margin-left: 10px;
     }
 }
@@ -74,11 +74,11 @@
 
 .list-group-item.inactive,
 .ui-select-choices-row.disabled {
-  background-color: #eee !important;
+  background-color: var(--rd-fill) !important;
   border-color: transparent;
   opacity: 0.5;
   box-shadow: none;
-  color: #333;
+  color: var(--rd-text-strong);
   pointer-events: none;
   cursor: not-allowed;
 }

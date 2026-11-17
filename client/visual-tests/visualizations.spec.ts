@@ -1,6 +1,7 @@
-import { expect, test } from "@playwright/test";
+import { expect } from "@playwright/test";
 import { DASHBOARDS, EXAMPLES, VisualizationType } from "./examples";
 import { readManifest } from "./manifest";
+import { test, withTheme } from "./theme";
 
 // Map tiles come from third-party servers; serve a plain light gray tile instead so maps are deterministic.
 const MAP_TILE = Buffer.from(
@@ -35,16 +36,17 @@ for (const [type, dashboardName] of Object.entries(DASHBOARDS) as [Visualization
     throw new Error(`${dashboardName} visualization names must be unique after slugifying: ${baselineNames}`);
   }
 
-  test(dashboardName, async ({ page }) => {
+  test(dashboardName, async ({ page, theme }) => {
     const dashboard = readManifest().dashboards[type];
     if (!dashboard) {
       throw new Error(`No ${type} dashboard in the manifest`);
     }
 
-    await page.goto(dashboard.publicPath);
+    await page.goto(withTheme(dashboard.publicPath, theme));
     await page.waitForLoadState("networkidle");
 
-    for (const viz of visualizations) {
+    // The dark theme only changes the chrome around the data, so a couple of examples per type are enough
+    for (const viz of theme === "dark" ? visualizations.slice(0, 2) : visualizations) {
       const widget = page.locator(`[data-widgetid="${dashboard.widgets[viz.name]}"]`);
       await widget.scrollIntoViewIfNeeded();
       // Off-screen widgets can still be loading after the dashboard is network-idle. A spinner can

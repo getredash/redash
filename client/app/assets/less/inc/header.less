@@ -3,7 +3,7 @@
     z-index: 10;
     top: 0;
     left: 0;
-    background-color: #fff;
+    background-color: var(--rd-surface);
     height: @header-height;
     
     &.affix {
@@ -44,7 +44,7 @@
 
         & > a {
             height: @header-height;
-            color: #333;
+            color: var(--rd-text-strong);
             min-width: 45px;
             display: block;
             position: relative;
@@ -68,7 +68,7 @@
             left: 50%;
             margin-top: -21px;
             margin-left: -20px;
-            background: #eee;
+            background: var(--rd-fill);
             border-radius: 50%;
             z-index: -1;
         }
@@ -181,7 +181,7 @@
 -----------------------------------------------------------*/
 .top-search {
     position: relative;
-    background: #fff;
+    background: var(--rd-surface);
     height: @header-height;
     
     &:not(.toggled) {
@@ -196,7 +196,7 @@
             top: 15px;
             font-size: 22px;
             z-index: 1;
-            color: #333;
+            color: var(--rd-text-strong);
         }
             
         .ts-reset {
@@ -240,7 +240,7 @@
         }
         
         .ts-input {
-            background: #fff;
+            background: var(--rd-surface);
         }
         
         .ts-reset {
@@ -315,7 +315,7 @@
             }
             
             & > small {
-                color: #333;
+                color: var(--rd-text-strong);
             }
         }
         
@@ -333,7 +333,7 @@
         }
         
         & > small { 
-            color: #969696;  
+            color: var(--rd-text-dim);  
             display: block;
             margin-top: 5px; 
             .transition(color);

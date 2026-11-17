@@ -54,6 +54,8 @@ export const visualizationsSettings = {
   tableCellMaxJSONSize: 50000,
   allowCustomJSVisualizations: false,
   hidePlotlyModeBar: false,
+  // The app's colour theme, "light" or "dark": charts adapt their background, text and grid colours to it
+  theme: "light",
   choroplethAvailableMaps: {},
 };
 

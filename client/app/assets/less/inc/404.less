@@ -1,5 +1,5 @@
 .four-zero {
-	background: @white;
+	background: var(--rd-surface);
 	box-shadow: 0 1px 11px rgba(0, 0, 0, 0.27);
 	border-radius: 2px;
 	position: absolute;
@@ -10,7 +10,7 @@
 	height: 300px;
 	width: 500px;
 	left: 50%;
-	color: #333;
+	color: var(--rd-text-strong);
 	margin-left: -250px;
 	
 	h2 {
@@ -43,7 +43,7 @@
 	
 	
 	footer {
-		background: @ace;
+		background: var(--rd-surface-code);
 		position: absolute;
 		left: 0;
 		bottom: 0;
@@ -53,17 +53,17 @@
 		& > a {
 			font-size: 21px;
 			display: inline-block;
-			color: #333;
+			color: var(--rd-text-strong);
 			margin: 0 1px;
 			line-height: 40px;
 			width: 40px;
 			height: 40px;
-			background: rgba(0, 0, 0, 0.09);
+			background: rgba(var(--rd-ink-rgb), 0.09);
 			border-radius: 50%;
 			text-align: center;
 			
 			&:hover {
-				background: rgba(0, 0, 0, 0.2);
+				background: rgba(var(--rd-ink-rgb), 0.2);
 			}
 		}
 	}

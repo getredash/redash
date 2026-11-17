@@ -63,7 +63,7 @@
 }
 
 .ant-select-dropdown-menu-item em {
-  color: @input-color-placeholder;
+  color: var(--rd-text-faint);
   font-size: 11px;
 }
 
@@ -109,9 +109,9 @@
   vertical-align: top;
 
   &-item {
-    background-color: @pagination-bg;
+    background-color: rgba(var(--rd-gray-rgb), 0.15);
     border-color: transparent;
-    color: @pagination-color;
+    color: var(--rd-text-pagination);
     font-size: 14px;
     margin-right: 5px;
 
@@ -121,9 +121,9 @@
 
     &:focus,
     &:hover {
-      background-color: @pagination-hover-bg;
+      background-color: rgba(var(--rd-gray-rgb), 0.25);
       border-color: transparent;
-      color: @pagination-hover-color;
+      color: var(--rd-text-strong);
       a {
         color: inherit;
       }
@@ -158,9 +158,9 @@
   &-prev,
   &-next {
     .@{pagination-prefix-cls}-item-link {
-      background-color: @pagination-bg;
+      background-color: rgba(var(--rd-gray-rgb), 0.15);
       border-color: transparent;
-      color: @pagination-color;
+      color: var(--rd-text-pagination);
       line-height: @pagination-item-size - 2px;
 
       .@{pagination-prefix-cls}-mini & {
@@ -170,9 +170,9 @@
 
     &:focus .@{pagination-prefix-cls}-item-link,
     &:hover .@{pagination-prefix-cls}-item-link {
-      background-color: @pagination-hover-bg;
+      background-color: rgba(var(--rd-gray-rgb), 0.25);
       border-color: transparent;
-      color: @pagination-hover-color;
+      color: var(--rd-text-strong);
     }
   }
 
@@ -186,7 +186,7 @@
   &-jump-next {
     .@{pagination-prefix-cls}-item-container {
       .@{pagination-prefix-cls}-item-link-icon {
-        color: @pagination-color;
+        color: var(--rd-text-pagination);
       }
     }
   }
@@ -235,7 +235,7 @@
       &-up,
       &-down {
         &.on {
-          color: @table-header-icon-active-color;
+          color: var(--rd-text-input);
         }
       }
     }
@@ -246,7 +246,7 @@
     &:focus,
     &:focus-within {
       & > td {
-        background: @table-row-hover-bg;
+        background: rgba(var(--rd-gray-rgb), 0.05);
       }
     }
   }
@@ -254,7 +254,7 @@
   // Custom styles
 
   &-headerless &-tbody > tr:first-child > td {
-    border-top: @border-width-base @border-style-base @border-color-split;
+    border-top: @border-width-base @border-style-base var(--rd-border-split);
   }
 }
 
@@ -264,11 +264,11 @@
   &-item {
     // custom rule
     &.selected {
-      background-color: #f6f8f9;
+      background-color: var(--rd-body-bg);
     }
 
     &.disabled {
-      background-color: fade(#f6f8f9, 40%);
+      background-color: rgba(var(--rd-body-bg-rgb), 0.4);
 
       & > * {
         opacity: 0.4;
@@ -339,7 +339,7 @@
 // description in modal header
 .modal-header-desc {
   font-size: @font-size-base;
-  color: @text-color-secondary;
+  color: rgba(var(--rd-ink-rgb), 0.45);
   font-weight: normal;
   margin-top: 4px;
 }
@@ -396,7 +396,7 @@
 
     // makes the icon white instead of see-through
     & svg {
-      background: white;
+      background: var(--rd-surface);
       border-radius: 50%;
     }
   }
@@ -428,7 +428,7 @@
 .@{dropdown-prefix-cls}-menu-item {
   &:focus,
   &:focus-within {
-    background-color: @item-hover-bg;
+    background-color: var(--rd-surface-menu-focus);
   }
 }
 

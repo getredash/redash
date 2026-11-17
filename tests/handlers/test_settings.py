@@ -45,6 +45,23 @@ class TestOrganizationSettings(BaseTestCase):
         self.assertEqual(rv.json["settings"]["thousands_separator"], ",")
         self.assertEqual(rv.json["settings"]["decimal_separator"], ".")
 
+    def test_get_returns_default_theme(self):
+        admin = self.factory.create_admin()
+        rv = self.make_request("get", "/api/settings/organization", user=admin)
+        self.assertEqual(rv.json["settings"]["default_theme"], "light")
+
+    def test_updates_default_theme(self):
+        admin = self.factory.create_admin()
+        rv = self.make_request("post", "/api/settings/organization", data={"default_theme": "system"}, user=admin)
+        self.assertEqual(rv.json["settings"]["default_theme"], "system")
+        self.assertEqual(Organization.get_by_slug(self.factory.org.slug).get_setting("default_theme"), "system")
+
+    def test_rejects_unknown_default_theme(self):
+        admin = self.factory.create_admin()
+        rv = self.make_request("post", "/api/settings/organization", data={"default_theme": "purple"}, user=admin)
+        self.assertEqual(rv.status_code, 400)
+        self.assertEqual(Organization.get_by_slug(self.factory.org.slug).get_setting("default_theme"), "light")
+
     def test_updates_google_apps_domains(self):
         admin = self.factory.create_admin()
         domains = ["example.com"]

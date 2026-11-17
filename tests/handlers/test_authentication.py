@@ -1,6 +1,8 @@
+import os
 import time
 
 import mock
+from flask import render_template_string
 
 from redash import limiter, settings
 from redash.authentication.account import invite_token
@@ -130,3 +132,33 @@ class TestSession(BaseTestCase):
     # really simple test just to trigger this route
     def test_get(self):
         self.make_request("get", "/default/api/session", user=self.factory.user, org=False)
+
+    def test_includes_theme(self):
+        user = self.factory.user
+        user.theme = "dark"
+        self.factory.org.set_setting("default_theme", "system")
+        rv = self.make_request("get", "/default/api/session", user=user, org=False)
+        self.assertEqual(rv.json["user"]["theme"], "dark")
+        self.assertEqual(rv.json["client_config"]["defaultTheme"], "system")
+
+
+class TestDefaultThemeInPages(BaseTestCase):
+    # themeBoot.js reads the organization default from the page, before the app has loaded
+
+    def setUp(self):
+        super().setUp()
+        self.factory.org.set_setting("default_theme", "dark")
+
+    def test_login_page(self):
+        rv = self.get_request("/login", org=self.factory.org)
+        self.assertEqual(rv.status_code, 200)
+        self.assertIn(b'data-default-theme="dark"', rv.data)
+
+    def test_app_page_in_multi_org_mode(self):
+        # Renders the template's source: the backend CI job skips the frontend build, so client/dist has an empty one
+        path = os.path.join(os.path.dirname(__file__), "..", "..", "client", "app", "multi_org.html")
+        with open(path) as f:
+            source = f.read()
+        with self.app.test_request_context("/{}/queries".format(self.factory.org.slug)):
+            html = render_template_string(source, base_href="/")
+        self.assertIn('data-org-default-theme="dark"', html)

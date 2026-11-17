@@ -1,8 +1,8 @@
 .box {
   font: 10px sans-serif;
   line, rect, circle {
-    fill: #fff;
-    stroke: #000;
+    fill: var(--rd-surface);
+    stroke: rgb(var(--rd-ink-rgb));
     stroke-width: 1.5px;
   }
   .center {
@@ -10,7 +10,7 @@
   }
   .outlier {
     fill: none;
-    stroke: #000;
+    stroke: rgb(var(--rd-ink-rgb));
   }
 }
 
@@ -21,18 +21,18 @@
 .axis path,
 .axis line {
   fill: none;
-  stroke: #000;
+  stroke: rgb(var(--rd-ink-rgb));
   shape-rendering: crispEdges;
 }
 
 .grid-background {
-  fill: #ddd;
+  fill: var(--rd-chart-grid-bg);
 }
 
 .grid path,
 .grid line {
   fill: none;
-  stroke: #fff;
+  stroke: var(--rd-surface);
   shape-rendering: crispEdges;
 }
 

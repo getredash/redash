@@ -5,6 +5,7 @@ import UserInfoForm from "./UserInfoForm";
 import ApiKeyForm from "./ApiKeyForm";
 import PasswordForm from "./PasswordForm";
 import ToggleUserForm from "./ToggleUserForm";
+import ThemeForm from "./ThemeForm";
 
 export default function EditableUserProfile(props) {
   const [user, setUser] = useState(props.user);
@@ -19,6 +20,7 @@ export default function EditableUserProfile(props) {
       <h3 className="profile__h3">{user.name}</h3>
       <hr />
       <UserInfoForm user={user} onChange={setUser} />
+      <ThemeForm user={user} onChange={setUser} />
       {!user.isDisabled && (
         <React.Fragment>
           <ApiKeyForm user={user} onChange={setUser} />
