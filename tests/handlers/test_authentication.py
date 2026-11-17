@@ -1,6 +1,8 @@
+import os
 import time
 
 import mock
+from flask import render_template_string
 
 from redash import limiter, settings
 from redash.authentication.account import invite_token
@@ -153,6 +155,10 @@ class TestDefaultThemeInPages(BaseTestCase):
         self.assertIn(b'data-default-theme="dark"', rv.data)
 
     def test_app_page_in_multi_org_mode(self):
-        rv = self.make_request("get", "/queries")
-        self.assertEqual(rv.status_code, 200)
-        self.assertIn(b'data-org-default-theme="dark"', rv.data)
+        # Renders the template's source: the backend CI job skips the frontend build, so client/dist has an empty one
+        path = os.path.join(os.path.dirname(__file__), "..", "..", "client", "app", "multi_org.html")
+        with open(path) as f:
+            source = f.read()
+        with self.app.test_request_context("/{}/queries".format(self.factory.org.slug)):
+            html = render_template_string(source, base_href="/")
+        self.assertIn('data-org-default-theme="dark"', html)

@@ -115,7 +115,8 @@ const config = {
     new HtmlWebpackPlugin({
       template: "./client/app/multi_org.html",
       filename: "multi_org.html",
-      excludeChunks: ["server"]
+      excludeChunks: ["server"],
+      staticPath
     }),
     isProduction &&
       new MiniCssExtractPlugin({
