@@ -54,6 +54,14 @@ const DYNAMIC_DATE_RANGES = {
     name: "Last year",
     value: () => [moment().subtract(1, "year").startOf("year"), moment().subtract(1, "year").endOf("year")],
   },
+  last_30_minutes: {
+    name: "Last 30 minutes",
+    value: untilNow(() => moment().subtract(30, "minute")),
+  },
+  last_15_minutes: {
+    name: "Last 15 minutes",
+    value: untilNow(() => moment().subtract(15, "minute")),
+  },
   last_hour: {
     name: "Last hour",
     value: untilNow(() => moment().subtract(1, "hour")),
