@@ -143,6 +143,13 @@ class QueryResult {
 
       const columnTypes = {};
 
+      // Build a lookup of backend-provided column types so we can
+      // avoid converting values the backend has already typed correctly.
+      const backendColumnTypes = {};
+      each(this.query_result.data.columns, (column) => {
+        backendColumnTypes[column.name] = column.type;
+      });
+
       // TODO: we should stop manipulating incoming data, and switch to relaying
       // on the column type set by the backend. This logic is prone to errors,
       // and better be removed. Kept for now, for backward compatability.
@@ -151,10 +158,10 @@ class QueryResult {
           let newType = null;
           if (isNumber(v)) {
             newType = "float";
-          } else if (isDateTime(v)) {
+          } else if (backendColumnTypes[k] !== "string" && isDateTime(v)) {
             row[k] = moment.utc(v);
             newType = "datetime";
-          } else if (isString(v) && v.match(/^\d{4}-\d{2}-\d{2}$/)) {
+          } else if (backendColumnTypes[k] !== "string" && isString(v) && v.match(/^\d{4}-\d{2}-\d{2}$/)) {
             row[k] = moment.utc(v);
             newType = "date";
           } else if (typeof v === "object" && v !== null) {
