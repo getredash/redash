@@ -32,6 +32,7 @@ def _get_type(value):
 
 def _transform_result(results):
     column_names = []
+    column_types = {}
     result_rows = []
 
     for result in results:
@@ -56,12 +57,13 @@ def _transform_result(results):
                         index = series["columns"].index(column)
                         value = point[index]
                         result_row[column] = value
+                    else:
+                        continue
+                    if column not in column_types and result_row[column] is not None:
+                        column_types[column] = _get_type(result_row[column])
                 result_rows.append(result_row)
 
-    if len(result_rows) > 0:
-        result_columns = [{"name": c, "type": _get_type(result_rows[0][c])} for c in result_rows[0].keys()]
-    else:
-        result_columns = [{"name": c, "type": TYPE_STRING} for c in column_names]
+    result_columns = [{"name": c, "type": column_types.get(c, TYPE_STRING)} for c in column_names]
 
     return {"columns": result_columns, "rows": result_rows}
 
