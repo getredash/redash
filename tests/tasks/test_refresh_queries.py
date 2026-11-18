@@ -1,7 +1,10 @@
+from datetime import datetime, timezone
+
 from mock import ANY, call, patch
 
 from redash.models import Query
 from redash.tasks.queries.maintenance import refresh_queries
+from redash.utils import gen_query_hash
 from tests import BaseTestCase
 
 ENQUEUE_QUERY = "redash.tasks.queries.maintenance.enqueue_query"
@@ -196,6 +199,72 @@ class TestRefreshQuery(BaseTestCase):
                 scheduled_query=query,
                 metadata=ANY,
             )
+
+    def test_enqueues_parameterized_queries_with_dynamic_date_values(self):
+        """
+        Dynamic date values (e.g. "Last 7 days") are resolved before a scheduled query is enqueued.
+        """
+        query = self.factory.create_query(
+            query_text="select {{d.start}}, {{d.end}}",
+            options={
+                "parameters": [
+                    {
+                        "global": False,
+                        "type": "date-range",
+                        "name": "d",
+                        "value": "d_last_7_days",
+                        "title": "d",
+                    }
+                ],
+                "apply_auto_limit": False,
+            },
+        )
+        oq = staticmethod(lambda: [query])
+        now = datetime(2024, 3, 13, 15, 42, 7, tzinfo=timezone.utc)
+        with patch(ENQUEUE_QUERY) as add_job_mock, patch.object(Query, "outdated_queries", oq), patch(
+            "redash.models.parameterized_query.utcnow", return_value=now
+        ):
+            refresh_queries()
+            add_job_mock.assert_called_once_with(
+                "select 2024-03-06, 2024-03-13",
+                query.data_source,
+                query.user_id,
+                scheduled_query=query,
+                metadata=ANY,
+            )
+
+    def test_refreshes_query_hash_of_queries_with_dynamic_date_values(self):
+        """
+        The stored hash follows the resolved text, so the result of the scheduled
+        execution gets attached to the query (Query.update_latest_result).
+        """
+        query = self.factory.create_query(
+            query_text="select {{d.start}}, {{d.end}}",
+            options={
+                "parameters": [
+                    {
+                        "global": False,
+                        "type": "date-range",
+                        "name": "d",
+                        "value": "d_last_7_days",
+                        "title": "d",
+                    }
+                ],
+                "apply_auto_limit": False,
+            },
+        )
+        updated_at = query.updated_at
+        oq = staticmethod(lambda: [query])
+        now = datetime(2024, 3, 13, 15, 42, 7, tzinfo=timezone.utc)
+        with patch(ENQUEUE_QUERY), patch.object(Query, "outdated_queries", oq), patch(
+            "redash.models.parameterized_query.utcnow", return_value=now
+        ):
+            self.assertNotEqual(gen_query_hash("select 2024-03-06, 2024-03-13"), query.query_hash)
+            refresh_queries()
+
+        query = Query.get_by_id(query.id)
+        self.assertEqual(gen_query_hash("select 2024-03-06, 2024-03-13"), query.query_hash)
+        self.assertEqual(updated_at, query.updated_at)
 
     def test_doesnt_enqueue_parameterized_queries_with_invalid_parameters(self):
         """
