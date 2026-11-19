@@ -32,7 +32,13 @@ const numberParameter = (name: string, value: number) => ({ name, title: name, t
 async function seedQuery(
   api: RedashApi,
   created: Created,
-  seed: { name: string; dataSourceId: number; sql: string; parameters?: Record<string, unknown>[] },
+  seed: {
+    name: string;
+    dataSourceId: number;
+    sql: string;
+    parameters?: Record<string, unknown>[];
+    description?: string;
+  },
   visualizations: Record<string, { type: string; name: string; options: Record<string, unknown> }> = {}
 ): Promise<SeededQuery> {
   const name = uniqueName(seed.name);
@@ -40,6 +46,7 @@ async function seedQuery(
     name,
     dataSourceId: seed.dataSourceId,
     sql: seed.sql,
+    description: seed.description,
     options: { parameters: seed.parameters || [] },
   });
   created.queries.push(query.id);
@@ -97,6 +104,15 @@ export const seedQueries = {
       dataSourceId,
       sql: "select id, category, channel, amount, customer from orders order by id limit {{ rows }}",
       parameters: [numberParameter("rows", 12)],
+    }),
+
+  /** A query with a description, which dashboard widgets show under their title. */
+  described: (api: RedashApi, created: Created, dataSourceId: number, description: string) =>
+    seedQuery(api, created, {
+      name: "D described orders",
+      dataSourceId,
+      sql: "select id, category from orders order by id limit 3",
+      description,
     }),
 
   citiesMap: (api: RedashApi, created: Created, dataSourceId: number) =>
