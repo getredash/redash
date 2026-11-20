@@ -126,8 +126,12 @@ test.describe("Dashboard widget menu", () => {
     const widget = widgetById(page, widgetId);
     await expect(widget.getByText(description)).toBeVisible();
 
+    const saved = page.waitForResponse(
+      (r) => r.url().endsWith(`/api/widgets/${widgetId}`) && r.request().method() === "POST" && r.ok()
+    );
     await (await openWidgetMenu(page, widget)).getByText("Hide Description").click();
     await expect(widget.getByText(description)).toHaveCount(0);
+    await saved;
 
     // the choice is saved with the widget
     await page.reload();
