@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import { compact, isEmpty, invoke, map } from "lodash";
+import { compact, get, isEmpty, invoke, map } from "lodash";
 import markdownToHtml from "@/lib/markdown";
 import cx from "classnames";
 import Menu from "antd/lib/menu";
@@ -22,9 +22,16 @@ import VisualizationRenderer from "@/components/visualizations/VisualizationRend
 
 import Widget from "./Widget";
 
-function visualizationWidgetMenuOptions({ widget, canEditDashboard, onParametersEdit }) {
+function visualizationWidgetMenuOptions({
+  widget,
+  canEditDashboard,
+  hideDescription,
+  onParametersEdit,
+  onToggleDescription,
+}) {
   const canViewQuery = currentUser.hasPermission("view_query");
   const canEditParameters = canEditDashboard && !isEmpty(invoke(widget, "query.getParametersDefs"));
+  const canToggleDescription = canEditDashboard && !isEmpty(widget.getQuery().description);
   const widgetQueryResult = widget.getQueryResult();
   const isQueryResultEmpty = !widgetQueryResult || !widgetQueryResult.isEmpty || widgetQueryResult.isEmpty();
 
@@ -58,7 +65,7 @@ function visualizationWidgetMenuOptions({ widget, canEditDashboard, onParameters
         "Download as Excel File"
       )}
     </Menu.Item>,
-    (canViewQuery || canEditParameters) && <Menu.Divider key="divider" />,
+    (canViewQuery || canEditParameters || canToggleDescription) && <Menu.Divider key="divider" />,
     canViewQuery && (
       <Menu.Item key="view_query">
         <Link href={widget.getQuery().getUrl(true, widget.visualization.id)}>View Query</Link>
@@ -67,6 +74,11 @@ function visualizationWidgetMenuOptions({ widget, canEditDashboard, onParameters
     canEditParameters && (
       <Menu.Item key="edit_parameters" onClick={onParametersEdit}>
         Edit Parameters
+      </Menu.Item>
+    ),
+    canToggleDescription && (
+      <Menu.Item key="toggle_description" onClick={onToggleDescription}>
+        {hideDescription ? "Show Description" : "Hide Description"}
       </Menu.Item>
     ),
   ]);
@@ -92,6 +104,7 @@ function VisualizationWidgetHeader({
   refreshStartedAt,
   parameters,
   isEditing,
+  hideDescription,
   onParametersUpdate,
   onParametersEdit,
 }) {
@@ -105,7 +118,7 @@ function VisualizationWidgetHeader({
           <p>
             <QueryLink query={widget.getQuery()} visualization={widget.visualization} readOnly={!canViewQuery} />
           </p>
-          {!isEmpty(widget.getQuery().description) && (
+          {!hideDescription && !isEmpty(widget.getQuery().description) && (
             <HtmlContent className="text-muted markdown query--description">
               {markdownToHtml(widget.getQuery().description)}
             </HtmlContent>
@@ -131,6 +144,7 @@ VisualizationWidgetHeader.propTypes = {
   refreshStartedAt: Moment,
   parameters: PropTypes.arrayOf(PropTypes.object),
   isEditing: PropTypes.bool,
+  hideDescription: PropTypes.bool,
   onParametersUpdate: PropTypes.func,
   onParametersEdit: PropTypes.func,
 };
@@ -140,6 +154,7 @@ VisualizationWidgetHeader.defaultProps = {
   onParametersUpdate: () => {},
   onParametersEdit: () => {},
   isEditing: false,
+  hideDescription: false,
   parameters: [],
 };
 
@@ -241,6 +256,7 @@ class VisualizationWidget extends React.Component {
     this.state = {
       localParameters: props.widget.getLocalParameters(),
       localFilters: props.filters,
+      hideDescription: !!get(props.widget, "options.hideDescription"),
     };
   }
 
@@ -271,6 +287,16 @@ class VisualizationWidget extends React.Component {
       }
       onParameterMappingsChange();
       this.setState({ localParameters: widget.getLocalParameters() });
+    });
+  };
+
+  toggleDescription = () => {
+    const { widget } = this.props;
+    const hideDescription = !this.state.hideDescription;
+    this.setState({ hideDescription });
+    widget.save("options", { hideDescription }).catch(() => {
+      // revert the optimistic update if the change could not be saved
+      this.setState({ hideDescription: !hideDescription });
     });
   };
 
@@ -320,7 +346,7 @@ class VisualizationWidget extends React.Component {
 
   render() {
     const { widget, isLoading, isPublic, canEdit, isEditing, onRefresh } = this.props;
-    const { localParameters } = this.state;
+    const { localParameters, hideDescription } = this.state;
     const widgetQueryResult = widget.getQueryResult();
     const isRefreshing = isLoading && !!(widgetQueryResult && widgetQueryResult.getStatus());
     const onParametersEdit = (parameters) => {
@@ -336,7 +362,9 @@ class VisualizationWidget extends React.Component {
         menuOptions={visualizationWidgetMenuOptions({
           widget,
           canEditDashboard: canEdit,
+          hideDescription,
           onParametersEdit: this.editParameterMappings,
+          onToggleDescription: this.toggleDescription,
         })}
         header={
           <VisualizationWidgetHeader
@@ -344,6 +372,7 @@ class VisualizationWidget extends React.Component {
             refreshStartedAt={isRefreshing ? widget.refreshStartedAt : null}
             parameters={localParameters}
             isEditing={isEditing}
+            hideDescription={hideDescription}
             onParametersUpdate={onRefresh}
             onParametersEdit={onParametersEdit}
           />

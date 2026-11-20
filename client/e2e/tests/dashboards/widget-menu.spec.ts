@@ -1,6 +1,6 @@
 import fs from "fs";
 import type { Download, Page } from "@playwright/test";
-import { expect, type RedashApi, test } from "../../support/fixtures";
+import { expect, type RedashApi, test, uniqueName } from "../../support/fixtures";
 import { backendUpgradeIssue } from "../../support/known-issues";
 import {
   addWidgetViaApi,
@@ -105,6 +105,48 @@ test.describe("Dashboard widget menu", () => {
       "View Query",
       "Remove from Dashboard",
     ]);
+  });
+
+  test("Hide Description hides the query description of a widget and Show Description brings it back", async ({
+    page,
+    api,
+    seed,
+  }) => {
+    const description = `Described by ${uniqueName("note")}`;
+    const described = await seedQueries.described(api, created, seed.dataSources.postgres, description);
+    const dashboard = await createDashboardViaApi(api, created, "D Widget description");
+    const widgetId = await addWidgetViaApi(api, dashboard.id, described.viz.table, {
+      col: 0,
+      row: 0,
+      sizeX: 6,
+      sizeY: 8,
+    });
+
+    await openDashboard(page, dashboard.id);
+    const widget = widgetById(page, widgetId);
+    await expect(widget.getByText(description)).toBeVisible();
+
+    const saved = page.waitForResponse(
+      (r) => r.url().endsWith(`/api/widgets/${widgetId}`) && r.request().method() === "POST" && r.ok()
+    );
+    await (await openWidgetMenu(page, widget)).getByText("Hide Description").click();
+    await expect(widget.getByText(description)).toHaveCount(0);
+    await saved;
+
+    // the choice is saved with the widget
+    await page.reload();
+    await expect(widgetById(page, widgetId).locator("tbody tr.ant-table-row")).toHaveCount(3);
+    await expect(widgetById(page, widgetId).getByText(description)).toHaveCount(0);
+
+    await (await openWidgetMenu(page, widgetById(page, widgetId))).getByText("Show Description").click();
+    await expect(widgetById(page, widgetId).getByText(description)).toBeVisible();
+  });
+
+  test("a widget of a query without a description has no Hide Description", async ({ page, api }) => {
+    const dashboard = await makeDashboard(api);
+    await openDashboard(page, dashboard.id);
+    const menu = await openWidgetMenu(page, widgetById(page, dashboard.counter));
+    await expect(menu.getByText("Hide Description")).toHaveCount(0);
   });
 
   test("Download as CSV File gives the rows the widget shows", async ({ page, api }) => {
