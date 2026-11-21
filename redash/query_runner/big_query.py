@@ -57,17 +57,24 @@ def transform_cell(field_type, cell_value):
     return cell_value
 
 
+def _flatten_fields(fields, record=None, prefix=""):
+    """Yield leaf fields and values in schema order, including when the record is NULL."""
+    for index, field in enumerate(fields):
+        name = prefix + field["name"]
+        value = record["f"][index]["v"] if record is not None else None
+        if field.get("fields") and field.get("mode") != "REPEATED":
+            yield from _flatten_fields(field["fields"], value, name + ".")
+        else:
+            yield name, field, value
+
+
 def transform_row(row, fields):
     row_data = {}
-
-    for column_index, cell in enumerate(row["f"]):
-        field = fields[column_index]
-        if field.get("mode") == "REPEATED":
-            cell_value = [transform_cell(field["type"], item["v"]) for item in cell["v"]]
+    for name, field, value in _flatten_fields(fields, row):
+        if field.get("mode") == "REPEATED" and value is not None:
+            row_data[name] = [transform_cell(field["type"], item["v"]) for item in value]
         else:
-            cell_value = transform_cell(field["type"], cell["v"])
-
-        row_data[field["name"]] = cell_value
+            row_data[name] = transform_cell(field["type"], value)
 
     return row_data
 
@@ -232,11 +239,12 @@ class BigQuery(BaseSQLQueryRunner):
 
         logger.debug("bigquery replied: %s", query_reply)
 
+        fields = query_reply["schema"]["fields"]
         rows = []
 
         while ("rows" in query_reply) and current_row < int(query_reply["totalRows"]):
             for row in query_reply["rows"]:
-                rows.append(transform_row(row, query_reply["schema"]["fields"]))
+                rows.append(transform_row(row, fields))
 
             current_row += len(query_reply["rows"])
 
@@ -251,11 +259,11 @@ class BigQuery(BaseSQLQueryRunner):
 
         columns = [
             {
-                "name": f["name"],
-                "friendly_name": f["name"],
-                "type": "string" if f.get("mode") == "REPEATED" else types_map.get(f["type"], "string"),
+                "name": name,
+                "friendly_name": name,
+                "type": "string" if field.get("mode") == "REPEATED" else types_map.get(field["type"], "string"),
             }
-            for f in query_reply["schema"]["fields"]
+            for name, field, _ in _flatten_fields(fields)
         ]
 
         data = {
