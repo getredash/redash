@@ -42,4 +42,6 @@ Want to create your own role? The permissions you need to assign are:
 - bigquery.tables.get
 - bigquery.tables.getData
 
-###
+### Nested fields in query results
+
+When you select a `RECORD` field, Redash shows its nested fields as columns such as `details.version.major`. If the record is `NULL`, each of its columns contains `NULL`. A `REPEATED` field stays in a single cell as an array. Use `UNNEST` in GoogleSQL to return one row per array element.
