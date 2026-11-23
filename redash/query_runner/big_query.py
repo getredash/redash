@@ -68,15 +68,20 @@ def _flatten_fields(fields, record=None, prefix=""):
             yield name, field, value
 
 
-def transform_row(row, fields):
-    row_data = {}
-    for name, field, value in _flatten_fields(fields, row):
-        if field.get("mode") == "REPEATED" and value is not None:
-            row_data[name] = [transform_cell(field["type"], item["v"]) for item in value]
-        else:
-            row_data[name] = transform_cell(field["type"], value)
+def _transform_value(field, value):
+    """Convert a BigQuery cell value; records inside arrays become dicts keyed by sub-field name."""
+    if value is None:
+        return None
+    if field.get("mode") == "REPEATED":
+        item_field = {**field, "mode": "NULLABLE"}
+        return [_transform_value(item_field, item["v"]) for item in value]
+    if field.get("fields"):
+        return {sub["name"]: _transform_value(sub, cell["v"]) for sub, cell in zip(field["fields"], value["f"])}
+    return transform_cell(field["type"], value)
 
-    return row_data
+
+def transform_row(row, fields):
+    return {name: _transform_value(field, value) for name, field, value in _flatten_fields(fields, row)}
 
 
 def _load_key(filename):

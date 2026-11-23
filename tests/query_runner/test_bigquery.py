@@ -91,7 +91,7 @@ class TestBigQueryQueryRunner(unittest.TestCase):
         self.assertEqual(
             data["rows"],
             [
-                {"id": 1, "details.version.major": 3, "details.files": [file_record]},
+                {"id": 1, "details.version.major": 3, "details.files": [{"name": "package.whl"}]},
                 {"id": 2, "details.version.major": None, "details.files": None},
             ],
         )
