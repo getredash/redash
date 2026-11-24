@@ -64,6 +64,20 @@ class Mysql(BaseSQLQueryRunner):
                 "db": {"type": "string", "title": "Database name"},
                 "port": {"type": "number", "default": 3306},
                 "connect_timeout": {"type": "number", "default": 60, "title": "Connection Timeout"},
+                "read_timeout": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 2147483647,
+                    "title": "Read Timeout (seconds)",
+                    "description": "Socket I/O timeout; a low value can interrupt long queries. Leave unset for the driver default.",
+                },
+                "write_timeout": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 2147483647,
+                    "title": "Write Timeout (seconds)",
+                    "description": "Socket I/O timeout; a low value can interrupt long queries. Leave unset for the driver default.",
+                },
                 "charset": {"type": "string", "default": "utf8mb4"},
                 "use_unicode": {"type": "boolean", "default": True},
                 "autocommit": {"type": "boolean", "default": False},
@@ -75,6 +89,8 @@ class Mysql(BaseSQLQueryRunner):
                 "passwd",
                 "db",
                 "connect_timeout",
+                "read_timeout",
+                "write_timeout",
                 "charset",
                 "use_unicode",
                 "autocommit",
@@ -136,6 +152,14 @@ class Mysql(BaseSQLQueryRunner):
             connect_timeout=self.configuration.get("connect_timeout", 60),
             autocommit=self.configuration.get("autocommit", True),
         )
+
+        read_timeout = self.configuration.get("read_timeout")
+        if read_timeout is not None:
+            params["read_timeout"] = int(read_timeout)
+
+        write_timeout = self.configuration.get("write_timeout")
+        if write_timeout is not None:
+            params["write_timeout"] = int(write_timeout)
 
         ssl_options = self._get_ssl_parameters()
 
@@ -319,10 +343,24 @@ class RDSMySQL(Mysql):
                 "passwd": {"type": "string", "title": "Password"},
                 "db": {"type": "string", "title": "Database name"},
                 "port": {"type": "number", "default": 3306},
+                "read_timeout": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 2147483647,
+                    "title": "Read Timeout (seconds)",
+                    "description": "Socket I/O timeout; a low value can interrupt long queries. Leave unset for the driver default.",
+                },
+                "write_timeout": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 2147483647,
+                    "title": "Write Timeout (seconds)",
+                    "description": "Socket I/O timeout; a low value can interrupt long queries. Leave unset for the driver default.",
+                },
                 "use_ssl": {"type": "boolean", "title": "Use SSL"},
                 "charset": {"type": "string", "default": "utf8mb4"},
             },
-            "order": ["host", "port", "user", "passwd", "db"],
+            "order": ["host", "port", "user", "passwd", "db", "read_timeout", "write_timeout"],
             "required": ["db", "user", "passwd", "host"],
             "secret": ["passwd"],
         }
