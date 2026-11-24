@@ -95,7 +95,7 @@ def serialize_query_result_to_dsv(query_result, delimiter):
     fieldnames, special_columns = _get_column_lists(query_data["columns"] or [])
 
     writer = csv.DictWriter(s, extrasaction="ignore", fieldnames=fieldnames, delimiter=delimiter)
-    writer.writeheader()
+    writer.writerow({name: _sanitize_csv_value(name) for name in fieldnames})
 
     for row in query_data["rows"]:
         for col_name, converter in special_columns.items():
