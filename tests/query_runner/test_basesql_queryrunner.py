@@ -51,6 +51,16 @@ class TestBaseSQLQueryRunner(unittest.TestCase):
         query_text = self.query_runner.apply_auto_limit(origin_query_text, True)
         self.assertEqual("SELECT 2 LIMIT 1000", query_text)
 
+    def test_apply_auto_limit_after_leading_comment(self):
+        for comment in ("-- Example query", "/* Example query */"):
+            with self.subTest(comment=comment):
+                query = f"{comment}\nSELECT * FROM raw_events"
+                self.assertEqual(query + " LIMIT 1000", self.query_runner.apply_auto_limit(query, True))
+
+    def test_keep_explicit_limit_after_leading_comment(self):
+        query = "-- Example query\nSELECT * FROM raw_events LIMIT 5"
+        self.assertEqual(query, self.query_runner.apply_auto_limit(query, True))
+
     def test_apply_auto_limit_origin_have_limit_1(self):
         origin_query_text = "SELECT 2 LIMIT 100"
         query_text = self.query_runner.apply_auto_limit(origin_query_text, True)
