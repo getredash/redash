@@ -313,9 +313,10 @@ class BaseSQLQueryRunner(BaseQueryRunner):
         if len(parsed_query_list) == 0:
             return False
         parsed_query = parsed_query_list[0]
+        first_token = parsed_query.token_first(skip_cm=True)
         last_keyword_idx = find_last_keyword_idx(parsed_query)
         # Either invalid query or query that is not select
-        if last_keyword_idx == -1 or parsed_query.tokens[0].value.upper() != "SELECT":
+        if last_keyword_idx == -1 or first_token is None or first_token.normalized != "SELECT":
             return False
 
         no_limit = parsed_query.tokens[last_keyword_idx].value.upper() not in self.limit_keywords
