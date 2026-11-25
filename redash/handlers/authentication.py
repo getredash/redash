@@ -68,6 +68,15 @@ def render_token_login_page(template, org_slug, token, invite):
             400,
         )
 
+    if user.is_disabled:
+        return (
+            render_template(
+                "error.html",
+                error_message="This account is disabled. Please contact your administrator.",
+            ),
+            400,
+        )
+
     if invite and user.details.get("is_invitation_pending") is False:
         return (
             render_template(
