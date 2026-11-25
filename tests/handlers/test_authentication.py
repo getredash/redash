@@ -16,6 +16,35 @@ class TestResetPassword(BaseTestCase):
         self.assertEqual(response.status_code, 200)
 
 
+class TestDisabledUserTokenLinks(BaseTestCase):
+    def _disabled_user(self):
+        user = self.factory.create_user(is_invitation_pending=False)
+        user.disable()
+        self.db.session.commit()
+        return user
+
+    def test_reset_link_page_is_refused(self):
+        token = invite_token(self._disabled_user())
+        response = self.get_request("/reset/{}".format(token), org=self.factory.org)
+        self.assertEqual(response.status_code, 400)
+
+    def test_reset_link_does_not_change_password(self):
+        user = self._disabled_user()
+        token = invite_token(user)
+        response = self.post_request("/reset/{}".format(token), data={"password": "newpassword"}, org=self.factory.org)
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(User.query.get(user.id).verify_password("newpassword"))
+
+    def test_invite_link_does_not_change_password(self):
+        user = self._disabled_user()
+        token = invite_token(user)
+        response = self.post_request(
+            "/invite/{}".format(token), data={"password": "newpassword"}, org=self.factory.org
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(User.query.get(user.id).verify_password("newpassword"))
+
+
 class TestInvite(BaseTestCase):
     def test_expired_invite_token(self):
         with mock.patch("time.time") as patched_time:
