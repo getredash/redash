@@ -81,6 +81,7 @@ class ClickHouse(BaseSQLQueryRunner):
         SELECT database, table, name, type as data_type
         FROM system.columns
         WHERE database NOT IN ('system', 'information_schema', 'INFORMATION_SCHEMA')
+        AND NOT startsWith(table, '.inner_id.')
         """
 
         results, error = self.run_query(query, None)
