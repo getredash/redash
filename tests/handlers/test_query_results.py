@@ -730,7 +730,7 @@ class TestQueryResultCSVResponse(BaseTestCase):
 
     def test_renders_csv_as_utf8_by_default(self):
         # 日本語(Nihongo) means Japanese.
-        data = {"rows": [{"name": "日本語"}], "columns": [{"name": "name"}]}
+        data = {"rows": [{"name": "日本語"}], "columns": [{"name": "name", "type": "string"}]}
 
         rv = self._request_csv(data)
 
@@ -740,7 +740,7 @@ class TestQueryResultCSVResponse(BaseTestCase):
 
     def test_renders_csv_with_configured_encoding(self):
         # 日本語(Nihongo) means Japanese.
-        data = {"rows": [{"name": "日本語"}], "columns": [{"name": "name"}]}
+        data = {"rows": [{"name": "日本語"}], "columns": [{"name": "name", "type": "string"}]}
 
         with patch("redash.settings.CSV_WRITER_ENCODING", "cp932"):
             rv = self._request_csv(data)
@@ -748,6 +748,18 @@ class TestQueryResultCSVResponse(BaseTestCase):
         self.assertEqual(rv.status_code, 200)
         self.assertEqual(rv.headers["Content-Type"], "text/csv; charset=CP932")
         self.assertEqual(rv.data, "name\r\n日本語\r\n".encode("cp932"))
+
+    def test_renders_csv_with_configured_encoding_errors(self):
+        # cp932 cannot encode emoji, so the download must follow the error policy instead of failing.
+        data = {"rows": [{"name": "日本語😀"}], "columns": [{"name": "name", "type": "string"}]}
+
+        with patch("redash.settings.CSV_WRITER_ENCODING", "cp932"), patch(
+            "redash.settings.CSV_WRITER_ERRORS", "replace"
+        ):
+            rv = self._request_csv(data)
+
+        self.assertEqual(rv.status_code, 200)
+        self.assertEqual(rv.data, "name\r\n日本語?\r\n".encode("cp932"))
 
 
 class TestJobResource(BaseTestCase):

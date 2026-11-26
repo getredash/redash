@@ -498,3 +498,4 @@ CSRF_TIME_LIMIT = int(os.environ.get("REDASH_CSRF_TIME_LIMIT", 3600 * 6))
 BLOCKED_DOMAINS = set_from_string(os.environ.get("REDASH_BLOCKED_DOMAINS", "qq.com"))
 
 CSV_WRITER_ENCODING = os.environ.get("REDASH_CSV_WRITER_ENCODING", "utf-8")
+CSV_WRITER_ERRORS = os.environ.get("REDASH_CSV_WRITER_ERRORS", "strict")
