@@ -405,8 +405,11 @@ class QueryResultResource(BaseResource):
 
     @staticmethod
     def make_csv_response(query_result):
-        headers = {"Content-Type": "text/csv; charset=UTF-8"}
-        return make_response(serialize_query_result_to_dsv(query_result, ","), 200, headers)
+        headers = {"Content-Type": f"text/csv; charset={settings.CSV_WRITER_ENCODING.upper()}"}
+        body = serialize_query_result_to_dsv(query_result, ",").encode(
+            settings.CSV_WRITER_ENCODING, errors=settings.CSV_WRITER_ERRORS
+        )
+        return make_response(body, 200, headers)
 
     @staticmethod
     def make_tsv_response(query_result):
