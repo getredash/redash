@@ -6,7 +6,7 @@ from sqlparse.engine import grouping
 from sqlparse.exceptions import SQLParseError
 
 from redash import configure_sqlparse, settings
-from redash.query_runner import BaseQueryRunner, BaseSQLQueryRunner
+from redash.query_runner import BaseQueryRunner, BaseSQLQueryRunner, JobTimeoutException
 from redash.utils import gen_query_hash
 
 
@@ -167,6 +167,15 @@ class TestBaseSQLQueryRunner(unittest.TestCase):
                 call("select count(*) as cnt from available"),
             ]
         )
+
+    def test_get_tables_stats_stops_on_job_timeout(self):
+        tables = {"first": {}, "second": {}}
+        self.query_runner._run_query_internal = Mock(side_effect=JobTimeoutException())
+
+        with self.assertRaises(JobTimeoutException):
+            self.query_runner._get_tables_stats(tables)
+
+        self.query_runner._run_query_internal.assert_called_once_with("select count(*) as cnt from first")
 
 
 class TestSqlparseGroupingLimits(unittest.TestCase):

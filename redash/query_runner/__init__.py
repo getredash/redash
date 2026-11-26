@@ -304,6 +304,8 @@ class BaseSQLQueryRunner(BaseQueryRunner):
                 try:
                     res = self._run_query_internal("select count(*) as cnt from %s" % t)
                     tables_dict[t]["size"] = res[0]["cnt"]
+                except JobTimeoutException:
+                    raise
                 except Exception:
                     logger.warning("Failed to get size for table %s", t)
                     tables_dict[t]["size"] = None
