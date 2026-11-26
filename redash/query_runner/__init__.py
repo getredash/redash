@@ -301,8 +301,12 @@ class BaseSQLQueryRunner(BaseQueryRunner):
     def _get_tables_stats(self, tables_dict):
         for t in tables_dict.keys():
             if isinstance(tables_dict[t], dict):
-                res = self._run_query_internal("select count(*) as cnt from %s" % t)
-                tables_dict[t]["size"] = res[0]["cnt"]
+                try:
+                    res = self._run_query_internal("select count(*) as cnt from %s" % t)
+                    tables_dict[t]["size"] = res[0]["cnt"]
+                except Exception:
+                    logger.warning("Failed to get size for table %s", t)
+                    tables_dict[t]["size"] = None
 
     @property
     def supports_auto_limit(self):

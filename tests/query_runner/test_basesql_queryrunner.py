@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, call, patch
 
 import sqlparse
 from sqlparse.engine import grouping
@@ -150,6 +150,23 @@ class TestBaseSQLQueryRunner(unittest.TestCase):
         origin_query_text = "select *"
         base_runner = BaseQueryRunner({})
         self.assertEqual(gen_query_hash(origin_query_text), base_runner.gen_query_hash(origin_query_text, True))
+
+    def test_get_tables_stats_continues_after_table_count_failure(self):
+        tables = {"unavailable": {}, "available": {}}
+        self.query_runner._run_query_internal = Mock(side_effect=[Exception("count failed"), [{"cnt": 42}]])
+
+        with self.assertLogs("redash.query_runner", level="WARNING") as logs:
+            self.query_runner._get_tables_stats(tables)
+
+        self.assertEqual(logs.output, ["WARNING:redash.query_runner:Failed to get size for table unavailable"])
+        self.assertIsNone(tables["unavailable"]["size"])
+        self.assertEqual(tables["available"]["size"], 42)
+        self.query_runner._run_query_internal.assert_has_calls(
+            [
+                call("select count(*) as cnt from unavailable"),
+                call("select count(*) as cnt from available"),
+            ]
+        )
 
 
 class TestSqlparseGroupingLimits(unittest.TestCase):
